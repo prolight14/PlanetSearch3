@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+    padding: 0; 
+    margin: 0; 
+    background-color: #000000
+} 
+
+p {
+    color: rgba(200, 200, 200, 100);
+}

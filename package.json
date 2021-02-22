@@ -1,0 +1,27 @@
+{
+    "name": "planetsearch3",
+    "version": "0.0.1",
+    "description": "The sequel to Planet Search 2 (Helix's Adventure)",
+    "main": "./www/index.html",
+    "scripts": {
+        "build": "webpack"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/prolight14/PlanetSearch3.git"
+    },
+    "author": "prolight14",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/prolight14/PlanetSearch3/issues"
+    },
+    "homepage": "https://github.com/prolight14/PlanetSearch3#readme",
+    "devDependencies": {
+        "phaser": "^3.52.0",
+        "ts-loader": "^8.0.17",
+        "typescript": "^4.1.5"
+    },
+    "dependencies": {
+        "webpack": "^5.23.0"
+    }
+}
