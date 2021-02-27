@@ -15,7 +15,7 @@ export default class SpaceScene extends Phaser.Scene
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
-            url: "../src/libraries/CartesianSystemPlugin.js",
+            url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csp'
         });
     }

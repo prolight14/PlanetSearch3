@@ -16,15 +16,11 @@ let config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    // plugins: {
-    //     scene: [
-    //         { key: 'csp', plugin: CartesianSystemPlugin, mapping: 'csp' }
-    //     ]
-    // },
     scene: [SpaceScene, SpaceStarScene, SpaceDebugScene],
 }
 
 var game: Phaser.Game = new Phaser.Game(config);
 
-console.log(`Changed this file yay!`);
 window.game = game;
+
+console.log("here!");

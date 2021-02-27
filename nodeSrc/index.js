@@ -15,6 +15,6 @@ var config = {
     scene: [SpaceScene_1.default, SpaceStarScene_1.default, SpaceDebugScene_1.default],
 };
 var game = new Phaser.Game(config);
-console.log("Changed this file yay!");
 window.game = game;
+console.log("here!");
 //# sourceMappingURL=index.js.map

@@ -23,7 +23,7 @@ var SpaceScene = (function (_super) {
         this.load.image("playerShip", "./assets/playership.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
-            url: "../src/libraries/CartesianSystemPlugin.js",
+            url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csp'
         });
     };
