@@ -16,5 +16,4 @@ var config = {
 };
 var game = new Phaser.Game(config);
 window.game = game;
-console.log("here!");
 //# sourceMappingURL=index.js.map

@@ -1,12 +1,11 @@
-var PlanetSearch3;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./gameObjects/space/PlayerShip.js":
-/*!*****************************************!*\
-  !*** ./gameObjects/space/PlayerShip.js ***!
-  \*****************************************/
+/***/ "./src/gameObjects/space/PlayerShip.ts":
+/*!*********************************************!*\
+  !*** ./src/gameObjects/space/PlayerShip.ts ***!
+  \*********************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -24,7 +23,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./src/gameObjects/space/SpaceGameObject.ts");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y, texture) {
@@ -68,14 +67,14 @@ var PlayerShip = (function (_super) {
     return PlayerShip;
 }(SpaceGameObject_1.default));
 exports.default = PlayerShip;
-//# sourceMappingURL=PlayerShip.js.map
+
 
 /***/ }),
 
-/***/ "./gameObjects/space/SpaceGameObject.js":
-/*!**********************************************!*\
-  !*** ./gameObjects/space/SpaceGameObject.js ***!
-  \**********************************************/
+/***/ "./src/gameObjects/space/SpaceGameObject.ts":
+/*!**************************************************!*\
+  !*** ./src/gameObjects/space/SpaceGameObject.ts ***!
+  \**************************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -117,14 +116,14 @@ var SpaceGameObject = (function (_super) {
     return SpaceGameObject;
 }(Phaser.GameObjects.Sprite));
 exports.default = SpaceGameObject;
-//# sourceMappingURL=SpaceGameObject.js.map
+
 
 /***/ }),
 
-/***/ "./scenes/space/SpaceDebugScene.js":
-/*!*****************************************!*\
-  !*** ./scenes/space/SpaceDebugScene.js ***!
-  \*****************************************/
+/***/ "./src/scenes/space/SpaceDebugScene.ts":
+/*!*********************************************!*\
+  !*** ./src/scenes/space/SpaceDebugScene.ts ***!
+  \*********************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -189,14 +188,14 @@ var SpaceDebugScene = (function (_super) {
     return SpaceDebugScene;
 }(Phaser.Scene));
 exports.default = SpaceDebugScene;
-//# sourceMappingURL=SpaceDebugScene.js.map
+
 
 /***/ }),
 
-/***/ "./scenes/space/SpaceScene.js":
-/*!************************************!*\
-  !*** ./scenes/space/SpaceScene.js ***!
-  \************************************/
+/***/ "./src/scenes/space/SpaceScene.ts":
+/*!****************************************!*\
+  !*** ./src/scenes/space/SpaceScene.ts ***!
+  \****************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -214,7 +213,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
+var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./src/gameObjects/space/PlayerShip.ts");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -257,14 +256,14 @@ var SpaceScene = (function (_super) {
     return SpaceScene;
 }(Phaser.Scene));
 exports.default = SpaceScene;
-//# sourceMappingURL=SpaceScene.js.map
+
 
 /***/ }),
 
-/***/ "./scenes/space/SpaceStarScene.js":
-/*!****************************************!*\
-  !*** ./scenes/space/SpaceStarScene.js ***!
-  \****************************************/
+/***/ "./src/scenes/space/SpaceStarScene.ts":
+/*!********************************************!*\
+  !*** ./src/scenes/space/SpaceStarScene.ts ***!
+  \********************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -293,7 +292,7 @@ var SpaceStarScene = (function (_super) {
     return SpaceStarScene;
 }(Phaser.Scene));
 exports.default = SpaceStarScene;
-//# sourceMappingURL=SpaceStarScene.js.map
+
 
 /***/ })
 
@@ -327,14 +326,14 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 var exports = __webpack_exports__;
-/*!******************!*\
-  !*** ./index.js ***!
-  \******************/
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
-var SpaceStarScene_1 = __webpack_require__(/*! ./scenes/space/SpaceStarScene */ "./scenes/space/SpaceStarScene.js");
-var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
+var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./src/scenes/space/SpaceScene.ts");
+var SpaceStarScene_1 = __webpack_require__(/*! ./scenes/space/SpaceStarScene */ "./src/scenes/space/SpaceStarScene.ts");
+var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./src/scenes/space/SpaceDebugScene.ts");
 var config = {
     type: Phaser.AUTO,
     width: 800,
@@ -348,11 +347,9 @@ var config = {
 };
 var game = new Phaser.Game(config);
 window.game = game;
-console.log("here!");
-//# sourceMappingURL=index.js.map
+
 })();
 
-PlanetSearch3 = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=PlanetSearch3.js.map
