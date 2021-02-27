@@ -8,10 +8,14 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
+        "skipLibCheck": true,
         "lib": [
             "es5",
             "dom",
             "scripthost"
         ],
     },
+    "watchOptions": {
+        "watchDirectory": "usefsevents"
+    }
 }

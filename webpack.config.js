@@ -1,19 +1,24 @@
+"use strict";
+
+// Modified from CartesianSystem
+
 module.exports = {
-    entry: "./src/index.ts",
+
+    context: `${__dirname}/nodeSrc/`,
+
     devtool: "source-map",
+
     mode: "development",
+    // mode: "production",
+
+    entry: {
+        PlanetSearch3: "./index.js",
+    },
+
     output: {
-        filename: "./PlanetSearch3.js"
+        path: `${__dirname}/dist/`,
+        filename: "[name].js",
+        library: "PlanetSearch3",
+        sourceMapFilename: '[file].map',
     },
-    resolve: {
-        extensions: [".ts"]
-    },
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                loader: "ts-loader"
-            }
-        ]
-    }
 };
