@@ -1,5 +1,3 @@
-import SpaceScene from "../../scenes/space/SpaceScene";
-
 export default class SpaceGameObject extends Phaser.GameObjects.Sprite
 {
     constructor (scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number)

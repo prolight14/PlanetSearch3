@@ -20,7 +20,7 @@ export default class SpaceScene extends Phaser.Scene
         });
     }
 
-    private playerShip: PlayerShip;
+    public playerShip: PlayerShip;
 
     public create()
     {
@@ -30,21 +30,26 @@ export default class SpaceScene extends Phaser.Scene
                 height: this.game.config.height
             },
             grid: {
-                cols: 25,
-                rows: 35,
-                cellWidth: 200,
-                cellHeight: 200
+                cols: 345,
+                rows: 345,
+                cellWidth: 400,
+                cellHeight: 400
             }
         };
 
         this.csp.initWorld(this.cspConfig);
 
-        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 400, 226, "playerShip");
+        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
 
         this.csp.syncWithGrid();
 
         this.cameras.main.startFollow(this.playerShip);
 
+        this.runScenes();
+    }
+
+    private runScenes()
+    {
         this.scene.run("spaceDebug");
     }
 

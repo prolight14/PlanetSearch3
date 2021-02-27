@@ -1,5 +1,5 @@
-import { GameObjects } from "phaser";
 import SpaceScene from "./SpaceScene";
+import PlayerShip from "../../gameObjects/space/PlayerShip";
 
 export default class SpaceDebugScene extends Phaser.Scene
 {
@@ -14,6 +14,7 @@ export default class SpaceDebugScene extends Phaser.Scene
     private cellCoorText: Phaser.GameObjects.Text;
     private cellText: Phaser.GameObjects.Text;
     private fpsText: Phaser.GameObjects.Text;
+    private shipPositionText: Phaser.GameObjects.Text;
 
     public create()
     {
@@ -21,6 +22,7 @@ export default class SpaceDebugScene extends Phaser.Scene
         this.cellCoorText = this.add.text(40, 260, "").setScrollFactor(0);
         this.cellText = this.add.text(40, 274, "").setScrollFactor(0);
         this.fpsText = this.add.text(40, 20, "").setScrollFactor(0);
+        this.shipPositionText = this.add.text(550, 20, "").setScrollFactor(0);
 
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceCamera = this.scene.get("space").cameras.main;
@@ -29,6 +31,9 @@ export default class SpaceDebugScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
+        var playerShip: PlayerShip = this.spaceScene.playerShip;
+        this.shipPositionText.setText(`(${playerShip.x.toFixed(2)}, ${playerShip.y.toFixed(2)})`);
+
         this.cameras.main.setScroll(this.spaceCamera.scrollX, this.spaceCamera.scrollY);
 
         this.showGrid();
@@ -55,7 +60,6 @@ export default class SpaceDebugScene extends Phaser.Scene
     {
         var cspWorld: any = this.spaceScene.csp.world;
 
-        var translation: { x: number, y: number } = cspWorld.camera.getTranslation();
         var coordinates: { col: number, row: number } = cspWorld.cameraGrid.getCoordinates(
             cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x, 
             cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y

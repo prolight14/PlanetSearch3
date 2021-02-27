@@ -1,11 +1,12 @@
+var PlanetSearch3;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/gameObjects/space/PlayerShip.ts":
-/*!*********************************************!*\
-  !*** ./src/gameObjects/space/PlayerShip.ts ***!
-  \*********************************************/
+/***/ "./gameObjects/space/PlayerShip.js":
+/*!*****************************************!*\
+  !*** ./gameObjects/space/PlayerShip.js ***!
+  \*****************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -23,7 +24,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./src/gameObjects/space/SpaceGameObject.ts");
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y, texture) {
@@ -67,14 +68,14 @@ var PlayerShip = (function (_super) {
     return PlayerShip;
 }(SpaceGameObject_1.default));
 exports.default = PlayerShip;
-
+//# sourceMappingURL=PlayerShip.js.map
 
 /***/ }),
 
-/***/ "./src/gameObjects/space/SpaceGameObject.ts":
-/*!**************************************************!*\
-  !*** ./src/gameObjects/space/SpaceGameObject.ts ***!
-  \**************************************************/
+/***/ "./gameObjects/space/SpaceGameObject.js":
+/*!**********************************************!*\
+  !*** ./gameObjects/space/SpaceGameObject.js ***!
+  \**********************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -116,14 +117,14 @@ var SpaceGameObject = (function (_super) {
     return SpaceGameObject;
 }(Phaser.GameObjects.Sprite));
 exports.default = SpaceGameObject;
-
+//# sourceMappingURL=SpaceGameObject.js.map
 
 /***/ }),
 
-/***/ "./src/scenes/space/SpaceDebugScene.ts":
-/*!*********************************************!*\
-  !*** ./src/scenes/space/SpaceDebugScene.ts ***!
-  \*********************************************/
+/***/ "./scenes/space/SpaceDebugScene.js":
+/*!*****************************************!*\
+  !*** ./scenes/space/SpaceDebugScene.js ***!
+  \*****************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -151,11 +152,14 @@ var SpaceDebugScene = (function (_super) {
         this.cellCoorText = this.add.text(40, 260, "").setScrollFactor(0);
         this.cellText = this.add.text(40, 274, "").setScrollFactor(0);
         this.fpsText = this.add.text(40, 20, "").setScrollFactor(0);
+        this.shipPositionText = this.add.text(550, 20, "").setScrollFactor(0);
         this.spaceScene = this.scene.get("space");
         this.spaceCamera = this.scene.get("space").cameras.main;
     };
     SpaceDebugScene.prototype.update = function (time, delta) {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
+        var playerShip = this.spaceScene.playerShip;
+        this.shipPositionText.setText("(" + playerShip.x.toFixed(2) + ", " + playerShip.y.toFixed(2) + ")");
         this.cameras.main.setScroll(this.spaceCamera.scrollX, this.spaceCamera.scrollY);
         this.showGrid();
         this.peekCell();
@@ -173,7 +177,6 @@ var SpaceDebugScene = (function (_super) {
     };
     SpaceDebugScene.prototype.peekCell = function () {
         var cspWorld = this.spaceScene.csp.world;
-        var translation = cspWorld.camera.getTranslation();
         var coordinates = cspWorld.cameraGrid.getCoordinates(cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x, cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y);
         var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
         this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
@@ -186,14 +189,14 @@ var SpaceDebugScene = (function (_super) {
     return SpaceDebugScene;
 }(Phaser.Scene));
 exports.default = SpaceDebugScene;
-
+//# sourceMappingURL=SpaceDebugScene.js.map
 
 /***/ }),
 
-/***/ "./src/scenes/space/SpaceScene.ts":
-/*!****************************************!*\
-  !*** ./src/scenes/space/SpaceScene.ts ***!
-  \****************************************/
+/***/ "./scenes/space/SpaceScene.js":
+/*!************************************!*\
+  !*** ./scenes/space/SpaceScene.js ***!
+  \************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -211,7 +214,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./src/gameObjects/space/PlayerShip.ts");
+var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -232,16 +235,19 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 25,
-                rows: 35,
-                cellWidth: 200,
-                cellHeight: 200
+                cols: 345,
+                rows: 345,
+                cellWidth: 400,
+                cellHeight: 400
             }
         };
         this.csp.initWorld(this.cspConfig);
-        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 400, 226, "playerShip");
+        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
         this.csp.syncWithGrid();
         this.cameras.main.startFollow(this.playerShip);
+        this.runScenes();
+    };
+    SpaceScene.prototype.runScenes = function () {
         this.scene.run("spaceDebug");
     };
     SpaceScene.prototype.update = function (time, delta) {
@@ -251,7 +257,43 @@ var SpaceScene = (function (_super) {
     return SpaceScene;
 }(Phaser.Scene));
 exports.default = SpaceScene;
+//# sourceMappingURL=SpaceScene.js.map
 
+/***/ }),
+
+/***/ "./scenes/space/SpaceStarScene.js":
+/*!****************************************!*\
+  !*** ./scenes/space/SpaceStarScene.js ***!
+  \****************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceStarScene = (function (_super) {
+    __extends(SpaceStarScene, _super);
+    function SpaceStarScene() {
+        return _super.call(this, "spaceStar") || this;
+    }
+    SpaceStarScene.prototype.create = function () {
+        console.log("Created Star Scene");
+    };
+    return SpaceStarScene;
+}(Phaser.Scene));
+exports.default = SpaceStarScene;
+//# sourceMappingURL=SpaceStarScene.js.map
 
 /***/ })
 
@@ -285,13 +327,14 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 var exports = __webpack_exports__;
-/*!**********************!*\
-  !*** ./src/index.ts ***!
-  \**********************/
+/*!******************!*\
+  !*** ./index.js ***!
+  \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./src/scenes/space/SpaceScene.ts");
-var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./src/scenes/space/SpaceDebugScene.ts");
+var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
+var SpaceStarScene_1 = __webpack_require__(/*! ./scenes/space/SpaceStarScene */ "./scenes/space/SpaceStarScene.js");
+var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var config = {
     type: Phaser.AUTO,
     width: 800,
@@ -301,13 +344,15 @@ var config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [SpaceScene_1.default, SpaceDebugScene_1.default],
+    scene: [SpaceScene_1.default, SpaceStarScene_1.default, SpaceDebugScene_1.default],
 };
 var game = new Phaser.Game(config);
+console.log("Changed this file yay!");
 window.game = game;
-
+//# sourceMappingURL=index.js.map
 })();
 
+PlanetSearch3 = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=PlanetSearch3.js.map

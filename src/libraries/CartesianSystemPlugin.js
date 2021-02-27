@@ -73,7 +73,7 @@ CartesianSystemPlugin.prototype = {
             sys.displayList.add(object);
             sys.updateList.add(object);
         });
-// maybe the bug has something to do this with this?:
+
         sys.displayList.queueDepthSort();
     },
 
@@ -114,6 +114,19 @@ CartesianSystemPlugin.prototype = {
                 gameObject.bodyConf.destroy = function()
                 {
                     world.cameraGrid.removeReference(gameObject);
+                };
+
+                // Hack for automating removing the reference of the `gameObject` from the `world` `cameraGrid`
+                if(!gameObject.body)
+                {
+                    gameObject.body = {};
+                }
+
+                var _destroy = gameObject.body.destroy;
+                gameObject.body.destroy = function()
+                {
+                    gameObject.bodyConf.destroy();
+                    return _destroy.apply(this, arguments);
                 };
             });
         });

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import SpaceScene from "./scenes/space/SpaceScene";
+import SpaceStarScene from "./scenes/space/SpaceStarScene";
 import SpaceDebugScene from "./scenes/space/SpaceDebugScene";
 
 /*
@@ -20,9 +21,10 @@ let config = {
     //         { key: 'csp', plugin: CartesianSystemPlugin, mapping: 'csp' }
     //     ]
     // },
-    scene: [SpaceScene, SpaceDebugScene],
+    scene: [SpaceScene, SpaceStarScene, SpaceDebugScene],
 }
 
 var game: Phaser.Game = new Phaser.Game(config);
 
+console.log(`Changed this file yay!`);
 window.game = game;
