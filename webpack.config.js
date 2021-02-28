@@ -2,7 +2,7 @@
 
 // Modified from CartesianSystem
 
-var debugging = false;
+var debugging = !true;
 
 if(!debugging)
 {

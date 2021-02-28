@@ -16,10 +16,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
-        return _super.call(this, "spaceStar") || this;
+        var _this = _super.call(this, "spaceStar") || this;
+        _this.starsPerCell = 22;
+        _this.starSize = 2;
+        return _this;
     }
+    SpaceStarScene.prototype.preload = function () {
+        this.load.scenePlugin({
+            key: "CartesianSystemPlugin",
+            url: "./libraries/CartesianSystemPlugin.js",
+            sceneKey: 'csStars'
+        });
+    };
     SpaceStarScene.prototype.create = function () {
-        console.log("Created Star Scene");
+        var spaceScene = this.scene.get("space");
+        this.csStars.initWorld(spaceScene.cspConfig);
+        this.stars = this.add.graphics();
+    };
+    SpaceStarScene.prototype.update = function () {
+        var spaceScene = this.scene.get("space");
+        this.csStars.setFollow(spaceScene.playerShip.x, spaceScene.playerShip.y);
+        this.csStars.updateWorld();
+        this.sys.displayList.add(this.stars);
+        this.renderStars();
+    };
+    SpaceStarScene.prototype.renderStars = function () {
+        var _this = this;
+        this.stars.clear();
+        this.stars.fillStyle(0xFFFFFF);
+        this.stars.fillRect(69000, 69000, this.starSize, this.starSize);
+        var world = this.csStars.world;
+        var rng, i, x, y;
+        var _a = world.cameraGrid, cellWidth = _a.cellWidth, cellHeight = _a.cellHeight;
+        world.loopThroughVisibleCells(function (cell, col, row) {
+            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            x = col * cellWidth;
+            y = row * cellHeight;
+            for (i = 0; i < _this.starsPerCell; i++) {
+                _this.stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
+            }
+        });
     };
     return SpaceStarScene;
 }(Phaser.Scene));

@@ -20,20 +20,9 @@ var SpaceDebugScene = (function (_super) {
     }
     SpaceDebugScene.prototype.create = function () {
         this.cellGraphics = this.add.graphics();
-        this.cellCoorText = this.add.text(40, 260, "").setScrollFactor(0);
-        this.cellText = this.add.text(40, 274, "").setScrollFactor(0);
-        this.fpsText = this.add.text(40, 20, "").setScrollFactor(0);
-        this.shipPositionText = this.add.text(550, 20, "").setScrollFactor(0);
-        this.spaceScene = this.scene.get("space");
-        this.spaceCamera = this.scene.get("space").cameras.main;
     };
     SpaceDebugScene.prototype.update = function (time, delta) {
-        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
-        var playerShip = this.spaceScene.playerShip;
-        this.shipPositionText.setText("(" + playerShip.x.toFixed(2) + ", " + playerShip.y.toFixed(2) + ")");
-        this.cameras.main.setScroll(this.spaceCamera.scrollX, this.spaceCamera.scrollY);
         this.showGrid();
-        this.peekCell();
     };
     SpaceDebugScene.prototype.showGrid = function () {
         var _this = this;
@@ -45,17 +34,6 @@ var SpaceDebugScene = (function (_super) {
         spaceScene.csp.world.loopThroughVisibleCells(function (cell, col, row) {
             _this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
         });
-    };
-    SpaceDebugScene.prototype.peekCell = function () {
-        var cspWorld = this.spaceScene.csp.world;
-        var coordinates = cspWorld.cameraGrid.getCoordinates(cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x, cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y);
-        var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
-        this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
-        var txt = "";
-        for (var i in cell) {
-            txt += i;
-        }
-        this.cellText.setText(txt);
     };
     return SpaceDebugScene;
 }(Phaser.Scene));

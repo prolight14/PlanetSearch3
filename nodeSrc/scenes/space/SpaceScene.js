@@ -41,13 +41,18 @@ var SpaceScene = (function (_super) {
             }
         };
         this.csp.initWorld(this.cspConfig);
-        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        this.addGameObjects();
         this.csp.syncWithGrid();
-        this.cameras.main.startFollow(this.playerShip);
         this.runScenes();
     };
+    SpaceScene.prototype.addGameObjects = function () {
+        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        this.cameras.main.startFollow(this.playerShip);
+    };
     SpaceScene.prototype.runScenes = function () {
-        this.scene.run("spaceDebug");
+        this.scene.run("spaceCameraController");
+        this.scene.run("spaceStar");
+        this.scene.run("spaceUIDebug");
     };
     SpaceScene.prototype.update = function (time, delta) {
         this.csp.setFollow(this.playerShip.x, this.playerShip.y);

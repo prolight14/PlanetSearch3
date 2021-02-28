@@ -2,7 +2,6 @@ import PlayerShip from "../../gameObjects/space/PlayerShip";
 
 export default class SpaceScene extends Phaser.Scene
 {
-    private cspConfig: any;
 
     constructor()
     {
@@ -20,7 +19,7 @@ export default class SpaceScene extends Phaser.Scene
         });
     }
 
-    public playerShip: PlayerShip;
+    public cspConfig: object;
 
     public create()
     {
@@ -39,18 +38,26 @@ export default class SpaceScene extends Phaser.Scene
 
         this.csp.initWorld(this.cspConfig);
 
-        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
-
+        this.addGameObjects();
         this.csp.syncWithGrid();
-
-        this.cameras.main.startFollow(this.playerShip);
 
         this.runScenes();
     }
 
+    public playerShip: PlayerShip;
+
+    private addGameObjects()
+    {
+        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
+        this.cameras.main.startFollow(this.playerShip);
+    }
+
     private runScenes()
     {
-        this.scene.run("spaceDebug");
+        this.scene.run("spaceCameraController");
+        this.scene.run("spaceStar");
+        // this.scene.run("spaceDebug");
+        this.scene.run("spaceUIDebug");
     }
 
     fpsText: Phaser.GameObjects.Text;
