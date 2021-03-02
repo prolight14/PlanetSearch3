@@ -29,12 +29,13 @@ var SpaceStarScene = (function (_super) {
         });
     };
     SpaceStarScene.prototype.create = function () {
-        this.spaceScene = this.scene.get("space");
-        this.csStars.initWorld(this.spaceScene.cspConfig);
+        var spaceScene = this.scene.get("space");
+        this.csStars.initWorld(spaceScene.cspConfig);
         this.stars = this.add.graphics();
     };
     SpaceStarScene.prototype.update = function () {
-        this.csStars.setFollow(this.spaceScene.playerShip.x, this.spaceScene.playerShip.y);
+        var cam = this.cameras.main;
+        this.csStars.setFollow(cam.scrollX, cam.scrollY);
         this.csStars.updateWorld();
         this.sys.displayList.add(this.stars);
         this.renderStars();
@@ -45,8 +46,7 @@ var SpaceStarScene = (function (_super) {
         this.stars.fillStyle(0xFFFFFF);
         var world = this.csStars.world;
         var rng, i, x, y;
-        var cellWidth = world.cameraGrid.cellWidth;
-        var cellHeight = world.cameraGrid.cellHeight;
+        var _a = world.cameraGrid, cellWidth = _a.cellWidth, cellHeight = _a.cellHeight;
         world.loopThroughVisibleCells(function (cell, col, row) {
             rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
             x = col * cellWidth;

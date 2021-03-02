@@ -2,7 +2,6 @@ import PlayerShip from "../../gameObjects/space/PlayerShip";
 
 export default class SpaceScene extends Phaser.Scene
 {
-
     constructor()
     {
         super("space");
@@ -29,10 +28,10 @@ export default class SpaceScene extends Phaser.Scene
                 height: this.game.config.height
             },
             grid: {
-                cols: 345,
-                rows: 345,
-                cellWidth: 400,
-                cellHeight: 400
+                cols: 182,
+                rows: 182,
+                cellWidth: 800,
+                cellHeight: 800
             }
         };
 
@@ -55,10 +54,10 @@ export default class SpaceScene extends Phaser.Scene
     private runScenes()
     {
         this.scene.run("spaceCameraController");
-        this.scene.run("spaceStar");
-        this.scene.sendToBack("spaceStar");
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
+        this.scene.run("spaceStar");
+        this.scene.sendToBack("spaceStar");
     }
 
     public csp: any;

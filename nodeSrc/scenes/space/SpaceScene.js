@@ -34,10 +34,10 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 345,
-                rows: 345,
-                cellWidth: 400,
-                cellHeight: 400
+                cols: 182,
+                rows: 182,
+                cellWidth: 800,
+                cellHeight: 800
             }
         };
         this.csp.initWorld(this.cspConfig);
@@ -51,10 +51,10 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.runScenes = function () {
         this.scene.run("spaceCameraController");
-        this.scene.run("spaceStar");
-        this.scene.sendToBack("spaceStar");
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
+        this.scene.run("spaceStar");
+        this.scene.sendToBack("spaceStar");
     };
     SpaceScene.prototype.update = function (time, delta) {
         this.csp.setFollow(this.playerShip.x, this.playerShip.y);

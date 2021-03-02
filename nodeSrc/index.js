@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceScene_1 = require("./scenes/space/SpaceScene");
 var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraControllerScene");
-var SpaceStarScene_1 = require("./scenes/space/SpaceStarScene");
 var SpaceDebugScene_1 = require("./scenes/space/SpaceDebugScene");
 var SpaceUIDebugScene_1 = require("./scenes/space/SpaceUIDebugScene");
+var SpaceStarScene_1 = require("./scenes/space/SpaceStarScene");
 var config = {
     type: Phaser.CANVAS,
     width: 800,

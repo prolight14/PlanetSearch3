@@ -1,6 +1,6 @@
 import SpaceScene from "./SpaceScene";
-import SpaceStarScene from "./SpaceStarScene";
 import SpaceDebugScene from "./SpaceDebugScene";
+import SpaceStarScene from "./SpaceStarScene";
 
 export default class SpaceCameraControllerScene extends Phaser.Scene
 {
@@ -11,58 +11,74 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
     private spaceScene: SpaceScene;
     private spaceDebugScene: SpaceDebugScene;
-    private spaceStarScene: SpaceStarScene;
     private keys: {
-        rotateLeft: any,
-        rotateRight: any
+        rotateLeft: Phaser.Input.Keyboard.Key,
+        rotateRight: Phaser.Input.Keyboard.Key,
+        rotateReset: Phaser.Input.Keyboard.Key
     };
-    public camAngle: number;
+    private camAngle: number;
     private angleSpeed: number;
+    private spaceStarScene: SpaceStarScene;
 
     public create()
     {
-        var cam = this.cameras.main;
-
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceDebugScene = this.scene.get("spaceDebug") as SpaceDebugScene;
         this.spaceStarScene = this.scene.get("spaceStar") as SpaceStarScene;
 
-        this.input.on('wheel', (pointer: any, currentlyOver: any, dx: number, dy: number, dz: number) =>
+        this.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
-            cam.setZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
+            var cam = this.cameras.main;
 
-            this.spaceScene.cameras.main.setZoom(cam.zoom);
-            this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
-            this.spaceStarScene.cameras.main.setZoom(cam.zoom);
-
-            this.resizeCSPCameraWindow();
+            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
         });
 
         this.keys = {
             rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
             rotateRight: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            rotateReset: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO)
         };
 
         this.camAngle = 0;
         this.angleSpeed = 2;
     }
 
+    public updateZoom(zoom: number)
+    {
+        var cam = this.cameras.main;
+
+        cam.setZoom(zoom);
+
+        this.spaceScene.cameras.main.setZoom(cam.zoom);
+        this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
+        this.spaceStarScene.cameras.main.setZoom(cam.zoom);
+
+        this.resizeCSPCameraWindow();
+    }
+
     public update ()
     {
         var spaceCam = this.scene.get("space").cameras.main;
 
-        this.scene.get("spaceStar").cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
-        this.scene.get("spaceDebug").cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
+        this.spaceDebugScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
+        this.spaceStarScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
 
         if(this.keys.rotateLeft.isDown)
         {
             this.camAngle -= this.angleSpeed;
             this.adjustCameraAngle(this.camAngle);
         }
-        else if(this.keys.rotateRight.isDown)
+        if(this.keys.rotateRight.isDown)
         {
             this.camAngle += this.angleSpeed;
             this.adjustCameraAngle(this.camAngle);
+        }
+        if(this.keys.rotateReset.isDown)
+        {
+            this.camAngle = 0;
+            this.adjustCameraAngle(this.camAngle);
+
+            this.updateZoom(1);
         }
     }
 
@@ -117,11 +133,12 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         var minY = Math.min(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
         var maxY = Math.max(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
 
-        var x = minX / cam.zoom;
-        var y = minY / cam.zoom;
+        var x = minX;
+        var y = minY;
         var width = maxX - minX;
         var height = maxY - minY;
 
+        // hyp = ((opp + adj) / 2) * Math.sqrt(2)
         var derivedWidth: number = width * Math.SQRT2 / cam.zoom;
         var derivedHeight: number = height * Math.SQRT2 / cam.zoom;
 

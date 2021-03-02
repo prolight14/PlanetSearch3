@@ -6,7 +6,7 @@ export default class SpaceStarScene extends Phaser.Scene
     {
         super("spaceStar");
 
-        this.starsPerCell = 22;
+        this.starsPerCell = 200;
         this.starSize = 2;
     }
 
@@ -24,19 +24,21 @@ export default class SpaceStarScene extends Phaser.Scene
     }
 
     private stars: Phaser.GameObjects.Graphics;
-
+    private spaceScene: SpaceScene;
     public create()
     {
-        var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
-        this.csStars.initWorld(spaceScene.cspConfig);
+        this.spaceScene = this.scene.get("space") as SpaceScene;
+       
+        this.csStars.initWorld(this.spaceScene.cspConfig);
 
         this.stars = this.add.graphics();
     }
 
     public update()
     {
-        var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
-        this.csStars.setFollow(spaceScene.playerShip.x, spaceScene.playerShip.y);
+        // var cam: Phaser.Cameras.Scene2D.Camera = this.cameras.main;
+
+        this.csStars.setFollow(this.spaceScene.playerShip.x, this.spaceScene.playerShip.y);
         this.csStars.updateWorld();
 
         this.sys.displayList.add(this.stars);
@@ -48,13 +50,12 @@ export default class SpaceStarScene extends Phaser.Scene
         this.stars.clear();
         this.stars.fillStyle(0xFFFFFF);
 
-        this.stars.fillRect(69000, 69000, this.starSize, this.starSize);
-
         let world: any = this.csStars.world;
 
         let rng, i, x, y;
 
-        let { cellWidth, cellHeight } = world.cameraGrid;
+        let cellWidth: number = world.cameraGrid.cellWidth;
+        let cellHeight: number = world.cameraGrid.cellHeight;
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
