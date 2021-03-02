@@ -57,6 +57,9 @@ var SpaceStarScene = (function (_super) {
             }
         });
     };
+    SpaceStarScene.prototype.setCSPCameraWindow = function (x, y, width, height) {
+        this.csStars.world.camera.setWindow(x, y, width, height);
+    };
     return SpaceStarScene;
 }(Phaser.Scene));
 exports.default = SpaceStarScene;

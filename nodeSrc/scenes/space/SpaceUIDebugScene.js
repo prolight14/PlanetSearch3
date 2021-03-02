@@ -19,17 +19,29 @@ var SpaceUIDebugScene = (function (_super) {
         return _super.call(this, "spaceUIDebug") || this;
     }
     SpaceUIDebugScene.prototype.create = function () {
-        this.cellCoorText = this.add.text(40, 260, "").setScrollFactor(0);
-        this.cellText = this.add.text(40, 274, "").setScrollFactor(0);
-        this.fpsText = this.add.text(40, 20, "").setScrollFactor(0);
-        this.shipPositionText = this.add.text(550, 20, "").setScrollFactor(0);
+        this.cellCoorText = this.add.text(40, 260, "");
+        this.cellText = this.add.text(40, 274, "");
+        this.fpsText = this.add.text(40, 20, "");
+        this.shipPositionText = this.add.text(550, 20, "");
+        ;
+        this.windowGraphics = this.add.graphics();
         this.spaceScene = this.scene.get("space");
+        this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
     };
     SpaceUIDebugScene.prototype.update = function (time, delta) {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
         var playerShip = this.spaceScene.playerShip;
         this.shipPositionText.setText("(" + playerShip.x.toFixed(2) + ", " + playerShip.y.toFixed(2) + ")");
         this.peekCell();
+        this.drawWindow();
+    };
+    SpaceUIDebugScene.prototype.drawWindow = function () {
+        var cspSpaceCam = this.spaceScene.csp.world.camera;
+        this.windowGraphics.clear();
+        this.windowGraphics.lineStyle(2, 0xDE9431, 1.0);
+        this.windowGraphics.strokeRect(cspSpaceCam.x, cspSpaceCam.y, cspSpaceCam.width, cspSpaceCam.height);
+        var sccs = this.spaceCameraControllerScene;
+        this.windowGraphics.setAngle(sccs.camAngle);
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
         var cspWorld = this.spaceScene.csp.world;

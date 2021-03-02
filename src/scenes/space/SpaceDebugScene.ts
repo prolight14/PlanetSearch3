@@ -8,7 +8,7 @@ export default class SpaceDebugScene extends Phaser.Scene
     }
 
     private cellGraphics: Phaser.GameObjects.Graphics; 
- 
+
     public create()
     {
         this.cellGraphics = this.add.graphics();
@@ -21,7 +21,7 @@ export default class SpaceDebugScene extends Phaser.Scene
 
     private showGrid()
     {
-        let spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
+        var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
 
         this.cellGraphics.clear();
 

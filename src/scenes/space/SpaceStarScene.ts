@@ -33,7 +33,7 @@ export default class SpaceStarScene extends Phaser.Scene
         this.stars = this.add.graphics();
     }
 
-    public update() 
+    public update()
     {
         var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
         this.csStars.setFollow(spaceScene.playerShip.x, spaceScene.playerShip.y);
@@ -68,5 +68,12 @@ export default class SpaceStarScene extends Phaser.Scene
                 this.stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
             }
         });
+    }
+
+    public setCSPCameraWindow(x: number, y: number, width: number, height: number)
+    {
+        this.csStars.world.camera.setWindow(
+            x, y, width, height
+        );
     }
 }

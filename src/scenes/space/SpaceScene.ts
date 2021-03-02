@@ -19,7 +19,7 @@ export default class SpaceScene extends Phaser.Scene
         });
     }
 
-    public cspConfig: object;
+    public cspConfig: any;
 
     public create()
     {
@@ -56,12 +56,12 @@ export default class SpaceScene extends Phaser.Scene
     {
         this.scene.run("spaceCameraController");
         this.scene.run("spaceStar");
-        // this.scene.run("spaceDebug");
+        this.scene.sendToBack("spaceStar");
+        this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
     }
 
-    fpsText: Phaser.GameObjects.Text;
-    csp: any;
+    public csp: any;
 
     public update(time: number, delta: number)
     {

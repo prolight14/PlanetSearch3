@@ -6,7 +6,7 @@ var SpaceStarScene_1 = require("./scenes/space/SpaceStarScene");
 var SpaceDebugScene_1 = require("./scenes/space/SpaceDebugScene");
 var SpaceUIDebugScene_1 = require("./scenes/space/SpaceUIDebugScene");
 var config = {
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     width: 800,
     height: 450,
     pixelArt: true,

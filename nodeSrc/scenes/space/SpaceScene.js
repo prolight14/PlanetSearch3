@@ -52,6 +52,8 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.runScenes = function () {
         this.scene.run("spaceCameraController");
         this.scene.run("spaceStar");
+        this.scene.sendToBack("spaceStar");
+        this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
     };
     SpaceScene.prototype.update = function (time, delta) {

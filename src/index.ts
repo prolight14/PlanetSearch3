@@ -10,7 +10,7 @@ import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
 */
 
 let config = {
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     width: 800,
     height: 450,
     pixelArt: true,
