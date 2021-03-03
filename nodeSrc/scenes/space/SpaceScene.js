@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var SpaceStarScene_1 = require("../../baseScenes/SpaceStarScene");
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
@@ -53,8 +54,13 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceCameraController");
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        this.scene.run("spaceStar");
-        this.scene.sendToBack("spaceStar");
+        this.scene.add("spaceStarLayer1", SpaceStarScene_1.default, false, {
+            starsPerCell: 200,
+            starSize: 2,
+            starScroll: 1
+        });
+        this.scene.run("spaceStarLayer1");
+        this.scene.sendToBack("spaceStarLayer1");
     };
     SpaceScene.prototype.update = function (time, delta) {
         this.csp.setFollow(this.playerShip.x, this.playerShip.y);

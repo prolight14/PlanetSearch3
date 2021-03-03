@@ -1,6 +1,6 @@
 import SpaceScene from "./SpaceScene";
 import SpaceDebugScene from "./SpaceDebugScene";
-import SpaceStarScene from "./SpaceStarScene";
+import SpaceStarScene from "../../baseScenes/SpaceStarScene";
 
 export default class SpaceCameraControllerScene extends Phaser.Scene
 {
@@ -18,13 +18,13 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
     };
     private camAngle: number;
     private angleSpeed: number;
-    private spaceStarScene: SpaceStarScene;
+    private spaceStarLayer1Scene: SpaceStarScene;
 
     public create()
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceDebugScene = this.scene.get("spaceDebug") as SpaceDebugScene;
-        this.spaceStarScene = this.scene.get("spaceStar") as SpaceStarScene;
+        this.spaceStarLayer1Scene = this.scene.get("spaceStarLayer1") as SpaceStarScene;
 
         this.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
@@ -51,7 +51,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
-        this.spaceStarScene.cameras.main.setZoom(cam.zoom);
+        this.spaceStarLayer1Scene.cameras.main.setZoom(cam.zoom);
 
         this.resizeCSPCameraWindow();
     }
@@ -61,7 +61,6 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         var spaceCam = this.scene.get("space").cameras.main;
 
         this.spaceDebugScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
-        this.spaceStarScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
 
         if(this.keys.rotateLeft.isDown)
         {
@@ -88,7 +87,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setAngle(angle);
         this.spaceDebugScene.cameras.main.setAngle(angle);
-        this.spaceStarScene.cameras.main.setAngle(angle);
+        this.spaceStarLayer1Scene.cameras.main.setAngle(angle);
     }
 
     private resizeCSPCameraWindow ()
@@ -149,7 +148,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             derivedHeight
         );
 
-        this.spaceStarScene.setCSPCameraWindow(
+        this.spaceStarLayer1Scene.setCSPCameraWindow(
             world.camera.x, world.camera.y, world.camera.width, world.camera.height
         );
     }

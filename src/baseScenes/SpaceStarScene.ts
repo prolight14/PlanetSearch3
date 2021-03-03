@@ -1,17 +1,10 @@
-import SpaceScene from "./SpaceScene";
+import SpaceScene from "../scenes/space/SpaceScene";
 
 export default class SpaceStarScene extends Phaser.Scene
 {
-    constructor()
-    {
-        super("spaceStar");
-
-        this.starsPerCell = 200;
-        this.starSize = 2;
-    }
-
     private starsPerCell: number;
     private starSize: number;
+    private starScroll: number;
     private csStars: any;
 
     public preload()
@@ -23,32 +16,51 @@ export default class SpaceStarScene extends Phaser.Scene
         });
     }
 
-    private stars: Phaser.GameObjects.Graphics;
     private spaceScene: SpaceScene;
-    public create()
+    private subScrollX: number;
+    private subScrollY: number;
+    private stars: Phaser.GameObjects.Graphics;
+    private txt: Phaser.GameObjects.Text;
+
+    public create(data: { starsPerCell: number, starSize: number, starScroll: number })
     {
+        this.starsPerCell = data.starsPerCell;
+        this.starSize = data.starSize;
+        this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll as number;
+
         this.spaceScene = this.scene.get("space") as SpaceScene;
-       
         this.csStars.initWorld(this.spaceScene.cspConfig);
 
         this.stars = this.add.graphics();
+        this.txt = this.add.text(0, 0, "Hello Testing Area");
+
+        var bounds = this.csStars.world.bounds;
+        var width = bounds.maxX - bounds.minX;
+        var height = bounds.maxY - bounds.minY;
+
+        this.subScrollX = (width - width / this.starScroll) * this.starScroll;
+        this.subScrollY = (height - height / this.starScroll) * this.starScroll;
     }
 
     public update()
-    {
-        // var cam: Phaser.Cameras.Scene2D.Camera = this.cameras.main;
+    {  
+        var scrollX = this.spaceScene.playerShip.x * this.starScroll - this.subScrollX;
+        var scrollY = this.spaceScene.playerShip.y * this.starScroll - this.subScrollY;
 
-        this.csStars.setFollow(this.spaceScene.playerShip.x, this.spaceScene.playerShip.y);
+        this.csStars.setFollow(scrollX, scrollY);
         this.csStars.updateWorld();
 
         this.sys.displayList.add(this.stars);
+        this.sys.displayList.add(this.txt);
         this.renderStars();
     }
 
-    public renderStars()
+    private renderStars()
     {
-        this.stars.clear();
-        this.stars.fillStyle(0xFFFFFF);
+        var stars: Phaser.GameObjects.Graphics = this.stars;
+
+        stars.clear();
+        stars.fillStyle(0xFFFFFF);
 
         let world: any = this.csStars.world;
 
@@ -66,7 +78,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
             for(i = 0; i < this.starsPerCell; i++)
             {
-                this.stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
+                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
             }
         });
     }

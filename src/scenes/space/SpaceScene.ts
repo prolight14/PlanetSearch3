@@ -1,3 +1,4 @@
+import SpaceStarScene from "../../baseScenes/SpaceStarScene";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 
 export default class SpaceScene extends Phaser.Scene
@@ -56,8 +57,17 @@ export default class SpaceScene extends Phaser.Scene
         this.scene.run("spaceCameraController");
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        this.scene.run("spaceStar");
-        this.scene.sendToBack("spaceStar");
+
+        this.scene.add("spaceStarLayer1", SpaceStarScene, false,
+        { 
+            starsPerCell: 200, 
+            starSize: 2,
+            starScroll: 1
+        });
+
+        this.scene.run("spaceStarLayer1");
+
+        this.scene.sendToBack("spaceStarLayer1");
     }
 
     public csp: any;

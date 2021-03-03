@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceStarScene_1 = require("../../baseScenes/SpaceStarScene");
+var SpaceStarScene_1 = require("./SpaceStarScene");
 var SpaceStarLayer1Scene = (function (_super) {
     __extends(SpaceStarLayer1Scene, _super);
     function SpaceStarLayer1Scene() {
@@ -29,4 +29,4 @@ var SpaceStarLayer1Scene = (function (_super) {
     return SpaceStarLayer1Scene;
 }(Phaser.Scene));
 exports.default = SpaceStarLayer1Scene;
-//# sourceMappingURL=SpaceStarLayer1Scene.js.map
+//# sourceMappingURL=odl.js.map
