@@ -41,6 +41,11 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         this.angleSpeed = 2;
     }
 
+    public getCameraAngle(): number
+    {
+        return this.camAngle;
+    }
+
     public updateZoom(zoom: number)
     {
         var cam = this.cameras.main;
@@ -66,9 +71,9 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
     public update ()
     {
         var cam = this.cameras.main;
-        cam.startFollow(this.spaceScene.playerShip);
-        
-        this.spaceScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
+
+        var cameraTarget: { x: number, y: number } = this.spaceScene.getCameraTarget();
+        cam.setScroll(cameraTarget.x - cam.width / 2, cameraTarget.y - cam.height / 2);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
 
         if(this.keys.rotateLeft.isDown)

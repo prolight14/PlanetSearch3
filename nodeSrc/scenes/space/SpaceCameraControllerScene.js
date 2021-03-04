@@ -34,6 +34,9 @@ var SpaceCameraControllerScene = (function (_super) {
         this.camAngle = 0;
         this.angleSpeed = 2;
     };
+    SpaceCameraControllerScene.prototype.getCameraAngle = function () {
+        return this.camAngle;
+    };
     SpaceCameraControllerScene.prototype.updateZoom = function (zoom) {
         var cam = this.cameras.main;
         cam.setZoom(zoom);
@@ -49,8 +52,8 @@ var SpaceCameraControllerScene = (function (_super) {
     };
     SpaceCameraControllerScene.prototype.update = function () {
         var cam = this.cameras.main;
-        cam.startFollow(this.spaceScene.playerShip);
-        this.spaceScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
+        var cameraTarget = this.spaceScene.getCameraTarget();
+        cam.setScroll(cameraTarget.x - cam.width / 2, cameraTarget.y - cam.height / 2);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
         if (this.keys.rotateLeft.isDown) {
             this.camAngle -= this.angleSpeed;

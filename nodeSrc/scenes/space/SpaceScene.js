@@ -47,27 +47,41 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.addGameObjects = function () {
-        this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        var playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        this.setCameraTarget(playerShip);
+    };
+    SpaceScene.prototype.setCameraTarget = function (target) {
+        this.cameraTarget = target;
+        this.cameras.main.startFollow(target);
+    };
+    SpaceScene.prototype.getCameraTarget = function () {
+        return this.cameraTarget;
     };
     SpaceScene.prototype.runScenes = function () {
         this.scene.run("spaceCameraController");
-        this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starsPerCell: 100,
-            starSize: 2,
+            starSize: 3,
             starScroll: 1
         });
         this.scene.sendToBack("spaceStar");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             starsPerCell: 124,
-            starSize: 1,
+            starSize: 2,
             starScroll: 0.8
         });
         this.scene.sendToBack("spaceStar2");
+        this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
+            starsPerCell: 200,
+            starSize: 1,
+            starScroll: 0.56
+        });
+        this.scene.sendToBack("spaceStar3");
     };
     SpaceScene.prototype.update = function (time, delta) {
-        this.csp.setFollow(this.playerShip.x, this.playerShip.y);
+        var follow = this.getCameraTarget();
+        this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
     };
     return SpaceScene;

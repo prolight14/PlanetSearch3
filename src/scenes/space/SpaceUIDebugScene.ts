@@ -28,8 +28,9 @@ export default class SpaceUIDebugScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
-        var playerShip: PlayerShip = this.spaceScene.playerShip;
-        this.shipPositionText.setText(`(${playerShip.x.toFixed(2)}, ${playerShip.y.toFixed(2)})`);
+
+        var cameraTarget: { x: number, y: number } = this.spaceScene.getCameraTarget();
+        this.shipPositionText.setText(`(${cameraTarget.x.toFixed(2)}, ${cameraTarget.y.toFixed(2)})`);
 
         this.peekCell();
     }

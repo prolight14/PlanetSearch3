@@ -1,3 +1,4 @@
+import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
 import SpaceScene from "./SpaceScene";
 
 export default class SpaceStarScene extends Phaser.Scene
@@ -17,7 +18,7 @@ export default class SpaceStarScene extends Phaser.Scene
     }
 
     private spaceScene: SpaceScene;
-    private spaceCameraControllerScene: Phaser.Scene;
+    private spaceCameraControllerScene: SpaceCameraControllerScene;
     private subScrollX: number;
     private subScrollY: number;
     private stars: Phaser.GameObjects.Graphics;
@@ -29,7 +30,7 @@ export default class SpaceStarScene extends Phaser.Scene
         this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
 
         this.spaceScene = this.scene.get("space") as SpaceScene;
-        this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
+        this.spaceCameraControllerScene = this.scene.get("spaceCameraController") as SpaceCameraControllerScene;
         this.csStars.initWorld(this.spaceScene.cspConfig);
 
         this.stars = this.add.graphics();
@@ -45,8 +46,8 @@ export default class SpaceStarScene extends Phaser.Scene
     public update()
     {  
         var mainCam = this.spaceCameraControllerScene.cameras.main;
-        var w = mainCam.width;
-        var h = mainCam.height;
+        var w = mainCam.width / 2;
+        var h = mainCam.height / 2;
 
         var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX - (w - w * this.starScroll);
         var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY - (h - h * this.starScroll);
@@ -55,12 +56,15 @@ export default class SpaceStarScene extends Phaser.Scene
 
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
+        cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
 
         this.setCSPCameraWindow();
 
+        var follow: { x: number, y: number } = this.spaceScene.getCameraTarget();
+
         this.csStars.setFollow(
-            this.spaceScene.playerShip.x * this.starScroll - this.subScrollX, 
-            this.spaceScene.playerShip.y * this.starScroll - this.subScrollY
+            follow.x * this.starScroll - this.subScrollX, 
+            follow.y * this.starScroll - this.subScrollY
         );
         this.csStars.updateWorld();
 
