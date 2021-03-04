@@ -2,23 +2,54 @@
 
 // Modified from CartesianSystem
 
-module.exports = {
+var debugging = !true;
 
-    context: `${__dirname}/nodeSrc/`,
+if(!debugging)
+{
+    module.exports = {
 
-    devtool: "source-map",
+        context: `${__dirname}/nodeSrc/`,
 
-    mode: "development",
-    // mode: "production",
+        devtool: "source-map",
 
-    entry: {
-        PlanetSearch3: "./index.js",
-    },
+        mode: "development",
+        // mode: "production",
 
-    output: {
-        path: `${__dirname}/dist/`,
-        filename: "[name].js",
-        library: "PlanetSearch3",
-        sourceMapFilename: '[file].map',
-    },
-};
+        entry: {
+            PlanetSearch3: "./index.js",
+        },
+
+        output: {
+            path: `${__dirname}/dist/`,
+            filename: "[name].js",
+            library: "PlanetSearch3",
+            sourceMapFilename: '[file].map',
+        },
+    };
+}
+else
+{
+    // for when I need to debug things
+    module.exports = {
+        entry: "./src/index.ts",
+        devtool: "source-map",
+
+        mode: "development",
+        // mode: "production",
+
+        output: {
+            filename: "./PlanetSearch3.js"
+        },
+        resolve: {
+            extensions: [".ts"]
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/,
+                    loader: "ts-loader"
+                }
+            ]
+        }
+    };
+}
