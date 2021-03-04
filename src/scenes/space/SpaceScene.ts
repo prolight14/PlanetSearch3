@@ -49,7 +49,6 @@ export default class SpaceScene extends Phaser.Scene
     private addGameObjects()
     {
         this.playerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
-        this.cameras.main.startFollow(this.playerShip);
     }
 
     private runScenes()
@@ -58,8 +57,25 @@ export default class SpaceScene extends Phaser.Scene
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
 
+        this.scene.add("spaceStar", SpaceStarScene, false,
+        {
+            starsPerCell: 100,
+            starSize: 2,
+            starScroll: 1
+        });
+
         this.scene.run("spaceStar");
         this.scene.sendToBack("spaceStar");
+
+        this.scene.add("spaceStar2", SpaceStarScene, false,
+        {
+            starsPerCell: 124,
+            starSize: 1,
+            starScroll: 0.8
+        });
+
+        this.scene.run("spaceStar2");
+        this.scene.sendToBack("spaceStar2");
     }
 
     public csp: any;

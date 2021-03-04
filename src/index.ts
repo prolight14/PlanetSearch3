@@ -3,7 +3,6 @@ import SpaceScene from "./scenes/space/SpaceScene";
 import SpaceCameraControllerScene from "./scenes/space/SpaceCameraControllerScene";
 import SpaceDebugScene from "./scenes/space/SpaceDebugScene";
 import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
-import SpaceStarScene from "./scenes/space/SpaceStarScene";
 
 
 /*
@@ -19,7 +18,7 @@ let config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [SpaceScene, SpaceCameraControllerScene, SpaceStarScene, SpaceDebugScene, SpaceUIDebugScene],
+    scene: [SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, SpaceUIDebugScene],
 }
 
 var game: Phaser.Game = new Phaser.Game(config);

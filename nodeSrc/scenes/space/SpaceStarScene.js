@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
-        return _super.call(this, "spaceStar") || this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     SpaceStarScene.prototype.preload = function () {
         this.load.scenePlugin({
@@ -26,10 +26,11 @@ var SpaceStarScene = (function (_super) {
         });
     };
     SpaceStarScene.prototype.create = function (data) {
-        this.starsPerCell = 200;
-        this.starSize = 2;
-        this.starScroll = 1;
+        this.starsPerCell = data.starsPerCell;
+        this.starSize = data.starSize;
+        this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
         this.spaceScene = this.scene.get("space");
+        this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
         this.csStars.initWorld(this.spaceScene.cspConfig);
         this.stars = this.add.graphics();
         var bounds = this.csStars.world.bounds;
@@ -39,12 +40,17 @@ var SpaceStarScene = (function (_super) {
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
     };
     SpaceStarScene.prototype.update = function () {
-        var scrollX = this.spaceScene.playerShip.x * this.starScroll - this.subScrollX;
-        var scrollY = this.spaceScene.playerShip.y * this.starScroll - this.subScrollY;
+        var mainCam = this.spaceCameraControllerScene.cameras.main;
+        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX;
+        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY;
+        var cam = this.cameras.main;
+        cam.setScroll(scrollX, scrollY);
+        cam.setZoom(mainCam.zoom);
+        this.setCSPCameraWindow();
         this.csStars.setFollow(scrollX, scrollY);
         this.csStars.updateWorld();
-        this.renderStars();
         this.sys.displayList.add(this.stars);
+        this.renderStars();
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;
@@ -64,8 +70,9 @@ var SpaceStarScene = (function (_super) {
             }
         });
     };
-    SpaceStarScene.prototype.setCSPCameraWindow = function (x, y, width, height) {
-        this.csStars.world.camera.setWindow(x, y, width, height);
+    SpaceStarScene.prototype.setCSPCameraWindow = function () {
+        var world = this.spaceScene.csp.world;
+        this.csStars.world.camera.setWindow(world.camera.x, world.camera.y, world.camera.width, world.camera.height);
     };
     return SpaceStarScene;
 }(Phaser.Scene));

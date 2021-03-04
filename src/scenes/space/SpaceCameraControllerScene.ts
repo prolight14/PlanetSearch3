@@ -18,13 +18,11 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
     };
     private camAngle: number;
     private angleSpeed: number;
-    private spaceStarScene: SpaceStarScene;
 
     public create()
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceDebugScene = this.scene.get("spaceDebug") as SpaceDebugScene;
-        this.spaceStarScene = this.scene.get("spaceStar") as SpaceStarScene;
 
         this.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
@@ -51,16 +49,27 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
-        this.spaceStarScene.cameras.main.setZoom(cam.zoom);
+
+        this.resizeCSPCameraWindow();
+    }
+
+    private adjustCameraAngle(angle: number)
+    {
+        this.cameras.main.setAngle(angle);
+
+        this.spaceScene.cameras.main.setAngle(angle);
+        this.spaceDebugScene.cameras.main.setAngle(angle);
 
         this.resizeCSPCameraWindow();
     }
 
     public update ()
     {
-        var spaceCam = this.scene.get("space").cameras.main;
-
-        this.spaceDebugScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
+        var cam = this.cameras.main;
+        cam.startFollow(this.spaceScene.playerShip);
+        
+        this.spaceScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
+        this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
 
         if(this.keys.rotateLeft.isDown)
         {
@@ -80,24 +89,13 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             this.updateZoom(1);
         }
     }
-
-    private adjustCameraAngle(angle: number)
-    {
-        this.cameras.main.setAngle(angle);
-
-        this.spaceScene.cameras.main.setAngle(angle);
-        this.spaceDebugScene.cameras.main.setAngle(angle);
-        this.spaceStarScene.cameras.main.setAngle(angle);
-    }
-
+ 
     private resizeCSPCameraWindow ()
     {
         var world: any = this.spaceScene.csp.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
         
-        var prev_x: number = cspConfig.window.x;
-        var prev_y: number = cspConfig.window.y;
         var prev_width: number = cspConfig.window.width;
         var prev_height: number = cspConfig.window.height;
         var prev_halfWidth = prev_width / 2;
@@ -146,10 +144,6 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             y - (derivedHeight - height) / 2, 
             derivedWidth,
             derivedHeight
-        );
-
-        this.spaceStarScene.setCSPCameraWindow(
-            world.camera.x, world.camera.y, world.camera.width, world.camera.height
         );
     }
 }

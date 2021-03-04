@@ -22,7 +22,6 @@ var SpaceCameraControllerScene = (function (_super) {
         var _this = this;
         this.spaceScene = this.scene.get("space");
         this.spaceDebugScene = this.scene.get("spaceDebug");
-        this.spaceStarScene = this.scene.get("spaceStar");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
             _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
@@ -40,12 +39,19 @@ var SpaceCameraControllerScene = (function (_super) {
         cam.setZoom(zoom);
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
-        this.spaceStarScene.cameras.main.setZoom(cam.zoom);
+        this.resizeCSPCameraWindow();
+    };
+    SpaceCameraControllerScene.prototype.adjustCameraAngle = function (angle) {
+        this.cameras.main.setAngle(angle);
+        this.spaceScene.cameras.main.setAngle(angle);
+        this.spaceDebugScene.cameras.main.setAngle(angle);
         this.resizeCSPCameraWindow();
     };
     SpaceCameraControllerScene.prototype.update = function () {
-        var spaceCam = this.scene.get("space").cameras.main;
-        this.spaceDebugScene.cameras.main.setScroll(spaceCam.scrollX, spaceCam.scrollY);
+        var cam = this.cameras.main;
+        cam.startFollow(this.spaceScene.playerShip);
+        this.spaceScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
+        this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
         if (this.keys.rotateLeft.isDown) {
             this.camAngle -= this.angleSpeed;
             this.adjustCameraAngle(this.camAngle);
@@ -60,18 +66,10 @@ var SpaceCameraControllerScene = (function (_super) {
             this.updateZoom(1);
         }
     };
-    SpaceCameraControllerScene.prototype.adjustCameraAngle = function (angle) {
-        this.cameras.main.setAngle(angle);
-        this.spaceScene.cameras.main.setAngle(angle);
-        this.spaceDebugScene.cameras.main.setAngle(angle);
-        this.spaceStarScene.cameras.main.setAngle(angle);
-    };
     SpaceCameraControllerScene.prototype.resizeCSPCameraWindow = function () {
         var world = this.spaceScene.csp.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
-        var prev_x = cspConfig.window.x;
-        var prev_y = cspConfig.window.y;
         var prev_width = cspConfig.window.width;
         var prev_height = cspConfig.window.height;
         var prev_halfWidth = prev_width / 2;
@@ -105,7 +103,6 @@ var SpaceCameraControllerScene = (function (_super) {
         var derivedWidth = width * Math.SQRT2 / cam.zoom;
         var derivedHeight = height * Math.SQRT2 / cam.zoom;
         world.camera.setWindow(x - (derivedWidth - width) / 2, y - (derivedHeight - height) / 2, derivedWidth, derivedHeight);
-        this.spaceStarScene.setCSPCameraWindow(world.camera.x, world.camera.y, world.camera.width, world.camera.height);
     };
     return SpaceCameraControllerScene;
 }(Phaser.Scene));
