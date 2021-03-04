@@ -1,4 +1,4 @@
-import SpaceScene from "../scenes/space/SpaceScene";
+import SpaceScene from "./SpaceScene";
 
 export default class SpaceStarScene extends Phaser.Scene
 {
@@ -6,6 +6,11 @@ export default class SpaceStarScene extends Phaser.Scene
     private starSize: number;
     private starScroll: number;
     private csStars: any;
+
+    constructor()
+    {
+        super("spaceStar");
+    }
 
     public preload()
     {
@@ -20,19 +25,17 @@ export default class SpaceStarScene extends Phaser.Scene
     private subScrollX: number;
     private subScrollY: number;
     private stars: Phaser.GameObjects.Graphics;
-    private txt: Phaser.GameObjects.Text;
 
-    public create(data: { starsPerCell: number, starSize: number, starScroll: number })
+    public create(data: any)
     {
-        this.starsPerCell = data.starsPerCell;
-        this.starSize = data.starSize;
-        this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll as number;
+        this.starsPerCell = 200;
+        this.starSize = 2;
+        this.starScroll = 1;
 
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.csStars.initWorld(this.spaceScene.cspConfig);
 
         this.stars = this.add.graphics();
-        this.txt = this.add.text(0, 0, "Hello Testing Area");
 
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
@@ -50,9 +53,8 @@ export default class SpaceStarScene extends Phaser.Scene
         this.csStars.setFollow(scrollX, scrollY);
         this.csStars.updateWorld();
 
-        this.sys.displayList.add(this.stars);
-        this.sys.displayList.add(this.txt);
         this.renderStars();
+        this.sys.displayList.add(this.stars);
     }
 
     private renderStars()

@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return _super.call(this, "spaceStarScene") || this;
     }
     SpaceStarScene.prototype.preload = function () {
         this.load.scenePlugin({
@@ -26,13 +26,12 @@ var SpaceStarScene = (function (_super) {
         });
     };
     SpaceStarScene.prototype.create = function (data) {
-        this.starsPerCell = data.starsPerCell;
-        this.starSize = data.starSize;
-        this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
+        this.starsPerCell = 200;
+        this.starSize = 2;
+        this.starScroll = 1;
         this.spaceScene = this.scene.get("space");
         this.csStars.initWorld(this.spaceScene.cspConfig);
         this.stars = this.add.graphics();
-        this.txt = this.add.text(0, 0, "Hello Testing Area");
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
         var height = bounds.maxY - bounds.minY;
@@ -45,7 +44,6 @@ var SpaceStarScene = (function (_super) {
         this.csStars.setFollow(scrollX, scrollY);
         this.csStars.updateWorld();
         this.sys.displayList.add(this.stars);
-        this.sys.displayList.add(this.txt);
         this.renderStars();
     };
     SpaceStarScene.prototype.renderStars = function () {

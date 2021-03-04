@@ -16,10 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
-        var _this = _super.call(this, "spaceStar") || this;
-        _this.starsPerCell = 200;
-        _this.starSize = 2;
-        return _this;
+        return _super.call(this, "spaceStar") || this;
     }
     SpaceStarScene.prototype.preload = function () {
         this.load.scenePlugin({
@@ -28,21 +25,32 @@ var SpaceStarScene = (function (_super) {
             sceneKey: 'csStars'
         });
     };
-    SpaceStarScene.prototype.create = function () {
+    SpaceStarScene.prototype.create = function (data) {
+        this.starsPerCell = 200;
+        this.starSize = 2;
+        this.starScroll = 1;
         this.spaceScene = this.scene.get("space");
         this.csStars.initWorld(this.spaceScene.cspConfig);
         this.stars = this.add.graphics();
+        var bounds = this.csStars.world.bounds;
+        var width = bounds.maxX - bounds.minX;
+        var height = bounds.maxY - bounds.minY;
+        this.subScrollX = (width - width / this.starScroll) * this.starScroll;
+        this.subScrollY = (height - height / this.starScroll) * this.starScroll;
     };
     SpaceStarScene.prototype.update = function () {
-        this.csStars.setFollow(this.spaceScene.playerShip.x, this.spaceScene.playerShip.y);
+        var scrollX = this.spaceScene.playerShip.x * this.starScroll - this.subScrollX;
+        var scrollY = this.spaceScene.playerShip.y * this.starScroll - this.subScrollY;
+        this.csStars.setFollow(scrollX, scrollY);
         this.csStars.updateWorld();
-        this.sys.displayList.add(this.stars);
         this.renderStars();
+        this.sys.displayList.add(this.stars);
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;
-        this.stars.clear();
-        this.stars.fillStyle(0xFFFFFF);
+        var stars = this.stars;
+        stars.clear();
+        stars.fillStyle(0xFFFFFF);
         var world = this.csStars.world;
         var rng, i, x, y;
         var cellWidth = world.cameraGrid.cellWidth;
@@ -52,7 +60,7 @@ var SpaceStarScene = (function (_super) {
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
-                _this.stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
+                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
             }
         });
     };

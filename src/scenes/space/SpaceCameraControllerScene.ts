@@ -1,6 +1,6 @@
 import SpaceScene from "./SpaceScene";
 import SpaceDebugScene from "./SpaceDebugScene";
-import SpaceStarScene from "../../baseScenes/SpaceStarScene";
+import SpaceStarScene from "./SpaceStarScene";
 
 export default class SpaceCameraControllerScene extends Phaser.Scene
 {
@@ -18,13 +18,13 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
     };
     private camAngle: number;
     private angleSpeed: number;
-    private spaceStarLayer1Scene: SpaceStarScene;
+    private spaceStarScene: SpaceStarScene;
 
     public create()
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceDebugScene = this.scene.get("spaceDebug") as SpaceDebugScene;
-        this.spaceStarLayer1Scene = this.scene.get("spaceStarLayer1") as SpaceStarScene;
+        this.spaceStarScene = this.scene.get("spaceStar") as SpaceStarScene;
 
         this.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
@@ -51,7 +51,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
-        this.spaceStarLayer1Scene.cameras.main.setZoom(cam.zoom);
+        this.spaceStarScene.cameras.main.setZoom(cam.zoom);
 
         this.resizeCSPCameraWindow();
     }
@@ -87,7 +87,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setAngle(angle);
         this.spaceDebugScene.cameras.main.setAngle(angle);
-        this.spaceStarLayer1Scene.cameras.main.setAngle(angle);
+        this.spaceStarScene.cameras.main.setAngle(angle);
     }
 
     private resizeCSPCameraWindow ()
@@ -148,7 +148,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             derivedHeight
         );
 
-        this.spaceStarLayer1Scene.setCSPCameraWindow(
+        this.spaceStarScene.setCSPCameraWindow(
             world.camera.x, world.camera.y, world.camera.width, world.camera.height
         );
     }
