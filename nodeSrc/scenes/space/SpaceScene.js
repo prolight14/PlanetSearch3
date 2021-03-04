@@ -53,19 +53,17 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceCameraController");
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        this.scene.add("spaceStar", SpaceStarScene_1.default, false, {
+        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starsPerCell: 100,
             starSize: 2,
             starScroll: 1
         });
-        this.scene.run("spaceStar");
         this.scene.sendToBack("spaceStar");
-        this.scene.add("spaceStar2", SpaceStarScene_1.default, false, {
+        this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             starsPerCell: 124,
             starSize: 1,
             starScroll: 0.8
         });
-        this.scene.run("spaceStar2");
         this.scene.sendToBack("spaceStar2");
     };
     SpaceScene.prototype.update = function (time, delta) {

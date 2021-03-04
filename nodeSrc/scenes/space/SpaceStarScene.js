@@ -41,13 +41,15 @@ var SpaceStarScene = (function (_super) {
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
-        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX;
-        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY;
+        var w = mainCam.width;
+        var h = mainCam.height;
+        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX - (w - w * this.starScroll);
+        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY - (h - h * this.starScroll);
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
         this.setCSPCameraWindow();
-        this.csStars.setFollow(scrollX, scrollY);
+        this.csStars.setFollow(this.spaceScene.playerShip.x * this.starScroll - this.subScrollX, this.spaceScene.playerShip.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
         this.sys.displayList.add(this.stars);
         this.renderStars();

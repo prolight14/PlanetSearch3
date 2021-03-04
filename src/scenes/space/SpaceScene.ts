@@ -57,24 +57,22 @@ export default class SpaceScene extends Phaser.Scene
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
 
-        this.scene.add("spaceStar", SpaceStarScene, false,
+        this.scene.add("spaceStar", SpaceStarScene, true,
         {
             starsPerCell: 100,
             starSize: 2,
             starScroll: 1
         });
 
-        this.scene.run("spaceStar");
         this.scene.sendToBack("spaceStar");
 
-        this.scene.add("spaceStar2", SpaceStarScene, false,
+        this.scene.add("spaceStar2", SpaceStarScene, true,
         {
             starsPerCell: 124,
             starSize: 1,
             starScroll: 0.8
         });
 
-        this.scene.run("spaceStar2");
         this.scene.sendToBack("spaceStar2");
     }
 

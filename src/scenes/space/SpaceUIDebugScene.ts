@@ -39,8 +39,8 @@ export default class SpaceUIDebugScene extends Phaser.Scene
         var cspWorld: any = this.spaceScene.csp.world;
 
         var coordinates: { col: number, row: number } = cspWorld.cameraGrid.getCoordinates(
-            cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x, 
-            cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y
+            cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x / this.spaceScene.cameras.main.zoom, 
+            cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y / this.spaceScene.cameras.main.zoom
         );
 
         var cell: any = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];

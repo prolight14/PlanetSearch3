@@ -45,8 +45,11 @@ export default class SpaceStarScene extends Phaser.Scene
     public update()
     {  
         var mainCam = this.spaceCameraControllerScene.cameras.main;
-        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX;
-        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY;
+        var w = mainCam.width;
+        var h = mainCam.height;
+
+        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX - (w - w * this.starScroll);
+        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY - (h - h * this.starScroll);
 
         var cam = this.cameras.main;
 
@@ -55,7 +58,10 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.setCSPCameraWindow();
 
-        this.csStars.setFollow(scrollX, scrollY);
+        this.csStars.setFollow(
+            this.spaceScene.playerShip.x * this.starScroll - this.subScrollX, 
+            this.spaceScene.playerShip.y * this.starScroll - this.subScrollY
+        );
         this.csStars.updateWorld();
 
         this.sys.displayList.add(this.stars);
