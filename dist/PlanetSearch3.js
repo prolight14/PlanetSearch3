@@ -374,11 +374,17 @@ var SpaceScene = (function (_super) {
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 200,
+            starsPerCell: 357,
             starSize: 1,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.scene.add("spaceStar4", SpaceStarScene_1.default, true, {
+            starsPerCell: 700,
+            starSize: 1,
+            starScroll: 0.45
+        });
+        this.scene.sendToBack("spaceStar4");
     };
     SpaceScene.prototype.update = function (time, delta) {
         var follow = this.getCameraTarget();
