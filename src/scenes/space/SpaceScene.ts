@@ -65,13 +65,39 @@ export default class SpaceScene extends Phaser.Scene
         return this.cameraTarget;
     }
 
-    private runScenes()
+    private runDebugScenes()
     {
-        this.scene.run("spaceCameraController");
-
-        // this.scene.run("spaceDebug");
+        this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        
+
+        this.scene.sleep("spaceDebug");
+
+        this.input.keyboard.on("keydown-U", () =>
+        {
+            if(this.scene.isSleeping("spaceUIDebug"))
+            {
+                this.scene.wake("spaceUIDebug");
+            }
+            else
+            {
+                this.scene.sleep("spaceUIDebug");
+            }
+        });
+        this.input.keyboard.on("keydown-I", () =>
+        {
+            if(this.scene.isSleeping("spaceDebug"))
+            {
+                this.scene.wake("spaceDebug");
+            }
+            else
+            {
+                this.scene.sleep("spaceDebug");
+            }
+        });
+    }
+
+    private runStarScenes()
+    {
         this.scene.add("spaceStar", SpaceStarScene, true,
         {
             starsPerCell: 100,
@@ -84,25 +110,25 @@ export default class SpaceScene extends Phaser.Scene
         {
             starsPerCell: 124,
             starSize: 2,
-            starScroll: 0.8
+            starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
 
         this.scene.add("spaceStar3", SpaceStarScene, true,
         {
-            starsPerCell: 357,
+            starsPerCell: 201,
             starSize: 1,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+    }
 
-        this.scene.add("spaceStar4", SpaceStarScene, true,
-        {
-            starsPerCell: 700,
-            starSize: 1,
-            starScroll: 0.45
-        });
-        this.scene.sendToBack("spaceStar4");
+    private runScenes()
+    {
+        this.scene.run("spaceCameraController");
+
+        this.runDebugScenes();
+        this.runStarScenes();
     }
 
     public csp: any;
@@ -114,8 +140,22 @@ export default class SpaceScene extends Phaser.Scene
         this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
 
-        // var cam = this.cameras.main;
-        // cam.setScroll(follow.x - cam.width / 2, follow.y - cam.height / 2);
-        // cam.setZoom(this.scene.get("spaceCameraController").cameras.main.zoom);
+        if(this.cameras.main.zoom <= 0.5)
+        {
+            this.scene.sleep("spaceStar3");
+        }
+        else
+        {
+            this.scene.wake("spaceStar3");
+        }
+
+        if(this.cameras.main.zoom <= 0.3)
+        {
+            this.scene.sleep("spaceStar2");
+        }
+        else
+        {
+            this.scene.wake("spaceStar2");
+        }
     }
 }

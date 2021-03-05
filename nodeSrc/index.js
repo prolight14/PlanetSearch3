@@ -13,6 +13,7 @@ var config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    disableContextMenu: true,
     scene: [SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIDebugScene_1.default],
 };
 var game = new Phaser.Game(config);

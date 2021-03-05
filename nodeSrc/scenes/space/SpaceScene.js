@@ -57,9 +57,29 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.getCameraTarget = function () {
         return this.cameraTarget;
     };
-    SpaceScene.prototype.runScenes = function () {
-        this.scene.run("spaceCameraController");
+    SpaceScene.prototype.runDebugScenes = function () {
+        var _this = this;
+        this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
+        this.scene.sleep("spaceDebug");
+        this.input.keyboard.on("keydown-U", function () {
+            if (_this.scene.isSleeping("spaceUIDebug")) {
+                _this.scene.wake("spaceUIDebug");
+            }
+            else {
+                _this.scene.sleep("spaceUIDebug");
+            }
+        });
+        this.input.keyboard.on("keydown-I", function () {
+            if (_this.scene.isSleeping("spaceDebug")) {
+                _this.scene.wake("spaceDebug");
+            }
+            else {
+                _this.scene.sleep("spaceDebug");
+            }
+        });
+    };
+    SpaceScene.prototype.runStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starsPerCell: 100,
             starSize: 3,
@@ -69,26 +89,37 @@ var SpaceScene = (function (_super) {
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             starsPerCell: 124,
             starSize: 2,
-            starScroll: 0.8
+            starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 357,
+            starsPerCell: 201,
             starSize: 1,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
-        this.scene.add("spaceStar4", SpaceStarScene_1.default, true, {
-            starsPerCell: 700,
-            starSize: 1,
-            starScroll: 0.45
-        });
-        this.scene.sendToBack("spaceStar4");
+    };
+    SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceCameraController");
+        this.runDebugScenes();
+        this.runStarScenes();
     };
     SpaceScene.prototype.update = function (time, delta) {
         var follow = this.getCameraTarget();
         this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
+        if (this.cameras.main.zoom <= 0.5) {
+            this.scene.sleep("spaceStar3");
+        }
+        else {
+            this.scene.wake("spaceStar3");
+        }
+        if (this.cameras.main.zoom <= 0.3) {
+            this.scene.sleep("spaceStar2");
+        }
+        else {
+            this.scene.wake("spaceStar2");
+        }
     };
     return SpaceScene;
 }(Phaser.Scene));
