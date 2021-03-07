@@ -1,6 +1,5 @@
 import SpaceScene from "./SpaceScene";
 import SpaceDebugScene from "./SpaceDebugScene";
-import SpaceStarScene from "./SpaceStarScene";
 
 export default class SpaceCameraControllerScene extends Phaser.Scene
 {

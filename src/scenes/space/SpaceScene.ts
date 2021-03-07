@@ -1,6 +1,6 @@
 import SpaceStarScene from "./SpaceStarScene";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
-import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
+import Planet from "../../gameObjects/space/Planet";
 
 export default class SpaceScene extends Phaser.Scene
 {
@@ -11,7 +11,9 @@ export default class SpaceScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.image("playerShip", "./assets/playership.png");
+        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
+        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
@@ -30,8 +32,8 @@ export default class SpaceScene extends Phaser.Scene
                 height: this.game.config.height
             },
             grid: {
-                cols: 182,
-                rows: 182,
+                cols: 200,
+                rows: 200,
                 cellWidth: 800,
                 cellHeight: 800
             }
@@ -47,7 +49,14 @@ export default class SpaceScene extends Phaser.Scene
 
     private addGameObjects()
     {
-        var playerShip: PlayerShip = this.csp.world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
+        var world: any = this.csp.world;
+
+        var planets = world.add.gameObjectArray(Planet);
+
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet");
+        planets.add(this, 56000, 70000, "RedDustPlanet");
+
+        var playerShip: PlayerShip = world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
 
         this.setCameraTarget(playerShip);
     }
@@ -116,7 +125,7 @@ export default class SpaceScene extends Phaser.Scene
 
         this.scene.add("spaceStar3", SpaceStarScene, true,
         {
-            starsPerCell: 201,
+            starsPerCell: 250,
             starSize: 1,
             starScroll: 0.56
         });
@@ -149,7 +158,7 @@ export default class SpaceScene extends Phaser.Scene
             this.scene.wake("spaceStar3");
         }
 
-        if(this.cameras.main.zoom <= 0.3)
+        if(this.cameras.main.zoom <= 0.35)
         {
             this.scene.sleep("spaceStar2");
         }

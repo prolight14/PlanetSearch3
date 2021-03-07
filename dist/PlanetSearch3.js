@@ -3,6 +3,45 @@ var PlanetSearch3;
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./gameObjects/space/Planet.js":
+/*!*************************************!*\
+  !*** ./gameObjects/space/Planet.js ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var Planet = (function (_super) {
+    __extends(Planet, _super);
+    function Planet(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.setScale(50, 50);
+        return _this;
+    }
+    Planet.prototype.preUpdate = function () {
+        this.bodyConf.update();
+    };
+    return Planet;
+}(SpaceGameObject_1.default));
+exports.default = Planet;
+//# sourceMappingURL=Planet.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/space/PlayerShip.js":
 /*!*****************************************!*\
   !*** ./gameObjects/space/PlayerShip.js ***!
@@ -316,13 +355,16 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceStarScene_1 = __webpack_require__(/*! ./SpaceStarScene */ "./scenes/space/SpaceStarScene.js");
 var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
+var Planet_1 = __webpack_require__(/*! ../../gameObjects/space/Planet */ "./gameObjects/space/Planet.js");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
         return _super.call(this, "space") || this;
     }
     SpaceScene.prototype.preload = function () {
-        this.load.image("playerShip", "./assets/playership.png");
+        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
+        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",
@@ -336,8 +378,8 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 182,
-                rows: 182,
+                cols: 200,
+                rows: 200,
                 cellWidth: 800,
                 cellHeight: 800
             }
@@ -348,7 +390,11 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.addGameObjects = function () {
-        var playerShip = this.csp.world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        var world = this.csp.world;
+        var planets = world.add.gameObjectArray(Planet_1.default);
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet");
+        planets.add(this, 56000, 70000, "RedDustPlanet");
+        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
         this.setCameraTarget(playerShip);
     };
     SpaceScene.prototype.setCameraTarget = function (target) {
@@ -394,7 +440,7 @@ var SpaceScene = (function (_super) {
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 201,
+            starsPerCell: 250,
             starSize: 1,
             starScroll: 0.56
         });
@@ -415,7 +461,7 @@ var SpaceScene = (function (_super) {
         else {
             this.scene.wake("spaceStar3");
         }
-        if (this.cameras.main.zoom <= 0.3) {
+        if (this.cameras.main.zoom <= 0.35) {
             this.scene.sleep("spaceStar2");
         }
         else {
