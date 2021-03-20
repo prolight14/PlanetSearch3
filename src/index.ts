@@ -11,8 +11,9 @@ import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
     1. Final check for bugs
     2. Final playtest
     3. Build in production mode
-    4. Make sure I can play this only with resources from the www folder
-    5. Properly copyright this game
+    4. Move ./dist/PlanetSearch3.min.js to ./www/js
+    5. Make sure I can play this only with resources from the www folder
+    6. Properly copyright this game
 */
 
 let config = {
