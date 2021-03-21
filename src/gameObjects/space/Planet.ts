@@ -5,12 +5,18 @@ export default class Planet extends SpaceGameObject
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
-
-        this.setScale(50, 50);
     }
 
     public preUpdate()
     {
         this.bodyConf.update();
+    }
+
+    public onCollide(object: SpaceGameObject)
+    {
+        if(object._arrayName === "playerShip")
+        {
+        }
+        console.log("hit!");
     }
 }

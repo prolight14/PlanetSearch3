@@ -52,10 +52,11 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.addGameObjects = function () {
         var world = this.csp.world;
         var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this, 56000, 70000, "RedDustPlanet");
-        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
+        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 61000, "playerShip");
         this.setCameraTarget(playerShip);
+        this.playerShip = playerShip;
     };
     SpaceScene.prototype.setCameraTarget = function (target) {
         this.cameraTarget = target;
@@ -63,6 +64,11 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.getCameraTarget = function () {
         return this.cameraTarget;
+    };
+    SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceCameraController");
+        this.runDebugScenes();
+        this.runStarScenes();
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -105,16 +111,48 @@ var SpaceScene = (function (_super) {
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.starScenesSleeping = false;
     };
-    SpaceScene.prototype.runScenes = function () {
-        this.scene.run("spaceCameraController");
-        this.runDebugScenes();
-        this.runStarScenes();
+    SpaceScene.prototype.sleepScenes = function () {
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceDebug");
+        this.scene.sleep("spaceUIDebug");
+        this.scene.sleep("spaceStar");
+        this.scene.sleep("spaceStar2");
+        this.scene.sleep("spaceStar3");
+        this.starScenesSleeping = true;
     };
     SpaceScene.prototype.update = function (time, delta) {
         var follow = this.getCameraTarget();
         this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
+        this.updatePlanets();
+        this.updateStarFade();
+    };
+    SpaceScene.prototype.updatePlanets = function () {
+        var _this = this;
+        var world = this.csp.world;
+        var playerShip = this.playerShip;
+        this.sys.displayList.list.forEach(function (object) {
+            if (object._arrayName === "planet") {
+                var planet = object;
+                var dx = planet.x - playerShip.x;
+                var dy = planet.y - playerShip.y;
+                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
+                    _this.gotoPlanetSceneGroup();
+                }
+            }
+        });
+    };
+    SpaceScene.prototype.gotoPlanetSceneGroup = function () {
+        var entryScene = this.scene.get("entry");
+        entryScene.sleepSceneGroup("space");
+        entryScene.runSceneGroup("planet");
+    };
+    SpaceScene.prototype.updateStarFade = function () {
+        if (this.starScenesSleeping) {
+            return;
+        }
         if (this.cameras.main.zoom <= 0.5) {
             this.scene.sleep("spaceStar3");
         }

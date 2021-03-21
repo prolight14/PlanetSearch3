@@ -28,12 +28,15 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Planet = (function (_super) {
     __extends(Planet, _super);
     function Planet(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setScale(50, 50);
-        return _this;
+        return _super.call(this, scene, x, y, texture) || this;
     }
     Planet.prototype.preUpdate = function () {
         this.bodyConf.update();
+    };
+    Planet.prototype.onCollide = function (object) {
+        if (object._arrayName === "playerShip") {
+        }
+        console.log("hit!");
     };
     return Planet;
 }(SpaceGameObject_1.default));
@@ -157,6 +160,93 @@ var SpaceGameObject = (function (_super) {
 }(Phaser.GameObjects.Sprite));
 exports.default = SpaceGameObject;
 //# sourceMappingURL=SpaceGameObject.js.map
+
+/***/ }),
+
+/***/ "./scenes/EntryScene.js":
+/*!******************************!*\
+  !*** ./scenes/EntryScene.js ***!
+  \******************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var EntryScene = (function (_super) {
+    __extends(EntryScene, _super);
+    function EntryScene() {
+        return _super.call(this, "entry") || this;
+    }
+    EntryScene.prototype.preload = function () {
+        var whichSceneGroup = "space";
+        this.currentSceneGroup = whichSceneGroup;
+    };
+    EntryScene.prototype.create = function () {
+        this.scene.run(this.currentSceneGroup);
+    };
+    EntryScene.prototype.sleepSceneGroup = function (sceneGroup) {
+        this.scene.get(sceneGroup).sleepScenes();
+    };
+    EntryScene.prototype.runSceneGroup = function (sceneGroup) {
+        this.scene.sleep(this.currentSceneGroup);
+        this.currentSceneGroup = sceneGroup;
+        this.scene.run(sceneGroup);
+    };
+    return EntryScene;
+}(Phaser.Scene));
+exports.default = EntryScene;
+//# sourceMappingURL=EntryScene.js.map
+
+/***/ }),
+
+/***/ "./scenes/planet/PlanetScene.js":
+/*!**************************************!*\
+  !*** ./scenes/planet/PlanetScene.js ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var PlanetScene = (function (_super) {
+    __extends(PlanetScene, _super);
+    function PlanetScene() {
+        return _super.call(this, "planet") || this;
+    }
+    PlanetScene.prototype.preload = function () {
+    };
+    PlanetScene.prototype.create = function () {
+    };
+    PlanetScene.prototype.update = function () {
+    };
+    return PlanetScene;
+}(Phaser.Scene));
+exports.default = PlanetScene;
+//# sourceMappingURL=PlanetScene.js.map
 
 /***/ }),
 
@@ -392,10 +482,11 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.addGameObjects = function () {
         var world = this.csp.world;
         var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this, 56000, 70000, "RedDustPlanet");
-        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 69000, "playerShip");
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
+        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 61000, "playerShip");
         this.setCameraTarget(playerShip);
+        this.playerShip = playerShip;
     };
     SpaceScene.prototype.setCameraTarget = function (target) {
         this.cameraTarget = target;
@@ -403,6 +494,11 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.getCameraTarget = function () {
         return this.cameraTarget;
+    };
+    SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceCameraController");
+        this.runDebugScenes();
+        this.runStarScenes();
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -445,16 +541,48 @@ var SpaceScene = (function (_super) {
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.starScenesSleeping = false;
     };
-    SpaceScene.prototype.runScenes = function () {
-        this.scene.run("spaceCameraController");
-        this.runDebugScenes();
-        this.runStarScenes();
+    SpaceScene.prototype.sleepScenes = function () {
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceDebug");
+        this.scene.sleep("spaceUIDebug");
+        this.scene.sleep("spaceStar");
+        this.scene.sleep("spaceStar2");
+        this.scene.sleep("spaceStar3");
+        this.starScenesSleeping = true;
     };
     SpaceScene.prototype.update = function (time, delta) {
         var follow = this.getCameraTarget();
         this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
+        this.updatePlanets();
+        this.updateStarFade();
+    };
+    SpaceScene.prototype.updatePlanets = function () {
+        var _this = this;
+        var world = this.csp.world;
+        var playerShip = this.playerShip;
+        this.sys.displayList.list.forEach(function (object) {
+            if (object._arrayName === "planet") {
+                var planet = object;
+                var dx = planet.x - playerShip.x;
+                var dy = planet.y - playerShip.y;
+                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
+                    _this.gotoPlanetSceneGroup();
+                }
+            }
+        });
+    };
+    SpaceScene.prototype.gotoPlanetSceneGroup = function () {
+        var entryScene = this.scene.get("entry");
+        entryScene.sleepSceneGroup("space");
+        entryScene.runSceneGroup("planet");
+    };
+    SpaceScene.prototype.updateStarFade = function () {
+        if (this.starScenesSleeping) {
+            return;
+        }
         if (this.cameras.main.zoom <= 0.5) {
             this.scene.sleep("spaceStar3");
         }
@@ -660,10 +788,12 @@ var exports = __webpack_exports__;
   \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/EntryScene.js");
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
+var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var config = {
     type: Phaser.CANVAS,
     width: 800,
@@ -674,7 +804,11 @@ var config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     disableContextMenu: true,
-    scene: [SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIDebugScene_1.default],
+    scene: [
+        EntryScene_1.default,
+        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIDebugScene_1.default,
+        PlanetScene_1.default
+    ],
 };
 var game = new Phaser.Game(config);
 window.game = game;

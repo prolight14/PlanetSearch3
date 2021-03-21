@@ -1,6 +1,8 @@
 import SpaceStarScene from "./SpaceStarScene";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
+import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
+import EntryScene from "../EntryScene";
 
 export default class SpaceScene extends Phaser.Scene
 {
@@ -47,18 +49,22 @@ export default class SpaceScene extends Phaser.Scene
         this.runScenes();
     }
 
+    playerShip: PlayerShip;
+
     private addGameObjects()
     {
         var world: any = this.csp.world;
 
         var planets = world.add.gameObjectArray(Planet);
 
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this, 56000, 70000, "RedDustPlanet");
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
+        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
 
-        var playerShip: PlayerShip = world.add.gameObjectArray(PlayerShip).add(this, 69000, 69000, "playerShip");
+        var playerShip: PlayerShip = world.add.gameObjectArray(PlayerShip).add(this, 69000, 61000, "playerShip");
 
         this.setCameraTarget(playerShip);
+
+        this.playerShip = playerShip;
     }
 
     private cameraTarget: { x: number, y: number };
@@ -72,6 +78,14 @@ export default class SpaceScene extends Phaser.Scene
     public getCameraTarget(): { x: number, y: number }
     {
         return this.cameraTarget;
+    }
+    
+    private runScenes()
+    {
+        this.scene.run("spaceCameraController");
+
+        this.runDebugScenes();
+        this.runStarScenes();
     }
 
     private runDebugScenes()
@@ -130,14 +144,22 @@ export default class SpaceScene extends Phaser.Scene
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+
+        this.starScenesSleeping = false;
     }
 
-    private runScenes()
+    private starScenesSleeping: boolean;
+    
+    public sleepScenes()
     {
-        this.scene.run("spaceCameraController");
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceDebug");
+        this.scene.sleep("spaceUIDebug");
+        this.scene.sleep("spaceStar");
+        this.scene.sleep("spaceStar2");
+        this.scene.sleep("spaceStar3");
 
-        this.runDebugScenes();
-        this.runStarScenes();
+        this.starScenesSleeping = true;
     }
 
     public csp: any;
@@ -148,6 +170,47 @@ export default class SpaceScene extends Phaser.Scene
 
         this.csp.setFollow(follow.x, follow.y);
         this.csp.updateWorld();
+
+        this.updatePlanets();
+        this.updateStarFade();
+    }
+    
+    private updatePlanets()
+    {
+        let world = this.csp.world;
+        let playerShip = this.playerShip;
+
+        this.sys.displayList.list.forEach((object: SpaceGameObject) =>
+        {
+            if(object._arrayName === "planet")
+            {
+                var planet = object;
+
+                var dx = planet.x - playerShip.x;
+                var dy = planet.y - playerShip.y;
+
+                if(dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2))
+                {
+                    this.gotoPlanetSceneGroup();
+                }
+            }
+        });
+    }
+
+    private gotoPlanetSceneGroup()
+    {
+        var entryScene = this.scene.get("entry") as EntryScene;
+
+        entryScene.sleepSceneGroup("space");
+        entryScene.runSceneGroup("planet");
+    }
+
+    private updateStarFade()
+    {
+        if(this.starScenesSleeping)
+        {
+            return;
+        }
 
         if(this.cameras.main.zoom <= 0.5)
         {

@@ -13,21 +13,18 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceGameObject_1 = require("./SpaceGameObject");
-var Planet = (function (_super) {
-    __extends(Planet, _super);
-    function Planet(scene, x, y, texture) {
-        return _super.call(this, scene, x, y, texture) || this;
+var PlanetScene = (function (_super) {
+    __extends(PlanetScene, _super);
+    function PlanetScene() {
+        return _super.call(this, "planet") || this;
     }
-    Planet.prototype.preUpdate = function () {
-        this.bodyConf.update();
+    PlanetScene.prototype.preload = function () {
     };
-    Planet.prototype.onCollide = function (object) {
-        if (object._arrayName === "playerShip") {
-        }
-        console.log("hit!");
+    PlanetScene.prototype.create = function () {
     };
-    return Planet;
-}(SpaceGameObject_1.default));
-exports.default = Planet;
-//# sourceMappingURL=Planet.js.map
+    PlanetScene.prototype.update = function () {
+    };
+    return PlanetScene;
+}(Phaser.Scene));
+exports.default = PlanetScene;
+//# sourceMappingURL=PlanetScene.js.map
