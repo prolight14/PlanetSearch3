@@ -56,6 +56,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
+        cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
 
         this.setCSPCameraWindow();
@@ -95,7 +96,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
             for(i = 0; i < this.starsPerCell; i++)
             {
-                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
+                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
             }
         });
     }

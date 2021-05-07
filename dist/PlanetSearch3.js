@@ -3,6 +3,82 @@ var PlanetSearch3;
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./gameObjects/planet/Player.js":
+/*!**************************************!*\
+  !*** ./gameObjects/planet/Player.js ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Player = (function (_super) {
+    __extends(Player, _super);
+    function Player(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "helix") || this;
+        scene.add.existing(_this);
+        scene.physics.add.existing(_this);
+        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        _this.keys = {
+            a: scene.input.keyboard.addKey('a'),
+            d: scene.input.keyboard.addKey('d'),
+            w: scene.input.keyboard.addKey('w'),
+            s: scene.input.keyboard.addKey('s'),
+            left: scene.input.keyboard.addKey("left"),
+            right: scene.input.keyboard.addKey("right"),
+            up: scene.input.keyboard.addKey("up"),
+            down: scene.input.keyboard.addKey("down"),
+        };
+        _this.controls = {
+            left: function () {
+                return _this.keys.a.isDown || _this.keys.left.isDown;
+            },
+            right: function () {
+                return _this.keys.d.isDown || _this.keys.right.isDown;
+            },
+            up: function () {
+                return _this.keys.w.isDown || _this.keys.up.isDown;
+            },
+            down: function () {
+                return _this.keys.s.isDown || _this.keys.down.isDown;
+            }
+        };
+        return _this;
+    }
+    Player.prototype.preUpdate = function (time, delta) {
+        var onGround = this.body.blocked.down;
+        if (this.controls.left()) {
+            this.setAccelerationX(-800);
+        }
+        if (this.controls.right()) {
+            this.setAccelerationX(800);
+        }
+        if (!this.controls.left() && !this.controls.right()) {
+            this.setAccelerationX(0);
+        }
+        if (onGround && this.controls.up()) {
+            this.setVelocityY(-345);
+        }
+    };
+    return Player;
+}(Phaser.Physics.Arcade.Sprite));
+exports.default = Player;
+//# sourceMappingURL=Player.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/space/Planet.js":
 /*!*************************************!*\
   !*** ./gameObjects/space/Planet.js ***!
@@ -215,7 +291,7 @@ exports.default = EntryScene;
 /*!**************************************!*\
   !*** ./scenes/planet/PlanetScene.js ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -232,14 +308,36 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
 var PlanetScene = (function (_super) {
     __extends(PlanetScene, _super);
     function PlanetScene() {
-        return _super.call(this, "planet") || this;
+        return _super.call(this, {
+            key: "planet",
+            physics: {
+                default: "arcade",
+                arcade: {
+                    gravity: { y: 800 }
+                }
+            }
+        }) || this;
     }
     PlanetScene.prototype.preload = function () {
+        this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
+        this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
     };
     PlanetScene.prototype.create = function () {
+        var tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
+        var tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
+        var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
+        worldLayer.setCollisionByProperty({ collides: true });
+        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });
+        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
+        this.physics.add.collider(this.player, worldLayer);
+        var cam = this.cameras.main;
+        cam.startFollow(this.player);
+        cam.setZoom(2);
+        cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
     };
     PlanetScene.prototype.update = function () {
     };
@@ -300,6 +398,8 @@ var SpaceCameraControllerScene = (function (_super) {
         cam.setZoom(zoom);
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
+        cam.roundPixels = true;
+        this.spaceDebugScene.cameras.main.setRoundPixels(true);
         this.resizeCSPCameraWindow();
     };
     SpaceCameraControllerScene.prototype.adjustCameraAngle = function (angle) {
@@ -422,10 +522,10 @@ exports.default = SpaceDebugScene;
 
 /***/ }),
 
-/***/ "./scenes/space/SpaceScene.js":
-/*!************************************!*\
-  !*** ./scenes/space/SpaceScene.js ***!
-  \************************************/
+/***/ "./scenes/space/SpaceLogicScene.js":
+/*!*****************************************!*\
+  !*** ./scenes/space/SpaceLogicScene.js ***!
+  \*****************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -443,9 +543,72 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceStarScene_1 = __webpack_require__(/*! ./SpaceStarScene */ "./scenes/space/SpaceStarScene.js");
 var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
 var Planet_1 = __webpack_require__(/*! ../../gameObjects/space/Planet */ "./gameObjects/space/Planet.js");
+var SpaceLogicScene = (function (_super) {
+    __extends(SpaceLogicScene, _super);
+    function SpaceLogicScene() {
+        return _super.call(this, "spaceLogic") || this;
+    }
+    SpaceLogicScene.prototype.addObjectsToSpace = function () {
+        this.spaceScene = this.scene.get("space");
+        var world = this.spaceScene.csp.world;
+        var planets = world.add.gameObjectArray(Planet_1.default);
+        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
+        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 56000, 70000 + 1000, "playerShip");
+        this.spaceScene.setCameraTarget(this.playerShip);
+    };
+    SpaceLogicScene.prototype.update = function () {
+        this.updatePlanets();
+    };
+    SpaceLogicScene.prototype.updatePlanets = function () {
+        var _this = this;
+        var playerShip = this.playerShip;
+        this.sys.displayList.list.forEach(function (object) {
+            if (object._arrayName === "planet") {
+                var planet = object;
+                var dx = planet.x - playerShip.x;
+                var dy = planet.y - playerShip.y;
+                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
+                    _this.gotoPlanetSceneGroup();
+                }
+            }
+        });
+    };
+    SpaceLogicScene.prototype.gotoPlanetSceneGroup = function () {
+        var entryScene = this.scene.get("entry");
+        entryScene.sleepSceneGroup("space");
+        entryScene.runSceneGroup("planet");
+    };
+    return SpaceLogicScene;
+}(Phaser.Scene));
+exports.default = SpaceLogicScene;
+//# sourceMappingURL=SpaceLogicScene.js.map
+
+/***/ }),
+
+/***/ "./scenes/space/SpaceScene.js":
+/*!************************************!*\
+  !*** ./scenes/space/SpaceScene.js ***!
+  \************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -475,30 +638,14 @@ var SpaceScene = (function (_super) {
             }
         };
         this.csp.initWorld(this.cspConfig);
-        this.addGameObjects();
+        this.scene.get("spaceLogic").addObjectsToSpace();
         this.csp.syncWithGrid();
         this.runScenes();
     };
-    SpaceScene.prototype.addGameObjects = function () {
-        var world = this.csp.world;
-        var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
-        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        var playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 69000, 61000, "playerShip");
-        this.setCameraTarget(playerShip);
-        this.playerShip = playerShip;
-    };
-    SpaceScene.prototype.setCameraTarget = function (target) {
-        this.cameraTarget = target;
-        this.cameras.main.startFollow(target);
-    };
-    SpaceScene.prototype.getCameraTarget = function () {
-        return this.cameraTarget;
-    };
     SpaceScene.prototype.runScenes = function () {
         this.scene.run("spaceCameraController");
+        this.scene.run("starSceneController");
         this.runDebugScenes();
-        this.runStarScenes();
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -522,79 +669,24 @@ var SpaceScene = (function (_super) {
             }
         });
     };
-    SpaceScene.prototype.runStarScenes = function () {
-        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starsPerCell: 100,
-            starSize: 3,
-            starScroll: 1
-        });
-        this.scene.sendToBack("spaceStar");
-        this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starsPerCell: 124,
-            starSize: 2,
-            starScroll: 0.73
-        });
-        this.scene.sendToBack("spaceStar2");
-        this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 250,
-            starSize: 1,
-            starScroll: 0.56
-        });
-        this.scene.sendToBack("spaceStar3");
-        this.starScenesSleeping = false;
-    };
     SpaceScene.prototype.sleepScenes = function () {
+        this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
-        this.scene.sleep("spaceStar");
-        this.scene.sleep("spaceStar2");
-        this.scene.sleep("spaceStar3");
-        this.starScenesSleeping = true;
+        this.scene.sleep("starSceneController");
+    };
+    SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
+        this.cameraTarget = cameraTarget;
+        this.cameras.main.startFollow(this.cameraTarget);
+    };
+    SpaceScene.prototype.getCameraTarget = function () {
+        return this.cameraTarget;
     };
     SpaceScene.prototype.update = function (time, delta) {
-        var follow = this.getCameraTarget();
-        this.csp.setFollow(follow.x, follow.y);
+        var cam = this.cameras.main;
+        this.csp.setFollow(cam.scrollX, cam.scrollY);
         this.csp.updateWorld();
-        this.updatePlanets();
-        this.updateStarFade();
-    };
-    SpaceScene.prototype.updatePlanets = function () {
-        var _this = this;
-        var world = this.csp.world;
-        var playerShip = this.playerShip;
-        this.sys.displayList.list.forEach(function (object) {
-            if (object._arrayName === "planet") {
-                var planet = object;
-                var dx = planet.x - playerShip.x;
-                var dy = planet.y - playerShip.y;
-                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.gotoPlanetSceneGroup();
-                }
-            }
-        });
-    };
-    SpaceScene.prototype.gotoPlanetSceneGroup = function () {
-        var entryScene = this.scene.get("entry");
-        entryScene.sleepSceneGroup("space");
-        entryScene.runSceneGroup("planet");
-    };
-    SpaceScene.prototype.updateStarFade = function () {
-        if (this.starScenesSleeping) {
-            return;
-        }
-        if (this.cameras.main.zoom <= 0.5) {
-            this.scene.sleep("spaceStar3");
-        }
-        else {
-            this.scene.wake("spaceStar3");
-        }
-        if (this.cameras.main.zoom <= 0.35) {
-            this.scene.sleep("spaceStar2");
-        }
-        else {
-            this.scene.wake("spaceStar2");
-        }
     };
     return SpaceScene;
 }(Phaser.Scene));
@@ -659,6 +751,7 @@ var SpaceStarScene = (function (_super) {
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
+        cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
         this.setCSPCameraWindow();
         var follow = this.spaceScene.getCameraTarget();
@@ -681,7 +774,7 @@ var SpaceStarScene = (function (_super) {
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
-                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
+                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), _this.starSize, _this.starSize);
             }
         });
     };
@@ -751,6 +844,92 @@ var SpaceUIDebugScene = (function (_super) {
 exports.default = SpaceUIDebugScene;
 //# sourceMappingURL=SpaceUIDebugScene.js.map
 
+/***/ }),
+
+/***/ "./scenes/space/StarSceneControllerScene.js":
+/*!**************************************************!*\
+  !*** ./scenes/space/StarSceneControllerScene.js ***!
+  \**************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceStarScene_1 = __webpack_require__(/*! ./SpaceStarScene */ "./scenes/space/SpaceStarScene.js");
+var StarSceneControllerScene = (function (_super) {
+    __extends(StarSceneControllerScene, _super);
+    function StarSceneControllerScene() {
+        return _super.call(this, "starSceneController") || this;
+    }
+    StarSceneControllerScene.prototype.create = function () {
+        this.startStarScenes();
+        this.events.on("sleep", this.onSleep, this);
+    };
+    StarSceneControllerScene.prototype.startStarScenes = function () {
+        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
+            starsPerCell: 100,
+            starSize: 3,
+            starScroll: 1
+        });
+        this.scene.sendToBack("spaceStar");
+        this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
+            starsPerCell: 124,
+            starSize: 2,
+            starScroll: 0.73
+        });
+        this.scene.sendToBack("spaceStar2");
+        this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
+            starsPerCell: 250,
+            starSize: 1,
+            starScroll: 0.56
+        });
+        this.scene.sendToBack("spaceStar3");
+        this.starScenesSleeping = false;
+    };
+    StarSceneControllerScene.prototype.onSleep = function () {
+        this.scene.sleep("spaceStar");
+        this.scene.sleep("spaceStar2");
+        this.scene.sleep("spaceStar3");
+        this.starScenesSleeping = true;
+    };
+    StarSceneControllerScene.prototype.update = function () {
+        this.updateStarFade();
+    };
+    StarSceneControllerScene.prototype.updateStarFade = function () {
+        if (this.starScenesSleeping) {
+            return;
+        }
+        var mainCam = this.scene.get("space").cameras.main;
+        if (mainCam.zoom <= 0.5) {
+            this.scene.sleep("spaceStar3");
+        }
+        else {
+            this.scene.wake("spaceStar3");
+        }
+        if (mainCam.zoom <= 0.35) {
+            this.scene.sleep("spaceStar2");
+        }
+        else {
+            this.scene.wake("spaceStar2");
+        }
+    };
+    return StarSceneControllerScene;
+}(Phaser.Scene));
+exports.default = StarSceneControllerScene;
+//# sourceMappingURL=StarSceneControllerScene.js.map
+
 /***/ })
 
 /******/ 	});
@@ -793,9 +972,11 @@ var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scene
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
+var StarSceneControllerScene_1 = __webpack_require__(/*! ./scenes/space/StarSceneControllerScene */ "./scenes/space/StarSceneControllerScene.js");
 var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
+var SpaceLogicScene_1 = __webpack_require__(/*! ./scenes/space/SpaceLogicScene */ "./scenes/space/SpaceLogicScene.js");
 var config = {
-    type: Phaser.CANVAS,
+    type: Phaser.WEBGL,
     width: 800,
     height: 450,
     pixelArt: true,
@@ -806,7 +987,8 @@ var config = {
     disableContextMenu: true,
     scene: [
         EntryScene_1.default,
-        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIDebugScene_1.default,
+        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default
     ],
 };

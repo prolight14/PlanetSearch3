@@ -5,9 +5,11 @@ var SpaceScene_1 = require("./scenes/space/SpaceScene");
 var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraControllerScene");
 var SpaceDebugScene_1 = require("./scenes/space/SpaceDebugScene");
 var SpaceUIDebugScene_1 = require("./scenes/space/SpaceUIDebugScene");
+var StarSceneControllerScene_1 = require("./scenes/space/StarSceneControllerScene");
 var PlanetScene_1 = require("./scenes/planet/PlanetScene");
+var SpaceLogicScene_1 = require("./scenes/space/SpaceLogicScene");
 var config = {
-    type: Phaser.CANVAS,
+    type: Phaser.WEBGL,
     width: 800,
     height: 450,
     pixelArt: true,
@@ -18,7 +20,8 @@ var config = {
     disableContextMenu: true,
     scene: [
         EntryScene_1.default,
-        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIDebugScene_1.default,
+        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default
     ],
 };

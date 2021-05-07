@@ -28,6 +28,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             var cam = this.cameras.main;
 
             this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
+
         });
 
         this.keys = {
@@ -53,6 +54,9 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
+
+        cam.roundPixels = true;
+        this.spaceDebugScene.cameras.main.setRoundPixels(true);
 
         this.resizeCSPCameraWindow();
     }

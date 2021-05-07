@@ -9,6 +9,7 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "skipLibCheck": true,
+        // "esModuleInterop": true,
         "lib": [
             "es5",
             "dom",
