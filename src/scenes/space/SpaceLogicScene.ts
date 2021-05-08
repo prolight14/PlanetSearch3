@@ -3,8 +3,9 @@ import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
+import IScene from "../../../tests/IScene";
 
-export default class SpaceLogicScene extends Phaser.Scene
+export default class SpaceLogicScene extends Phaser.Scene implements IScene
 {
     constructor()
     {
