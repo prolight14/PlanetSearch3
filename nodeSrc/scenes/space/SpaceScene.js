@@ -47,6 +47,7 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
@@ -91,6 +92,7 @@ var SpaceScene = (function (_super) {
         var cam = this.cameras.main;
         this.csp.setFollow(cam.scrollX, cam.scrollY);
         this.csp.updateWorld();
+        return 0;
     };
     return SpaceScene;
 }(Phaser.Scene));

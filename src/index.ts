@@ -49,8 +49,16 @@ let config = {
         // Planet scene(s)
         PlanetScene
     ],
-}
+};
 
 var game: Phaser.Game = new Phaser.Game(config);
 
 window.game = game;
+
+import Test from "./tests/SceneTest";
+
+setTimeout(() =>
+{
+    Test(game);
+
+}, 1000);

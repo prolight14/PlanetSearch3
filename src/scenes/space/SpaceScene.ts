@@ -1,6 +1,7 @@
+import IScene from "../../testHelpers/IScene";
 import SpaceLogicScene from "./SpaceLogicScene";
 
-export default class SpaceScene extends Phaser.Scene
+export default class SpaceScene extends Phaser.Scene implements IScene
 {
     constructor()
     {
@@ -48,6 +49,7 @@ export default class SpaceScene extends Phaser.Scene
 
     private runScenes()
     {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
@@ -114,5 +116,7 @@ export default class SpaceScene extends Phaser.Scene
 
         this.csp.setFollow(cam.scrollX, cam.scrollY);
         this.csp.updateWorld();
+
+        return 0;
     }
 }

@@ -565,7 +565,7 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
         var playerShip = this.playerShip;
-        this.sys.displayList.list.forEach(function (object) {
+        this.spaceScene.sys.displayList.list.forEach(function (object) {
             if (object._arrayName === "planet") {
                 var planet = object;
                 var dx = planet.x - playerShip.x;
@@ -643,6 +643,7 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
@@ -687,6 +688,7 @@ var SpaceScene = (function (_super) {
         var cam = this.cameras.main;
         this.csp.setFollow(cam.scrollX, cam.scrollY);
         this.csp.updateWorld();
+        return 0;
     };
     return SpaceScene;
 }(Phaser.Scene));
@@ -930,6 +932,55 @@ var StarSceneControllerScene = (function (_super) {
 exports.default = StarSceneControllerScene;
 //# sourceMappingURL=StarSceneControllerScene.js.map
 
+/***/ }),
+
+/***/ "./testHelpers/SceneTest.js":
+/*!**********************************!*\
+  !*** ./testHelpers/SceneTest.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SceneTest = (function () {
+    function SceneTest(scene) {
+        this.scene = scene;
+    }
+    SceneTest.prototype.runUpdate = function () {
+        return this.scene.update();
+    };
+    return SceneTest;
+}());
+exports.default = SceneTest;
+//# sourceMappingURL=SceneTest.js.map
+
+/***/ }),
+
+/***/ "./tests/SceneTest.js":
+/*!****************************!*\
+  !*** ./tests/SceneTest.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SceneTest_1 = __webpack_require__(/*! ../testHelpers/SceneTest */ "./testHelpers/SceneTest.js");
+function testSpace(game2) {
+    var sceneTest1 = new SceneTest_1.default(game2.scene.scenes[0].scene.get("space"));
+    if (typeof (sceneTest1.runUpdate()) !== "undefined") {
+        throw "Update should return void!";
+    }
+}
+function testEntry(game2) {
+    var sceneTest1 = new SceneTest_1.default(game2.scene.scenes[0].scene.get("entry"));
+}
+function Test(game2) {
+    testSpace(game2);
+    testEntry(game2);
+}
+exports.default = Test;
+//# sourceMappingURL=SceneTest.js.map
+
 /***/ })
 
 /******/ 	});
@@ -994,6 +1045,10 @@ var config = {
 };
 var game = new Phaser.Game(config);
 window.game = game;
+var SceneTest_1 = __webpack_require__(/*! ./tests/SceneTest */ "./tests/SceneTest.js");
+setTimeout(function () {
+    SceneTest_1.default(game);
+}, 1000);
 //# sourceMappingURL=index.js.map
 })();
 

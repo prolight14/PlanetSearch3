@@ -27,4 +27,8 @@ var config = {
 };
 var game = new Phaser.Game(config);
 window.game = game;
+var SceneTest_1 = require("./tests/SceneTest");
+setTimeout(function () {
+    SceneTest_1.default(game);
+}, 1000);
 //# sourceMappingURL=index.js.map
