@@ -35,7 +35,7 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
         var playerShip = this.playerShip;
-        this.sys.displayList.list.forEach(function (object) {
+        this.spaceScene.sys.displayList.list.forEach(function (object) {
             if (object._arrayName === "planet") {
                 var planet = object;
                 var dx = planet.x - playerShip.x;

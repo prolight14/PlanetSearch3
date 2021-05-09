@@ -48,6 +48,7 @@ export default class SpaceScene extends Phaser.Scene
 
     private runScenes()
     {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();

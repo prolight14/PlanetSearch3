@@ -47,6 +47,7 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();

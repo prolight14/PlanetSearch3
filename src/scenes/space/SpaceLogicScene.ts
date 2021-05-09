@@ -3,9 +3,8 @@ import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
-import IScene from "../../../tests/IScene";
 
-export default class SpaceLogicScene extends Phaser.Scene implements IScene
+export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
     {
@@ -40,7 +39,7 @@ export default class SpaceLogicScene extends Phaser.Scene implements IScene
     {
         let playerShip = this.playerShip;
 
-        this.sys.displayList.list.forEach((object: SpaceGameObject) =>
+        this.spaceScene.sys.displayList.list.forEach((object: SpaceGameObject) =>
         {
             if(object._arrayName === "planet")
             {

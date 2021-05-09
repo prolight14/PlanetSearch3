@@ -267,17 +267,17 @@ var EntryScene = (function (_super) {
     }
     EntryScene.prototype.preload = function () {
         var whichSceneGroup = "space";
-        this.currentSceneGroup = whichSceneGroup;
+        this.currentHeadScene = whichSceneGroup;
     };
     EntryScene.prototype.create = function () {
-        this.scene.run(this.currentSceneGroup);
+        this.scene.run(this.currentHeadScene);
     };
     EntryScene.prototype.sleepSceneGroup = function (sceneGroup) {
         this.scene.get(sceneGroup).sleepScenes();
     };
     EntryScene.prototype.runSceneGroup = function (sceneGroup) {
-        this.scene.sleep(this.currentSceneGroup);
-        this.currentSceneGroup = sceneGroup;
+        this.scene.sleep(this.currentHeadScene);
+        this.currentHeadScene = sceneGroup;
         this.scene.run(sceneGroup);
     };
     return EntryScene;
@@ -565,7 +565,7 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
         var playerShip = this.playerShip;
-        this.sys.displayList.list.forEach(function (object) {
+        this.spaceScene.sys.displayList.list.forEach(function (object) {
             if (object._arrayName === "planet") {
                 var planet = object;
                 var dx = planet.x - playerShip.x;
@@ -643,6 +643,7 @@ var SpaceScene = (function (_super) {
         this.runScenes();
     };
     SpaceScene.prototype.runScenes = function () {
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();

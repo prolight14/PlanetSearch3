@@ -8,18 +8,18 @@ export default class EntryScene extends Phaser.Scene
         super("entry");
     }
 
-    currentSceneGroup: string;
+    currentHeadScene: string;
     
     public preload()
     {
         var whichSceneGroup = "space";
 
-        this.currentSceneGroup = whichSceneGroup;
+        this.currentHeadScene = whichSceneGroup;
     }
 
     public create()
     {   
-        this.scene.run(this.currentSceneGroup);
+        this.scene.run(this.currentHeadScene);
     }
 
     public sleepSceneGroup(sceneGroup: string)
@@ -29,15 +29,9 @@ export default class EntryScene extends Phaser.Scene
 
     public runSceneGroup(sceneGroup: string)
     {
-        // Todo: change to unit test
-        // if(["planet", "space"].indexOf(sceneGroup) === -1 || sceneGroup !== this.currentSceneGroup)
-        // {
-        //     return;
-        // }
+        this.scene.sleep(this.currentHeadScene);
         
-        this.scene.sleep(this.currentSceneGroup);
-        
-        this.currentSceneGroup = sceneGroup;
+        this.currentHeadScene = sceneGroup;
 
         this.scene.run(sceneGroup);
     }
