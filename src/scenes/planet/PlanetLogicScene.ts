@@ -20,14 +20,27 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
-        this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
+        this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
+        this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+    }
+
+    levelAssetsPrefix: string;
+
+    public receiveLevelInfo(passObj: object)
+    {
+        switch(passObj.type)
+        {
+            case "planet":
+                var planet = passObj.from;
+                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                break;
+        }
     }
 
     public create()
     {
-        const tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
-        const tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
+        const tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
+        const tileset = tilemap.addTilesetImage( this.levelAssetsPrefix + "Tileset");
         const worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
 
         worldLayer.setCollisionByProperty({ collides: true });

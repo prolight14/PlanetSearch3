@@ -25,7 +25,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
 
-        this.playerShip = world.add.gameObjectArray(PlayerShip).add(this.spaceScene, 56000, 70000 + 1000, "playerShip");
+        this.playerShip = world.add.gameObjectArray(PlayerShip).add(this.spaceScene, 69000, 60000 + 1000, "playerShip");
 
         this.spaceScene.setCameraTarget(this.playerShip);
     }
@@ -50,7 +50,10 @@ export default class SpaceLogicScene extends Phaser.Scene
 
                 if(dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2))
                 {
-                    this.spaceScene.switchToPlanetSceneGroup();
+                    this.spaceScene.switchToPlanetSceneGroup({
+                        type: "planet",
+                        from: planet
+                    });
                 }
             }
         });

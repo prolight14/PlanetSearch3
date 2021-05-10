@@ -3,6 +3,7 @@ import PlayerShip from "../../gameObjects/space/PlayerShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
+import PlanetScene from "../planet/PlanetScene";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -110,11 +111,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("starSceneController");
     }
 
-    public switchToPlanetSceneGroup()
+    public switchToPlanetSceneGroup(levelInfo: object)
     {
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
 
-        entryScene.switchSceneGroup("planet");
+        entryScene.switchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
+        {
+            nextScene.receiveInfo(levelInfo);
+        });
     }
 
     private cameraTarget: { x: number; y: number; };

@@ -91,9 +91,11 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
     };
-    SpaceScene.prototype.switchToPlanetSceneGroup = function () {
+    SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.switchSceneGroup("planet");
+        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
+            nextScene.receiveInfo(levelInfo);
+        });
     };
     SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
         this.cameraTarget = cameraTarget;

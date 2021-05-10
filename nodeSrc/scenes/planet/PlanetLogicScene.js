@@ -28,12 +28,20 @@ var PlanetLogicScene = (function (_super) {
         }) || this;
     }
     PlanetLogicScene.prototype.preload = function () {
-        this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
-        this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
+        this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
+        this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+    };
+    PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
+        switch (passObj.type) {
+            case "planet":
+                var planet = passObj.from;
+                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                break;
+        }
     };
     PlanetLogicScene.prototype.create = function () {
-        var tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
+        var tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
+        var tileset = tilemap.addTilesetImage(this.levelAssetsPrefix + "Tileset");
         var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
         worldLayer.setCollisionByProperty({ collides: true });
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });

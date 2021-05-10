@@ -285,7 +285,7 @@ var EntryScene = (function (_super) {
         this.scene.sleep(this.currentSceneGroup);
         this.scene.get(this.currentSceneGroup).sleepScenes(true);
         if (callback !== undefined) {
-            callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
+            callback.apply(callbackScope, [this.scene.get(this.currentSceneGroup), this.scene.get(sceneGroup)]);
         }
         this.scene.run(sceneGroup);
         var nextScene = this.scene.get(sceneGroup);
@@ -337,12 +337,20 @@ var PlanetLogicScene = (function (_super) {
         }) || this;
     }
     PlanetLogicScene.prototype.preload = function () {
-        this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
-        this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
+        this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
+        this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+    };
+    PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
+        switch (passObj.type) {
+            case "planet":
+                var planet = passObj.from;
+                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                break;
+        }
     };
     PlanetLogicScene.prototype.create = function () {
-        var tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
+        var tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
+        var tileset = tilemap.addTilesetImage(this.levelAssetsPrefix + "Tileset");
         var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
         worldLayer.setCollisionByProperty({ collides: true });
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });
@@ -393,6 +401,9 @@ var PlanetScene = (function (_super) {
         _this.loaded = false;
         return _this;
     }
+    PlanetScene.prototype.receiveInfo = function (levelInfo) {
+        this.scene.get("planetLogic").receiveLevelInfo(levelInfo);
+    };
     PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {
@@ -631,7 +642,7 @@ var SpaceLogicScene = (function (_super) {
         var planets = world.add.gameObjectArray(Planet_1.default);
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 56000, 70000 + 1000, "playerShip");
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000, "playerShip");
         this.spaceScene.setCameraTarget(this.playerShip);
     };
     SpaceLogicScene.prototype.update = function () {
@@ -646,7 +657,10 @@ var SpaceLogicScene = (function (_super) {
                 var dx = planet.x - playerShip.x;
                 var dy = planet.y - playerShip.y;
                 if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.spaceScene.switchToPlanetSceneGroup();
+                    _this.spaceScene.switchToPlanetSceneGroup({
+                        type: "planet",
+                        from: planet
+                    });
                 }
             }
         });
@@ -757,9 +771,11 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
     };
-    SpaceScene.prototype.switchToPlanetSceneGroup = function () {
+    SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.switchSceneGroup("planet");
+        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
+            nextScene.receiveInfo(levelInfo);
+        });
     };
     SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
         this.cameraTarget = cameraTarget;

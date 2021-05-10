@@ -26,7 +26,7 @@ var SpaceLogicScene = (function (_super) {
         var planets = world.add.gameObjectArray(Planet_1.default);
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 56000, 70000 + 1000, "playerShip");
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000, "playerShip");
         this.spaceScene.setCameraTarget(this.playerShip);
     };
     SpaceLogicScene.prototype.update = function () {
@@ -41,7 +41,10 @@ var SpaceLogicScene = (function (_super) {
                 var dx = planet.x - playerShip.x;
                 var dy = planet.y - playerShip.y;
                 if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.spaceScene.switchToPlanetSceneGroup();
+                    _this.spaceScene.switchToPlanetSceneGroup({
+                        type: "planet",
+                        from: planet
+                    });
                 }
             }
         });
