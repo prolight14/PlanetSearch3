@@ -46,8 +46,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.physics.add.collider(this.player, worldLayer);
 
-        // cam stuff
-
+        // Camera stuff
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);

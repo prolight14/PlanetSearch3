@@ -12,14 +12,20 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
 
     spaceBar: Phaser.Input.Keyboard.Key
 
+    
     public preload()
     {
         
     }
+    
+    public loaded: boolean = false;
 
     public create()
     {
         this.spaceBar = this.input.keyboard.addKey("Space");
+
+        this.runScenes();
+        this.loaded = true;
     }
 
     public update()

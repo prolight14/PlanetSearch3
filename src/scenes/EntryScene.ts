@@ -37,7 +37,13 @@ export default class EntryScene extends Phaser.Scene
         }
 
         this.scene.run(sceneGroup);
-        (this.scene.get(sceneGroup) as (PlanetScene | SpaceScene)).runScenes(true);
+
+        var nextScene = (this.scene.get(sceneGroup) as (PlanetScene | SpaceScene));
+        if(nextScene.loaded)
+        {
+            nextScene.runScenes(true);
+        }
+        
         this.currentSceneGroup = sceneGroup;
     }
 }
