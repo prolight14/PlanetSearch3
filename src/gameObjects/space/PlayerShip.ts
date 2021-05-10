@@ -36,7 +36,6 @@ export default class PlayerShip extends SpaceGameObject
 
     angleVel: number;
     speed: number;
-
     keys: any;
     controls: any;
 
