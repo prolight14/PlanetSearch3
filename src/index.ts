@@ -13,6 +13,7 @@ import StarSceneControllerScene from "./scenes/space/StarSceneControllerScene";
 // Planet scene(s)
 import PlanetScene from "./scenes/planet/PlanetScene";
 import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
+import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
  
 
 /*
@@ -47,7 +48,7 @@ let config = {
         SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene,
 
         // Planet scene(s)
-        PlanetScene
+        PlanetScene, PlanetLogicScene
     ],
 }
 

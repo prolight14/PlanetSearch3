@@ -16,32 +16,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlanetScene = (function (_super) {
     __extends(PlanetScene, _super);
     function PlanetScene() {
-        return _super.call(this, {
-            key: "planet",
-            physics: {
-                default: "arcade",
-                arcade: {
-                    gravity: { y: 800 }
-                }
-            }
-        }) || this;
+        return _super.call(this, "planet") || this;
     }
     PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {
-        this.events.on("sleep", this.onSleep, this);
         this.spaceBar = this.input.keyboard.addKey("Space");
-    };
-    PlanetScene.prototype.onSleep = function () {
-        this.sleepScenes();
     };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {
             this.switchToSpaceSceneGroup();
         }
     };
-    PlanetScene.prototype.sleepScenes = function (calledByEntryScene) { };
-    PlanetScene.prototype.runScenes = function (calledByEntryScene) { };
+    PlanetScene.prototype.sleepScenes = function (calledByEntryScene) {
+        this.scene.sleep("planetLogic");
+    };
+    PlanetScene.prototype.runScenes = function (calledByEntryScene) {
+        this.scene.run("planetLogic");
+    };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
         this.spaceBar.reset();

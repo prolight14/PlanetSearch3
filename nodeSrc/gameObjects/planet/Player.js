@@ -60,6 +60,13 @@ var Player = (function (_super) {
         if (onGround && this.controls.up()) {
             this.setVelocityY(-345);
         }
+        if (this.y > this.scene.cameras.main.getBounds().height) {
+            this.kill();
+        }
+    };
+    Player.prototype.kill = function () {
+        this.dead = true;
+        this.destroy();
     };
     return Player;
 }(Phaser.Physics.Arcade.Sprite));

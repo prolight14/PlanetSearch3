@@ -80,5 +80,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         {
             this.setVelocityY(-345);
         }
+
+        if(this.y > this.scene.cameras.main.getBounds().height)
+        {
+            this.kill();
+        }
+    }
+
+    dead: boolean;
+
+    private kill()
+    {
+        this.dead = true;
+        this.destroy();
     }
 }
