@@ -41,15 +41,10 @@ var SpaceLogicScene = (function (_super) {
                 var dx = planet.x - playerShip.x;
                 var dy = planet.y - playerShip.y;
                 if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.gotoPlanetSceneGroup();
+                    _this.spaceScene.switchToPlanetSceneGroup();
                 }
             }
         });
-    };
-    SpaceLogicScene.prototype.gotoPlanetSceneGroup = function () {
-        var entryScene = this.scene.get("entry");
-        entryScene.sleepSceneGroup("space");
-        entryScene.runSceneGroup("planet");
     };
     return SpaceLogicScene;
 }(Phaser.Scene));

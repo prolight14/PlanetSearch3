@@ -1,3 +1,4 @@
+import PlanetScene from "./planet/PlanetScene";
 import SpaceScene from "./space/SpaceScene";
 
 // The entry scene / entry scene point will handle save data and switching between scenes
@@ -8,31 +9,35 @@ export default class EntryScene extends Phaser.Scene
         super("entry");
     }
 
-    currentHeadScene: string;
+    private currentSceneGroup: string;
     
     public preload()
     {
-        var whichSceneGroup = "space";
-
-        this.currentHeadScene = whichSceneGroup;
+        this.currentSceneGroup = "space";
     }
 
     public create()
     {   
-        this.scene.run(this.currentHeadScene);
+        this.scene.run(this.currentSceneGroup);
     }
 
-    public sleepSceneGroup(sceneGroup: string)
+    public switchSceneGroup(sceneGroup: string, callback?: Function, callbackScope?: object)
     {
-        (this.scene.get(sceneGroup) as SpaceScene).sleepScenes();
-    }
+        if(sceneGroup === this.currentSceneGroup)
+        {
+            throw `You are already in "${sceneGroup}" scene group`;
+        }
 
-    public runSceneGroup(sceneGroup: string)
-    {
-        this.scene.sleep(this.currentHeadScene);
-        
-        this.currentHeadScene = sceneGroup;
+        this.scene.sleep(this.currentSceneGroup);
+        (this.scene.get(this.currentSceneGroup) as (PlanetScene | SpaceScene)).sleepScenes(true);
+
+        if(callback !== undefined)
+        {
+            callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
+        }
 
         this.scene.run(sceneGroup);
+        (this.scene.get(sceneGroup) as (PlanetScene | SpaceScene)).runScenes(true);
+        this.currentSceneGroup = sceneGroup;
     }
 }

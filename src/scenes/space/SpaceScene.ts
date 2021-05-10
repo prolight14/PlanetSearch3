@@ -1,6 +1,8 @@
+import EntryScene from "../EntryScene";
+import ISceneGroupHead from "../ISceneGroupHead";
 import SpaceLogicScene from "./SpaceLogicScene";
 
-export default class SpaceScene extends Phaser.Scene
+export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 {
     constructor()
     {
@@ -46,12 +48,17 @@ export default class SpaceScene extends Phaser.Scene
         this.runScenes();
     }
 
-    private runScenes()
+    public runScenes(calledByEntryScene?: boolean)
     {
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
+
+        if(calledByEntryScene)
+        {
+            (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip.y += 500;
+        }
     }
 
     private runDebugScenes()
@@ -85,13 +92,20 @@ export default class SpaceScene extends Phaser.Scene
         });
     }
 
-    public sleepScenes()
+    public sleepScenes(calledByEntryScene?: boolean)
     {
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
+    }
+
+    public switchToPlanetSceneGroup()
+    {
+        var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
+
+        entryScene.switchSceneGroup("planet");
     }
 
     private cameraTarget: { x: number; y: number; };

@@ -13,6 +13,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
     {
         this.startStarScenes();
         this.events.on("sleep", this.onSleep, this);
+        this.events.on("wake", this.onWake, this);
     }
 
     private startStarScenes()
@@ -51,6 +52,13 @@ export default class StarSceneControllerScene extends Phaser.Scene
         this.scene.sleep("spaceStar3");
 
         this.starScenesSleeping = true;
+    }
+
+    private onWake()
+    {
+        this.scene.wake("spaceStar");
+        this.scene.wake("spaceStar2");
+        this.scene.wake("spaceStar3");
     }
 
     public update ()

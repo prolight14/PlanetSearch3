@@ -50,17 +50,9 @@ export default class SpaceLogicScene extends Phaser.Scene
 
                 if(dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2))
                 {
-                    this.gotoPlanetSceneGroup();
+                    this.spaceScene.switchToPlanetSceneGroup();
                 }
             }
         });
-    }
-
-    private gotoPlanetSceneGroup()
-    {
-        var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
-
-        entryScene.sleepSceneGroup("space");
-        entryScene.runSceneGroup("planet");
     }
 }

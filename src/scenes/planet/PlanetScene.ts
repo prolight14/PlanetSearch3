@@ -1,7 +1,9 @@
-// @ts-nocheck
-import Player from "../../gameObjects/planet/Player";
+// import Player from "../../gameObjects/planet/Player";
 
-export default class PlanetScene extends Phaser.Scene
+import EntryScene from "../EntryScene";
+import ISceneGroupHead from "../ISceneGroupHead";
+
+export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
 {
     constructor()
     {
@@ -16,14 +18,19 @@ export default class PlanetScene extends Phaser.Scene
         });
     }
 
+    spaceBar: Phaser.Input.Keyboard.Key
+
     public preload()
     {
+        /*
         this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
         this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
+        */
     }
 
     public create()
     {
+        /*
         const tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
 
         const tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
@@ -52,12 +59,36 @@ export default class PlanetScene extends Phaser.Scene
         cam.setZoom(2);
 
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        */
+
+        this.events.on("sleep", this.onSleep, this);
+
+        this.spaceBar = this.input.keyboard.addKey("Space");
+    }
+
+    private onSleep()
+    {
+        this.sleepScenes();
     }
 
     public update()
     {
-
+        if(this.spaceBar.isDown)
+        {
+            this.switchToSpaceSceneGroup();
+        }
     }
 
-    player: Player
+    // player: Player
+
+    public sleepScenes(calledByEntryScene?: boolean) {}
+    public runScenes(calledByEntryScene?: boolean) {}
+
+    public switchToSpaceSceneGroup()
+    {
+        var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
+
+        this.spaceBar.reset();
+        entryScene.switchSceneGroup("space");
+    }
 }

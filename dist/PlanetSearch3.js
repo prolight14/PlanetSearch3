@@ -3,82 +3,6 @@ var PlanetSearch3;
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./gameObjects/planet/Player.js":
-/*!**************************************!*\
-  !*** ./gameObjects/planet/Player.js ***!
-  \**************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Player = (function (_super) {
-    __extends(Player, _super);
-    function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helix") || this;
-        scene.add.existing(_this);
-        scene.physics.add.existing(_this);
-        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
-        _this.keys = {
-            a: scene.input.keyboard.addKey('a'),
-            d: scene.input.keyboard.addKey('d'),
-            w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s'),
-            left: scene.input.keyboard.addKey("left"),
-            right: scene.input.keyboard.addKey("right"),
-            up: scene.input.keyboard.addKey("up"),
-            down: scene.input.keyboard.addKey("down"),
-        };
-        _this.controls = {
-            left: function () {
-                return _this.keys.a.isDown || _this.keys.left.isDown;
-            },
-            right: function () {
-                return _this.keys.d.isDown || _this.keys.right.isDown;
-            },
-            up: function () {
-                return _this.keys.w.isDown || _this.keys.up.isDown;
-            },
-            down: function () {
-                return _this.keys.s.isDown || _this.keys.down.isDown;
-            }
-        };
-        return _this;
-    }
-    Player.prototype.preUpdate = function (time, delta) {
-        var onGround = this.body.blocked.down;
-        if (this.controls.left()) {
-            this.setAccelerationX(-800);
-        }
-        if (this.controls.right()) {
-            this.setAccelerationX(800);
-        }
-        if (!this.controls.left() && !this.controls.right()) {
-            this.setAccelerationX(0);
-        }
-        if (onGround && this.controls.up()) {
-            this.setVelocityY(-345);
-        }
-    };
-    return Player;
-}(Phaser.Physics.Arcade.Sprite));
-exports.default = Player;
-//# sourceMappingURL=Player.js.map
-
-/***/ }),
-
 /***/ "./gameObjects/space/Planet.js":
 /*!*************************************!*\
   !*** ./gameObjects/space/Planet.js ***!
@@ -266,19 +190,23 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        var whichSceneGroup = "space";
-        this.currentHeadScene = whichSceneGroup;
+        this.currentSceneGroup = "space";
     };
     EntryScene.prototype.create = function () {
-        this.scene.run(this.currentHeadScene);
+        this.scene.run(this.currentSceneGroup);
     };
-    EntryScene.prototype.sleepSceneGroup = function (sceneGroup) {
-        this.scene.get(sceneGroup).sleepScenes();
-    };
-    EntryScene.prototype.runSceneGroup = function (sceneGroup) {
-        this.scene.sleep(this.currentHeadScene);
-        this.currentHeadScene = sceneGroup;
+    EntryScene.prototype.switchSceneGroup = function (sceneGroup, callback, callbackScope) {
+        if (sceneGroup === this.currentSceneGroup) {
+            throw "You are already in \"" + sceneGroup + "\" scene group";
+        }
+        this.scene.sleep(this.currentSceneGroup);
+        this.scene.get(this.currentSceneGroup).sleepScenes(true);
+        if (callback !== undefined) {
+            callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
+        }
         this.scene.run(sceneGroup);
+        this.scene.get(sceneGroup).runScenes(true);
+        this.currentSceneGroup = sceneGroup;
     };
     return EntryScene;
 }(Phaser.Scene));
@@ -291,7 +219,7 @@ exports.default = EntryScene;
 /*!**************************************!*\
   !*** ./scenes/planet/PlanetScene.js ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -308,7 +236,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
 var PlanetScene = (function (_super) {
     __extends(PlanetScene, _super);
     function PlanetScene() {
@@ -323,23 +250,25 @@ var PlanetScene = (function (_super) {
         }) || this;
     }
     PlanetScene.prototype.preload = function () {
-        this.load.image("IcyTileset", "./assets/Planet/Levels/Tilesets/IcyTileset.png");
-        this.load.tilemapTiledJSON("IcyTilemap", "./assets/Planet/Levels/Tilemaps/IcyTilemap.json");
     };
     PlanetScene.prototype.create = function () {
-        var tilemap = this.make.tilemap({ key: "IcyTilemap", tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage("IcyTileset", "IcyTileset");
-        var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
-        worldLayer.setCollisionByProperty({ collides: true });
-        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        this.physics.add.collider(this.player, worldLayer);
-        var cam = this.cameras.main;
-        cam.startFollow(this.player);
-        cam.setZoom(2);
-        cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.events.on("sleep", this.onSleep, this);
+        this.spaceBar = this.input.keyboard.addKey("Space");
+    };
+    PlanetScene.prototype.onSleep = function () {
+        this.sleepScenes();
     };
     PlanetScene.prototype.update = function () {
+        if (this.spaceBar.isDown) {
+            this.switchToSpaceSceneGroup();
+        }
+    };
+    PlanetScene.prototype.sleepScenes = function (calledByEntryScene) { };
+    PlanetScene.prototype.runScenes = function (calledByEntryScene) { };
+    PlanetScene.prototype.switchToSpaceSceneGroup = function () {
+        var entryScene = this.scene.get("entry");
+        this.spaceBar.reset();
+        entryScene.switchSceneGroup("space");
     };
     return PlanetScene;
 }(Phaser.Scene));
@@ -571,15 +500,10 @@ var SpaceLogicScene = (function (_super) {
                 var dx = planet.x - playerShip.x;
                 var dy = planet.y - playerShip.y;
                 if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.gotoPlanetSceneGroup();
+                    _this.spaceScene.switchToPlanetSceneGroup();
                 }
             }
         });
-    };
-    SpaceLogicScene.prototype.gotoPlanetSceneGroup = function () {
-        var entryScene = this.scene.get("entry");
-        entryScene.sleepSceneGroup("space");
-        entryScene.runSceneGroup("planet");
     };
     return SpaceLogicScene;
 }(Phaser.Scene));
@@ -642,11 +566,14 @@ var SpaceScene = (function (_super) {
         this.csp.syncWithGrid();
         this.runScenes();
     };
-    SpaceScene.prototype.runScenes = function () {
+    SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
+        if (calledByEntryScene) {
+            this.scene.get("spaceLogic").playerShip.y += 500;
+        }
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -670,12 +597,16 @@ var SpaceScene = (function (_super) {
             }
         });
     };
-    SpaceScene.prototype.sleepScenes = function () {
+    SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
+    };
+    SpaceScene.prototype.switchToPlanetSceneGroup = function () {
+        var entryScene = this.scene.get("entry");
+        entryScene.switchSceneGroup("planet");
     };
     SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
         this.cameraTarget = cameraTarget;
@@ -877,6 +808,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.create = function () {
         this.startStarScenes();
         this.events.on("sleep", this.onSleep, this);
+        this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
@@ -904,6 +836,11 @@ var StarSceneControllerScene = (function (_super) {
         this.scene.sleep("spaceStar2");
         this.scene.sleep("spaceStar3");
         this.starScenesSleeping = true;
+    };
+    StarSceneControllerScene.prototype.onWake = function () {
+        this.scene.wake("spaceStar");
+        this.scene.wake("spaceStar2");
+        this.scene.wake("spaceStar3");
     };
     StarSceneControllerScene.prototype.update = function () {
         this.updateStarFade();

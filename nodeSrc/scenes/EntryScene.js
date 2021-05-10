@@ -19,19 +19,23 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        var whichSceneGroup = "space";
-        this.currentHeadScene = whichSceneGroup;
+        this.currentSceneGroup = "space";
     };
     EntryScene.prototype.create = function () {
-        this.scene.run(this.currentHeadScene);
+        this.scene.run(this.currentSceneGroup);
     };
-    EntryScene.prototype.sleepSceneGroup = function (sceneGroup) {
-        this.scene.get(sceneGroup).sleepScenes();
-    };
-    EntryScene.prototype.runSceneGroup = function (sceneGroup) {
-        this.scene.sleep(this.currentHeadScene);
-        this.currentHeadScene = sceneGroup;
+    EntryScene.prototype.switchSceneGroup = function (sceneGroup, callback, callbackScope) {
+        if (sceneGroup === this.currentSceneGroup) {
+            throw "You are already in \"" + sceneGroup + "\" scene group";
+        }
+        this.scene.sleep(this.currentSceneGroup);
+        this.scene.get(this.currentSceneGroup).sleepScenes(true);
+        if (callback !== undefined) {
+            callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
+        }
         this.scene.run(sceneGroup);
+        this.scene.get(sceneGroup).runScenes(true);
+        this.currentSceneGroup = sceneGroup;
     };
     return EntryScene;
 }(Phaser.Scene));

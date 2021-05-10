@@ -22,6 +22,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.create = function () {
         this.startStarScenes();
         this.events.on("sleep", this.onSleep, this);
+        this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
@@ -49,6 +50,11 @@ var StarSceneControllerScene = (function (_super) {
         this.scene.sleep("spaceStar2");
         this.scene.sleep("spaceStar3");
         this.starScenesSleeping = true;
+    };
+    StarSceneControllerScene.prototype.onWake = function () {
+        this.scene.wake("spaceStar");
+        this.scene.wake("spaceStar2");
+        this.scene.wake("spaceStar3");
     };
     StarSceneControllerScene.prototype.update = function () {
         this.updateStarFade();
