@@ -16,12 +16,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlanetScene = (function (_super) {
     __extends(PlanetScene, _super);
     function PlanetScene() {
-        return _super.call(this, "planet") || this;
+        var _this = _super.call(this, "planet") || this;
+        _this.loaded = false;
+        return _this;
     }
     PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {
         this.spaceBar = this.input.keyboard.addKey("Space");
+        this.runScenes();
+        this.loaded = true;
     };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {

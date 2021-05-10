@@ -288,7 +288,10 @@ var EntryScene = (function (_super) {
             callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
         }
         this.scene.run(sceneGroup);
-        this.scene.get(sceneGroup).runScenes(true);
+        var nextScene = this.scene.get(sceneGroup);
+        if (nextScene.loaded) {
+            nextScene.runScenes(true);
+        }
         this.currentSceneGroup = sceneGroup;
     };
     return EntryScene;
@@ -386,12 +389,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var PlanetScene = (function (_super) {
     __extends(PlanetScene, _super);
     function PlanetScene() {
-        return _super.call(this, "planet") || this;
+        var _this = _super.call(this, "planet") || this;
+        _this.loaded = false;
+        return _this;
     }
     PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {
         this.spaceBar = this.input.keyboard.addKey("Space");
+        this.runScenes();
+        this.loaded = true;
     };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {
@@ -655,7 +662,7 @@ exports.default = SpaceLogicScene;
 /*!************************************!*\
   !*** ./scenes/space/SpaceScene.js ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -672,10 +679,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Planet_1 = __webpack_require__(/*! ../../gameObjects/space/Planet */ "./gameObjects/space/Planet.js");
+var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
-        return _super.call(this, "space") || this;
+        var _this = _super.call(this, "space") || this;
+        _this.loaded = false;
+        return _this;
     }
     SpaceScene.prototype.preload = function () {
         this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
@@ -701,17 +712,39 @@ var SpaceScene = (function (_super) {
             }
         };
         this.csp.initWorld(this.cspConfig);
-        this.scene.get("spaceLogic").addObjectsToSpace();
+        this.addObjectsToSpace();
         this.csp.syncWithGrid();
-        this.runScenes();
+        this.runScenes(false);
+        this.loaded = true;
+    };
+    SpaceScene.prototype.addObjectsToSpace = function () {
+        var world = this.csp.world;
+        var planets = world.add.gameObjectArray(Planet_1.default);
+        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
+        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 56000, 70000 + 1000, "playerShip");
+        this.setCameraTarget(this.playerShip);
+    };
+    SpaceScene.prototype.updatePlanets = function () {
+        var _this = this;
+        var playerShip = this.playerShip;
+        this.sys.displayList.list.forEach(function (object) {
+            if (object._arrayName === "planet") {
+                var planet = object;
+                var dx = planet.x - playerShip.x;
+                var dy = planet.y - playerShip.y;
+                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
+                    _this.switchToPlanetSceneGroup();
+                }
+            }
+        });
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
-        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
         if (calledByEntryScene) {
-            this.scene.get("spaceLogic").playerShip.y += 500;
+            this.playerShip.y += 500;
         }
     };
     SpaceScene.prototype.runDebugScenes = function () {
@@ -758,6 +791,7 @@ var SpaceScene = (function (_super) {
         var cam = this.cameras.main;
         this.csp.setFollow(cam.scrollX, cam.scrollY);
         this.csp.updateWorld();
+        this.updatePlanets();
     };
     return SpaceScene;
 }(Phaser.Scene));

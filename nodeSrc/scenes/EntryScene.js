@@ -34,7 +34,10 @@ var EntryScene = (function (_super) {
             callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
         }
         this.scene.run(sceneGroup);
-        this.scene.get(sceneGroup).runScenes(true);
+        var nextScene = this.scene.get(sceneGroup);
+        if (nextScene.loaded) {
+            nextScene.runScenes(true);
+        }
         this.currentSceneGroup = sceneGroup;
     };
     return EntryScene;
