@@ -752,7 +752,7 @@ var CartesianSystem = {
             var minPos = this.minCamPos = this.cameraGrid.getCoordinates(this.camera.boundingBox.minX, this.camera.boundingBox.minY);
             var maxPos = this.maxCamPos = this.cameraGrid.getCoordinates(this.camera.boundingBox.maxX, this.camera.boundingBox.maxY);
 
-            // Bail if we don't have enough arguments to suffice `GameObjecthandler#act`
+            // Bail if we don't have enough arguments to suffice `GameObjectHandler#act`
             if(arguments.length <= 2)
             {
                 return;

@@ -42,6 +42,8 @@ var SpaceCameraControllerScene = (function (_super) {
         cam.setZoom(zoom);
         this.spaceScene.cameras.main.setZoom(cam.zoom);
         this.spaceDebugScene.cameras.main.setZoom(cam.zoom);
+        cam.roundPixels = true;
+        this.spaceDebugScene.cameras.main.setRoundPixels(true);
         this.resizeCSPCameraWindow();
     };
     SpaceCameraControllerScene.prototype.adjustCameraAngle = function (angle) {

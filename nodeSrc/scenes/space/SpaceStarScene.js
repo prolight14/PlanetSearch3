@@ -48,6 +48,7 @@ var SpaceStarScene = (function (_super) {
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
+        cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
         this.setCSPCameraWindow();
         var follow = this.spaceScene.getCameraTarget();
@@ -70,7 +71,7 @@ var SpaceStarScene = (function (_super) {
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
-                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
+                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), _this.starSize, _this.starSize);
             }
         });
     };

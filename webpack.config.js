@@ -22,6 +22,7 @@ if(!debugging)
         output: {
             path: `${__dirname}/dist/`,
             filename: "[name].js",
+            // filename: "[name].min.js",
             library: "PlanetSearch3",
             sourceMapFilename: '[file].map',
         },

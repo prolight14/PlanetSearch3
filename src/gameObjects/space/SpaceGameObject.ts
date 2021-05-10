@@ -27,4 +27,6 @@ export default class SpaceGameObject extends Phaser.GameObjects.Sprite
 
     body: any;
     bodyConf: any;
+    _arrayName: string;
+    _name: string;
 }
