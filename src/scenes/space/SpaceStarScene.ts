@@ -42,7 +42,7 @@ export default class SpaceStarScene extends Phaser.Scene
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
 
-        this.blitter = this.add.blitter(0, 0, "blueStar0");
+        // this.blitter = this.add.blitter(0, 0, "blueStar0");
 
         // this.templateBlueStar0 = this.add.image(0, 0, "blueStar0");
         // this.grayNebula1 = this.add.image(0, 0, "grayNebula").setScale(13, 13);
@@ -51,6 +51,49 @@ export default class SpaceStarScene extends Phaser.Scene
         // this.rt.draw(this.templateBlueStar0, 200, 200);
         // this.rt.clear();
         // this.rt.setScrollFactor(0);
+
+        this.loadCellImages();
+    }
+
+    private loadCellImages()
+    {
+        this.starImg1 = this.add.image(0, 0, "blueStar0");
+
+        let world: any = this.csStars.world;
+
+        let cellWidth: number = world.cameraGrid.cellWidth;
+        let cellHeight: number = world.cameraGrid.cellHeight;
+
+        for(var i = 1; i >= 0; i--)
+        {
+            var texKey = "starCell" + this.scene.key + i;
+
+            this.textures.addGLTexture(texKey, this.createCellImage(cellWidth, cellHeight, texKey).glTexture, cellWidth, cellHeight);
+    
+            if(i === 0)
+            {
+                this.blitter = this.add.blitter(0, 0, texKey);
+            }
+        }
+    }
+
+    starImg1: Phaser.GameObjects.Image;
+    // cellImg1: Phaser.GameObjects.RenderTexture;  
+
+    private createCellImage(cellWidth: number, cellHeight: number, seed?: number | string | undefined)
+    {
+        if(seed === undefined) { seed = 0; }
+
+        var rt = this.add.renderTexture(0, 0, cellWidth, cellHeight);
+
+        var rng = new Phaser.Math.RandomDataGenerator([seed.toString()]);
+       
+        for(var i = 0, _l = rng.between(20, 110); i < _l; i++)
+        {
+            rt.draw(this.starImg1, rng.frac() * cellWidth, rng.frac() * cellHeight);
+        }
+
+        return rt;
     }
 
     blitter: Phaser.GameObjects.Blitter;
@@ -118,17 +161,24 @@ export default class SpaceStarScene extends Phaser.Scene
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
-            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
 
-            x = col * cellWidth;
-            y = row * cellHeight;
+            this.blitter.create(col * cellWidth, row * cellHeight);
 
-            for(i = 0; i < this.starsPerCell; i++)
-            {
-                // stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
+            // rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
 
-                this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
-            }
+
+
+            // x = col * cellWidth;
+            // y = row * cellHeight;
+
+
+
+            // for(i = 0; i < this.starsPerCell; i++)
+            // {
+            //     // stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
+
+            //     // this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
+            // }
 
             // if(rng.frac() < 0.5) 
             // {

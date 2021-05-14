@@ -38,7 +38,31 @@ var SpaceStarScene = (function (_super) {
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
-        this.blitter = this.add.blitter(0, 0, "blueStar0");
+        this.loadCellImages();
+    };
+    SpaceStarScene.prototype.loadCellImages = function () {
+        this.starImg1 = this.add.image(0, 0, "blueStar0");
+        var world = this.csStars.world;
+        var cellWidth = world.cameraGrid.cellWidth;
+        var cellHeight = world.cameraGrid.cellHeight;
+        for (var i = 1; i >= 0; i--) {
+            var texKey = "starCell" + this.scene.key + i;
+            this.textures.addGLTexture(texKey, this.createCellImage(cellWidth, cellHeight, texKey).glTexture, cellWidth, cellHeight);
+            if (i === 0) {
+                this.blitter = this.add.blitter(0, 0, texKey);
+            }
+        }
+    };
+    SpaceStarScene.prototype.createCellImage = function (cellWidth, cellHeight, seed) {
+        if (seed === undefined) {
+            seed = 0;
+        }
+        var rt = this.add.renderTexture(0, 0, cellWidth, cellHeight);
+        var rng = new Phaser.Math.RandomDataGenerator([seed.toString()]);
+        for (var i = 0, _l = rng.between(20, 110); i < _l; i++) {
+            rt.draw(this.starImg1, rng.frac() * cellWidth, rng.frac() * cellHeight);
+        }
+        return rt;
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
@@ -70,12 +94,7 @@ var SpaceStarScene = (function (_super) {
         var cellHeight = world.cameraGrid.cellHeight;
         this.blitter.clear();
         world.loopThroughVisibleCells(function (cell, col, row) {
-            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
-            x = col * cellWidth;
-            y = row * cellHeight;
-            for (i = 0; i < _this.starsPerCell; i++) {
-                _this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
-            }
+            _this.blitter.create(col * cellWidth, row * cellHeight);
         });
     };
     SpaceStarScene.prototype.setCSPCameraWindow = function () {
