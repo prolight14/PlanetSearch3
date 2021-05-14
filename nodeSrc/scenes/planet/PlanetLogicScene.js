@@ -17,7 +17,7 @@ var Player_1 = require("../../gameObjects/planet/Player");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        return _super.call(this, {
+        var _this = _super.call(this, {
             key: "planetLogic",
             physics: {
                 default: "arcade",
@@ -26,6 +26,8 @@ var PlanetLogicScene = (function (_super) {
                 }
             }
         }) || this;
+        _this.levelAssetsPrefix = "IcyDwarf";
+        return _this;
     }
     PlanetLogicScene.prototype.preload = function () {
         this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
@@ -35,7 +37,7 @@ var PlanetLogicScene = (function (_super) {
         switch (passObj.type) {
             case "planet":
                 var planet = passObj.from;
-                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
                 break;
         }
     };

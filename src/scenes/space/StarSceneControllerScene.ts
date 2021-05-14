@@ -61,7 +61,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         this.scene.wake("spaceStar3");
     }
 
-    public update ()
+    public update()
     {
         this.updateStarFade();
     }

@@ -41,7 +41,21 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
+
+        this.blitter = this.add.blitter(0, 0, "blueStar0");
+
+        // this.templateBlueStar0 = this.add.image(0, 0, "blueStar0");
+        // this.grayNebula1 = this.add.image(0, 0, "grayNebula").setScale(13, 13);
+
+        // this.rt = this.add.renderTexture(0, 0, (Number)(this.game.config.width), Number(this.game.config.height));
+        // this.rt.draw(this.templateBlueStar0, 200, 200);
+        // this.rt.clear();
+        // this.rt.setScrollFactor(0);
     }
+
+    blitter: Phaser.GameObjects.Blitter;
+
+    // grayNebula1: Phaser.GameObjects.Image;
 
     public update()
     {  
@@ -71,7 +85,17 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.sys.displayList.add(this.stars);
         this.renderStars();
+        
+        this.sys.displayList.add(this.blitter);
+
+        // this.rt.setScale(1 / mainCam.zoom);
+        // this.rt.x = (-this.subScrollX);
+        // this.rt.y = (-this.subScrollY);
+        // this.sys.displayList.add(this.rt); 
     }
+
+    templateBlueStar0: Phaser.GameObjects.Image;
+    rt: Phaser.GameObjects.RenderTexture;
 
     private renderStars()
     {
@@ -87,6 +111,11 @@ export default class SpaceStarScene extends Phaser.Scene
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
+        // this.rt.clear();
+        // var cam = this.cameras.main;
+
+        this.blitter.clear();
+
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
             rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
@@ -96,8 +125,15 @@ export default class SpaceStarScene extends Phaser.Scene
 
             for(i = 0; i < this.starsPerCell; i++)
             {
-                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
+                // stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
+
+                this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
             }
+
+            // if(rng.frac() < 0.5) 
+            // {
+                // this.rt.draw(this.grayNebula1, x - cam.scrollX, y - cam.scrollY);
+            // }
         });
     }
 

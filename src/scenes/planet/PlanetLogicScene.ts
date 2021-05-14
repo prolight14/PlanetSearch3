@@ -24,7 +24,11 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
     }
 
-    levelAssetsPrefix: string;
+
+    private planetName: string;
+    private levelName: string;
+
+    private levelAssetsPrefix: string = "IcyDwarf";
 
     public receiveLevelInfo(passObj: object)
     {
@@ -32,7 +36,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         {
             case "planet":
                 var planet = passObj.from;
-                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
                 break;
         }
     }

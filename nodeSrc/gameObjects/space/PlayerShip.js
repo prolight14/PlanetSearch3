@@ -13,11 +13,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceGameObject_1 = require("./SpaceGameObject");
+var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
-    function PlayerShip(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
+    function PlayerShip(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "playerShip") || this;
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -33,7 +33,8 @@ var PlayerShip = (function (_super) {
             },
             goForward: function () {
                 return _this.keys.w.isDown;
-            }
+            },
+            shoot: function () { return false; }
         };
         _this.setScale(2, 2);
         _this.angleVel = 3;
@@ -41,20 +42,9 @@ var PlayerShip = (function (_super) {
         return _this;
     }
     PlayerShip.prototype.preUpdate = function () {
-        if (this.controls.turnLeft()) {
-            this.setAngle(this.angle - this.angleVel);
-        }
-        if (this.controls.turnRight()) {
-            this.setAngle(this.angle + this.angleVel);
-        }
-        if (this.controls.goForward()) {
-            var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
-        }
-        this.bodyConf.update();
+        Ship_1.default.prototype.preUpdate.apply(this, arguments);
     };
     return PlayerShip;
-}(SpaceGameObject_1.default));
+}(Ship_1.default));
 exports.default = PlayerShip;
 //# sourceMappingURL=PlayerShip.js.map

@@ -15,6 +15,8 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
+var EnemyShip_1 = require("../../gameObjects/space/EnemyShip");
+var Nebula_1 = require("../../gameObjects/space/Nebula");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -23,10 +25,22 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
+        var nebulae = world.add.gameObjectArray(Nebula_1.default);
+        var gridConfig = this.spaceScene.cspConfig.grid;
+        var placeWidth = gridConfig.cols * gridConfig.cellWidth;
+        var placeHeight = gridConfig.rows * gridConfig.cellHeight;
+        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
+        var rng = new Phaser.Math.RandomDataGenerator("rand1");
+        for (var i = 0; i < nebulaeAmt; i++) {
+            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula").setScale(13, 13);
+        }
         var planets = world.add.gameObjectArray(Planet_1.default);
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000, "playerShip");
+        var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
+        enemyShips.add(this.spaceScene, 67000, 60000);
+        enemyShips.add(this.spaceScene, 70000, 60000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000);
         this.spaceScene.setCameraTarget(this.playerShip);
     };
     SpaceLogicScene.prototype.update = function () {

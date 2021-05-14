@@ -86,6 +86,127 @@ exports.default = Player;
 
 /***/ }),
 
+/***/ "./gameObjects/space/EnemyShip.js":
+/*!****************************************!*\
+  !*** ./gameObjects/space/EnemyShip.js ***!
+  \****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
+var timer = function (start, interval, func, scope, args) {
+    var startTime = performance.now();
+    var called = !start;
+    var update = function () {
+        if (!called && performance.now() - startTime > interval) {
+            called = true;
+            return func.apply(scope, args);
+        }
+    };
+    var reset = function () {
+        startTime = performance.now();
+        called = false;
+    };
+    return {
+        update: update,
+        reset: reset
+    };
+};
+var EnemyShip = (function (_super) {
+    __extends(EnemyShip, _super);
+    function EnemyShip(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "enemyShip") || this;
+        _this.turnDir = "";
+        _this.controls = {
+            turnLeft: function () {
+                return _this.turnDir === "left";
+            },
+            turnRight: function () {
+                return _this.turnDir === "right";
+            },
+            goForward: function () {
+                return true;
+            },
+            shoot: function () { return false; }
+        };
+        _this.setScale(2, 2);
+        _this.angleVel = 3;
+        _this.speed = 4.5;
+        _this.turnTimer = timer(true, 1000, function () {
+            switch (true) {
+                case Math.random() <= 0.33:
+                    this.turnDir = "left";
+                    break;
+                case Math.random() < 0.67:
+                    this.turnDir = "right";
+                    break;
+                case Math.random() <= 1.0:
+                    this.turnDir = "";
+                    break;
+            }
+            this.turnTimer.reset();
+        }, _this);
+        return _this;
+    }
+    EnemyShip.prototype.preUpdate = function () {
+        Ship_1.default.prototype.preUpdate.apply(this, arguments);
+        this.turnTimer.update();
+    };
+    return EnemyShip;
+}(Ship_1.default));
+exports.default = EnemyShip;
+//# sourceMappingURL=EnemyShip.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/space/Nebula.js":
+/*!*************************************!*\
+  !*** ./gameObjects/space/Nebula.js ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var Nebula = (function (_super) {
+    __extends(Nebula, _super);
+    function Nebula(scene, x, y, texture) {
+        return _super.call(this, scene, x, y, texture) || this;
+    }
+    return Nebula;
+}(SpaceGameObject_1.default));
+exports.default = Nebula;
+//# sourceMappingURL=Nebula.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/space/Planet.js":
 /*!*************************************!*\
   !*** ./gameObjects/space/Planet.js ***!
@@ -149,11 +270,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
-    function PlayerShip(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
+    function PlayerShip(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "playerShip") || this;
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -169,7 +290,8 @@ var PlayerShip = (function (_super) {
             },
             goForward: function () {
                 return _this.keys.w.isDown;
-            }
+            },
+            shoot: function () { return false; }
         };
         _this.setScale(2, 2);
         _this.angleVel = 3;
@@ -177,6 +299,43 @@ var PlayerShip = (function (_super) {
         return _this;
     }
     PlayerShip.prototype.preUpdate = function () {
+        Ship_1.default.prototype.preUpdate.apply(this, arguments);
+    };
+    return PlayerShip;
+}(Ship_1.default));
+exports.default = PlayerShip;
+//# sourceMappingURL=PlayerShip.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/space/Ship.js":
+/*!***********************************!*\
+  !*** ./gameObjects/space/Ship.js ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var Ship = (function (_super) {
+    __extends(Ship, _super);
+    function Ship(scene, x, y, texture) {
+        return _super.call(this, scene, x, y, texture) || this;
+    }
+    Ship.prototype.preUpdate = function () {
         if (this.controls.turnLeft()) {
             this.setAngle(this.angle - this.angleVel);
         }
@@ -190,10 +349,10 @@ var PlayerShip = (function (_super) {
         }
         this.bodyConf.update();
     };
-    return PlayerShip;
+    return Ship;
 }(SpaceGameObject_1.default));
-exports.default = PlayerShip;
-//# sourceMappingURL=PlayerShip.js.map
+exports.default = Ship;
+//# sourceMappingURL=Ship.js.map
 
 /***/ }),
 
@@ -326,7 +485,7 @@ var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gam
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        return _super.call(this, {
+        var _this = _super.call(this, {
             key: "planetLogic",
             physics: {
                 default: "arcade",
@@ -335,6 +494,8 @@ var PlanetLogicScene = (function (_super) {
                 }
             }
         }) || this;
+        _this.levelAssetsPrefix = "IcyDwarf";
+        return _this;
     }
     PlanetLogicScene.prototype.preload = function () {
         this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
@@ -344,7 +505,7 @@ var PlanetLogicScene = (function (_super) {
         switch (passObj.type) {
             case "planet":
                 var planet = passObj.from;
-                this.levelAssetsPrefix = planet.texture.key.replace("Planet", "");
+                this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
                 break;
         }
     };
@@ -631,6 +792,8 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
 var Planet_1 = __webpack_require__(/*! ../../gameObjects/space/Planet */ "./gameObjects/space/Planet.js");
+var EnemyShip_1 = __webpack_require__(/*! ../../gameObjects/space/EnemyShip */ "./gameObjects/space/EnemyShip.js");
+var Nebula_1 = __webpack_require__(/*! ../../gameObjects/space/Nebula */ "./gameObjects/space/Nebula.js");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -639,10 +802,22 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
+        var nebulae = world.add.gameObjectArray(Nebula_1.default);
+        var gridConfig = this.spaceScene.cspConfig.grid;
+        var placeWidth = gridConfig.cols * gridConfig.cellWidth;
+        var placeHeight = gridConfig.rows * gridConfig.cellHeight;
+        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
+        var rng = new Phaser.Math.RandomDataGenerator("rand1");
+        for (var i = 0; i < nebulaeAmt; i++) {
+            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula").setScale(13, 13);
+        }
         var planets = world.add.gameObjectArray(Planet_1.default);
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000, "playerShip");
+        var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
+        enemyShips.add(this.spaceScene, 67000, 60000);
+        enemyShips.add(this.spaceScene, 70000, 60000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000);
         this.spaceScene.setCameraTarget(this.playerShip);
     };
     SpaceLogicScene.prototype.update = function () {
@@ -702,8 +877,11 @@ var SpaceScene = (function (_super) {
     }
     SpaceScene.prototype.preload = function () {
         this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",
@@ -842,6 +1020,7 @@ var SpaceStarScene = (function (_super) {
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
+        this.blitter = this.add.blitter(0, 0, "blueStar0");
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
@@ -860,6 +1039,7 @@ var SpaceStarScene = (function (_super) {
         this.csStars.updateWorld();
         this.sys.displayList.add(this.stars);
         this.renderStars();
+        this.sys.displayList.add(this.blitter);
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;
@@ -870,12 +1050,13 @@ var SpaceStarScene = (function (_super) {
         var rng, i, x, y;
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
+        this.blitter.clear();
         world.loopThroughVisibleCells(function (cell, col, row) {
             rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
-                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), _this.starSize, _this.starSize);
+                _this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
             }
         });
     };

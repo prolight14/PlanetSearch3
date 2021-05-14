@@ -1,11 +1,11 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import SpaceGameObject from "./SpaceGameObject";
+import Ship from "./Ship";
 
-export default class PlayerShip extends SpaceGameObject
+export default class PlayerShip extends Ship
 {
-    constructor (scene: SpaceScene, x: number, y: number, texture: string)
+    constructor (scene: SpaceScene, x: number, y: number)
     {
-        super(scene, x, y, texture);
+        super(scene, x, y, "playerShip");
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -26,7 +26,8 @@ export default class PlayerShip extends SpaceGameObject
             goForward: () =>
             {
                 return this.keys.w.isDown;
-            }            
+            },
+            shoot: () => false         
         };
 
         this.setScale(2, 2);
@@ -34,29 +35,10 @@ export default class PlayerShip extends SpaceGameObject
         this.speed = 6;
     }
 
-    angleVel: number;
-    speed: number;
-    keys: any;
-    controls: any;
-
+    public keys: any;
+   
     public preUpdate()
     {
-        if(this.controls.turnLeft())
-        {
-            this.setAngle(this.angle - this.angleVel);
-        }     
-        if(this.controls.turnRight())
-        {
-            this.setAngle(this.angle + this.angleVel);
-        }
-
-        if(this.controls.goForward())
-        {
-            let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
-        }
-
-        this.bodyConf.update();
+        Ship.prototype.preUpdate.apply(this, arguments);
     }
 }
