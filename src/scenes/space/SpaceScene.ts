@@ -32,6 +32,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     public cspConfig: any;
     public loaded: boolean = false;
 
+    public quickLoad: boolean = true;
+
     public create()
     {
         this.cspConfig = {
@@ -79,8 +81,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
 
-        this.scene.sleep("spaceDebug");
-
+        this.scene.run("spaceDebug");
+ 
         this.input.keyboard.on("keydown-U", () =>
         {
             if(this.scene.isSleeping("spaceUIDebug"))

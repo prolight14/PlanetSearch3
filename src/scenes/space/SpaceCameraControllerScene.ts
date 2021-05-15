@@ -39,8 +39,10 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.camAngle = 0;
         this.angleSpeed = 2;
-    }
 
+        this.updateZoom(1);
+    }
+   
     public getCameraAngle(): number
     {
         return this.camAngle;
@@ -97,19 +99,22 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             this.updateZoom(1);
         }
     }
- 
+
     private resizeCSPCameraWindow ()
     {
         var world: any = this.spaceScene.csp.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
-        
+            
         var prev_width: number = cspConfig.window.width;
         var prev_height: number = cspConfig.window.height;
         var prev_halfWidth = prev_width / 2;
         var prev_halfHeight = prev_height / 2;
 
         let reuseHyp = Math.sqrt(Math.pow(prev_halfWidth, 2) + Math.pow(prev_halfHeight, 2));
+
+        // reuseHyp = reuseHyp / cam.zoom;
+
         let startingAngle = Math.atan2(prev_halfHeight, prev_halfWidth) + this.camAngle * Phaser.Math.DEG_TO_RAD;
 
         let upperLeft: any = {};
@@ -138,20 +143,91 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         var minY = Math.min(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
         var maxY = Math.max(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
 
-        var x = minX;
-        var y = minY;
-        var width = maxX - minX;
-        var height = maxY - minY;
+        // Center
+        // var cx = Math.abs(maxX - minX) / 4;
+        // var cy = Math.abs(maxY - minY) / 4;
 
-        // hyp = ((opp + adj) / 2) * Math.sqrt(2)
-        var derivedWidth: number = width * Math.SQRT2 / cam.zoom;
-        var derivedHeight: number = height * Math.SQRT2 / cam.zoom;
+        // minX = cam.zoom;
+        // minY = cam.zoom;
+        // maxX = cam.zoom;
+        // maxY = cam.zoom;
+
+        // var distFromCenterX = maxX - cx;
+        // var distFromCenterY = maxY - cy;
+
+        // minX = cx - distFromCenterX / 2 / cam.zoom;
+        // maxX = cx + distFromCenterX / cam.zoom;
+        // minY = cy - distFromCenterY / 2 / cam.zoom;
+        // maxY = cy + distFromCenterY / cam.zoom;
+
+        // var x = minX;
+        // var y = minY;
+        // var width = maxX - minX;
+        // var height = maxY - minY;
+
+        // var x = s_x;
+        // var y = s_y;
+        // var width = maxX;
+        // var height = maxY;
+
+        var c_width = cspConfig.window.width;//Number(this.game.config.width);
+        var c_height = cspConfig.window.height; //Number(this.game.config.height);
+
+        var x = (c_width - c_width / cam.zoom) / 2;
+        var y = (c_height - c_height / cam.zoom) / 2;
+        var width = c_width / cam.zoom;
+        var height = c_height / cam.zoom;
 
         world.camera.setWindow(
-            x - (derivedWidth - width) / 2, 
-            y - (derivedHeight - height) / 2, 
-            derivedWidth,
-            derivedHeight
+            x - 400,
+            y - 400,
+            width + 800,
+            height + 800
         );
+
+        // if(cam.zoom > 1)
+        // {
+        //     x = 0;
+        //     y = 0;
+        //     width = Number(this.game.config.width);
+        //     height = Number(this.game.config.height);
+        // }
+
+        // world.camera.setWindow(
+        //     -600,
+        //     -600,
+        //     Number(this.game.config.width) + 1200,
+        //     Number(this.game.config.height) + 1200
+        // );
+
+        // hyp = ((opp + adj) / 2) * Math.sqrt(2)
+        // var derivedWidth: number = width * Math.SQRT2 / cam.zoom;
+        // var derivedHeight: number = height * Math.SQRT2 / cam.zoom;
+
+        // world.camera.setWindow(
+        //     x - (derivedWidth - width) / 2, 
+        //     y - (derivedHeight - height) / 2, 
+        //     derivedWidth,
+        //     derivedHeight
+        // );
+
+        // var zoomAdjustment = 1 - cam.zoom; 
+        // zoomAdjustment = zoomAdjustment === 0 ? 1 : zoomAdjustment;
+
+        // var setX = (-width / zoomAdjustment) / 2;
+        // var setY = (-height / zoomAdjustment) / 2;
+        // var setWidth = width / cam.zoom;
+        // var setHeight = height / cam.zoom;
+
+        // world.camera.setWindow(
+        //     // ((width / cam.zoom) - width) / 2, 
+        //     // ((height / cam.zoom) - height) / 2,
+        //     // width / cam.zoom,
+        //     // height / cam.zoom
+        //     setX,
+        //     setY,
+        //     setWidth,
+        //     setHeight
+        // );
     }
 }

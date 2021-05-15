@@ -18,6 +18,7 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, "space") || this;
         _this.loaded = false;
+        _this.quickLoad = true;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -69,7 +70,7 @@ var SpaceScene = (function (_super) {
         var _this = this;
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        this.scene.sleep("spaceDebug");
+        this.scene.run("spaceDebug");
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {
                 _this.scene.wake("spaceUIDebug");

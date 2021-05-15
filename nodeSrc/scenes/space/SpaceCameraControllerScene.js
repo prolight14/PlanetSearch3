@@ -33,6 +33,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
+        this.updateZoom(1);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;
@@ -101,13 +102,13 @@ var SpaceCameraControllerScene = (function (_super) {
         var maxX = Math.max(upperLeft.x, lowerLeft.x, upperRight.x, lowerRight.x);
         var minY = Math.min(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
         var maxY = Math.max(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
-        var x = minX;
-        var y = minY;
-        var width = maxX - minX;
-        var height = maxY - minY;
-        var derivedWidth = width * Math.SQRT2 / cam.zoom;
-        var derivedHeight = height * Math.SQRT2 / cam.zoom;
-        world.camera.setWindow(x - (derivedWidth - width) / 2, y - (derivedHeight - height) / 2, derivedWidth, derivedHeight);
+        var c_width = cspConfig.window.width;
+        var c_height = cspConfig.window.height;
+        var x = (c_width - c_width / cam.zoom) / 2;
+        var y = (c_height - c_height / cam.zoom) / 2;
+        var width = c_width / cam.zoom;
+        var height = c_height / cam.zoom;
+        world.camera.setWindow(x - 400, y - 400, width + 800, height + 800);
     };
     return SpaceCameraControllerScene;
 }(Phaser.Scene));

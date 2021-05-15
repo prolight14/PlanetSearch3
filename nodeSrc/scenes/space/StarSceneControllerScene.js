@@ -55,6 +55,7 @@ var StarSceneControllerScene = (function (_super) {
         this.scene.wake("spaceStar");
         this.scene.wake("spaceStar2");
         this.scene.wake("spaceStar3");
+        this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.update = function () {
         this.updateStarFade();
