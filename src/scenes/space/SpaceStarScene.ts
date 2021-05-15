@@ -64,36 +64,24 @@ export default class SpaceStarScene extends Phaser.Scene
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
-        // for(var i = 1; i >= 0; i--)
-        // {
-            var texKey = "starCell" + this.scene.key;
+        for(var i = 10; i >= 0; i--)
+        {
+            var texKey = "starCell" + this.scene.key + i.toString();
 
-            // this.textures.addGLTexture(texKey, this.createCellImage(cellWidth, cellHeight, texKey).texture.getSourceImage());
-    
             var curRT = this.createCellImage(cellWidth, cellHeight, texKey);
             curRT.saveTexture(texKey);
             curRT.destroy();
 
-            this.texKey = texKey;
-
-            // if(i === 0)
-            // {
-                
-                // this.blitter = this.add.blitter(0, 0, texKey);
-            // }
-        // }
+            this.texKeys.push(texKey);
+        }
 
         this.imgGroup = this.add.group();
-
-        // this.testImg1 = this.add.image(200, 200, texKey).setScrollFactor(0);
     }  
 
     imgGroup: Phaser.GameObjects.Group;
 
-    texKey: string;
-    // testImg1: Phaser.GameObjects.Image;
+    texKeys: Array<string> = [];
     starImg1: Phaser.GameObjects.Image;
-    // cellImg1: Phaser.GameObjects.RenderTexture;  
 
     private createCellImage(cellWidth: number, cellHeight: number, seed?: number | string | undefined): Phaser.GameObjects.RenderTexture
     {
@@ -110,10 +98,6 @@ export default class SpaceStarScene extends Phaser.Scene
 
         return rt;
     }
-
-    // blitter: Phaser.GameObjects.Blitter;
-
-    // grayNebula1: Phaser.GameObjects.Image;
 
     public update()
     {  
@@ -143,14 +127,6 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.sys.displayList.add(this.stars);
         this.renderStars();
-        
-        // this.sys.displayList.add(this.testImg1);
-        // this.sys.displayList.add(this.blitter);
-
-        // this.rt.setScale(1 / mainCam.zoom);
-        // this.rt.x = (-this.subScrollX);
-        // this.rt.y = (-this.subScrollY);
-        // this.sys.displayList.add(this.rt); 
     }
 
     templateBlueStar0: Phaser.GameObjects.Image;
@@ -165,51 +141,16 @@ export default class SpaceStarScene extends Phaser.Scene
 
         let world: any = this.csStars.world;
 
-        // let rng, i, x, y;
-
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
-        // this.rt.clear();
-        // var cam = this.cameras.main;
-
-        // this.blitter.clear();
-        // this.blitter.setScale(1, 1);
-        // this.blitter.rotation = 0;
         this.imgGroup.clear(true, true);
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
-            this.imgGroup.create(col * cellWidth, row * cellHeight, this.texKey);
+            var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
 
-            // var bb = this.blitter.create(col * cellWidth, row * cellHeight);
-
-            // bb.resetFlip();
-
-            // this.blitter.
-            // Will use later:
-            // this.blitter.setTexture
-
-            // rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
-
-
-
-            // x = col * cellWidth;
-            // y = row * cellHeight;
-
-
-
-            // for(i = 0; i < this.starsPerCell; i++)
-            // {
-            //     // stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
-
-            //     // this.blitter.create(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)));
-            // }
-
-            // if(rng.frac() < 0.5) 
-            // {
-                // this.rt.draw(this.grayNebula1, x - cam.scrollX, y - cam.scrollY);
-            // }
+            this.imgGroup.create(col * cellWidth, row * cellHeight, this.texKeys[Math.floor(rng.frac() * this.texKeys.length)]);
         });
     }
 

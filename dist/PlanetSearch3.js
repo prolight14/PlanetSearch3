@@ -998,7 +998,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.texKeys = [];
+        return _this;
     }
     SpaceStarScene.prototype.preload = function () {
         this.load.scenePlugin({
@@ -1027,11 +1029,13 @@ var SpaceStarScene = (function (_super) {
         var world = this.csStars.world;
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
-        var texKey = "starCell" + this.scene.key;
-        var curRT = this.createCellImage(cellWidth, cellHeight, texKey);
-        curRT.saveTexture(texKey);
-        curRT.destroy();
-        this.texKey = texKey;
+        for (var i = 10; i >= 0; i--) {
+            var texKey = "starCell" + this.scene.key + i.toString();
+            var curRT = this.createCellImage(cellWidth, cellHeight, texKey);
+            curRT.saveTexture(texKey);
+            curRT.destroy();
+            this.texKeys.push(texKey);
+        }
         this.imgGroup = this.add.group();
     };
     SpaceStarScene.prototype.createCellImage = function (cellWidth, cellHeight, seed) {
@@ -1073,7 +1077,8 @@ var SpaceStarScene = (function (_super) {
         var cellHeight = world.cameraGrid.cellHeight;
         this.imgGroup.clear(true, true);
         world.loopThroughVisibleCells(function (cell, col, row) {
-            _this.imgGroup.create(col * cellWidth, row * cellHeight, _this.texKey);
+            var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            _this.imgGroup.create(col * cellWidth, row * cellHeight, _this.texKeys[Math.floor(rng.frac() * _this.texKeys.length)]);
         });
     };
     SpaceStarScene.prototype.setCSPCameraWindow = function () {
