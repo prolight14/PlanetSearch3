@@ -17,6 +17,7 @@ var SpaceStarScene = (function (_super) {
     __extends(SpaceStarScene, _super);
     function SpaceStarScene() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.imgList = [];
         _this.starImages = [];
         _this.texKeys = [];
         return _this;
@@ -42,6 +43,8 @@ var SpaceStarScene = (function (_super) {
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
         this.loadCellImages();
+        this.rt = this.add.renderTexture(0, 0, this.spaceScene.cspConfig.window.width, this.spaceScene.cspConfig.window.height).setScrollFactor(0);
+        this.rt.draw(this.texKeys[0], 0, 0);
     };
     SpaceStarScene.prototype.loadCellImages = function () {
         this.starImages.push(this.add.image(0, 0, "blueStar0"));
@@ -55,7 +58,6 @@ var SpaceStarScene = (function (_super) {
             curRT.destroy();
             this.texKeys.push(texKey);
         }
-        this.imgGroup = this.add.group();
     };
     SpaceStarScene.prototype.createCellImage = function (cellWidth, cellHeight, seed) {
         if (seed === undefined) {
@@ -80,25 +82,23 @@ var SpaceStarScene = (function (_super) {
         cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
         var world = this.spaceScene.csp.world;
-        this.csStars.world.camera.setWindow(world.camera.x, world.camera.y, Math.floor(world.camera.width * (1 / mainCam.zoom)), Math.floor(world.camera.height * (1 / mainCam.zoom)));
+        this.csStars.world.camera.setWindow(world.camera.x, world.camera.y, world.camera.width + Math.floor(world.camera.width / mainCam.zoom), world.camera.height + Math.floor(world.camera.height / mainCam.zoom));
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
         this.sys.displayList.add(this.stars);
         this.renderStars();
+        this.sys.displayList.add(this.rt);
     };
     SpaceStarScene.prototype.renderStars = function () {
-        var _this = this;
         var stars = this.stars;
         stars.clear();
         stars.fillStyle(0xFFFFFF);
         var world = this.csStars.world;
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
-        this.imgGroup.clear(true, true);
         world.loopThroughVisibleCells(function (cell, col, row) {
             var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
-            _this.imgGroup.create(col * cellWidth, row * cellHeight, _this.texKeys[Math.floor(rng.frac() * _this.texKeys.length)]);
         });
     };
     return SpaceStarScene;

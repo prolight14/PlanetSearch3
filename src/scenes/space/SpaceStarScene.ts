@@ -43,7 +43,19 @@ export default class SpaceStarScene extends Phaser.Scene
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
 
         this.loadCellImages();
+
+        this.rt = this.add.renderTexture(0, 0, this.spaceScene.cspConfig.window.width, this.spaceScene.cspConfig.window.height).setScrollFactor(0);
+
+        this.rt.draw(this.texKeys[0], 0, 0);
+
+        // var mainCam = this.spaceCameraControllerScene.cameras.main;
+
+        // this.rt.camera.setScroll(mainCam.scrollX, mainCam.scrollY);
+        // this.rt.camera.setZoom(mainCam.zoom);
+        // this.rt.camera.setAngle(this.spaceCameraControllerScene.getCamAngle());
     }
+
+    rt: Phaser.GameObjects.RenderTexture;
 
     private loadCellImages()
     {
@@ -64,11 +76,9 @@ export default class SpaceStarScene extends Phaser.Scene
 
             this.texKeys.push(texKey);
         }
-
-        this.imgGroup = this.add.group();
     }  
 
-    imgGroup: Phaser.GameObjects.Group;
+    imgList: Array<Phaser.GameObjects.Image> = [];
     starImages: Array<Phaser.GameObjects.Image> = [];
     texKeys: Array<string> = [];
     starImg1: Phaser.GameObjects.Image;
@@ -107,23 +117,22 @@ export default class SpaceStarScene extends Phaser.Scene
 
         var world = this.spaceScene.csp.world;
         this.csStars.world.camera.setWindow(
-            world.camera.x, world.camera.y, Math.floor(world.camera.width * (1 / mainCam.zoom)), Math.floor(world.camera.height * (1 / mainCam.zoom))
+            world.camera.x, world.camera.y, world.camera.width + Math.floor(world.camera.width / mainCam.zoom), world.camera.height + Math.floor(world.camera.height / mainCam.zoom)
         );
 
         var follow: { x: number, y: number } = this.spaceScene.getCameraTarget();
 
         this.csStars.setFollow(
-            follow.x * this.starScroll - this.subScrollX, 
+            follow.x * this.starScroll - this.subScrollX,  
             follow.y * this.starScroll - this.subScrollY
         );
         this.csStars.updateWorld();
 
         this.sys.displayList.add(this.stars);
         this.renderStars();
-    }
 
-    templateBlueStar0: Phaser.GameObjects.Image;
-    rt: Phaser.GameObjects.RenderTexture;
+        this.sys.displayList.add(this.rt);
+    }
 
     private renderStars()
     {
@@ -137,13 +146,27 @@ export default class SpaceStarScene extends Phaser.Scene
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
-        this.imgGroup.clear(true, true);
+        // for(var i = this.imgList.length - 1; i >= 0; i--)
+        // {
+        //     this.imgList[i].destroy();
+        //     this.imgList.pop();
+        // }
+
+        // this.rt.clear();
+
+        // this.rt.beginDraw();
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
             var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
 
-            this.imgGroup.create(col * cellWidth, row * cellHeight, this.texKeys[Math.floor(rng.frac() * this.texKeys.length)]);
+            // var img = this.add.image(col * cellWidth, row * cellHeight, this.texKeys[Math.floor(rng.frac() * this.texKeys.length)]);
+
+            // this.imgList.push(img);
+
+            // this.rt.batchDraw(this.texKeys[Math.floor(rng.frac() * this.texKeys.length)], col * cellWidth, row * cellHeight);
         });
+
+        // this.rt.endDraw();
     }
 }

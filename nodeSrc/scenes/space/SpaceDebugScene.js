@@ -20,18 +20,9 @@ var SpaceDebugScene = (function (_super) {
     }
     SpaceDebugScene.prototype.create = function () {
         this.cellGraphics = this.add.graphics();
-        this.cameraLineGraphics = this.add.graphics().setScrollFactor(0);
     };
     SpaceDebugScene.prototype.update = function (time, delta) {
         this.showGrid();
-        this.cameraLineGraphics.clear();
-        this.cameraLineGraphics.lineStyle(2, 0x549431, 1.0);
-        var world = this.scene.get("space").csp.world;
-        var s_x = world.camera.x;
-        var s_y = world.camera.y;
-        var s_width = world.camera.width;
-        var s_height = world.camera.height;
-        this.cameraLineGraphics.strokeRect(s_x, s_y, s_width, s_height);
     };
     SpaceDebugScene.prototype.showGrid = function () {
         var _this = this;

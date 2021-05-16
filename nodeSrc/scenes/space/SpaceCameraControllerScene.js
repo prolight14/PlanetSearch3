@@ -35,6 +35,9 @@ var SpaceCameraControllerScene = (function (_super) {
         this.angleSpeed = 2;
         this.updateZoom(1);
     };
+    SpaceCameraControllerScene.prototype.getCamAngle = function () {
+        return this.camAngle;
+    };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;
     };
@@ -76,8 +79,14 @@ var SpaceCameraControllerScene = (function (_super) {
         var world = this.spaceScene.csp.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
-        var prev_width = cspConfig.window.width;
-        var prev_height = cspConfig.window.height;
+        var c_width = cspConfig.window.width;
+        var c_height = cspConfig.window.height;
+        var x = Math.abs(c_width - c_width / cam.zoom) / -2;
+        var y = Math.abs(c_height - c_height / cam.zoom) / -2;
+        var width = c_width / cam.zoom + x * -2;
+        var height = c_height / cam.zoom + y * -2;
+        var prev_width = Math.abs(x) + width;
+        var prev_height = Math.abs(y) + height;
         var prev_halfWidth = prev_width / 2;
         var prev_halfHeight = prev_height / 2;
         var reuseHyp = Math.sqrt(Math.pow(prev_halfWidth, 2) + Math.pow(prev_halfHeight, 2));
@@ -102,13 +111,15 @@ var SpaceCameraControllerScene = (function (_super) {
         var maxX = Math.max(upperLeft.x, lowerLeft.x, upperRight.x, lowerRight.x);
         var minY = Math.min(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
         var maxY = Math.max(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
-        var c_width = cspConfig.window.width;
-        var c_height = cspConfig.window.height;
-        var x = (c_width - c_width / cam.zoom) / 2;
-        var y = (c_height - c_height / cam.zoom) / 2;
-        var width = c_width / cam.zoom;
-        var height = c_height / cam.zoom;
-        world.camera.setWindow(x - 400, y - 400, width + 800, height + 800);
+        minX -= Math.abs(x);
+        maxX -= Math.abs(x);
+        minY -= Math.abs(y);
+        maxY -= Math.abs(y);
+        x = minX / 2;
+        y = minY / 2;
+        width = maxX - minX;
+        height = maxY - minY;
+        world.camera.setWindow(x, y, width, height);
     };
     return SpaceCameraControllerScene;
 }(Phaser.Scene));

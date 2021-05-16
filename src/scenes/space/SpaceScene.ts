@@ -81,7 +81,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
 
-        this.scene.run("spaceDebug");
+        this.scene.sleep("spaceDebug");
  
         this.input.keyboard.on("keydown-U", () =>
         {
@@ -143,9 +143,9 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public update(time: number, delta: number)
     {
-        var cam = this.cameras.main;
+        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
-        this.csp.setFollow(cam.scrollX, cam.scrollY);
+        this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld();
     }
 }

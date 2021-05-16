@@ -70,7 +70,7 @@ var SpaceScene = (function (_super) {
         var _this = this;
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-        this.scene.run("spaceDebug");
+        this.scene.sleep("spaceDebug");
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {
                 _this.scene.wake("spaceUIDebug");
@@ -109,8 +109,8 @@ var SpaceScene = (function (_super) {
         return this.cameraTarget;
     };
     SpaceScene.prototype.update = function (time, delta) {
-        var cam = this.cameras.main;
-        this.csp.setFollow(cam.scrollX, cam.scrollY);
+        var playerShip = this.scene.get("spaceLogic").playerShip;
+        this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld();
     };
     return SpaceScene;
