@@ -44,7 +44,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.loadCellImages();
 
-        this.rt = this.add.renderTexture(0, 0, this.spaceScene.cspConfig.window.width, this.spaceScene.cspConfig.window.height).setScrollFactor(0);
+        this.rt = this.add.renderTexture(0 - 500, 0 - 500, this.spaceScene.cspConfig.window.width + 1000, this.spaceScene.cspConfig.window.height + 1000).setScrollFactor(0);
 
         this.rt.draw(this.texKeys[0], 0, 0);
 
@@ -146,27 +146,71 @@ export default class SpaceStarScene extends Phaser.Scene
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
-        // for(var i = this.imgList.length - 1; i >= 0; i--)
-        // {
-        //     this.imgList[i].destroy();
-        //     this.imgList.pop();
-        // }
+        var mainCam: Phaser.Cameras.Scene2D.Camera = this.cameras.main;
 
-        // this.rt.clear();
+        let mainWorld = this.spaceScene.csp.world;
 
-        // this.rt.beginDraw();
+        var cspConfig = this.spaceScene.cspConfig;
 
-        world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
+        var c_width = cspConfig.window.width;
+        var c_height = cspConfig.window.height;
+
+        // this.rt.x = Math.abs(c_width - c_width / mainCam.zoom) / -2;
+        // this.rt.y = Math.abs(c_height - c_height / mainCam.zoom) / -2;
+        // this.rt.width = this.rt.displayWidth = c_width / (1 - mainCam.zoom) + this.rt.x * -2;
+        // this.rt.height = this.rt.displayHeight = c_height / (1 - mainCam.zoom) + this.rt.y * -2;
+   
+
+        // this.rt.x = 0;
+        // this.rt.y = 0;
+        // this.rt.width = c_width * mainCam.zoom;
+        // this.rt.height = c_height * mainCam.zoom;
+
+        // this.rt.width *= mainCam.zoom;
+        // this.rt.height *= mainCam.zoom;
+
+        // debugger;
+
+        // this.rt.x = 0;//world.camera.x / 2;
+        // this.rt.y = 0;//world.camera.y / 2;
+        // this.rt.width = mainWorld.camera.width;
+        // this.rt.height = mainWorld.camera.height;
+
+        // this.rt.setScrollFactor(0);
+
+        this.rt.setDisplayOrigin(0.5, 0.5);
+        this.rt.setScale(1);
+
+        this.rt.clear();
+        // this.rt.camera.setScroll(mainCam.scrollX, mainCam.scrollY);
+        // this.rt.camera.setZoom(mainCam.zoom);
+        
+
+        /**
+         * Note: What mom says: Is just patch the screen with render textures to fill up the entire screen 
+         *  */ 
+
+        this.rt.beginDraw();
+
+        // var c_cam = this.scene.get("spaceCameraController").cameras.main;
+
+        var minPos = world.cameraGrid.getCoordinates(world.camera.boundingBox.minX, world.camera.boundingBox.minY);
+        var maxPos = world.cameraGrid.getCoordinates(world.camera.boundingBox.maxX, world.camera.boundingBox.maxY);
+
+        world.cameraGrid.loopThroughCells(minPos.col, minPos.row, maxPos.col, maxPos.row, (cell: object, col: number, row: number) =>
         {
             var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
 
-            // var img = this.add.image(col * cellWidth, row * cellHeight, this.texKeys[Math.floor(rng.frac() * this.texKeys.length)]);
-
-            // this.imgList.push(img);
-
-            // this.rt.batchDraw(this.texKeys[Math.floor(rng.frac() * this.texKeys.length)], col * cellWidth, row * cellHeight);
+            this.rt.batchDraw(this.texKeys[Math.floor(rng.frac() * this.texKeys.length)], col * cellWidth - mainCam.scrollX, row * cellHeight - mainCam.scrollY);
         });
 
-        // this.rt.endDraw();
+        // world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
+        // {
+        //     var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+
+        //     this.rt.batchDraw(this.texKeys[Math.floor(rng.frac() * this.texKeys.length)], col * cellWidth - mainCam.scrollX, row * cellHeight - mainCam.scrollY);
+        // });
+
+        this.rt.endDraw();
     }
 }

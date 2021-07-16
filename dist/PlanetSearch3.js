@@ -1038,7 +1038,7 @@ var SpaceStarScene = (function (_super) {
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
         this.loadCellImages();
-        this.rt = this.add.renderTexture(0, 0, this.spaceScene.cspConfig.window.width, this.spaceScene.cspConfig.window.height).setScrollFactor(0);
+        this.rt = this.add.renderTexture(0 - 500, 0 - 500, this.spaceScene.cspConfig.window.width + 1000, this.spaceScene.cspConfig.window.height + 1000).setScrollFactor(0);
         this.rt.draw(this.texKeys[0], 0, 0);
     };
     SpaceStarScene.prototype.loadCellImages = function () {
@@ -1086,15 +1086,29 @@ var SpaceStarScene = (function (_super) {
         this.sys.displayList.add(this.rt);
     };
     SpaceStarScene.prototype.renderStars = function () {
+        var _this = this;
         var stars = this.stars;
         stars.clear();
         stars.fillStyle(0xFFFFFF);
         var world = this.csStars.world;
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
-        world.loopThroughVisibleCells(function (cell, col, row) {
+        var mainCam = this.cameras.main;
+        var mainWorld = this.spaceScene.csp.world;
+        var cspConfig = this.spaceScene.cspConfig;
+        var c_width = cspConfig.window.width;
+        var c_height = cspConfig.window.height;
+        this.rt.setDisplayOrigin(0.5, 0.5);
+        this.rt.setScale(1);
+        this.rt.clear();
+        this.rt.beginDraw();
+        var minPos = world.cameraGrid.getCoordinates(world.camera.boundingBox.minX, world.camera.boundingBox.minY);
+        var maxPos = world.cameraGrid.getCoordinates(world.camera.boundingBox.maxX, world.camera.boundingBox.maxY);
+        world.cameraGrid.loopThroughCells(minPos.col, minPos.row, maxPos.col, maxPos.row, function (cell, col, row) {
             var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            _this.rt.batchDraw(_this.texKeys[Math.floor(rng.frac() * _this.texKeys.length)], col * cellWidth - mainCam.scrollX, row * cellHeight - mainCam.scrollY);
         });
+        this.rt.endDraw();
     };
     return SpaceStarScene;
 }(Phaser.Scene));
