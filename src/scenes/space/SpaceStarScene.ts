@@ -15,13 +15,19 @@ export default class SpaceStarScene extends Phaser.Scene
             url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csStars'
         });
+
+        this.load.spritesheet("starSheet1" + this.scene.key, "./assets/Space/Stars/Stars.png", 
+        {
+            frameWidth: 12,
+            frameHeight: 12
+        });
     }
 
     private spaceScene: SpaceScene;
     private spaceCameraControllerScene: SpaceCameraControllerScene;
     private subScrollX: number;
     private subScrollY: number;
-    private stars: Phaser.GameObjects.Graphics;
+    // private stars: Phaser.GameObjects.Graphics;
 
     public create(data: { starsPerCell: number, starSize: number, starScroll: number })
     {
@@ -33,7 +39,7 @@ export default class SpaceStarScene extends Phaser.Scene
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController") as SpaceCameraControllerScene;
         this.csStars.initWorld(this.spaceScene.cspConfig);
 
-        this.stars = this.add.graphics();
+        // this.stars = this.add.graphics();
 
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
@@ -41,7 +47,19 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
+
+        this.star0 = this.add.image(0, 0, "starSheet1" + this.scene.key, 0);
+        this.blueStar0 = this.add.image(0, 0, "blueStar0").setScrollFactor(0);
+
+        const screenWidth: number = this.game.config.width as number;
+        const screenHeight: number = this.game.config.height as number;
+
+        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0.5, 0.5).setScale(2);
+        this.rt.setScrollFactor(0);
     }
+
+    private star0: Phaser.GameObjects.Image;
+    private blueStar0: Phaser.GameObjects.Image;
 
     rt: Phaser.GameObjects.RenderTexture;
 
@@ -74,26 +92,47 @@ export default class SpaceStarScene extends Phaser.Scene
         );
         this.csStars.updateWorld();
 
-        this.sys.displayList.add(this.stars);
+        this.sys.displayList.add(this.rt);
         this.renderStars();
     }
 
     private renderStars()
     {
-        var stars: Phaser.GameObjects.Graphics = this.stars; 
+        // var stars: Phaser.GameObjects.Graphics = this.stars; 
 
-        stars.clear();
-        stars.fillStyle(0xFFFFFF); 
-
+        // stars.clear();
+        // stars.fillStyle(0xFFFFFF); 
+        
+        // Dead code:
         let world: any = this.csStars.world;
 
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
         var mainCam: Phaser.Cameras.Scene2D.Camera = this.cameras.main;
-
         let mainWorld = this.spaceScene.csp.world;
-
         var cspConfig = this.spaceScene.cspConfig;
+
+        this.rt.clear();
+
+        this.rt.beginDraw();
+
+            world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
+            {
+                var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+
+                for(var i = 0; i < 22; i++)
+                {
+                    this.rt.batchDraw(
+                        this.star0, 
+                        col * cellWidth - mainCam.scrollX + cellWidth * rng.frac(),
+                        row * cellHeight - mainCam.scrollY + cellHeight * rng.frac()
+                    );
+                }
+            });
+
+        this.rt.endDraw();
+
+
     }
 }

@@ -89,6 +89,7 @@ var SpaceScene = (function (_super) {
         });
     };
     SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
+        this.scene.sleep("spaceBackground");
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");

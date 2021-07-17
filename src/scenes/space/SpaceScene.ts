@@ -20,7 +20,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png")
+        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png");
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
@@ -60,6 +60,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public runScenes(calledByEntryScene?: boolean)
     {
+        // this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
@@ -109,6 +110,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public sleepScenes(calledByEntryScene?: boolean)
     {
+        this.scene.sleep("spaceBackground");
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
