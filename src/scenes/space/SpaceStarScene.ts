@@ -54,7 +54,7 @@ export default class SpaceStarScene extends Phaser.Scene
         const screenWidth: number = this.game.config.width as number;
         const screenHeight: number = this.game.config.height as number;
 
-        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0.5, 0.5).setScale(2);
+        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0, 0).setScale(2);
         this.rt.setScrollFactor(0);
     }
 

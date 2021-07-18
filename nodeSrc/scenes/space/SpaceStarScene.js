@@ -45,7 +45,7 @@ var SpaceStarScene = (function (_super) {
         this.blueStar0 = this.add.image(0, 0, "blueStar0").setScrollFactor(0);
         var screenWidth = this.game.config.width;
         var screenHeight = this.game.config.height;
-        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0.5, 0.5).setScale(2);
+        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0, 0).setScale(2);
         this.rt.setScrollFactor(0);
     };
     SpaceStarScene.prototype.update = function () {
