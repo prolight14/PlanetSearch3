@@ -961,6 +961,7 @@ var SpaceScene = (function (_super) {
         this.loaded = true;
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
+        this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
@@ -1227,6 +1228,7 @@ var StarSceneControllerScene = (function (_super) {
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceBackground");
         this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.onSleep = function () {

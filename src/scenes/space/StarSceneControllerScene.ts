@@ -45,6 +45,8 @@ export default class StarSceneControllerScene extends Phaser.Scene
         });
         this.scene.sendToBack("spaceStar3");
 
+        this.scene.sendToBack("spaceBackground");
+
         this.starScenesSleeping = false;
     }
 

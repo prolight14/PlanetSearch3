@@ -52,6 +52,7 @@ var SpaceScene = (function (_super) {
         this.loaded = true;
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
+        this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");

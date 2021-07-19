@@ -43,6 +43,7 @@ var StarSceneControllerScene = (function (_super) {
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceBackground");
         this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.onSleep = function () {
