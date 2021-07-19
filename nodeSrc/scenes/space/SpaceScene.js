@@ -18,16 +18,14 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, "space") || this;
         _this.loaded = false;
-        _this.quickLoad = true;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
-        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",

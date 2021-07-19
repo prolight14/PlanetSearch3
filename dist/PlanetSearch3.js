@@ -138,12 +138,9 @@ var EnemyShip = (function (_super) {
             turnRight: function () {
                 return _this.turnDir === "right";
             },
-            goForward: function () {
-                return true;
-            },
+            goForward: function () { return true; },
             shoot: function () { return false; }
         };
-        _this.setScale(2, 2);
         _this.angleVel = 3;
         _this.speed = 4.5;
         _this.turnTimer = timer(true, 1000, function () {
@@ -274,7 +271,7 @@ var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "playerShip") || this;
+        var _this = _super.call(this, scene, x, y, "helixShip") || this;
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -293,7 +290,7 @@ var PlayerShip = (function (_super) {
             },
             shoot: function () { return false; }
         };
-        _this.setScale(2, 2);
+        _this.setScale(1, 1);
         _this.angleVel = 3;
         _this.speed = 6;
         return _this;
@@ -669,7 +666,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 4));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -863,16 +860,19 @@ var SpaceLogicScene = (function (_super) {
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
         var rng = new Phaser.Math.RandomDataGenerator("rand1");
         for (var i = 0; i < nebulaeAmt; i++) {
-            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula").setScale(13, 13);
+            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
-        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
+        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
         var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
         enemyShips.add(this.spaceScene, 67000, 60000);
         enemyShips.add(this.spaceScene, 70000, 60000);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
+        this.spaceScene.sys.displayList.list.forEach(function (object) {
+            object.setScale(2);
+        });
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();
@@ -927,16 +927,14 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, "space") || this;
         _this.loaded = false;
-        _this.quickLoad = true;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
-        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",
@@ -1062,10 +1060,6 @@ var SpaceStarScene = (function (_super) {
             url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csStars'
         });
-        this.load.spritesheet("starSheet1" + this.scene.key, "./assets/Space/Stars/Stars.png", {
-            frameWidth: 12,
-            frameHeight: 12
-        });
     };
     SpaceStarScene.prototype.create = function (data) {
         this.starsPerCell = data.starsPerCell;
@@ -1079,12 +1073,7 @@ var SpaceStarScene = (function (_super) {
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
-        this.star0 = this.add.image(0, 0, "starSheet1" + this.scene.key, 0);
-        this.blueStar0 = this.add.image(0, 0, "blueStar0").setScrollFactor(0);
-        var screenWidth = this.game.config.width;
-        var screenHeight = this.game.config.height;
-        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight).setOrigin(0, 0).setScale(2);
-        this.rt.setScrollFactor(0);
+        this.stars = this.add.graphics();
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
@@ -1102,26 +1091,26 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.sys.displayList.add(this.rt);
+        this.sys.displayList.add(this.stars);
         this.renderStars();
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;
+        var stars = this.stars;
+        stars.clear();
+        stars.fillStyle(0xFFFFFF);
         var world = this.csStars.world;
+        var rng, i, x, y;
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
-        var mainCam = this.cameras.main;
-        var mainWorld = this.spaceScene.csp.world;
-        var cspConfig = this.spaceScene.cspConfig;
-        this.rt.clear();
-        this.rt.beginDraw();
         world.loopThroughVisibleCells(function (cell, col, row) {
-            var rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
-            for (var i = 0; i < 22; i++) {
-                _this.rt.batchDraw(_this.star0, col * cellWidth - mainCam.scrollX + cellWidth * rng.frac(), row * cellHeight - mainCam.scrollY + cellHeight * rng.frac());
+            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            x = col * cellWidth;
+            y = row * cellHeight;
+            for (i = 0; i < _this.starsPerCell; i++) {
+                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
             }
         });
-        this.rt.endDraw();
     };
     return SpaceStarScene;
 }(Phaser.Scene));
@@ -1221,19 +1210,19 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starsPerCell: 100,
+            starsPerCell: 20,
             starSize: 3,
             starScroll: 1
         });
         this.scene.sendToBack("spaceStar");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starsPerCell: 124,
+            starsPerCell: 29,
             starSize: 2,
             starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 250,
+            starsPerCell: 42,
             starSize: 1,
             starScroll: 0.56
         });

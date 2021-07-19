@@ -17,7 +17,7 @@ var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "playerShip") || this;
+        var _this = _super.call(this, scene, x, y, "helixShip") || this;
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -36,7 +36,7 @@ var PlayerShip = (function (_super) {
             },
             shoot: function () { return false; }
         };
-        _this.setScale(2, 2);
+        _this.setScale(1, 1);
         _this.angleVel = 3;
         _this.speed = 6;
         return _this;

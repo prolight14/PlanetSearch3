@@ -53,7 +53,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         d: Phaser.Input.Keyboard.Key,
         w: Phaser.Input.Keyboard.Key,
         s: Phaser.Input.Keyboard.Key,
-        left: Phaser.Input.Keyboard.Key,
+        left: Phaser.Input.Keyboard.Key, 
         right: Phaser.Input.Keyboard.Key,
         up: Phaser.Input.Keyboard.Key,
         down: Phaser.Input.Keyboard.Key

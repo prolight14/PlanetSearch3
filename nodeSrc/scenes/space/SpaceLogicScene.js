@@ -32,16 +32,19 @@ var SpaceLogicScene = (function (_super) {
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
         var rng = new Phaser.Math.RandomDataGenerator("rand1");
         for (var i = 0; i < nebulaeAmt; i++) {
-            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula").setScale(13, 13);
+            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
-        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet").setScale(13, 13);
+        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
+        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
         var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
         enemyShips.add(this.spaceScene, 67000, 60000);
         enemyShips.add(this.spaceScene, 70000, 60000);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 60000 + 1000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
+        this.spaceScene.sys.displayList.list.forEach(function (object) {
+            object.setScale(2);
+        });
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();

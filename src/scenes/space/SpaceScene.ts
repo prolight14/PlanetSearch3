@@ -15,12 +15,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public preload()
     {
-        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("blueStar0", "./assets/Space/Stars/blueStar0.png");
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
@@ -31,8 +30,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public cspConfig: any;
     public loaded: boolean = false;
-
-    public quickLoad: boolean = true;
 
     public create()
     {
@@ -56,7 +53,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.loaded = true;
     }
 
-    playerShip: PlayerShip;   
+    playerShip: PlayerShip;
 
     public runScenes(calledByEntryScene?: boolean)
     {
@@ -75,6 +72,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 playerShip.keys[i].reset();
             }
         }
+
+        // this.scene.sendToBack("spaceBackground");
     }
 
     private runDebugScenes()

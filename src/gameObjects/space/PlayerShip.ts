@@ -5,7 +5,7 @@ export default class PlayerShip extends Ship
 {
     constructor (scene: SpaceScene, x: number, y: number)
     {
-        super(scene, x, y, "playerShip");
+        super(scene, x, y, "helixShip");
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -30,7 +30,7 @@ export default class PlayerShip extends Ship
             shoot: () => false         
         };
 
-        this.setScale(2, 2);
+        this.setScale(1, 1);
         this.angleVel = 3;
         this.speed = 6;
     }

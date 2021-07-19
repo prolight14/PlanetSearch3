@@ -44,12 +44,9 @@ var EnemyShip = (function (_super) {
             turnRight: function () {
                 return _this.turnDir === "right";
             },
-            goForward: function () {
-                return true;
-            },
+            goForward: function () { return true; },
             shoot: function () { return false; }
         };
-        _this.setScale(2, 2);
         _this.angleVel = 3;
         _this.speed = 4.5;
         _this.turnTimer = timer(true, 1000, function () {
