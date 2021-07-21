@@ -1,6 +1,5 @@
 import Planet from "../../gameObjects/space/Planet";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
-import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
@@ -15,7 +14,9 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public preload()
     {
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
         this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
@@ -146,6 +147,9 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
         this.csp.setFollow(playerShip.x, playerShip.y);
-        this.csp.updateWorld();
+        this.csp.updateWorld((csp?: any) =>
+        {
+            csp.systems.displayList.add(playerShip.particles);
+        });
     }
 }

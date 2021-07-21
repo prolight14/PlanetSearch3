@@ -22,7 +22,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         {
             // starsPerCell: 100,
             starsPerCell: 20,
-            starSize: 3,
+            starSize: 4,
             starScroll: 1
         });
         this.scene.sendToBack("spaceStar");
@@ -31,7 +31,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         {
             // starsPerCell: 124,
             starsPerCell: 29,
-            starSize: 2,
+            starSize: 3,
             starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
@@ -40,7 +40,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         {
             // starsPerCell: 250,
             starsPerCell: 42,
-            starSize: 1,
+            starSize: 2,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");

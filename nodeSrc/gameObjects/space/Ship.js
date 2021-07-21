@@ -17,7 +17,9 @@ var SpaceGameObject_1 = require("./SpaceGameObject");
 var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture) {
-        return _super.call(this, scene, x, y, texture) || this;
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.speed = 0;
+        return _this;
     }
     Ship.prototype.preUpdate = function () {
         if (this.controls.turnLeft()) {
@@ -27,10 +29,28 @@ var Ship = (function (_super) {
             this.setAngle(this.angle + this.angleVel);
         }
         if (this.controls.goForward()) {
-            var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
+            this.speed += 0.5;
         }
+        else {
+            if (this.speed > 0) {
+                this.speed -= 0.05;
+            }
+            else {
+                this.speed = 0;
+            }
+        }
+        if (this.controls.slowDown()) {
+            if (this.speed > 0) {
+                this.speed -= 0.35;
+            }
+            else {
+                this.speed = 0;
+            }
+        }
+        this.speed = Math.min(this.speed, 10);
+        var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
+        this.x += Math.cos(angle) * this.speed;
+        this.y += Math.sin(angle) * this.speed;
         this.bodyConf.update();
     };
     return Ship;

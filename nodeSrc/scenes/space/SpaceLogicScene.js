@@ -17,6 +17,7 @@ var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
 var EnemyShip_1 = require("../../gameObjects/space/EnemyShip");
 var Nebula_1 = require("../../gameObjects/space/Nebula");
+var Asteroid_1 = require("../../gameObjects/space/Asteroid");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -40,6 +41,8 @@ var SpaceLogicScene = (function (_super) {
         var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
         enemyShips.add(this.spaceScene, 67000, 60000);
         enemyShips.add(this.spaceScene, 70000, 60000);
+        var asteroids = world.add.gameObjectArray(Asteroid_1.default);
+        asteroids.add(this.spaceScene, 69300, 61000);
         this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.spaceScene.sys.displayList.list.forEach(function (object) {

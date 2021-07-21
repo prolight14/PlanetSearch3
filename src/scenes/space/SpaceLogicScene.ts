@@ -4,6 +4,7 @@ import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
 import EnemyShip from "../../gameObjects/space/EnemyShip";
 import Nebula from "../../gameObjects/space/Nebula";
+import Asteroid from "../../gameObjects/space/Asteroid";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -44,6 +45,10 @@ export default class SpaceLogicScene extends Phaser.Scene
         var enemyShips = world.add.gameObjectArray(EnemyShip);
         enemyShips.add(this.spaceScene, 67000, 60000);
         enemyShips.add(this.spaceScene, 70000, 60000);
+
+        var asteroids = world.add.gameObjectArray(Asteroid);
+
+        asteroids.add(this.spaceScene, 69300, 61000);
 
         this.playerShip = world.add.gameObjectArray(PlayerShip).add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);

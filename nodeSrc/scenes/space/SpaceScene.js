@@ -21,7 +21,9 @@ var SpaceScene = (function (_super) {
         return _this;
     }
     SpaceScene.prototype.preload = function () {
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
         this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
@@ -111,7 +113,9 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var playerShip = this.scene.get("spaceLogic").playerShip;
         this.csp.setFollow(playerShip.x, playerShip.y);
-        this.csp.updateWorld();
+        this.csp.updateWorld(function (csp) {
+            csp.systems.displayList.add(playerShip.particles);
+        });
     };
     return SpaceScene;
 }(Phaser.Scene));

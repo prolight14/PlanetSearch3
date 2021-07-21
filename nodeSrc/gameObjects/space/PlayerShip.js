@@ -24,6 +24,18 @@ var PlayerShip = (function (_super) {
             w: scene.input.keyboard.addKey('w'),
             s: scene.input.keyboard.addKey('s')
         };
+        _this.particles = scene.add.particles("helixShipParticle");
+        _this.pEmitter = _this.particles.createEmitter({
+            lifespan: 500,
+            scale: 1.5,
+            speed: 70,
+            angle: { min: 65, max: 115 },
+            rotate: 0,
+            x: 0,
+            y: 0,
+            quantity: 1,
+            alpha: { min: 0x00, max: 0xFF }
+        });
         _this.controls = {
             turnLeft: function () {
                 return _this.keys.a.isDown;
@@ -34,6 +46,9 @@ var PlayerShip = (function (_super) {
             goForward: function () {
                 return _this.keys.w.isDown;
             },
+            slowDown: function () {
+                return _this.keys.s.isDown;
+            },
             shoot: function () { return false; }
         };
         _this.setScale(1, 1);
@@ -43,6 +58,12 @@ var PlayerShip = (function (_super) {
     }
     PlayerShip.prototype.preUpdate = function () {
         Ship_1.default.prototype.preUpdate.apply(this, arguments);
+        var rot = this.rotation + Math.PI / 2;
+        this.particles.x = this.x + Math.cos(rot) * this.height;
+        this.particles.y = this.y + Math.sin(rot) * this.height;
+        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setSpeed(this.speed * 100 / 10);
     };
     return PlayerShip;
 }(Ship_1.default));

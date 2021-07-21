@@ -52,6 +52,7 @@ export default class EnemyShip extends Ship
                 return this.turnDir === "right";
             },
             goForward: () => true,
+            slowDown: () => false,
             shoot: () => false         
         };
 

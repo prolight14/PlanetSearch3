@@ -11,11 +11,12 @@ export default class Ship extends SpaceGameObject
         turnLeft: () => boolean;
         turnRight: () => boolean;
         goForward: () => boolean;
+        slowDown: () => boolean;
         shoot: () => boolean;
     }
 
     protected angleVel: number;
-    protected speed: number;
+    protected speed: number = 0;
 
     public preUpdate()
     {
@@ -30,10 +31,37 @@ export default class Ship extends SpaceGameObject
 
         if(this.controls.goForward())
         {
-            let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
+            this.speed += 0.5;
         }
+        else 
+        {
+            if(this.speed > 0)
+            {
+                this.speed -= 0.05;
+            }  
+            else
+            {
+                this.speed = 0;
+            } 
+        }
+
+        if(this.controls.slowDown())
+        {
+            if(this.speed > 0)
+            {
+                this.speed -= 0.35;
+            }  
+            else
+            {
+                this.speed = 0;
+            } 
+        }
+
+        this.speed = Math.min(this.speed, 10);
+
+        let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
+        this.x += Math.cos(angle) * this.speed;
+        this.y += Math.sin(angle) * this.speed;
 
         this.bodyConf.update();
     }

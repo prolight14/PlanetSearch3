@@ -27,19 +27,19 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starsPerCell: 20,
-            starSize: 3,
+            starSize: 4,
             starScroll: 1
         });
         this.scene.sendToBack("spaceStar");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             starsPerCell: 29,
-            starSize: 2,
+            starSize: 3,
             starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
             starsPerCell: 42,
-            starSize: 1,
+            starSize: 2,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");

@@ -11,6 +11,7 @@
     return (function () {
         var __webpack_modules__ = ({
             "./CartesianSystemPlugin.js": (function (module) {
+                function NOOP() { }
                 var CartesianSystemPlugin = function (scene) {
                     this.scene = scene;
                     this.systems = scene.sys;
@@ -34,12 +35,13 @@
                         var bounds = this.world.bounds;
                         this.scene.cameras.main.setBounds(bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
                     },
-                    integrate: function () {
+                    integrate: function (callback) {
                         var world = this.world;
                         var sys = this.systems;
                         sys.displayList.removeAll();
                         sys.updateList.removeAll();
                         sys.updateList.update();
+                        callback(this);
                         world.loopProcessList(function (object) {
                             sys.displayList.add(object);
                             sys.updateList.add(object);
@@ -50,11 +52,14 @@
                         this.followX = x;
                         this.followY = y;
                     },
-                    updateWorld: function () {
+                    updateWorld: function (callback) {
+                        if (callback === undefined) {
+                            callback = NOOP;
+                        }
                         var world = this.world;
                         world.update(this.followX, this.followY);
                         world.updateProcessList();
-                        this.integrate();
+                        this.integrate(callback);
                         world.resetProcessList();
                     },
                     syncWithGrid: function () {

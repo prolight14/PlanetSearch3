@@ -32,6 +32,7 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.preload = function () {
         this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
         this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
         switch (passObj.type) {

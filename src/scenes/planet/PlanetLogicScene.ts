@@ -22,6 +22,9 @@ export default class PlanetLogicScene extends Phaser.Scene
     {
         this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
         this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        
     }
 
 
