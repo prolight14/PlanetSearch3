@@ -27,7 +27,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         { 
             var cam = this.cameras.main;
 
-            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 1.5));
+            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 4));
 
         });
 
@@ -39,8 +39,15 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.camAngle = 0;
         this.angleSpeed = 2;
+
+        this.updateZoom(1);
     }
 
+    public getCamAngle(): number
+    {
+        return this.camAngle;
+    }
+   
     public getCameraAngle(): number
     {
         return this.camAngle;
@@ -97,19 +104,38 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
             this.updateZoom(1);
         }
     }
- 
+
     private resizeCSPCameraWindow ()
     {
-        var world: any = this.spaceScene.csp.world;
-        var cspConfig = this.spaceScene.cspConfig;
-        var cam = this.cameras.main;
-        
-        var prev_width: number = cspConfig.window.width;
-        var prev_height: number = cspConfig.window.height;
+        const world: any = this.spaceScene.csp.world;
+        const cspConfig = this.spaceScene.cspConfig;
+        const cam = this.cameras.main;
+
+        var c_width = cspConfig.window.width;
+        var c_height = cspConfig.window.height;
+
+        // if(cam.zoom > 1)
+        // {
+        //     return world.camera.setWindow(
+        //         0,
+        //         0,
+        //         c_width,
+        //         c_height
+        //     );
+        // }
+
+        var x = Math.abs(c_width - c_width / cam.zoom) / -2;
+        var y = Math.abs(c_height - c_height / cam.zoom) / -2;
+        var width = c_width / cam.zoom + x * -2;
+        var height = c_height / cam.zoom + y * -2;
+
+        var prev_width: number = Math.abs(x) + width;
+        var prev_height: number = Math.abs(y) + height;
         var prev_halfWidth = prev_width / 2;
         var prev_halfHeight = prev_height / 2;
 
         let reuseHyp = Math.sqrt(Math.pow(prev_halfWidth, 2) + Math.pow(prev_halfHeight, 2));
+
         let startingAngle = Math.atan2(prev_halfHeight, prev_halfWidth) + this.camAngle * Phaser.Math.DEG_TO_RAD;
 
         let upperLeft: any = {};
@@ -138,20 +164,22 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         var minY = Math.min(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
         var maxY = Math.max(upperLeft.y, lowerLeft.y, upperRight.y, lowerRight.y);
 
-        var x = minX;
-        var y = minY;
-        var width = maxX - minX;
-        var height = maxY - minY;
+        minX -= Math.abs(x);
+        maxX -= Math.abs(x);
+        minY -= Math.abs(y);
+        maxY -= Math.abs(y);
 
-        // hyp = ((opp + adj) / 2) * Math.sqrt(2)
-        var derivedWidth: number = width * Math.SQRT2 / cam.zoom;
-        var derivedHeight: number = height * Math.SQRT2 / cam.zoom;
+        x = minX / 2;
+        y = minY / 2;
+        width = maxX - minX;
+        height = maxY - minY;
 
+        // Set window
         world.camera.setWindow(
-            x - (derivedWidth - width) / 2, 
-            y - (derivedHeight - height) / 2, 
-            derivedWidth,
-            derivedHeight
+            x,
+            y,
+            width,
+            height
         );
     }
 }

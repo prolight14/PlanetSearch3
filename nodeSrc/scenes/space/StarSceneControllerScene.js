@@ -26,23 +26,24 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starsPerCell: 100,
-            starSize: 3,
+            starsPerCell: 20,
+            starSize: 4,
             starScroll: 1
         });
         this.scene.sendToBack("spaceStar");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starsPerCell: 124,
-            starSize: 2,
+            starsPerCell: 29,
+            starSize: 3,
             starScroll: 0.73
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 250,
-            starSize: 1,
+            starsPerCell: 42,
+            starSize: 2,
             starScroll: 0.56
         });
         this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceBackground");
         this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.onSleep = function () {
@@ -55,6 +56,7 @@ var StarSceneControllerScene = (function (_super) {
         this.scene.wake("spaceStar");
         this.scene.wake("spaceStar2");
         this.scene.wake("spaceStar3");
+        this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.update = function () {
         this.updateStarFade();

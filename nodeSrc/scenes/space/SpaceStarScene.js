@@ -32,12 +32,12 @@ var SpaceStarScene = (function (_super) {
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
         this.csStars.initWorld(this.spaceScene.cspConfig);
-        this.stars = this.add.graphics();
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
+        this.stars = this.add.graphics();
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
@@ -50,7 +50,8 @@ var SpaceStarScene = (function (_super) {
         cam.setZoom(mainCam.zoom);
         cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
-        this.setCSPCameraWindow();
+        var world = this.spaceScene.csp.world;
+        this.csStars.world.camera.setWindow(world.camera.x, world.camera.y, world.camera.width + Math.floor(world.camera.width / mainCam.zoom), world.camera.height + Math.floor(world.camera.height / mainCam.zoom));
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
@@ -71,13 +72,9 @@ var SpaceStarScene = (function (_super) {
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
-                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), _this.starSize, _this.starSize);
+                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), _this.starSize, _this.starSize);
             }
         });
-    };
-    SpaceStarScene.prototype.setCSPCameraWindow = function () {
-        var world = this.spaceScene.csp.world;
-        this.csStars.world.camera.setWindow(world.camera.x, world.camera.y, world.camera.width, world.camera.height);
     };
     return SpaceStarScene;
 }(Phaser.Scene));

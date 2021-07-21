@@ -13,17 +13,29 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceGameObject_1 = require("./SpaceGameObject");
+var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
-    function PlayerShip(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
+    function PlayerShip(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "helixShip") || this;
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
             w: scene.input.keyboard.addKey('w'),
             s: scene.input.keyboard.addKey('s')
         };
+        _this.particles = scene.add.particles("helixShipParticle");
+        _this.pEmitter = _this.particles.createEmitter({
+            lifespan: 500,
+            scale: 1.5,
+            speed: 70,
+            angle: { min: 65, max: 115 },
+            rotate: 0,
+            x: 0,
+            y: 0,
+            quantity: 1,
+            alpha: { min: 0x00, max: 0xFF }
+        });
         _this.controls = {
             turnLeft: function () {
                 return _this.keys.a.isDown;
@@ -33,28 +45,27 @@ var PlayerShip = (function (_super) {
             },
             goForward: function () {
                 return _this.keys.w.isDown;
-            }
+            },
+            slowDown: function () {
+                return _this.keys.s.isDown;
+            },
+            shoot: function () { return false; }
         };
-        _this.setScale(2, 2);
+        _this.setScale(1, 1);
         _this.angleVel = 3;
         _this.speed = 6;
         return _this;
     }
     PlayerShip.prototype.preUpdate = function () {
-        if (this.controls.turnLeft()) {
-            this.setAngle(this.angle - this.angleVel);
-        }
-        if (this.controls.turnRight()) {
-            this.setAngle(this.angle + this.angleVel);
-        }
-        if (this.controls.goForward()) {
-            var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
-        }
-        this.bodyConf.update();
+        Ship_1.default.prototype.preUpdate.apply(this, arguments);
+        var rot = this.rotation + Math.PI / 2;
+        this.particles.x = this.x + Math.cos(rot) * this.height;
+        this.particles.y = this.y + Math.sin(rot) * this.height;
+        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setSpeed(this.speed * 100 / 10);
     };
     return PlayerShip;
-}(SpaceGameObject_1.default));
+}(Ship_1.default));
 exports.default = PlayerShip;
 //# sourceMappingURL=PlayerShip.js.map

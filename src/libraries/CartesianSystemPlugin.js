@@ -17,6 +17,8 @@ return /******/ (() => { // webpackBootstrap
   \**********************************/
 /***/ ((module) => {
 
+function NOOP() {}
+
 var CartesianSystemPlugin = function (scene)
 {
     this.scene = scene;
@@ -58,7 +60,7 @@ CartesianSystemPlugin.prototype = {
         );
     },
 
-    integrate: function()
+    integrate: function(callback)
     {
         var world = this.world;
         var sys = this.systems;
@@ -67,6 +69,8 @@ CartesianSystemPlugin.prototype = {
         sys.updateList.removeAll();
 
         sys.updateList.update();
+
+        callback(this);
 
         world.loopProcessList(function(object)
         {
@@ -83,14 +87,16 @@ CartesianSystemPlugin.prototype = {
         this.followY = y;
     },
 
-    updateWorld: function()
+    updateWorld: function(callback)
     {
+        if(callback === undefined) { callback = NOOP; }
+
         var world = this.world;
 
         world.update(this.followX, this.followY);
 
         world.updateProcessList();
-        this.integrate();
+        this.integrate(callback);
         world.resetProcessList();
     },
 

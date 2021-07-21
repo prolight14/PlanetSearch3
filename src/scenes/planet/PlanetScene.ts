@@ -1,7 +1,6 @@
-// import Player from "../../gameObjects/planet/Player";
-
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
+import PlanetLogicScene from "./PlanetLogicScene";
 
 export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
 {
@@ -10,8 +9,10 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
         super("planet");
     }
 
-    spaceBar: Phaser.Input.Keyboard.Key
-
+    public receiveInfo(levelInfo: object)
+    {
+        (this.scene.get("planetLogic") as PlanetLogicScene).receiveLevelInfo(levelInfo);
+    }
     
     public preload()
     {
@@ -19,14 +20,16 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
     }
     
     public loaded: boolean = false;
-
+    
     public create()
     {
         this.spaceBar = this.input.keyboard.addKey("Space");
-
+        
         this.runScenes();
         this.loaded = true;
     }
+    
+    spaceBar: Phaser.Input.Keyboard.Key;
 
     public update()
     {

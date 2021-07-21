@@ -21,8 +21,7 @@ export default class SpaceStarScene extends Phaser.Scene
     private spaceCameraControllerScene: SpaceCameraControllerScene;
     private subScrollX: number;
     private subScrollY: number;
-    private stars: Phaser.GameObjects.Graphics;
-
+    
     public create(data: { starsPerCell: number, starSize: number, starScroll: number })
     {
         this.starsPerCell = data.starsPerCell;
@@ -33,38 +32,39 @@ export default class SpaceStarScene extends Phaser.Scene
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController") as SpaceCameraControllerScene;
         this.csStars.initWorld(this.spaceScene.cspConfig);
 
-        this.stars = this.add.graphics();
-
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
         var height = bounds.maxY - bounds.minY;
 
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
-    }
 
+        this.stars = this.add.graphics();
+    }
     public update()
     {  
-        var mainCam = this.spaceCameraControllerScene.cameras.main;
-        var w = mainCam.width / 2;
-        var h = mainCam.height / 2;
+        let mainCam = this.spaceCameraControllerScene.cameras.main;
+        let w: number = mainCam.width / 2;
+        let h: number = mainCam.height / 2;
 
-        var scrollX = mainCam.scrollX * this.starScroll - this.subScrollX - (w - w * this.starScroll);
-        var scrollY = mainCam.scrollY * this.starScroll - this.subScrollY - (h - h * this.starScroll);
+        let scrollX = mainCam.scrollX * this.starScroll - this.subScrollX - (w - w * this.starScroll);
+        let scrollY = mainCam.scrollY * this.starScroll - this.subScrollY - (h - h * this.starScroll);
 
         var cam = this.cameras.main;
-
         cam.setScroll(scrollX, scrollY);
         cam.setZoom(mainCam.zoom);
         cam.setRoundPixels(true);
         cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
 
-        this.setCSPCameraWindow();
+        var world = this.spaceScene.csp.world;
+        this.csStars.world.camera.setWindow(
+            world.camera.x, world.camera.y, world.camera.width + Math.floor(world.camera.width / mainCam.zoom), world.camera.height + Math.floor(world.camera.height / mainCam.zoom)
+        );
 
         var follow: { x: number, y: number } = this.spaceScene.getCameraTarget();
 
         this.csStars.setFollow(
-            follow.x * this.starScroll - this.subScrollX, 
+            follow.x * this.starScroll - this.subScrollX,  
             follow.y * this.starScroll - this.subScrollY
         );
         this.csStars.updateWorld();
@@ -73,8 +73,13 @@ export default class SpaceStarScene extends Phaser.Scene
         this.renderStars();
     }
 
+    private stars: Phaser.GameObjects.Graphics;
+
     private renderStars()
     {
+        // Peformance ideas:
+        // 1. Try rendering only 1 star layer
+        // 2. Try rendering an image of stars instead of indiviual points
         var stars: Phaser.GameObjects.Graphics = this.stars;
 
         stars.clear();
@@ -96,16 +101,8 @@ export default class SpaceStarScene extends Phaser.Scene
 
             for(i = 0; i < this.starsPerCell; i++)
             {
-                stars.fillRect(Math.floor(x + rng.between(0, cellWidth)), Math.floor(y + rng.between(0, cellHeight)), this.starSize, this.starSize);
+                stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
             }
         });
-    }
-
-    public setCSPCameraWindow()
-    {
-        var world = this.spaceScene.csp.world;
-        this.csStars.world.camera.setWindow(
-            world.camera.x, world.camera.y, world.camera.width, world.camera.height
-        );
     }
 }

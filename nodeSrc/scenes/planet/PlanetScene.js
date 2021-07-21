@@ -20,6 +20,9 @@ var PlanetScene = (function (_super) {
         _this.loaded = false;
         return _this;
     }
+    PlanetScene.prototype.receiveInfo = function (levelInfo) {
+        this.scene.get("planetLogic").receiveLevelInfo(levelInfo);
+    };
     PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {

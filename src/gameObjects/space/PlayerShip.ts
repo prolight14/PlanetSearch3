@@ -1,11 +1,14 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import SpaceGameObject from "./SpaceGameObject";
+import Ship from "./Ship";
 
-export default class PlayerShip extends SpaceGameObject
+export default class PlayerShip extends Ship
 {
-    constructor (scene: SpaceScene, x: number, y: number, texture: string)
+    public particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
+    private pEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
+    constructor (scene: SpaceScene, x: number, y: number)
     {
-        super(scene, x, y, texture);
+        super(scene, x, y, "helixShip");
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -14,6 +17,20 @@ export default class PlayerShip extends SpaceGameObject
             s: scene.input.keyboard.addKey('s')
         };
 
+        this.particles = scene.add.particles("helixShipParticle");
+
+        this.pEmitter = this.particles.createEmitter({
+            lifespan: 500,
+            scale: 1.5,
+            speed: 70,
+            angle: { min: 65, max: 115 },
+            rotate: 0,
+            x: 0,
+            y: 0,
+            quantity: 1,
+            alpha: { min: 0x00, max: 0xFF }
+        });
+        
         this.controls = {
             turnLeft: () =>
             {
@@ -26,38 +43,32 @@ export default class PlayerShip extends SpaceGameObject
             goForward: () =>
             {
                 return this.keys.w.isDown;
-            }            
+            },
+            slowDown: () =>
+            {
+                return this.keys.s.isDown;
+            },
+            shoot: () => false         
         };
-
-        this.setScale(2, 2);
+        
+        this.setScale(1, 1);
         this.angleVel = 3;
         this.speed = 6;
     }
-
-    angleVel: number;
-    speed: number;
-
-    keys: any;
-    controls: any;
-
+    
+    public keys: any;
+    
     public preUpdate()
     {
-        if(this.controls.turnLeft())
-        {
-            this.setAngle(this.angle - this.angleVel);
-        }     
-        if(this.controls.turnRight())
-        {
-            this.setAngle(this.angle + this.angleVel);
-        }
+        Ship.prototype.preUpdate.apply(this, arguments);
 
-        if(this.controls.goForward())
-        {
-            let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-            this.x += Math.cos(angle) * this.speed;
-            this.y += Math.sin(angle) * this.speed;
-        }
+        var rot = this.rotation + Math.PI / 2;
 
-        this.bodyConf.update();
+        this.particles.x = this.x + Math.cos(rot) * this.height;
+        this.particles.y = this.y + Math.sin(rot) * this.height;
+        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setSpeed(this.speed * 100 / 10);
+        
     }
 }

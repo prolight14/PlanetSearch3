@@ -14,7 +14,7 @@ import StarSceneControllerScene from "./scenes/space/StarSceneControllerScene";
 import PlanetScene from "./scenes/planet/PlanetScene";
 import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
 import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
- 
+import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -44,8 +44,8 @@ let config = {
         EntryScene,
 
         // Space scenes
-        SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
-        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene,
+        SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
+        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)
         PlanetScene, PlanetLogicScene

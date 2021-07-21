@@ -13,8 +13,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Planet_1 = require("../../gameObjects/space/Planet");
-var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -23,9 +21,13 @@ var SpaceScene = (function (_super) {
         return _this;
     }
     SpaceScene.prototype.preload = function () {
-        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
+        this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",
@@ -46,39 +48,23 @@ var SpaceScene = (function (_super) {
             }
         };
         this.csp.initWorld(this.cspConfig);
-        this.addObjectsToSpace();
+        this.scene.get("spaceLogic").addObjectsToSpace();
         this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
     };
-    SpaceScene.prototype.addObjectsToSpace = function () {
-        var world = this.csp.world;
-        var planets = world.add.gameObjectArray(Planet_1.default);
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
-        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this, 56000, 70000 + 1000, "playerShip");
-        this.setCameraTarget(this.playerShip);
-    };
-    SpaceScene.prototype.updatePlanets = function () {
-        var _this = this;
-        var playerShip = this.playerShip;
-        this.sys.displayList.list.forEach(function (object) {
-            if (object._arrayName === "planet") {
-                var planet = object;
-                var dx = planet.x - playerShip.x;
-                var dy = planet.y - playerShip.y;
-                if (dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2)) {
-                    _this.switchToPlanetSceneGroup();
-                }
-            }
-        });
-    };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
+        this.scene.run("spaceBackground");
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
         if (calledByEntryScene) {
-            this.playerShip.y += 500;
+            var playerShip = this.scene.get("spaceLogic").playerShip;
+            playerShip.y += 500;
+            for (var i in playerShip.keys) {
+                playerShip.keys[i].reset();
+            }
         }
     };
     SpaceScene.prototype.runDebugScenes = function () {
@@ -104,15 +90,18 @@ var SpaceScene = (function (_super) {
         });
     };
     SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
+        this.scene.sleep("spaceBackground");
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
     };
-    SpaceScene.prototype.switchToPlanetSceneGroup = function () {
+    SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.switchSceneGroup("planet");
+        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
+            nextScene.receiveInfo(levelInfo);
+        });
     };
     SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
         this.cameraTarget = cameraTarget;
@@ -122,10 +111,11 @@ var SpaceScene = (function (_super) {
         return this.cameraTarget;
     };
     SpaceScene.prototype.update = function (time, delta) {
-        var cam = this.cameras.main;
-        this.csp.setFollow(cam.scrollX, cam.scrollY);
-        this.csp.updateWorld();
-        this.updatePlanets();
+        var playerShip = this.scene.get("spaceLogic").playerShip;
+        this.csp.setFollow(playerShip.x, playerShip.y);
+        this.csp.updateWorld(function (csp) {
+            csp.systems.displayList.add(playerShip.particles);
+        });
     };
     return SpaceScene;
 }(Phaser.Scene));

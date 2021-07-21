@@ -13,6 +13,7 @@ export default class SpaceDebugScene extends Phaser.Scene
     {
         this.cellGraphics = this.add.graphics();
     }
+    private cameraLineGraphics: Phaser.GameObjects.Graphics;
 
     public update(time: number, delta: number)
     {

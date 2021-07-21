@@ -1,8 +1,8 @@
 import Planet from "../../gameObjects/space/Planet";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
-import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
+import PlanetScene from "../planet/PlanetScene";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -14,9 +14,13 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public preload()
     {
-        this.load.image("playerShip", "./assets/Space/Ships/playerShip.png");
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
+        this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
+        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
@@ -44,59 +48,32 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         };
 
         this.csp.initWorld(this.cspConfig);
-        this.addObjectsToSpace();
+        (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
     }
 
-    playerShip: PlayerShip;   
-
-    private addObjectsToSpace()
-    {
-        var world: any = this.csp.world;
-
-        var planets = world.add.gameObjectArray(Planet);
-
-        planets.add(this, 69000, 60000, "IcyDwarfPlanet").setScale(13, 13);
-        planets.add(this, 56000, 70000, "RedDustPlanet").setScale(13, 13);
-
-        this.playerShip = world.add.gameObjectArray(PlayerShip).add(this, 56000, 70000 + 1000, "playerShip");
-
-        this.setCameraTarget(this.playerShip);
-    }
-
-    private updatePlanets()
-    {
-        let playerShip = this.playerShip;
-
-        this.sys.displayList.list.forEach((object: SpaceGameObject) =>
-        {
-            if(object._arrayName === "planet")
-            {
-                var planet = object;
-
-                var dx = planet.x - playerShip.x;
-                var dy = planet.y - playerShip.y;
-
-                if(dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2))
-                {
-                    this.switchToPlanetSceneGroup();
-                }
-            }
-        });
-    }
+    playerShip: PlayerShip;
 
     public runScenes(calledByEntryScene?: boolean)
     {
+        this.scene.run("spaceBackground");
+        this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.runDebugScenes();
 
         if(calledByEntryScene)
         {
-            this.playerShip.y += 500;
+            var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
+            playerShip.y += 500;
+            for(var i in playerShip.keys)
+            {
+                playerShip.keys[i].reset();
+            }
         }
+
     }
 
     private runDebugScenes()
@@ -105,7 +82,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceUIDebug");
 
         this.scene.sleep("spaceDebug");
-
+ 
         this.input.keyboard.on("keydown-U", () =>
         {
             if(this.scene.isSleeping("spaceUIDebug"))
@@ -132,6 +109,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public sleepScenes(calledByEntryScene?: boolean)
     {
+        this.scene.sleep("spaceBackground");
         this.scene.sleep("spaceLogic");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceDebug");
@@ -139,11 +117,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("starSceneController");
     }
 
-    public switchToPlanetSceneGroup()
+    public switchToPlanetSceneGroup(levelInfo: object)
     {
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
 
-        entryScene.switchSceneGroup("planet");
+        entryScene.switchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
+        {
+            nextScene.receiveInfo(levelInfo);
+        });
     }
 
     private cameraTarget: { x: number; y: number; };
@@ -163,11 +144,12 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public update(time: number, delta: number)
     {
-        var cam = this.cameras.main;
+        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
-        this.csp.setFollow(cam.scrollX, cam.scrollY);
-        this.csp.updateWorld();
-
-        this.updatePlanets();
+        this.csp.setFollow(playerShip.x, playerShip.y);
+        this.csp.updateWorld((csp?: any) =>
+        {
+            csp.systems.displayList.add(playerShip.particles);
+        });
     }
 }

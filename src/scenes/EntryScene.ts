@@ -13,7 +13,7 @@ export default class EntryScene extends Phaser.Scene
     
     public preload()
     {
-        this.currentSceneGroup = "space";
+        this.currentSceneGroup = "space"; // "space" or "planet"
     }
 
     public create()
@@ -33,7 +33,7 @@ export default class EntryScene extends Phaser.Scene
 
         if(callback !== undefined)
         {
-            callback.apply(callbackScope, [sceneGroup, this.scene.get(sceneGroup), this.scene.get(this.currentSceneGroup)]);
+            callback.apply(callbackScope, [this.scene.get(this.currentSceneGroup), this.scene.get(sceneGroup)]);
         }
 
         this.scene.run(sceneGroup);
