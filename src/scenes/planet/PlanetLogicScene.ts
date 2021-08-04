@@ -18,58 +18,14 @@ export default class PlanetLogicScene extends Phaser.Scene
                     gravity: { y: 1 }
                 }
             },
-
-            // pack: {
-            //     files: [
-            //         { type: 'scenePlugin', key: 'matterCollision', url: './libraries/phaser-matter-collision-plugin.js' }
-            //     ]
-            // }
-            // plugins: {
-            //     scene: [
-            //         {
-                        // plugin: PhaserMatterCollisionPlugin, // The plugin class
-                        // key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
-                        // mapping: "matterCollision", // Where to store in the Scene, e.g. scene.matterCollision
-            //             // pack: {
-            //             //     files: [
-            //             //         { type: 'scenePlugin', key: 'matterCollision', url: './libraries/phaser-matter-collision-plugin.js' }
-            //             //     ]
-            //             // }
-            //         }
-                // ]
-            // }
         });
     }
 
     player: Player;
     controls: Phaser.Cameras.Controls.FixedKeyControl;
-
+    matterCollision: any;
     public preload()
     {   
-        // this.load.scenePlugin({
-        //     key: "phaser-matter-collision-plugin",
-        //     url: "./libraries/phaser-matter-collision-plugin.js",
-        //     sceneKey: "mcol"
-        // });
-        // this.load.scenePlugin('matterCollision', './libraries/phaser-matter-collision-plugin.js', "matterCollision", true);
-
-        
-        // this.load.scenePlugin({
-        //     key: 'phaser-matter-collision-plugin',
-        //     url: './libraries/phaser-matter-collision-plugin.js',
-        //     sceneKey: 'matterCollision'
-        // });
-       
-        // this.load.scenePlugin({
-        //     key: "phaser-matter-collision-plugin",
-        //     url: "https://cdn.jsdelivr.net/gh/mikewesthad/phaser-matter-collision-plugin/dist/phaser-matter-collision-plugin.js",
-        //     sceneKey: 'matterCollision',
-
-        // })
-
-
-        // this.load.scenePlugin("matterCollision", "./libraries/phaser-matter-collision-plugin.js", "matterCollision", "matterCollision");
-
         // this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
         // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
         
@@ -88,18 +44,15 @@ export default class PlanetLogicScene extends Phaser.Scene
     {
         // switch(passObj.type)
         // {
-            //     case "planet":
-            //         var planet = passObj.from;
-            //         this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
-            //         break;
-            // }
+        //     case "planet":
+        //         var planet = passObj.from;
+        //         this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
+        //         break;
+        // }
     }
     
     public create()
     {
-        // console.log(this.mcol);
-        console.log(this.matterCollision);
-
         let backgraphics = this.add.graphics().setScrollFactor(0);
 
         backgraphics.fillStyle(0x00ABFF);
@@ -144,18 +97,30 @@ export default class PlanetLogicScene extends Phaser.Scene
         // });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
+        // var m_images = [];
         // for(var x = 0; x < 1200; x += 30)
         // {
-        //     this.matter.add.image(x, 0, "test", "prolight").setRectangle(30, 30, { restitution: 0.2, friction: 0.2 });//setCircle(20, { restitution: 0.25, friction: 0.5 });
+        //     m_images.push(this.matter.add.image(x, 100, "test", "prolight").setRectangle(30, 30, { restitution: 0.2, friction: 0.2 }));//setCircle(20, { restitution: 0.25, friction: 0.5 });
         // }
  
-        // this.player = new Player(this, 0, 0);
+        // var smallRect = this.matter.add.image(200, 0, "nothing2", "nothing").setRectangle(12, 12, {restitution: 0.1, friction: 0.1 });
+
+        this.player = new Player(this, 300, 0);
  
         // this.physics.add.collider(this.player, worldLayer);
 
+        // this.matterCollision.addOnCollideStart({
+        //     objectA: smallRect,
+        //     objectB: m_images,
+        //     callback: eventData => {
+        //         console.log("Player hit an enemy");
+        //     }
+        // });
+
+
         // Camera stuff
         var cam = this.cameras.main;
-        // cam.startFollow(this.player);
+        cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         cam.setScroll(-300, 0);
@@ -163,16 +128,16 @@ export default class PlanetLogicScene extends Phaser.Scene
         // this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         // this.physics.world.setBoundsCollision(true, true, true, false);
 
-        const cursors = this.input.keyboard.createCursorKeys();
-        const controlConfig = {
-            camera: this.cameras.main,  
-            left: cursors.left,
-            right: cursors.right,
-            up: cursors.up,
-            down: cursors.down,
-            speed: 0.25
-        };
-        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
+        // const cursors = this.input.keyboard.createCursorKeys();
+        // const controlConfig = {
+        //     camera: this.cameras.main,  
+        //     left: cursors.left,
+        //     right: cursors.right,
+        //     up: cursors.up,
+        //     down: cursors.down,
+        //     speed: 0.25
+        // };
+        // this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
     }
 
     public update(time: number, delta: number)
@@ -182,6 +147,6 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     this.scene.restart();
         // }
 
-        this.controls.update(delta);
+        // this.controls.update(delta);
     }
 }

@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var Player_1 = require("../../gameObjects/planet/Player");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -33,7 +34,6 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
     PlanetLogicScene.prototype.create = function () {
-        console.log(this.matterCollision);
         var backgraphics = this.add.graphics().setScrollFactor(0);
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
@@ -56,23 +56,14 @@ var PlanetLogicScene = (function (_super) {
                 tile.setCollision(true, true, true, true);
             }
         });
+        this.player = new Player_1.default(this, 300, 0);
         var cam = this.cameras.main;
+        cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         cam.setScroll(-300, 0);
-        var cursors = this.input.keyboard.createCursorKeys();
-        var controlConfig = {
-            camera: this.cameras.main,
-            left: cursors.left,
-            right: cursors.right,
-            up: cursors.up,
-            down: cursors.down,
-            speed: 0.25
-        };
-        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
-        this.controls.update(delta);
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

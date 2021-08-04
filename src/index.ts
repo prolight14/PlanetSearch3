@@ -55,7 +55,8 @@ let config: Phaser.Types.Core.GameConfig = {
     physics: {
         default: "matter",
         matter: {
-            gravity: { y: 1 }
+            gravity: { y: 1 },
+            debug: true
         }
     },
     plugins: {
