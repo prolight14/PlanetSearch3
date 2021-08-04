@@ -20,9 +20,9 @@ var PlanetLogicScene = (function (_super) {
         return _super.call(this, {
             key: "planetLogic",
             physics: {
-                default: "matter",
-                matter: {
-                    gravity: { y: 1 }
+                default: "arcade",
+                arcade: {
+                    gravity: { y: 800 }
                 }
             },
         }) || this;
@@ -43,19 +43,6 @@ var PlanetLogicScene = (function (_super) {
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
         worldLayer.setCollisionByProperty({ collides: true });
-        this.matter.world.convertTilemapLayer(worldLayer);
-        worldLayer.forEachTile(function (tile) {
-            if (tile.index === 1 || tile.index === 2) {
-                tile.setCollision(false, false, true, false, true);
-                worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
-            }
-            else if (tile.index === 3) {
-                tile.setCollision(false, false, false, false, true);
-            }
-            else if (tile.index !== -1) {
-                tile.setCollision(true, true, true, true);
-            }
-        });
         this.player = new Player_1.default(this, 300, 0);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
@@ -64,6 +51,9 @@ var PlanetLogicScene = (function (_super) {
         cam.setScroll(-300, 0);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
+        if (this.player.dead) {
+            this.scene.restart();
+        }
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

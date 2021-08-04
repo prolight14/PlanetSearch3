@@ -1,16 +1,15 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import GameObject from "./GameObject";
 
-export default class Player extends Phaser.Physics.Matter.Image
+export default class Player extends Phaser.Physics.Arcade.Image
 {
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
-        super(scene.matter.world, x, y, "helix");
+        super(scene, x, y, "helix");
 
         scene.add.existing(this);
-        // scene.matter.add.(this);
 
-        // this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
 
         // this.setCollideWorldBounds(true);
 
@@ -44,64 +43,7 @@ export default class Player extends Phaser.Physics.Matter.Image
             }
         };
 
-        const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
-   
-        const { width: w, height: h } = this;
-        
-        const mainBody = Bodies.rectangle(0, 0, w, h, { chamfer: { radius: 10 } });;
-
-        this.sensors = {
-            bottom: Bodies.rectangle(0, h * 0.5 + 2, w * 0.8, 2, { isSensor: true }),
-        };
-        // this.setOrigin(0.5, 0.5);
-        this.sensors.bottom.__id = 23;
-
-        const compoundBody = Body.create({
-            parts: [mainBody, this.sensors.bottom],
-            frictionStatic: 0,
-            frictionAir: 0.02,
-            friction: 0.1
-        });
-
-        this.setExistingBody(compoundBody);
-        this.setFixedRotation();
-        this.setOrigin(0.5, 0.7);
-        this.setPosition(x, y);
-
-        this.isTouching = {
-            ground: false
-        };
-
-        scene.matter.world.on("beforeupdate", this.resetTouching, this);
-
-        scene.matterCollision.addOnCollideStart({
-            objectA: [this.sensors.bottom],
-            callback: this.onSensorCollide,
-            context: this
-        });
     }
-
-    private onSensorCollide({ bodyA, bodyB, pair }: any)
-    {
-
-        if (bodyB.isSensor) return;
-
-        // if(bodyA.__id === this.sensors.bottom.__id)
-        // {
-
-            this.isTouching.ground = true;
-        // }
-    }
-
-    private resetTouching()
-    {
-        this.isTouching.ground = false;
-    }
-
-    isTouching: {
-        ground: boolean;
-    };
-    sensors: any;
 
     controls: {
         left: Function,
@@ -122,47 +64,32 @@ export default class Player extends Phaser.Physics.Matter.Image
 
     preUpdate(time: number, delta: number)
     {
-        // const onGround = this.body.blocked.down;
+        const onGround = this.body.blocked.down;
 
         if(this.controls.left())
         {
-            // this.setAccelerationX(-800);
-
-            this.setVelocityX(-4);
+            this.setAccelerationX(-800);
         }
         if(this.controls.right())
         {
-            this.setVelocityX(4);
-            // this.setAccelerationX(800);
+            this.setAccelerationX(800);
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            // this.setAccelerationX(0);
+            this.setAccelerationX(0);
         }
 
-        const isOnGround: boolean = this.isTouching.ground;
-
-        if(this.controls.up() && this.canJump && isOnGround)
+        if(this.controls.up() && onGround)
         {
-            this.setVelocityY(-8);
-
-             // Add a slight delay between jumps since the bottom sensor will still collide for a few
-            // frames after a jump is initiated
-            this.canJump = false;
-            this.jumpCooldownTimer = this.scene.time.addEvent({
-                delay: 250,
-                callback: () => (this.canJump = true)
-            });
+            this.setVelocityY(-300);
         }
 
         if(this.y > this.scene.cameras.main.getBounds().height)
         {
-            // this.kill();
+            this.kill();
         }
     }
 
-    canJump: boolean;
-    jumpCooldownTimer: Phaser.Time.TimerEvent;
     dead: boolean;
 
     private kill()

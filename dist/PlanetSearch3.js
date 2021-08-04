@@ -27,8 +27,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
-        var _this = _super.call(this, scene.matter.world, x, y, "helix") || this;
+        var _this = _super.call(this, scene, x, y, "helix") || this;
         scene.add.existing(_this);
+        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -53,64 +54,24 @@ var Player = (function (_super) {
                 return _this.keys.s.isDown || _this.keys.down.isDown;
             }
         };
-        var _a = Phaser.Physics.Matter.Matter, Body = _a.Body, Bodies = _a.Bodies;
-        var _b = _this, w = _b.width, h = _b.height;
-        var mainBody = Bodies.rectangle(0, 0, w, h, { chamfer: { radius: 10 } });
-        ;
-        _this.sensors = {
-            bottom: Bodies.rectangle(0, h * 0.5 + 2, w * 0.8, 2, { isSensor: true }),
-        };
-        _this.sensors.bottom.__id = 23;
-        var compoundBody = Body.create({
-            parts: [mainBody, _this.sensors.bottom],
-            frictionStatic: 0,
-            frictionAir: 0.02,
-            friction: 0.1
-        });
-        _this.setExistingBody(compoundBody);
-        _this.setFixedRotation();
-        _this.setOrigin(0.5, 0.7);
-        _this.setPosition(x, y);
-        _this.isTouching = {
-            ground: false
-        };
-        scene.matter.world.on("beforeupdate", _this.resetTouching, _this);
-        scene.matterCollision.addOnCollideStart({
-            objectA: [_this.sensors.bottom],
-            callback: _this.onSensorCollide,
-            context: _this
-        });
         return _this;
     }
-    Player.prototype.onSensorCollide = function (_a) {
-        var bodyA = _a.bodyA, bodyB = _a.bodyB, pair = _a.pair;
-        if (bodyB.isSensor)
-            return;
-        this.isTouching.ground = true;
-    };
-    Player.prototype.resetTouching = function () {
-        this.isTouching.ground = false;
-    };
     Player.prototype.preUpdate = function (time, delta) {
-        var _this = this;
+        var onGround = this.body.blocked.down;
         if (this.controls.left()) {
-            this.setVelocityX(-4);
+            this.setAccelerationX(-800);
         }
         if (this.controls.right()) {
-            this.setVelocityX(4);
+            this.setAccelerationX(800);
         }
         if (!this.controls.left() && !this.controls.right()) {
+            this.setAccelerationX(0);
         }
-        var isOnGround = this.isTouching.ground;
-        if (this.controls.up() && this.canJump && isOnGround) {
-            this.setVelocityY(-8);
-            this.canJump = false;
-            this.jumpCooldownTimer = this.scene.time.addEvent({
-                delay: 250,
-                callback: function () { return (_this.canJump = true); }
-            });
+        if (this.controls.up() && onGround) {
+            this.setVelocityY(-300);
         }
         if (this.y > this.scene.cameras.main.getBounds().height) {
+            this.kill();
         }
     };
     Player.prototype.kill = function () {
@@ -118,7 +79,7 @@ var Player = (function (_super) {
         this.destroy();
     };
     return Player;
-}(Phaser.Physics.Matter.Image));
+}(Phaser.Physics.Arcade.Image));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map
 
@@ -599,9 +560,9 @@ var PlanetLogicScene = (function (_super) {
         return _super.call(this, {
             key: "planetLogic",
             physics: {
-                default: "matter",
-                matter: {
-                    gravity: { y: 1 }
+                default: "arcade",
+                arcade: {
+                    gravity: { y: 800 }
                 }
             },
         }) || this;
@@ -622,19 +583,6 @@ var PlanetLogicScene = (function (_super) {
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
         worldLayer.setCollisionByProperty({ collides: true });
-        this.matter.world.convertTilemapLayer(worldLayer);
-        worldLayer.forEachTile(function (tile) {
-            if (tile.index === 1 || tile.index === 2) {
-                tile.setCollision(false, false, true, false, true);
-                worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
-            }
-            else if (tile.index === 3) {
-                tile.setCollision(false, false, false, false, true);
-            }
-            else if (tile.index !== -1) {
-                tile.setCollision(true, true, true, true);
-            }
-        });
         this.player = new Player_1.default(this, 300, 0);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
@@ -643,6 +591,9 @@ var PlanetLogicScene = (function (_super) {
         cam.setScroll(-300, 0);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
+        if (this.player.dead) {
+            this.scene.restart();
+        }
     };
     return PlanetLogicScene;
 }(Phaser.Scene));
@@ -1459,22 +1410,6 @@ var config = {
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default, PlanetLogicScene_1.default
     ],
-    physics: {
-        default: "matter",
-        matter: {
-            gravity: { y: 1 },
-            debug: true
-        }
-    },
-    plugins: {
-        scene: [
-            {
-                plugin: PhaserMatterCollisionPlugin,
-                key: "matterCollision",
-                mapping: "matterCollision"
-            }
-        ]
-    }
 };
 var game = new Phaser.Game(config);
 window.game = game;

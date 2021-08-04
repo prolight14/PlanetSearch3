@@ -9,13 +9,9 @@ export default class PlanetLogicScene extends Phaser.Scene
         super({
             key: "planetLogic",
             physics: {
-                // default: "arcade",
-                // arcade: {
-                //     gravity: { y: 800 } 
-                // }
-                default: "matter",
-                matter: {
-                    gravity: { y: 1 }
+                default: "arcade",
+                arcade: {
+                    gravity: { y: 800 } 
                 }
             },
         });
@@ -23,7 +19,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     player: Player;
     controls: Phaser.Cameras.Controls.FixedKeyControl;
-    matterCollision: any;
+
     public preload()
     {   
         // this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
@@ -68,25 +64,23 @@ export default class PlanetLogicScene extends Phaser.Scene
         fgLayer.setDepth(4);        
         
         worldLayer.setCollisionByProperty({ collides: true });
-        
-        this.matter.world.convertTilemapLayer(worldLayer);
-
-        worldLayer.forEachTile(function(tile: Phaser.Tilemaps.Tile)
-        {
-            if(tile.index === 1 || tile.index === 2)
-            {
-                tile.setCollision(false, false, true, false, true);
-                worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
-            }
-            else if(tile.index === 3)
-            {
-                tile.setCollision(false, false, false, false, true);
-            }
-            else if(tile.index !== -1)
-            {
-                tile.setCollision(true, true, true, true);
-            }
-        });
+   
+        // worldLayer.forEachTile(function(tile: Phaser.Tilemaps.Tile)
+        // {
+        //     if(tile.index === 1 || tile.index === 2)
+        //     {
+        //         tile.setCollision(false, false, true, false, true);
+        //         worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
+        //     }
+        //     else if(tile.index === 3)
+        //     {
+        //         tile.setCollision(false, false, false, false, true);
+        //     }
+        //     else if(tile.index !== -1)
+        //     {
+        //         tile.setCollision(true, true, true, true);
+        //     }
+        // });
 
         // var debugGraphics = this.add.graphics().setAlpha(0.75);
 
@@ -97,27 +91,8 @@ export default class PlanetLogicScene extends Phaser.Scene
         // });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
-        // var m_images = [];
-        // for(var x = 0; x < 1200; x += 30)
-        // {
-        //     m_images.push(this.matter.add.image(x, 100, "test", "prolight").setRectangle(30, 30, { restitution: 0.2, friction: 0.2 }));//setCircle(20, { restitution: 0.25, friction: 0.5 });
-        // }
- 
-        // var smallRect = this.matter.add.image(200, 0, "nothing2", "nothing").setRectangle(12, 12, {restitution: 0.1, friction: 0.1 });
-
         this.player = new Player(this, 300, 0);
  
-        // this.physics.add.collider(this.player, worldLayer);
-
-        // this.matterCollision.addOnCollideStart({
-        //     objectA: smallRect,
-        //     objectB: m_images,
-        //     callback: eventData => {
-        //         console.log("Player hit an enemy");
-        //     }
-        // });
-
-
         // Camera stuff
         var cam = this.cameras.main;
         cam.startFollow(this.player);
@@ -142,10 +117,10 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
-        // if(this.player.dead)
-        // {
-        //     this.scene.restart();
-        // }
+        if(this.player.dead)
+        {
+            this.scene.restart();
+        }
 
         // this.controls.update(delta);
     }
