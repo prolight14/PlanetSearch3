@@ -3,89 +3,6 @@ var PlanetSearch3;
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./gameObjects/planet/Player.js":
-/*!**************************************!*\
-  !*** ./gameObjects/planet/Player.js ***!
-  \**************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Player = (function (_super) {
-    __extends(Player, _super);
-    function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helix") || this;
-        scene.add.existing(_this);
-        scene.physics.add.existing(_this);
-        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
-        _this.keys = {
-            a: scene.input.keyboard.addKey('a'),
-            d: scene.input.keyboard.addKey('d'),
-            w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s'),
-            left: scene.input.keyboard.addKey("left"),
-            right: scene.input.keyboard.addKey("right"),
-            up: scene.input.keyboard.addKey("up"),
-            down: scene.input.keyboard.addKey("down"),
-        };
-        _this.controls = {
-            left: function () {
-                return _this.keys.a.isDown || _this.keys.left.isDown;
-            },
-            right: function () {
-                return _this.keys.d.isDown || _this.keys.right.isDown;
-            },
-            up: function () {
-                return _this.keys.w.isDown || _this.keys.up.isDown;
-            },
-            down: function () {
-                return _this.keys.s.isDown || _this.keys.down.isDown;
-            }
-        };
-        return _this;
-    }
-    Player.prototype.preUpdate = function (time, delta) {
-        var onGround = this.body.blocked.down;
-        if (this.controls.left()) {
-            this.setAccelerationX(-800);
-        }
-        if (this.controls.right()) {
-            this.setAccelerationX(800);
-        }
-        if (!this.controls.left() && !this.controls.right()) {
-            this.setAccelerationX(0);
-        }
-        if (onGround && this.controls.up()) {
-            this.setVelocityY(-345);
-        }
-        if (this.y > this.scene.cameras.main.getBounds().height) {
-            this.kill();
-        }
-    };
-    Player.prototype.kill = function () {
-        this.dead = true;
-        this.destroy();
-    };
-    return Player;
-}(Phaser.Physics.Arcade.Sprite));
-exports.default = Player;
-//# sourceMappingURL=Player.js.map
-
-/***/ }),
-
 /***/ "./gameObjects/space/Asteroid.js":
 /*!***************************************!*\
   !*** ./gameObjects/space/Asteroid.js ***!
@@ -505,7 +422,7 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "space";
+        this.currentSceneGroup = "planet";
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
@@ -537,7 +454,7 @@ exports.default = EntryScene;
 /*!*******************************************!*\
   !*** ./scenes/planet/PlanetLogicScene.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -554,52 +471,66 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        var _this = _super.call(this, {
+        return _super.call(this, {
             key: "planetLogic",
             physics: {
-                default: "arcade",
-                arcade: {
-                    gravity: { y: 800 }
+                default: "matter",
+                matter: {
+                    gravity: { y: 1 }
                 }
-            }
+            },
         }) || this;
-        _this.levelAssetsPrefix = "IcyDwarf";
-        return _this;
     }
     PlanetLogicScene.prototype.preload = function () {
-        this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
-        this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
-        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        this.load.image("GrassTileset", "./assets/Planet/Levels/GrassPlanet/GrassTileset.png");
+        this.load.tilemapTiledJSON("GrassLevel1Tilemap", "./assets/Planet/Levels/GrassPlanet/level1.json");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
-        switch (passObj.type) {
-            case "planet":
-                var planet = passObj.from;
-                this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
-                break;
-        }
     };
     PlanetLogicScene.prototype.create = function () {
-        var tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage(this.levelAssetsPrefix + "Tileset");
-        var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
+        console.log(this.matterCollision);
+        var backgraphics = this.add.graphics().setScrollFactor(0);
+        backgraphics.fillStyle(0x00ABFF);
+        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
+        var tilemap = this.make.tilemap({ key: "GrassLevel1Tilemap", tileWidth: 16, tileHeight: 16 });
+        var tileset = tilemap.addTilesetImage("GrassTileset");
+        var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
+        var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
+        fgLayer.setDepth(4);
         worldLayer.setCollisionByProperty({ collides: true });
-        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        this.physics.add.collider(this.player, worldLayer);
+        this.matter.world.convertTilemapLayer(worldLayer);
+        worldLayer.forEachTile(function (tile) {
+            if (tile.index === 1 || tile.index === 2) {
+                tile.setCollision(false, false, true, false, true);
+                worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
+            }
+            else if (tile.index === 3) {
+                tile.setCollision(false, false, false, false, true);
+            }
+            else if (tile.index !== -1) {
+                tile.setCollision(true, true, true, true);
+            }
+        });
         var cam = this.cameras.main;
-        cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        cam.setScroll(-300, 0);
+        var cursors = this.input.keyboard.createCursorKeys();
+        var controlConfig = {
+            camera: this.cameras.main,
+            left: cursors.left,
+            right: cursors.right,
+            up: cursors.up,
+            down: cursors.down,
+            speed: 0.25
+        };
+        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
     };
-    PlanetLogicScene.prototype.update = function () {
-        if (this.player.dead) {
-            this.scene.restart();
-        }
+    PlanetLogicScene.prototype.update = function (time, delta) {
+        this.controls.update(delta);
     };
     return PlanetLogicScene;
 }(Phaser.Scene));
@@ -1189,7 +1120,7 @@ var SpaceStarScene = (function (_super) {
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
         world.loopThroughVisibleCells(function (cell, col, row) {
-            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            rng = new Phaser.Math.RandomDataGenerator([col.toString() + row.toString()]);
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {
@@ -1416,6 +1347,21 @@ var config = {
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default, PlanetLogicScene_1.default
     ],
+    physics: {
+        default: "matter",
+        matter: {
+            gravity: { y: 1 }
+        }
+    },
+    plugins: {
+        scene: [
+            {
+                plugin: PhaserMatterCollisionPlugin,
+                key: "matterCollision",
+                mapping: "matterCollision"
+            }
+        ]
+    }
 };
 var game = new Phaser.Game(config);
 window.game = game;

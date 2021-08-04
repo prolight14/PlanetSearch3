@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+// import PhaserMatterCollisionPlugin from "./libraries/phaser-matter-collision-plugin";
+
 // Entry scene 
 import EntryScene from "./scenes/EntryScene";
 
@@ -29,7 +31,7 @@ import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
     6. Properly copyright this game
 */
 
-let config = {
+let config: Phaser.Types.Core.GameConfig = {
     type: Phaser.WEBGL,
     width: 800,
     height: 450,
@@ -50,8 +52,22 @@ let config = {
         // Planet scene(s)
         PlanetScene, PlanetLogicScene
     ],
+    physics: {
+        default: "matter",
+        matter: {
+            gravity: { y: 1 }
+        }
+    },
+    plugins: {
+        scene: [
+            {
+                plugin: PhaserMatterCollisionPlugin, // The plugin class
+                key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
+                mapping: "matterCollision" // Where to store in the Scene, e.g. scene.matterCollision
+            }
+        ]
+    }
 }
-
 var game: Phaser.Game = new Phaser.Game(config);
 
 window.game = game;

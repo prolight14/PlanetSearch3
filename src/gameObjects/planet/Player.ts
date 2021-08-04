@@ -1,15 +1,17 @@
 import GameObject from "./GameObject";
 
-export default class Player extends Phaser.Physics.Arcade.Sprite
+export default class Player extends Phaser.Physics.Matter.Image
 {
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
-        super(scene, x, y, "helix");
+        super(scene.matter.world, x, y, "helix");
 
         scene.add.existing(this);
-        scene.physics.add.existing(this);
+        // scene.matter.add.(this);
 
-        this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        // this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+
+        // this.setCollideWorldBounds(true);
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -61,24 +63,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
     preUpdate(time: number, delta: number)
     {
-        const onGround = this.body.blocked.down;
+        // const onGround = this.body.blocked.down;
 
         if(this.controls.left())
         {
-            this.setAccelerationX(-800);
+            // this.setAccelerationX(-800);
         }
         if(this.controls.right())
         {
-            this.setAccelerationX(800);
+            // this.setAccelerationX(800);
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            this.setAccelerationX(0);
+            // this.setAccelerationX(0);
         }
 
-        if(onGround && this.controls.up())
+        // if(onGround && this.controls.up())
         {
-            this.setVelocityY(-345);
+            // this.setVelocityY(-345);
         }
 
         if(this.y > this.scene.cameras.main.getBounds().height)

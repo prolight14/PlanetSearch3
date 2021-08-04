@@ -77,7 +77,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
     private renderStars()
     {
-        // Peformance ideas:
+        // Performance ideas:
         // 1. Try rendering only 1 star layer
         // 2. Try rendering an image of stars instead of indiviual points
         var stars: Phaser.GameObjects.Graphics = this.stars;
@@ -94,7 +94,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
-            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            rng = new Phaser.Math.RandomDataGenerator([col.toString() + row.toString()]);
 
             x = col * cellWidth;
             y = row * cellHeight;

@@ -13,52 +13,66 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Player_1 = require("../../gameObjects/planet/Player");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        var _this = _super.call(this, {
+        return _super.call(this, {
             key: "planetLogic",
             physics: {
-                default: "arcade",
-                arcade: {
-                    gravity: { y: 800 }
+                default: "matter",
+                matter: {
+                    gravity: { y: 1 }
                 }
-            }
+            },
         }) || this;
-        _this.levelAssetsPrefix = "IcyDwarf";
-        return _this;
     }
     PlanetLogicScene.prototype.preload = function () {
-        this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
-        this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
-        this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        this.load.image("GrassTileset", "./assets/Planet/Levels/GrassPlanet/GrassTileset.png");
+        this.load.tilemapTiledJSON("GrassLevel1Tilemap", "./assets/Planet/Levels/GrassPlanet/level1.json");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
-        switch (passObj.type) {
-            case "planet":
-                var planet = passObj.from;
-                this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
-                break;
-        }
     };
     PlanetLogicScene.prototype.create = function () {
-        var tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage(this.levelAssetsPrefix + "Tileset");
-        var worldLayer = tilemap.createStaticLayer("World", tileset, 0, 0);
+        console.log(this.matterCollision);
+        var backgraphics = this.add.graphics().setScrollFactor(0);
+        backgraphics.fillStyle(0x00ABFF);
+        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
+        var tilemap = this.make.tilemap({ key: "GrassLevel1Tilemap", tileWidth: 16, tileHeight: 16 });
+        var tileset = tilemap.addTilesetImage("GrassTileset");
+        var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
+        var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
+        fgLayer.setDepth(4);
         worldLayer.setCollisionByProperty({ collides: true });
-        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Spawn Point"; });
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        this.physics.add.collider(this.player, worldLayer);
+        this.matter.world.convertTilemapLayer(worldLayer);
+        worldLayer.forEachTile(function (tile) {
+            if (tile.index === 1 || tile.index === 2) {
+                tile.setCollision(false, false, true, false, true);
+                worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
+            }
+            else if (tile.index === 3) {
+                tile.setCollision(false, false, false, false, true);
+            }
+            else if (tile.index !== -1) {
+                tile.setCollision(true, true, true, true);
+            }
+        });
         var cam = this.cameras.main;
-        cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        cam.setScroll(-300, 0);
+        var cursors = this.input.keyboard.createCursorKeys();
+        var controlConfig = {
+            camera: this.cameras.main,
+            left: cursors.left,
+            right: cursors.right,
+            up: cursors.up,
+            down: cursors.down,
+            speed: 0.25
+        };
+        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
     };
-    PlanetLogicScene.prototype.update = function () {
-        if (this.player.dead) {
-            this.scene.restart();
-        }
+    PlanetLogicScene.prototype.update = function (time, delta) {
+        this.controls.update(delta);
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

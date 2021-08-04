@@ -68,7 +68,7 @@ var SpaceStarScene = (function (_super) {
         var cellWidth = world.cameraGrid.cellWidth;
         var cellHeight = world.cameraGrid.cellHeight;
         world.loopThroughVisibleCells(function (cell, col, row) {
-            rng = new Phaser.Math.RandomDataGenerator([(col + row).toString()]);
+            rng = new Phaser.Math.RandomDataGenerator([col.toString() + row.toString()]);
             x = col * cellWidth;
             y = row * cellHeight;
             for (i = 0; i < _this.starsPerCell; i++) {

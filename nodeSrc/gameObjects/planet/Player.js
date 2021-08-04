@@ -16,10 +16,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helix") || this;
+        var _this = _super.call(this, scene.matter.world, x, y, "helix") || this;
         scene.add.existing(_this);
-        scene.physics.add.existing(_this);
-        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -47,18 +45,13 @@ var Player = (function (_super) {
         return _this;
     }
     Player.prototype.preUpdate = function (time, delta) {
-        var onGround = this.body.blocked.down;
         if (this.controls.left()) {
-            this.setAccelerationX(-800);
         }
         if (this.controls.right()) {
-            this.setAccelerationX(800);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            this.setAccelerationX(0);
         }
-        if (onGround && this.controls.up()) {
-            this.setVelocityY(-345);
+        {
         }
         if (this.y > this.scene.cameras.main.getBounds().height) {
             this.kill();
@@ -69,6 +62,6 @@ var Player = (function (_super) {
         this.destroy();
     };
     return Player;
-}(Phaser.Physics.Arcade.Sprite));
+}(Phaser.Physics.Matter.Image));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map

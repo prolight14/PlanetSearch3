@@ -13,7 +13,7 @@ export default class EntryScene extends Phaser.Scene
     
     public preload()
     {
-        this.currentSceneGroup = "space"; // "space" or "planet"
+        this.currentSceneGroup = "planet"; // "space" or "planet"
     }
 
     public create()

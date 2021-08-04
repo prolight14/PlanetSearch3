@@ -26,6 +26,21 @@ var config = {
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default, PlanetLogicScene_1.default
     ],
+    physics: {
+        default: "matter",
+        matter: {
+            gravity: { y: 1 }
+        }
+    },
+    plugins: {
+        scene: [
+            {
+                plugin: PhaserMatterCollisionPlugin,
+                key: "matterCollision",
+                mapping: "matterCollision"
+            }
+        ]
+    }
 };
 var game = new Phaser.Game(config);
 window.game = game;
