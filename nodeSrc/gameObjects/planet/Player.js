@@ -57,8 +57,8 @@ var Player = (function (_super) {
         if (!this.controls.left() && !this.controls.right()) {
             this.setAccelerationX(0);
         }
-        if (this.controls.up() && onGround) {
-            this.setVelocityY(-300);
+        if (onGround && this.controls.up()) {
+            this.setVelocityY(-345);
         }
         if (this.y > this.scene.cameras.main.getBounds().height) {
             this.kill();
@@ -69,6 +69,6 @@ var Player = (function (_super) {
         this.destroy();
     };
     return Player;
-}(Phaser.Physics.Arcade.Image));
+}(Phaser.Physics.Arcade.Sprite));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map

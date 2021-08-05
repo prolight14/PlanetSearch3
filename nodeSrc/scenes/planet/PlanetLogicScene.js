@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Player_1 = require("../../gameObjects/planet/Player");
+var Water_1 = require("../../gameObjects/planet/Water");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -34,6 +35,7 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
     PlanetLogicScene.prototype.create = function () {
+        var _this = this;
         var backgraphics = this.add.graphics().setScrollFactor(0);
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
@@ -42,6 +44,7 @@ var PlanetLogicScene = (function (_super) {
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
+        var waterGroup = this.add.group();
         var WORLD_INDEXES = {
             BACK_GRASS: 1,
             BACK_GRASS_2: 2,
@@ -73,25 +76,25 @@ var PlanetLogicScene = (function (_super) {
             }
             else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
                 var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
-                var tileLeft;
+                var tileLeft = void 0;
                 if (tile.x > 0 &&
                     (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) &&
                     toAvoid.indexOf(tileLeft.index) !== -1) {
                     tile.faceLeft = true;
                 }
-                var tileRight;
+                var tileRight = void 0;
                 if (tile.x < tilemap.width &&
                     (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) &&
                     toAvoid.indexOf(tileRight.index) !== -1) {
                     tile.faceRight = true;
                 }
-                var tileAbove;
+                var tileAbove = void 0;
                 if (tile.y > 0 &&
                     (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
                     (toAvoid.indexOf(tileAbove.index) !== -1)) {
                     tile.faceTop = true;
                 }
-                var tileBelow;
+                var tileBelow = void 0;
                 if (tile.y < tilemap.height &&
                     (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
                     (toAvoid.indexOf(tileBelow.index) !== -1)) {
@@ -103,11 +106,17 @@ var PlanetLogicScene = (function (_super) {
                 case WORLD_INDEXES.WATER:
                 case WORLD_INDEXES.WATER_2:
                     tile.setCollision(false, false, false, false);
+                    waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
                     break;
             }
         });
         this.player = new Player_1.default(this, 300, 0);
         this.physics.add.collider(this.player, worldLayer);
+        this.physics.add.collider(this.player, waterGroup);
+        this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+            debugger;
+        }, undefined, this);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);

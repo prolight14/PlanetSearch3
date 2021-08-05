@@ -1,9 +1,8 @@
-import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import GameObject from "./GameObject";
 
-export default class Player extends Phaser.Physics.Arcade.Image
+export default class Player extends Phaser.Physics.Arcade.Sprite
 {
-    constructor(scene: PlanetLogicScene, x: number, y: number)
+    constructor(scene: Phaser.Scene, x: number, y: number)
     {
         super(scene, x, y, "helix");
 
@@ -11,8 +10,6 @@ export default class Player extends Phaser.Physics.Arcade.Image
         scene.physics.add.existing(this);
 
         this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
-
-        // this.setCollideWorldBounds(true);
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -43,7 +40,6 @@ export default class Player extends Phaser.Physics.Arcade.Image
                 return this.keys.s.isDown || this.keys.down.isDown;
             }
         };
-
     }
 
     controls: {
@@ -80,9 +76,9 @@ export default class Player extends Phaser.Physics.Arcade.Image
             this.setAccelerationX(0);
         }
 
-        if(this.controls.up() && onGround)
+        if(onGround && this.controls.up())
         {
-            this.setVelocityY(-300);
+            this.setVelocityY(-345);
         }
 
         if(this.y > this.scene.cameras.main.getBounds().height)

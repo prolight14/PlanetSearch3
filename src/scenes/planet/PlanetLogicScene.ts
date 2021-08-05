@@ -1,5 +1,5 @@
-//@ts-nocheck
 import Player from "../../gameObjects/planet/Player";
+import Water from "../../gameObjects/planet/Water";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -62,6 +62,8 @@ export default class PlanetLogicScene extends Phaser.Scene
         const fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);        
         
+        var waterGroup = this.add.group();
+
         const WORLD_INDEXES = {
             BACK_GRASS: 1,
             BACK_GRASS_2: 2,
@@ -99,24 +101,27 @@ export default class PlanetLogicScene extends Phaser.Scene
             {
                 const toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
 
-                const tileLeft;
-                if(tile.x > 0 && 
+                let tileLeft;
+                if(
+                    tile.x > 0 && 
                     (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) && 
                     toAvoid.indexOf(tileLeft.index) !== -1)
                 {
                     tile.faceLeft = true;
                 }
 
-                const tileRight;
-                if(tile.x < tilemap.width && 
+                let tileRight;
+                if(
+                    tile.x < tilemap.width && 
                     (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) && 
                     toAvoid.indexOf(tileRight.index) !== -1)
                 {
                     tile.faceRight = true;
                 }
 
-                const tileAbove;
-                if(tile.y > 0 && 
+                let tileAbove;
+                if(
+                    tile.y > 0 && 
                     (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) && 
                     (toAvoid.indexOf(tileAbove.index) !== -1)
                 )
@@ -124,8 +129,9 @@ export default class PlanetLogicScene extends Phaser.Scene
                     tile.faceTop = true;
                 }
 
-                const tileBelow;
-                if(tile.y < tilemap.height && 
+                let tileBelow;
+                if(
+                    tile.y < tilemap.height && 
                     (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) && 
                     (toAvoid.indexOf(tileBelow.index) !== -1)
                 )
@@ -138,6 +144,8 @@ export default class PlanetLogicScene extends Phaser.Scene
             {
                 case WORLD_INDEXES.TOP_WATER: case WORLD_INDEXES.WATER: case WORLD_INDEXES.WATER_2:
                     tile.setCollision(false, false, false, false);
+
+                    waterGroup.add(new Water(this, tile.pixelX, tile.pixelY));
                     break;
             }
         });
@@ -154,6 +162,14 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.player = new Player(this, 300, 0);
  
         this.physics.add.collider(this.player, worldLayer);
+
+        this.physics.add.collider(this.player, waterGroup);
+
+        this.physics.add.overlap(this.player, waterGroup, function(objectA, objectB: Water)
+        {
+            objectB.onCollide(objectA);
+            debugger;
+        }, undefined, this);
 
         // Camera stuff
         var cam = this.cameras.main;

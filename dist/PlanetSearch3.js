@@ -68,8 +68,8 @@ var Player = (function (_super) {
         if (!this.controls.left() && !this.controls.right()) {
             this.setAccelerationX(0);
         }
-        if (this.controls.up() && onGround) {
-            this.setVelocityY(-300);
+        if (onGround && this.controls.up()) {
+            this.setVelocityY(-345);
         }
         if (this.y > this.scene.cameras.main.getBounds().height) {
             this.kill();
@@ -80,9 +80,49 @@ var Player = (function (_super) {
         this.destroy();
     };
     return Player;
-}(Phaser.Physics.Arcade.Image));
+}(Phaser.Physics.Arcade.Sprite));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/Water.js":
+/*!*************************************!*\
+  !*** ./gameObjects/planet/Water.js ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Water = (function (_super) {
+    __extends(Water, _super);
+    function Water(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "water") || this;
+        scene.add.existing(_this);
+        scene.physics.add.existing(_this);
+        _this.setVisible(false);
+        console.log("Water created");
+        return _this;
+    }
+    Water.prototype.onCollide = function (object) {
+    };
+    return Water;
+}(Phaser.Physics.Arcade.Image));
+exports.default = Water;
+//# sourceMappingURL=Water.js.map
 
 /***/ }),
 
@@ -555,6 +595,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
+var Water_1 = __webpack_require__(/*! ../../gameObjects/planet/Water */ "./gameObjects/planet/Water.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -575,6 +616,7 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
     PlanetLogicScene.prototype.create = function () {
+        var _this = this;
         var backgraphics = this.add.graphics().setScrollFactor(0);
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
@@ -583,6 +625,7 @@ var PlanetLogicScene = (function (_super) {
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
+        var waterGroup = this.add.group();
         var WORLD_INDEXES = {
             BACK_GRASS: 1,
             BACK_GRASS_2: 2,
@@ -614,25 +657,25 @@ var PlanetLogicScene = (function (_super) {
             }
             else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
                 var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
-                var tileLeft;
+                var tileLeft = void 0;
                 if (tile.x > 0 &&
                     (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) &&
                     toAvoid.indexOf(tileLeft.index) !== -1) {
                     tile.faceLeft = true;
                 }
-                var tileRight;
+                var tileRight = void 0;
                 if (tile.x < tilemap.width &&
                     (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) &&
                     toAvoid.indexOf(tileRight.index) !== -1) {
                     tile.faceRight = true;
                 }
-                var tileAbove;
+                var tileAbove = void 0;
                 if (tile.y > 0 &&
                     (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
                     (toAvoid.indexOf(tileAbove.index) !== -1)) {
                     tile.faceTop = true;
                 }
-                var tileBelow;
+                var tileBelow = void 0;
                 if (tile.y < tilemap.height &&
                     (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
                     (toAvoid.indexOf(tileBelow.index) !== -1)) {
@@ -644,11 +687,17 @@ var PlanetLogicScene = (function (_super) {
                 case WORLD_INDEXES.WATER:
                 case WORLD_INDEXES.WATER_2:
                     tile.setCollision(false, false, false, false);
+                    waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
                     break;
             }
         });
         this.player = new Player_1.default(this, 300, 0);
         this.physics.add.collider(this.player, worldLayer);
+        this.physics.add.collider(this.player, waterGroup);
+        this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+            debugger;
+        }, undefined, this);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
