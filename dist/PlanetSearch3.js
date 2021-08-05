@@ -583,47 +583,69 @@ var PlanetLogicScene = (function (_super) {
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
+        var WORLD_INDEXES = {
+            BACK_GRASS: 1,
+            BACK_GRASS_2: 2,
+            BACK_DIRT: 3,
+            GRASS: 4,
+            GRASS_2: 5,
+            DIRT: 6,
+            STONE_BRICKS: 7,
+            TOP_WATER: 8,
+            WATER: 9,
+            WATER_2: 10,
+            TOP_LAVA: 8,
+            LAVA: 9,
+            LAVA_2: 10,
+        };
         worldLayer.setCollisionByProperty({ collides: true });
         worldLayer.forEachTile(function (tile) {
-            if (tile.index === 3) {
+            if (tile.index === WORLD_INDEXES.BACK_DIRT) {
                 tile.collideLeft = false;
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = false;
             }
-            else if (tile.index === 1 || tile.index === 2) {
+            else if (tile.index === WORLD_INDEXES.BACK_GRASS || tile.index === WORLD_INDEXES.BACK_GRASS_2) {
                 tile.collideLeft = false;
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = true;
             }
-            else if (tile.index > 2) {
-                var tileAbove;
-                if (tile.y > 0 &&
-                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
-                    ([1, 2, 3].indexOf(tileAbove.index) !== -1)) {
-                    tile.faceTop = true;
-                }
+            else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
+                var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
                 var tileLeft;
                 if (tile.x > 0 &&
                     (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) &&
-                    [1, 2, 3].indexOf(tileLeft.index) !== -1) {
+                    toAvoid.indexOf(tileLeft.index) !== -1) {
                     tile.faceLeft = true;
                 }
                 var tileRight;
                 if (tile.x < tilemap.width &&
                     (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) &&
-                    [1, 2, 3].indexOf(tileRight.index) !== -1) {
+                    toAvoid.indexOf(tileRight.index) !== -1) {
                     tile.faceRight = true;
                 }
+                var tileAbove;
+                if (tile.y > 0 &&
+                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    (toAvoid.indexOf(tileAbove.index) !== -1)) {
+                    tile.faceTop = true;
+                }
+                var tileBelow;
+                if (tile.y < tilemap.height &&
+                    (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
+                    (toAvoid.indexOf(tileBelow.index) !== -1)) {
+                    tile.faceTop = true;
+                }
             }
-        });
-        tilemap.createBlankLayer;
-        var debugGraphics = this.add.graphics().setAlpha(0.75);
-        worldLayer.renderDebug(debugGraphics, {
-            tileColor: null,
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+            switch (tile.index) {
+                case WORLD_INDEXES.TOP_WATER:
+                case WORLD_INDEXES.WATER:
+                case WORLD_INDEXES.WATER_2:
+                    tile.setCollision(false, false, false, false);
+                    break;
+            }
         });
         this.player = new Player_1.default(this, 300, 0);
         this.physics.add.collider(this.player, worldLayer);

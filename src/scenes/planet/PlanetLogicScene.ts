@@ -1,6 +1,5 @@
 //@ts-nocheck
 import Player from "../../gameObjects/planet/Player";
-// import PhaserMatterCollisionPlugin from "./libraries/phaser-matter-collision-plugin";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -63,71 +62,47 @@ export default class PlanetLogicScene extends Phaser.Scene
         const fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);        
         
+        const WORLD_INDEXES = {
+            BACK_GRASS: 1,
+            BACK_GRASS_2: 2,
+            BACK_DIRT: 3,
+            GRASS: 4,
+            GRASS_2: 5,
+            DIRT: 6,
+            STONE_BRICKS: 7,
+            TOP_WATER: 8,
+            WATER: 9,
+            WATER_2: 10,
+            TOP_LAVA: 8,
+            LAVA: 9,
+            LAVA_2: 10,
+        };
+
         worldLayer.setCollisionByProperty({ collides: true });
         worldLayer.forEachTile((tile: Phaser.Tilemaps.Tile) =>
         {
-            // if(tile.index === 0)
-            // {
-            //     return;
-            // }
-
-            if(tile.index === 3)
+            if(tile.index === WORLD_INDEXES.BACK_DIRT)
             {
                 tile.collideLeft = false;
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = false;
             }
-            else if(tile.index === 1 || tile.index === 2)
+            else if(tile.index === WORLD_INDEXES.BACK_GRASS || tile.index === WORLD_INDEXES.BACK_GRASS_2)
             {
                 tile.collideLeft = false;
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = true;
-                
-                // const tileBelow;
-                // if(tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1))
-                // {
-                //     // tileBelow.collideUp = true;
-                //     // tileBelow.faceTop = true;
-                //     // tileBelow.faceBottom = true;
-
-                //     tileBelow.resetCollision(true);
-
-                //     tileBelow.setCollision(true, true, true, true, true);
-                //     tileBelow.faceTop = true;
-
-                // }
-
-                // tile.faceTop = true;
-                // tile.faceBottom = true;
-                // tile.faceLeft = false;
-                // tile.faceRight = false;
-
-                // tile.setCollision(false, false, true, false, true);
-
-                // tile.resetCollision(true);
             }
-            else if(tile.index > 2)
+            else if(tile.index > WORLD_INDEXES.BACK_DIRT)
             {
-                // tile.resetCollision(true);
-                // // tile.setColl = true;
-                
-                // tile.setCollision(true, true, true, true, true);
-
-                const tileAbove;
-                if(tile.y > 0 && 
-                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) && 
-                    ([1, 2, 3].indexOf(tileAbove.index) !== -1)
-                )
-                {
-                    tile.faceTop = true;
-                }
+                const toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
 
                 const tileLeft;
                 if(tile.x > 0 && 
                     (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) && 
-                    [1, 2, 3].indexOf(tileLeft.index) !== -1)
+                    toAvoid.indexOf(tileLeft.index) !== -1)
                 {
                     tile.faceLeft = true;
                 }
@@ -135,41 +110,45 @@ export default class PlanetLogicScene extends Phaser.Scene
                 const tileRight;
                 if(tile.x < tilemap.width && 
                     (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) && 
-                    [1, 2, 3].indexOf(tileRight.index) !== -1)
+                    toAvoid.indexOf(tileRight.index) !== -1)
                 {
                     tile.faceRight = true;
                 }
+
+                const tileAbove;
+                if(tile.y > 0 && 
+                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) && 
+                    (toAvoid.indexOf(tileAbove.index) !== -1)
+                )
+                {
+                    tile.faceTop = true;
+                }
+
+                const tileBelow;
+                if(tile.y < tilemap.height && 
+                    (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) && 
+                    (toAvoid.indexOf(tileBelow.index) !== -1)
+                )
+                {
+                    tile.faceTop = true;
+                }
+            }
+
+            switch(tile.index)
+            {
+                case WORLD_INDEXES.TOP_WATER: case WORLD_INDEXES.WATER: case WORLD_INDEXES.WATER_2:
+                    tile.setCollision(false, false, false, false);
+                    break;
             }
         });
 
-        tilemap.createBlankLayer
+        // var debugGraphics = this.add.graphics().setAlpha(0.75);
 
-        // tilemap.
-        
-        // worldLayer.forEachTile(function(tile: Phaser.Tilemaps.Tile)
-        // {
-        //     if(tile.index === 1 || tile.index === 2)
-        //     {
-        //         tile.setCollision(false, false, true, false, true);
-        //         worldLayer.getTileAt(tile.x, tile.y + 1).setCollision(true, true, true, true);
-        //     }
-        //     else if(tile.index === 3)
-        //     {
-        //         tile.setCollision(false, false, false, false, true);
-        //     }
-        //     else if(tile.index !== -1)
-        //     {
-        //         tile.setCollision(true, true, true, true);
-        //     }
+        // worldLayer.renderDebug(debugGraphics, {
+        //     tileColor: null, // Color of non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
-
-        var debugGraphics = this.add.graphics().setAlpha(0.75);
-
-        worldLayer.renderDebug(debugGraphics, {
-            tileColor: null, // Color of non-colliding tiles
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
         this.player = new Player(this, 300, 0);
