@@ -10,7 +10,8 @@ export default class PlanetLogicScene extends Phaser.Scene
             physics: {
                 default: "arcade",
                 arcade: {
-                    gravity: { y: 800 } 
+                    gravity: { y: 800 },
+                    // debug: true 
                 }
             },
         });
@@ -159,16 +160,14 @@ export default class PlanetLogicScene extends Phaser.Scene
         // });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
-        this.player = new Player(this, 300, 0);
+        this.player = new Player(this, 1300, 0);
  
         this.physics.add.collider(this.player, worldLayer);
 
-        this.physics.add.collider(this.player, waterGroup);
-
-        this.physics.add.overlap(this.player, waterGroup, function(objectA, objectB: Water)
+        // this.physics.add.collider(this.player, waterGroup);
+        this.physics.add.overlap(this.player, waterGroup, function(objectA: Player, objectB: Water)
         {
             objectB.onCollide(objectA);
-            debugger;
         }, undefined, this);
 
         // Camera stuff
@@ -176,7 +175,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        cam.setScroll(-300, 0);
+        // cam.setScroll(-300, 0);
         
         // this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         // this.physics.world.setBoundsCollision(true, true, true, false);

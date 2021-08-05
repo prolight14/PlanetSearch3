@@ -28,9 +28,12 @@ var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helix") || this;
+        _this.isLifeform = true;
+        _this.inWater = false;
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
-        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        _this.resetPhysics()
+            .setDisplaySize(16, 32);
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -57,6 +60,9 @@ var Player = (function (_super) {
         };
         return _this;
     }
+    Player.prototype.resetPhysics = function () {
+        return this.setDrag(200, 0).setMaxVelocity(145, 600).setGravity(300);
+    };
     Player.prototype.preUpdate = function (time, delta) {
         var onGround = this.body.blocked.down;
         if (this.controls.left()) {
@@ -67,10 +73,36 @@ var Player = (function (_super) {
         }
         if (!this.controls.left() && !this.controls.right()) {
             this.setAccelerationX(0);
+            var xDeacl = 10;
+            if (this.body.velocity.x > 0) {
+                this.setVelocityX(this.body.velocity.x - xDeacl);
+            }
+            if (this.body.velocity.x < 0) {
+                this.setVelocityX(this.body.velocity.x + xDeacl);
+            }
+            if (Math.abs(this.body.velocity.x) < xDeacl) {
+                this.setVelocityX(0);
+            }
         }
-        if (onGround && this.controls.up()) {
-            this.setVelocityY(-345);
+        if (this.inWater) {
+            if (this.controls.up()) {
+                this.setVelocityY(-140);
+            }
+            else if (this.controls.down()) {
+                this.setVelocityY(140);
+            }
         }
+        else if (onGround && this.controls.up()) {
+            this.setVelocityY(-400);
+        }
+        if (this.inWater) {
+            this.setMaxVelocity(85);
+            this.setGravity(0);
+        }
+        else {
+            this.resetPhysics();
+        }
+        this.inWater = false;
         if (this.y > this.scene.cameras.main.getBounds().height) {
             this.kill();
         }
@@ -113,11 +145,14 @@ var Water = (function (_super) {
         var _this = _super.call(this, scene, x, y, "water") || this;
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
+        _this.setMaxVelocity(0, 0);
+        _this.setOrigin(0, 0);
+        _this.setScale(16 / _this.displayWidth, 16 / _this.displayHeight);
         _this.setVisible(false);
-        console.log("Water created");
         return _this;
     }
     Water.prototype.onCollide = function (object) {
+        object.inWater = true;
     };
     return Water;
 }(Phaser.Physics.Arcade.Image));
@@ -604,7 +639,7 @@ var PlanetLogicScene = (function (_super) {
             physics: {
                 default: "arcade",
                 arcade: {
-                    gravity: { y: 800 }
+                    gravity: { y: 800 },
                 }
             },
         }) || this;
@@ -691,18 +726,15 @@ var PlanetLogicScene = (function (_super) {
                     break;
             }
         });
-        this.player = new Player_1.default(this, 300, 0);
+        this.player = new Player_1.default(this, 1300, 0);
         this.physics.add.collider(this.player, worldLayer);
-        this.physics.add.collider(this.player, waterGroup);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
-            debugger;
         }, undefined, this);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        cam.setScroll(-300, 0);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
         if (this.player.dead) {

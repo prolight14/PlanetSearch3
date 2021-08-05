@@ -19,11 +19,14 @@ var Water = (function (_super) {
         var _this = _super.call(this, scene, x, y, "water") || this;
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
+        _this.setMaxVelocity(0, 0);
+        _this.setOrigin(0, 0);
+        _this.setScale(16 / _this.displayWidth, 16 / _this.displayHeight);
         _this.setVisible(false);
-        console.log("Water created");
         return _this;
     }
     Water.prototype.onCollide = function (object) {
+        object.inWater = true;
     };
     return Water;
 }(Phaser.Physics.Arcade.Image));

@@ -1,7 +1,11 @@
 import GameObject from "./GameObject";
+import ILifeform from "./ILifeform";
 
-export default class Player extends Phaser.Physics.Arcade.Sprite
+export default class Player extends Phaser.Physics.Arcade.Sprite implements ILifeform
 {
+    public isLifeform: boolean = true;
+    public inWater: boolean = false;
+
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
         super(scene, x, y, "helix");
@@ -9,7 +13,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        this.resetPhysics()//.setScale(0.5, 1)
+        // .setSize(16, 32)
+        .setDisplaySize(16, 32);
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -40,6 +46,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 return this.keys.s.isDown || this.keys.down.isDown;
             }
         };
+    }
+
+    private resetPhysics()
+    {
+        return this.setDrag(200, 0).setMaxVelocity(145, 600).setGravity(300);
     }
 
     controls: {
@@ -74,12 +85,50 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if(!this.controls.left() && !this.controls.right())
         {
             this.setAccelerationX(0);
+            const xDeacl = 10;
+
+            if(this.body.velocity.x > 0)
+            {
+                this.setVelocityX(this.body.velocity.x - xDeacl);
+            }
+            if(this.body.velocity.x < 0)
+            {
+                this.setVelocityX(this.body.velocity.x + xDeacl);
+            }
+
+            if(Math.abs(this.body.velocity.x) < xDeacl)
+            {
+                this.setVelocityX(0);
+            }
         }
 
-        if(onGround && this.controls.up())
+        if(this.inWater)
         {
-            this.setVelocityY(-345);
+            if(this.controls.up())
+            {
+                this.setVelocityY(-140);
+            }
+            else if(this.controls.down())
+            {
+                this.setVelocityY(140);
+            }
         }
+        else if(onGround && this.controls.up())
+        {
+            this.setVelocityY(-400);
+        }
+
+        if(this.inWater)
+        {
+            this.setMaxVelocity(85);
+            this.setGravity(0);
+        }
+        else
+        {
+            this.resetPhysics();
+        }
+
+        this.inWater = false;
 
         if(this.y > this.scene.cameras.main.getBounds().height)
         {

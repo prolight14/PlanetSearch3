@@ -1,4 +1,5 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
+import ILifeform from "./ILifeform";
 
 export default class Water extends Phaser.Physics.Arcade.Image
 {
@@ -9,13 +10,15 @@ export default class Water extends Phaser.Physics.Arcade.Image
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.setVisible(false);
+        this.setMaxVelocity(0, 0);
+        this.setOrigin(0, 0);
+        this.setScale(16 / this.displayWidth, 16 / this.displayHeight);
 
-        console.log("Water created");
+        this.setVisible(false);
     }
 
-    public onCollide(object: Phaser.GameObjects.GameObject)
+    public onCollide(object: ILifeform)
     {
-        
+        object.inWater = true;
     }
 }

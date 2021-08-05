@@ -23,7 +23,7 @@ var PlanetLogicScene = (function (_super) {
             physics: {
                 default: "arcade",
                 arcade: {
-                    gravity: { y: 800 }
+                    gravity: { y: 800 },
                 }
             },
         }) || this;
@@ -110,18 +110,15 @@ var PlanetLogicScene = (function (_super) {
                     break;
             }
         });
-        this.player = new Player_1.default(this, 300, 0);
+        this.player = new Player_1.default(this, 1300, 0);
         this.physics.add.collider(this.player, worldLayer);
-        this.physics.add.collider(this.player, waterGroup);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
-            debugger;
         }, undefined, this);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        cam.setScroll(-300, 0);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
         if (this.player.dead) {

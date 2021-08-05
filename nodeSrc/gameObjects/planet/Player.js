@@ -17,9 +17,12 @@ var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helix") || this;
+        _this.isLifeform = true;
+        _this.inWater = false;
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
-        _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
+        _this.resetPhysics()
+            .setDisplaySize(16, 32);
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -46,6 +49,9 @@ var Player = (function (_super) {
         };
         return _this;
     }
+    Player.prototype.resetPhysics = function () {
+        return this.setDrag(200, 0).setMaxVelocity(145, 600).setGravity(300);
+    };
     Player.prototype.preUpdate = function (time, delta) {
         var onGround = this.body.blocked.down;
         if (this.controls.left()) {
@@ -56,10 +62,36 @@ var Player = (function (_super) {
         }
         if (!this.controls.left() && !this.controls.right()) {
             this.setAccelerationX(0);
+            var xDeacl = 10;
+            if (this.body.velocity.x > 0) {
+                this.setVelocityX(this.body.velocity.x - xDeacl);
+            }
+            if (this.body.velocity.x < 0) {
+                this.setVelocityX(this.body.velocity.x + xDeacl);
+            }
+            if (Math.abs(this.body.velocity.x) < xDeacl) {
+                this.setVelocityX(0);
+            }
         }
-        if (onGround && this.controls.up()) {
-            this.setVelocityY(-345);
+        if (this.inWater) {
+            if (this.controls.up()) {
+                this.setVelocityY(-140);
+            }
+            else if (this.controls.down()) {
+                this.setVelocityY(140);
+            }
         }
+        else if (onGround && this.controls.up()) {
+            this.setVelocityY(-400);
+        }
+        if (this.inWater) {
+            this.setMaxVelocity(85);
+            this.setGravity(0);
+        }
+        else {
+            this.resetPhysics();
+        }
+        this.inWater = false;
         if (this.y > this.scene.cameras.main.getBounds().height) {
             this.kill();
         }
