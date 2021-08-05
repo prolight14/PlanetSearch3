@@ -93,7 +93,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.player = new Player(this, 300, 0);
  
-        // this.
+        // this.physics.add.collider(this.player, )
 
         // Camera stuff
         var cam = this.cameras.main;
