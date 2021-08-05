@@ -29,6 +29,7 @@ var Player = (function (_super) {
     function Player(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helix") || this;
         scene.add.existing(_this);
+        scene.physics.add.existing(_this);
         _this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
@@ -65,7 +66,6 @@ var Player = (function (_super) {
             this.setAccelerationX(800);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            this.setAccelerationX(0);
         }
         if (this.controls.up() && onGround) {
             this.setVelocityY(-300);

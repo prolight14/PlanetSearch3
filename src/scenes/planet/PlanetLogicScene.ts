@@ -31,7 +31,7 @@ export default class PlanetLogicScene extends Phaser.Scene
     
     
     // private planetName: string;
-    // private levelName: string;
+    // private levelName: string;   
     
     // private levelAssetsPrefix: string = "IcyDwarf";
     // private levelAssetsPrefix: string = "IcyDwarf";
@@ -93,6 +93,8 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.player = new Player(this, 300, 0);
  
+        // this.
+
         // Camera stuff
         var cam = this.cameras.main;
         cam.startFollow(this.player);

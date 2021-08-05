@@ -8,6 +8,7 @@ export default class Player extends Phaser.Physics.Arcade.Image
         super(scene, x, y, "helix");
 
         scene.add.existing(this);
+        scene.physics.add.existing(this);
 
         this.setDrag(300, 0).setMaxVelocity(145, 500).setScale(0.5, 1);
 
@@ -76,7 +77,7 @@ export default class Player extends Phaser.Physics.Arcade.Image
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            this.setAccelerationX(0);
+            // this.setAccelerationX(0);
         }
 
         if(this.controls.up() && onGround)
