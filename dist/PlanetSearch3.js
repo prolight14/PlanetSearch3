@@ -66,6 +66,7 @@ var Player = (function (_super) {
             this.setAccelerationX(800);
         }
         if (!this.controls.left() && !this.controls.right()) {
+            this.setAccelerationX(0);
         }
         if (this.controls.up() && onGround) {
             this.setVelocityY(-300);
@@ -583,7 +584,49 @@ var PlanetLogicScene = (function (_super) {
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
         worldLayer.setCollisionByProperty({ collides: true });
+        worldLayer.forEachTile(function (tile) {
+            if (tile.index === 3) {
+                tile.collideLeft = false;
+                tile.collideRight = false;
+                tile.collideDown = false;
+                tile.collideUp = false;
+            }
+            else if (tile.index === 1 || tile.index === 2) {
+                tile.collideLeft = false;
+                tile.collideRight = false;
+                tile.collideDown = false;
+                tile.collideUp = true;
+            }
+            else if (tile.index > 2) {
+                var tileAbove;
+                if (tile.y > 0 &&
+                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    ([1, 2, 3].indexOf(tileAbove.index) !== -1)) {
+                    tile.faceTop = true;
+                }
+                var tileLeft;
+                if (tile.x > 0 &&
+                    (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) &&
+                    [1, 2, 3].indexOf(tileLeft.index) !== -1) {
+                    tile.faceLeft = true;
+                }
+                var tileRight;
+                if (tile.x < tilemap.width &&
+                    (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) &&
+                    [1, 2, 3].indexOf(tileRight.index) !== -1) {
+                    tile.faceRight = true;
+                }
+            }
+        });
+        tilemap.createBlankLayer;
+        var debugGraphics = this.add.graphics().setAlpha(0.75);
+        worldLayer.renderDebug(debugGraphics, {
+            tileColor: null,
+            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
+            faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+        });
         this.player = new Player_1.default(this, 300, 0);
+        this.physics.add.collider(this.player, worldLayer);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);

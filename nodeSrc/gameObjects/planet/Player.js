@@ -55,6 +55,7 @@ var Player = (function (_super) {
             this.setAccelerationX(800);
         }
         if (!this.controls.left() && !this.controls.right()) {
+            this.setAccelerationX(0);
         }
         if (this.controls.up() && onGround) {
             this.setVelocityY(-300);

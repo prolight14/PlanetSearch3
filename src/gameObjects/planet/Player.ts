@@ -77,7 +77,7 @@ export default class Player extends Phaser.Physics.Arcade.Image
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            // this.setAccelerationX(0);
+            this.setAccelerationX(0);
         }
 
         if(this.controls.up() && onGround)

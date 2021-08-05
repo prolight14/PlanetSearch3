@@ -64,7 +64,88 @@ export default class PlanetLogicScene extends Phaser.Scene
         fgLayer.setDepth(4);        
         
         worldLayer.setCollisionByProperty({ collides: true });
-   
+        worldLayer.forEachTile((tile: Phaser.Tilemaps.Tile) =>
+        {
+            // if(tile.index === 0)
+            // {
+            //     return;
+            // }
+
+            if(tile.index === 3)
+            {
+                tile.collideLeft = false;
+                tile.collideRight = false;
+                tile.collideDown = false;
+                tile.collideUp = false;
+            }
+            else if(tile.index === 1 || tile.index === 2)
+            {
+                tile.collideLeft = false;
+                tile.collideRight = false;
+                tile.collideDown = false;
+                tile.collideUp = true;
+                
+                // const tileBelow;
+                // if(tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1))
+                // {
+                //     // tileBelow.collideUp = true;
+                //     // tileBelow.faceTop = true;
+                //     // tileBelow.faceBottom = true;
+
+                //     tileBelow.resetCollision(true);
+
+                //     tileBelow.setCollision(true, true, true, true, true);
+                //     tileBelow.faceTop = true;
+
+                // }
+
+                // tile.faceTop = true;
+                // tile.faceBottom = true;
+                // tile.faceLeft = false;
+                // tile.faceRight = false;
+
+                // tile.setCollision(false, false, true, false, true);
+
+                // tile.resetCollision(true);
+            }
+            else if(tile.index > 2)
+            {
+                // tile.resetCollision(true);
+                // // tile.setColl = true;
+                
+                // tile.setCollision(true, true, true, true, true);
+
+                const tileAbove;
+                if(tile.y > 0 && 
+                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) && 
+                    ([1, 2, 3].indexOf(tileAbove.index) !== -1)
+                )
+                {
+                    tile.faceTop = true;
+                }
+
+                const tileLeft;
+                if(tile.x > 0 && 
+                    (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) && 
+                    [1, 2, 3].indexOf(tileLeft.index) !== -1)
+                {
+                    tile.faceLeft = true;
+                }
+
+                const tileRight;
+                if(tile.x < tilemap.width && 
+                    (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) && 
+                    [1, 2, 3].indexOf(tileRight.index) !== -1)
+                {
+                    tile.faceRight = true;
+                }
+            }
+        });
+
+        tilemap.createBlankLayer
+
+        // tilemap.
+        
         // worldLayer.forEachTile(function(tile: Phaser.Tilemaps.Tile)
         // {
         //     if(tile.index === 1 || tile.index === 2)
@@ -82,18 +163,18 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     }
         // });
 
-        // var debugGraphics = this.add.graphics().setAlpha(0.75);
+        var debugGraphics = this.add.graphics().setAlpha(0.75);
 
-        // worldLayer.renderDebug(debugGraphics, {
-        //     tileColor: null, // Color of non-colliding tiles
-        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        // });
+        worldLayer.renderDebug(debugGraphics, {
+            tileColor: null, // Color of non-colliding tiles
+            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
         this.player = new Player(this, 300, 0);
  
-        // this.physics.add.collider(this.player, )
+        this.physics.add.collider(this.player, worldLayer);
 
         // Camera stuff
         var cam = this.cameras.main;
