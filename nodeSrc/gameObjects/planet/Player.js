@@ -50,19 +50,18 @@ var Player = (function (_super) {
         return _this;
     }
     Player.prototype.resetPhysics = function () {
-        return this.setDrag(200, 0).setMaxVelocity(145, 600).setGravity(300);
+        return this.setDrag(300, 0).setMaxVelocity(145, 600).setGravity(300);
     };
     Player.prototype.preUpdate = function (time, delta) {
         var onGround = this.body.blocked.down;
         if (this.controls.left()) {
-            this.setAccelerationX(-800);
+            this.setVelocityX(-300);
         }
         if (this.controls.right()) {
-            this.setAccelerationX(800);
+            this.setVelocityX(300);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            this.setAccelerationX(0);
-            var xDeacl = 10;
+            var xDeacl = onGround ? 10 : 2;
             if (this.body.velocity.x > 0) {
                 this.setVelocityX(this.body.velocity.x - xDeacl);
             }

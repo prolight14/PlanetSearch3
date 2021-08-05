@@ -110,7 +110,7 @@ var PlanetLogicScene = (function (_super) {
                     break;
             }
         });
-        this.player = new Player_1.default(this, 1300, 0);
+        this.player = new Player_1.default(this, 300, 0);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);

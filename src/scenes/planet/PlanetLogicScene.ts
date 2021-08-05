@@ -160,7 +160,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         // });
         // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
-        this.player = new Player(this, 1300, 0);
+        this.player = new Player(this, 300, 0);
  
         this.physics.add.collider(this.player, worldLayer);
 

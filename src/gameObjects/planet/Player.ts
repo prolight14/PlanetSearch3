@@ -50,7 +50,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
     private resetPhysics()
     {
-        return this.setDrag(200, 0).setMaxVelocity(145, 600).setGravity(300);
+        return this.setDrag(300, 0).setMaxVelocity(145, 600).setGravity(300);
     }
 
     controls: {
@@ -76,16 +76,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
         if(this.controls.left())
         {
-            this.setAccelerationX(-800);
+            this.setVelocityX(-300);
         }
         if(this.controls.right())
         {
-            this.setAccelerationX(800);
+            this.setVelocityX(300);
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            this.setAccelerationX(0);
-            const xDeacl = 10;
+            const xDeacl = onGround ? 10 : 2;
 
             if(this.body.velocity.x > 0)
             {
