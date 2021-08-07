@@ -25,6 +25,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         // this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
         // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
         
+        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });  
         this.load.image("GrassTileset", "./assets/Planet/Levels/GrassPlanet/GrassTileset.png");
         this.load.tilemapTiledJSON("GrassLevel1Tilemap", "./assets/Planet/Levels/GrassPlanet/level1.json");
     }
@@ -97,6 +98,13 @@ export default class PlanetLogicScene extends Phaser.Scene
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = true;
+
+                var tileAbove;
+                if((tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) && 
+                   tileAbove.index === WORLD_INDEXES.BACK_DIRT)
+                {
+                    tile.faceTop = true;
+                }
             }
             else if(tile.index > WORLD_INDEXES.BACK_DIRT)
             {
@@ -137,7 +145,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                     (toAvoid.indexOf(tileBelow.index) !== -1)
                 )
                 {
-                    tile.faceTop = true;
+                    tile.faceBottom = true;
                 }
             }
 
@@ -158,13 +166,12 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
-        // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
 
-        this.player = new Player(this, 300, 0);
- 
+        // const spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Spawn Point");
+        this.player = new Player(this, 0, 0);
+
         this.physics.add.collider(this.player, worldLayer);
 
-        // this.physics.add.collider(this.player, waterGroup);
         this.physics.add.overlap(this.player, waterGroup, function(objectA: Player, objectB: Water)
         {
             objectB.onCollide(objectA);
@@ -177,8 +184,8 @@ export default class PlanetLogicScene extends Phaser.Scene
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         // cam.setScroll(-300, 0);
         
-        // this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        // this.physics.world.setBoundsCollision(true, true, true, false);
+        this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.physics.world.setBoundsCollision(true, true, true, false);
 
         // const cursors = this.input.keyboard.createCursorKeys();
         // const controlConfig = {

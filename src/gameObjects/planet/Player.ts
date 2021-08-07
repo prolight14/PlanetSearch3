@@ -8,14 +8,37 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
-        super(scene, x, y, "helix");
+        super(scene, x, y, "Helix2", 0);
 
+       
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.resetPhysics()//.setScale(0.5, 1)
-        // .setSize(16, 32)
-        .setDisplaySize(16, 32);
+        this.setCollideWorldBounds(true);
+
+        this.resetPhysics().setDisplaySize(16, 32);
+
+
+        
+        scene.anims.create({
+            key: "idle",
+            frames: [{ key: "Helix2", frame: 0 }],
+            frameRate: 20
+        });
+       
+        scene.anims.create({
+            key: "left",
+            frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
+            frameRate: 10,
+            repeat: -1
+        });
+
+        scene.anims.create({
+            key: "right",
+            frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
+            frameRate: 10,
+            repeat: -1
+        });
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -46,6 +69,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
                 return this.keys.s.isDown || this.keys.down.isDown;
             }
         };
+
+
     }
 
     private resetPhysics()
@@ -72,15 +97,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
     preUpdate(time: number, delta: number)
     {
+        super.preUpdate(time, delta);
+
         const onGround = this.body.blocked.down;
 
         if(this.controls.left())
         {
             this.setVelocityX(-300);
+            this.anims.play("left", true);
         }
         if(this.controls.right())
         {
             this.setVelocityX(300);
+            this.anims.play("right", true);
         }
         if(!this.controls.left() && !this.controls.right())
         {
@@ -98,6 +127,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
             if(Math.abs(this.body.velocity.x) < xDeacl)
             {
                 this.setVelocityX(0);
+                this.anims.play("idle");
             }
         }
 
@@ -114,7 +144,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         }
         else if(onGround && this.controls.up())
         {
-            this.setVelocityY(-400);
+            // this.setVelocityY(-400);
+            this.jumping = true;
+        }
+
+        if(!this.controls.up() || this.body.velocity.y < -this.jumpHeight)
+        {
+            this.jumping = false;
+        }
+
+        if(this.jumping)
+        {
+            this.body.velocity.y -= this.jumpSpeed;
+        }
+
+        const onCeiling = this.body.blocked.up;
+
+        if(onCeiling)
+        {
+            this.jumping = false;
+            this.body.velocity.y = 0;
         }
 
         if(this.inWater)
@@ -134,6 +183,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
             this.kill();
         }
     }
+
+    // Physics stuff
+    private jumping: boolean = false;
+    private jumpSpeed: number = 80;
+    private jumpHeight: number = 310;
+
 
     dead: boolean;
 

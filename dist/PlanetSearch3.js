@@ -27,13 +27,33 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helix") || this;
+        var _this = _super.call(this, scene, x, y, "Helix2", 0) || this;
         _this.isLifeform = true;
         _this.inWater = false;
+        _this.jumping = false;
+        _this.jumpSpeed = 80;
+        _this.jumpHeight = 310;
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
-        _this.resetPhysics()
-            .setDisplaySize(16, 32);
+        _this.setCollideWorldBounds(true);
+        _this.resetPhysics().setDisplaySize(16, 32);
+        scene.anims.create({
+            key: "idle",
+            frames: [{ key: "Helix2", frame: 0 }],
+            frameRate: 20
+        });
+        scene.anims.create({
+            key: "left",
+            frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
+            frameRate: 10,
+            repeat: -1
+        });
+        scene.anims.create({
+            key: "right",
+            frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
+            frameRate: 10,
+            repeat: -1
+        });
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -64,12 +84,15 @@ var Player = (function (_super) {
         return this.setDrag(300, 0).setMaxVelocity(145, 600).setGravity(300);
     };
     Player.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down;
         if (this.controls.left()) {
             this.setVelocityX(-300);
+            this.anims.play("left", true);
         }
         if (this.controls.right()) {
             this.setVelocityX(300);
+            this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
             var xDeacl = onGround ? 10 : 2;
@@ -81,6 +104,7 @@ var Player = (function (_super) {
             }
             if (Math.abs(this.body.velocity.x) < xDeacl) {
                 this.setVelocityX(0);
+                this.anims.play("idle");
             }
         }
         if (this.inWater) {
@@ -92,7 +116,18 @@ var Player = (function (_super) {
             }
         }
         else if (onGround && this.controls.up()) {
-            this.setVelocityY(-400);
+            this.jumping = true;
+        }
+        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
+            this.jumping = false;
+        }
+        if (this.jumping) {
+            this.body.velocity.y -= this.jumpSpeed;
+        }
+        var onCeiling = this.body.blocked.up;
+        if (onCeiling) {
+            this.jumping = false;
+            this.body.velocity.y = 0;
         }
         if (this.inWater) {
             this.setMaxVelocity(85);
@@ -644,6 +679,7 @@ var PlanetLogicScene = (function (_super) {
         }) || this;
     }
     PlanetLogicScene.prototype.preload = function () {
+        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
         this.load.image("GrassTileset", "./assets/Planet/Levels/GrassPlanet/GrassTileset.png");
         this.load.tilemapTiledJSON("GrassLevel1Tilemap", "./assets/Planet/Levels/GrassPlanet/level1.json");
     };
@@ -688,6 +724,11 @@ var PlanetLogicScene = (function (_super) {
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = true;
+                var tileAbove;
+                if ((tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    tileAbove.index === WORLD_INDEXES.BACK_DIRT) {
+                    tile.faceTop = true;
+                }
             }
             else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
                 var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
@@ -703,17 +744,17 @@ var PlanetLogicScene = (function (_super) {
                     toAvoid.indexOf(tileRight.index) !== -1) {
                     tile.faceRight = true;
                 }
-                var tileAbove = void 0;
+                var tileAbove_1;
                 if (tile.y > 0 &&
-                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
-                    (toAvoid.indexOf(tileAbove.index) !== -1)) {
+                    (tileAbove_1 = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    (toAvoid.indexOf(tileAbove_1.index) !== -1)) {
                     tile.faceTop = true;
                 }
                 var tileBelow = void 0;
                 if (tile.y < tilemap.height &&
                     (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
                     (toAvoid.indexOf(tileBelow.index) !== -1)) {
-                    tile.faceTop = true;
+                    tile.faceBottom = true;
                 }
             }
             switch (tile.index) {
@@ -725,7 +766,7 @@ var PlanetLogicScene = (function (_super) {
                     break;
             }
         });
-        this.player = new Player_1.default(this, 300, 0);
+        this.player = new Player_1.default(this, 0, 0);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
@@ -734,6 +775,8 @@ var PlanetLogicScene = (function (_super) {
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.physics.world.setBoundsCollision(true, true, true, false);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
         if (this.player.dead) {

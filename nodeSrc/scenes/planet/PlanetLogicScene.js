@@ -29,6 +29,7 @@ var PlanetLogicScene = (function (_super) {
         }) || this;
     }
     PlanetLogicScene.prototype.preload = function () {
+        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
         this.load.image("GrassTileset", "./assets/Planet/Levels/GrassPlanet/GrassTileset.png");
         this.load.tilemapTiledJSON("GrassLevel1Tilemap", "./assets/Planet/Levels/GrassPlanet/level1.json");
     };
@@ -73,6 +74,11 @@ var PlanetLogicScene = (function (_super) {
                 tile.collideRight = false;
                 tile.collideDown = false;
                 tile.collideUp = true;
+                var tileAbove;
+                if ((tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    tileAbove.index === WORLD_INDEXES.BACK_DIRT) {
+                    tile.faceTop = true;
+                }
             }
             else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
                 var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
@@ -88,17 +94,17 @@ var PlanetLogicScene = (function (_super) {
                     toAvoid.indexOf(tileRight.index) !== -1) {
                     tile.faceRight = true;
                 }
-                var tileAbove = void 0;
+                var tileAbove_1;
                 if (tile.y > 0 &&
-                    (tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
-                    (toAvoid.indexOf(tileAbove.index) !== -1)) {
+                    (tileAbove_1 = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
+                    (toAvoid.indexOf(tileAbove_1.index) !== -1)) {
                     tile.faceTop = true;
                 }
                 var tileBelow = void 0;
                 if (tile.y < tilemap.height &&
                     (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
                     (toAvoid.indexOf(tileBelow.index) !== -1)) {
-                    tile.faceTop = true;
+                    tile.faceBottom = true;
                 }
             }
             switch (tile.index) {
@@ -110,7 +116,7 @@ var PlanetLogicScene = (function (_super) {
                     break;
             }
         });
-        this.player = new Player_1.default(this, 300, 0);
+        this.player = new Player_1.default(this, 0, 0);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
@@ -119,6 +125,8 @@ var PlanetLogicScene = (function (_super) {
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+        this.physics.world.setBoundsCollision(true, true, true, false);
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
         if (this.player.dead) {

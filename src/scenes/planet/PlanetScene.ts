@@ -16,7 +16,6 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
     
     public preload()
     {
-        
     }
     
     public loaded: boolean = false;
