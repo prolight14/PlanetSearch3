@@ -17,8 +17,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         this.setCollideWorldBounds(true);
 
         this.resetPhysics().setDisplaySize(16, 32);
-
-
         
         scene.anims.create({
             key: "idle",
@@ -29,14 +27,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         scene.anims.create({
             key: "left",
             frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
 
         scene.anims.create({
             key: "right",
             frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
 
@@ -69,8 +67,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
                 return this.keys.s.isDown || this.keys.down.isDown;
             }
         };
-
-
     }
 
     private resetPhysics()
@@ -131,6 +127,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
             }
         }
 
+        if(!onGround)
+        {
+            if(this.controls.left())
+            {
+                this.anims.pause(this.anims.currentAnim.frames[1]);
+            }
+            else if(this.controls.right())
+            {
+                this.anims.pause(this.anims.currentAnim.frames[0]);
+            }
+        }
+
         if(this.inWater)
         {
             if(this.controls.up())
@@ -144,7 +152,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         }
         else if(onGround && this.controls.up())
         {
-            // this.setVelocityY(-400);
             this.jumping = true;
         }
 
@@ -188,7 +195,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     private jumping: boolean = false;
     private jumpSpeed: number = 80;
     private jumpHeight: number = 310;
-
 
     dead: boolean;
 

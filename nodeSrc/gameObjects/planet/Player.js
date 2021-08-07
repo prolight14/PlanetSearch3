@@ -34,13 +34,13 @@ var Player = (function (_super) {
         scene.anims.create({
             key: "left",
             frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
         scene.anims.create({
             key: "right",
             frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
         _this.keys = {
@@ -94,6 +94,14 @@ var Player = (function (_super) {
             if (Math.abs(this.body.velocity.x) < xDeacl) {
                 this.setVelocityX(0);
                 this.anims.play("idle");
+            }
+        }
+        if (!onGround) {
+            if (this.controls.left()) {
+                this.anims.pause(this.anims.currentAnim.frames[1]);
+            }
+            else if (this.controls.right()) {
+                this.anims.pause(this.anims.currentAnim.frames[0]);
             }
         }
         if (this.inWater) {
