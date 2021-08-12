@@ -37,9 +37,11 @@ var PlanetScene = (function (_super) {
     };
     PlanetScene.prototype.sleepScenes = function (calledByEntryScene) {
         this.scene.sleep("planetLogic");
+        this.scene.sleep("planetEffects");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetLogic");
+        this.scene.run("planetEffects");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");

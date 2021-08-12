@@ -18,8 +18,10 @@ export default class Ship extends SpaceGameObject
     protected angleVel: number;
     protected speed: number = 0;
 
-    public preUpdate()
+    public preUpdate(time: number, delta: number)
     {
+        super.preUpdate(time, delta);
+
         if(this.controls.turnLeft())
         {
             this.setAngle(this.angle - this.angleVel);

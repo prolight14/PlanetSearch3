@@ -65,26 +65,32 @@ var Player = (function (_super) {
             },
             down: function () {
                 return _this.keys.s.isDown || _this.keys.down.isDown;
+            },
+            activate: function () {
+                return _this.keys.s.isDown || _this.keys.down.isDown;
             }
+        };
+        _this.activate = function () {
+            return this.controls.activate();
         };
         return _this;
     }
     Player.prototype.resetPhysics = function () {
-        return this.setDrag(300, 0).setMaxVelocity(145, 600).setGravity(300);
+        return this.setDrag(30, 0).setMaxVelocity(175, 600);
     };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down;
         if (this.controls.left()) {
-            this.setVelocityX(-300);
+            this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);
         }
         if (this.controls.right()) {
-            this.setVelocityX(300);
+            this.setVelocityX(this.body.velocity.x + 8);
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            var xDeacl = onGround ? 10 : 2;
+            var xDeacl = onGround ? 10 : 3;
             if (this.body.velocity.x > 0) {
                 this.setVelocityX(this.body.velocity.x - xDeacl);
             }
@@ -134,9 +140,12 @@ var Player = (function (_super) {
             this.resetPhysics();
         }
         this.inWater = false;
-        if (this.y > this.scene.cameras.main.getBounds().height) {
+        if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
             this.kill();
         }
+    };
+    Player.prototype.isDead = function () {
+        return this.dead;
     };
     Player.prototype.kill = function () {
         this.dead = true;

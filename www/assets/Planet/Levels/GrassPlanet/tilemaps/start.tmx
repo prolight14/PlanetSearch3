@@ -132,7 +132,7 @@
   </tile>
  </tileset>
  <objectgroup id="4" name="Objects">
-  <object id="1" name="Player Spawn Point" x="7" y="208">
+  <object id="1" name="Player Spawn Point" x="89" y="204.333">
    <point/>
   </object>
   <object id="6" name="Door" x="392" y="236">

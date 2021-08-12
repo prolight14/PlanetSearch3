@@ -10,7 +10,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     {
         super(scene, x, y, "Helix2", 0);
 
-       
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
@@ -65,30 +64,42 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
             down: () =>
             {
                 return this.keys.s.isDown || this.keys.down.isDown;
+            },
+            activate: () =>
+            {
+                return this.keys.s.isDown || this.keys.down.isDown;
             }
+        };
+
+        this.activate = function()
+        {
+            return this.controls.activate();
         };
     }
 
+    public activate: Function;
+
     private resetPhysics()
     {
-        return this.setDrag(300, 0).setMaxVelocity(145, 600).setGravity(300);
+        return this.setDrag(30, 0).setMaxVelocity(175, 600);
     }
 
-    controls: {
-        left: Function,
-        right: Function,
-        up: Function,
-        down: Function
+    private controls: {
+        left: Function;
+        right: Function;
+        up: Function;
+        down: Function;
+        activate: Function;
     }
-    keys: {
-        a: Phaser.Input.Keyboard.Key, 
-        d: Phaser.Input.Keyboard.Key,
-        w: Phaser.Input.Keyboard.Key,
-        s: Phaser.Input.Keyboard.Key,
-        left: Phaser.Input.Keyboard.Key, 
-        right: Phaser.Input.Keyboard.Key,
-        up: Phaser.Input.Keyboard.Key,
-        down: Phaser.Input.Keyboard.Key
+    private keys: {
+        a: Phaser.Input.Keyboard.Key;
+        d: Phaser.Input.Keyboard.Key;
+        w: Phaser.Input.Keyboard.Key;
+        s: Phaser.Input.Keyboard.Key;
+        left: Phaser.Input.Keyboard.Key;
+        right: Phaser.Input.Keyboard.Key;
+        up: Phaser.Input.Keyboard.Key;
+        down: Phaser.Input.Keyboard.Key;
     }
 
     preUpdate(time: number, delta: number)
@@ -99,17 +110,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
         if(this.controls.left())
         {
-            this.setVelocityX(-300);
+            this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);
         }
         if(this.controls.right())
         {
-            this.setVelocityX(300);
+            this.setVelocityX(this.body.velocity.x + 8);
             this.anims.play("right", true);
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            const xDeacl = onGround ? 10 : 2;
+            const xDeacl = onGround ? 10 : 3;
 
             if(this.body.velocity.x > 0)
             {
@@ -185,7 +196,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
         this.inWater = false;
 
-        if(this.y > this.scene.cameras.main.getBounds().height)
+        if(this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight)
         {
             this.kill();
         }
@@ -196,7 +207,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     private jumpSpeed: number = 80;
     private jumpHeight: number = 310;
 
-    dead: boolean;
+    private dead: boolean;
+
+    public isDead()
+    {
+        return this.dead;
+    }
 
     private kill()
     {

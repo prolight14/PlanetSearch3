@@ -7,8 +7,9 @@ export default class Planet extends SpaceGameObject
         super(scene, x, y, texture);
     }
 
-    public preUpdate()
+    public preUpdate(time: number, delta: number)
     {
+        super.preUpdate(time, delta);
         this.bodyConf.update();
     }
 
@@ -17,6 +18,5 @@ export default class Planet extends SpaceGameObject
         if(object._arrayName === "playerShip")
         {
         }
-        console.log("hit!");
     }
 }

@@ -19,13 +19,13 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         return _super.call(this, scene, x, y, texture) || this;
     }
-    Planet.prototype.preUpdate = function () {
+    Planet.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
         this.bodyConf.update();
     };
     Planet.prototype.onCollide = function (object) {
         if (object._arrayName === "playerShip") {
         }
-        console.log("hit!");
     };
     return Planet;
 }(SpaceGameObject_1.default));

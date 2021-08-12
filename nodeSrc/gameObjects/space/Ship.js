@@ -21,7 +21,8 @@ var Ship = (function (_super) {
         _this.speed = 0;
         return _this;
     }
-    Ship.prototype.preUpdate = function () {
+    Ship.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
         if (this.controls.turnLeft()) {
             this.setAngle(this.angle - this.angleVel);
         }
