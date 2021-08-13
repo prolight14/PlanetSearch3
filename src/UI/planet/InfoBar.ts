@@ -27,8 +27,9 @@ export default class InfoBar
     public update()
     {
         var logicScene = this.scene.scene.get("planetLogic") as PlanetLogicScene;
-        const hp = logicScene.player.hp;
-        const maxHp = logicScene.player.maxHp;
+        const stats = logicScene.getPlayerStats();
+        const hp = stats.hp;
+        const maxHp = stats.maxHp;
 
         this.playerHpText.setText(`HP: ${hp.toFixed(0)} / ${maxHp}`);
 

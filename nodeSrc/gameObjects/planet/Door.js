@@ -30,7 +30,12 @@ var Door = (function (_super) {
         return _this;
     }
     Door.prototype.restartScene = function (scene) {
-        scene.scene.restart({ level: this.goto.level, door: this.goto.door });
+        scene.scene.restart({
+            loadType: "door",
+            gotoLevel: this.goto.level,
+            gotoDoor: this.goto.door,
+            playerStats: scene.getPlayerStats()
+        });
     };
     Door.prototype.onCollide = function (player) {
         var _this = this;
@@ -38,7 +43,7 @@ var Door = (function (_super) {
             var scene_1 = this.scene;
             var effectsScene = scene_1.scene.get("planetEffects");
             effectsScene.fadeOut(500, 0, 0, 0);
-            scene_1.scene.pause();
+            scene_1.scene.pause("planetLogic");
             effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
                 scene_1.scene.run("planetLogic");
                 _this.restartScene(scene_1);

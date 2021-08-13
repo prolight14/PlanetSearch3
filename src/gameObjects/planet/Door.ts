@@ -29,7 +29,12 @@ export default class Door extends Phaser.Physics.Arcade.Image
 
     private restartScene(scene: PlanetLogicScene)
     {
-        scene.scene.restart({ level: this.goto.level, door: this.goto.door });
+        scene.scene.restart({ 
+            loadType: "door",
+            gotoLevel: this.goto.level, 
+            gotoDoor: this.goto.door, 
+            playerStats: scene.getPlayerStats()
+        });
     }
 
     public onCollide(player: Player)
@@ -41,7 +46,7 @@ export default class Door extends Phaser.Physics.Arcade.Image
 
             effectsScene.fadeOut(500, 0, 0, 0);
         
-            scene.scene.pause();
+            scene.scene.pause("planetLogic");
 
             // effectsScene.cameras.main.once("camerafadeoutcomplete", (cam: Phaser.Cameras.Scene2D.Camera, effect: Phaser.Cameras.Scene2D.Effects.Fade) => 
             effectsScene.cameras.main.once("camerafadeoutcomplete", () => 

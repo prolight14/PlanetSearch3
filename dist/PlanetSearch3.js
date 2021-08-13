@@ -25,8 +25,9 @@ var InfoBar = (function () {
     }
     InfoBar.prototype.update = function () {
         var logicScene = this.scene.scene.get("planetLogic");
-        var hp = logicScene.player.hp;
-        var maxHp = logicScene.player.maxHp;
+        var stats = logicScene.getPlayerStats();
+        var hp = stats.hp;
+        var maxHp = stats.maxHp;
         this.playerHpText.setText("HP: " + hp.toFixed(0) + " / " + maxHp);
         var hpBarWidth = 200;
         this.hpBarGraphics.clear();
@@ -80,7 +81,12 @@ var Door = (function (_super) {
         return _this;
     }
     Door.prototype.restartScene = function (scene) {
-        scene.scene.restart({ level: this.goto.level, door: this.goto.door });
+        scene.scene.restart({
+            loadType: "door",
+            gotoLevel: this.goto.level,
+            gotoDoor: this.goto.door,
+            playerStats: scene.getPlayerStats()
+        });
     };
     Door.prototype.onCollide = function (player) {
         var _this = this;
@@ -88,7 +94,7 @@ var Door = (function (_super) {
             var scene_1 = this.scene;
             var effectsScene = scene_1.scene.get("planetEffects");
             effectsScene.fadeOut(500, 0, 0, 0);
-            scene_1.scene.pause();
+            scene_1.scene.pause("planetLogic");
             effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
                 scene_1.scene.run("planetLogic");
                 _this.restartScene(scene_1);
@@ -926,15 +932,24 @@ var PlanetLogicScene = (function (_super) {
             },
         }) || this;
     }
+    PlanetLogicScene.prototype.getPlayerStats = function () {
+        return {
+            hp: this.player.hp,
+            maxHp: this.player.maxHp,
+        };
+    };
     PlanetLogicScene.prototype.init = function (data) {
-        var _a = data.level, level = _a === void 0 ? "start" : _a, door = data.door;
-        this.currentLevel = level;
-        this.gotoDoor = door;
+        this.loadData = {
+            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
+            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
+            enteredDoor: data.gotoDoor,
+            playerStats: data.playerStats
+        };
     };
     PlanetLogicScene.prototype.preload = function () {
         this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
-        this.load.image("GrassTileset-extruded", "./assets/Planet/Levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
-        this.load.tilemapTiledJSON(this.currentLevel, "./assets/Planet/Levels/GrassPlanet/tilemaps/" + this.currentLevel + ".json");
+        this.load.image("GrassTileset-extruded", "./assets/Planet/levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
+        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/GrassPlanet/tilemaps/" + this.loadData.currentLevel + ".json");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
@@ -943,7 +958,7 @@ var PlanetLogicScene = (function (_super) {
         var backgraphics = this.add.graphics().setScrollFactor(0);
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
-        var tilemap = this.make.tilemap({ key: this.currentLevel, tileWidth: 16, tileHeight: 16 });
+        var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage("GrassTileset-extruded");
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
@@ -1046,7 +1061,7 @@ var PlanetLogicScene = (function (_super) {
                 for (var j in obj.properties) {
                     var prop = obj.properties[j];
                     if (prop.name === "door") {
-                        if (prop.value === this_1.gotoDoor) {
+                        if (prop.value === this_1.loadData.enteredDoor) {
                             doorGroup.getChildren().forEach(function (door) {
                                 var doorBounds = door.getBounds();
                                 if (doorBounds.contains(obj.x, obj.y)) {
@@ -1077,6 +1092,9 @@ var PlanetLogicScene = (function (_super) {
             _loop_1();
         }
         this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
+        if (this.loadData.loadType === "door") {
+            this.player.hp = this.loadData.playerStats.hp;
+        }
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
@@ -1145,8 +1163,6 @@ var PlanetScene = (function (_super) {
     }
     PlanetScene.prototype.receiveInfo = function (levelInfo) {
         this.scene.get("planetLogic").receiveLevelInfo(levelInfo);
-    };
-    PlanetScene.prototype.preload = function () {
     };
     PlanetScene.prototype.create = function () {
         this.spaceBar = this.input.keyboard.addKey("Space");

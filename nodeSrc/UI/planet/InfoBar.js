@@ -14,8 +14,9 @@ var InfoBar = (function () {
     }
     InfoBar.prototype.update = function () {
         var logicScene = this.scene.scene.get("planetLogic");
-        var hp = logicScene.player.hp;
-        var maxHp = logicScene.player.maxHp;
+        var stats = logicScene.getPlayerStats();
+        var hp = stats.hp;
+        var maxHp = stats.maxHp;
         this.playerHpText.setText("HP: " + hp.toFixed(0) + " / " + maxHp);
         var hpBarWidth = 200;
         this.hpBarGraphics.clear();

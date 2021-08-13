@@ -2,6 +2,13 @@ import GameObject from "./GameObject";
 import IDamage from "./IDamage";
 import ILifeform from "./ILifeform";
 
+// TODO: 1. Make hp not fill up when going through doors (done)
+// 2. Add checkpoints
+// 3. Add slopes
+// 4. Fix oneway collision
+// 5. Make player death animation
+// 6. Add leveling up system (surpassing a certain score will cause hp (by 5) or damage (by 1) to go up)
+
 export default class Player extends Phaser.Physics.Arcade.Sprite implements ILifeform
 {
     public isLifeform: boolean = true;

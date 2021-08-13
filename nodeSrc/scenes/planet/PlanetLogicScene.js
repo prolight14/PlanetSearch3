@@ -30,15 +30,24 @@ var PlanetLogicScene = (function (_super) {
             },
         }) || this;
     }
+    PlanetLogicScene.prototype.getPlayerStats = function () {
+        return {
+            hp: this.player.hp,
+            maxHp: this.player.maxHp,
+        };
+    };
     PlanetLogicScene.prototype.init = function (data) {
-        var _a = data.level, level = _a === void 0 ? "start" : _a, door = data.door;
-        this.currentLevel = level;
-        this.gotoDoor = door;
+        this.loadData = {
+            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
+            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
+            enteredDoor: data.gotoDoor,
+            playerStats: data.playerStats
+        };
     };
     PlanetLogicScene.prototype.preload = function () {
         this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
-        this.load.image("GrassTileset-extruded", "./assets/Planet/Levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
-        this.load.tilemapTiledJSON(this.currentLevel, "./assets/Planet/Levels/GrassPlanet/tilemaps/" + this.currentLevel + ".json");
+        this.load.image("GrassTileset-extruded", "./assets/Planet/levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
+        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/GrassPlanet/tilemaps/" + this.loadData.currentLevel + ".json");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
@@ -47,7 +56,7 @@ var PlanetLogicScene = (function (_super) {
         var backgraphics = this.add.graphics().setScrollFactor(0);
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
-        var tilemap = this.make.tilemap({ key: this.currentLevel, tileWidth: 16, tileHeight: 16 });
+        var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage("GrassTileset-extruded");
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
@@ -150,7 +159,7 @@ var PlanetLogicScene = (function (_super) {
                 for (var j in obj.properties) {
                     var prop = obj.properties[j];
                     if (prop.name === "door") {
-                        if (prop.value === this_1.gotoDoor) {
+                        if (prop.value === this_1.loadData.enteredDoor) {
                             doorGroup.getChildren().forEach(function (door) {
                                 var doorBounds = door.getBounds();
                                 if (doorBounds.contains(obj.x, obj.y)) {
@@ -181,6 +190,9 @@ var PlanetLogicScene = (function (_super) {
             _loop_1();
         }
         this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
+        if (this.loadData.loadType === "door") {
+            this.player.hp = this.loadData.playerStats.hp;
+        }
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);

@@ -23,8 +23,6 @@ var PlanetScene = (function (_super) {
     PlanetScene.prototype.receiveInfo = function (levelInfo) {
         this.scene.get("planetLogic").receiveLevelInfo(levelInfo);
     };
-    PlanetScene.prototype.preload = function () {
-    };
     PlanetScene.prototype.create = function () {
         this.spaceBar = this.input.keyboard.addKey("Space");
         this.runScenes();

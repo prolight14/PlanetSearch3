@@ -8,18 +8,14 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
     {
         super("planet");
     }
-
+    
+    public loaded: boolean = false;
+    
     public receiveInfo(levelInfo: object)
     {
         (this.scene.get("planetLogic") as PlanetLogicScene).receiveLevelInfo(levelInfo);
     }
-    
-    public preload()
-    {
-    }
-    
-    public loaded: boolean = false;
-    
+
     public create()
     {
         this.spaceBar = this.input.keyboard.addKey("Space");

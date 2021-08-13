@@ -4,6 +4,8 @@ import Player from "../../gameObjects/planet/Player";
 import Water from "../../gameObjects/planet/Water";
 import PlanetEffectsScene from "./PlanetEffectsSceen";
 
+type playerStats = { hp: number, maxHp: number };
+
 export default class PlanetLogicScene extends Phaser.Scene
 {
     constructor()
@@ -20,36 +22,50 @@ export default class PlanetLogicScene extends Phaser.Scene
         });
     }
 
-    player: Player;
-    controls: Phaser.Cameras.Controls.FixedKeyControl;
+    private player: Player;
+    // private controls: Phaser.Cameras.Controls.FixedKeyControl;
 
-    private currentLevel: string;
-    private gotoDoor: string;
+    public getPlayerStats(): playerStats
+    {
+        return {
+            hp: this.player.hp,
+            maxHp: this.player.maxHp,
+        };
+    }
+
+    private loadData: { 
+        loadType: string;
+        currentLevel: string;
+        enteredDoor: string;
+        playerStats: playerStats
+    };
 
     public init(data: any)
     {
-        const { level = "start", door } = data;
-        this.currentLevel = level;
-        this.gotoDoor = door;
+        this.loadData = {
+            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
+            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
+            enteredDoor: data.gotoDoor,
+            playerStats: data.playerStats
+        };
     }
 
     public preload()
     {   
-        // this.load.image("IcyDwarfTileset", "./assets/Planet/Levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
-        // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/Levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
+        // this.load.image("IcyDwarfTileset", "./assets/Planet/levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
+        // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
         
         this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });  
 
-        this.load.image("GrassTileset-extruded", "./assets/Planet/Levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
-        this.load.tilemapTiledJSON(this.currentLevel, "./assets/Planet/Levels/GrassPlanet/tilemaps/" + this.currentLevel + ".json");
+        this.load.image("GrassTileset-extruded", "./assets/Planet/levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
+        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/GrassPlanet/tilemaps/" + this.loadData.currentLevel + ".json");
     }
-    
-    
+
     // private planetName: string;
-    // private levelName: string;   
+    // private currentLevelName: string;   
     
-    // private levelAssetsPrefix: string = "IcyDwarf";
-    // private levelAssetsPrefix: string = "IcyDwarf";
+    // private currentLevelAssetsPrefix: string = "IcyDwarf";
+    // private currentLevelAssetsPrefix: string = "IcyDwarf";
     
     public receiveLevelInfo(passObj: object)
     {
@@ -57,7 +73,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         // {
         //     case "planet":
         //         var planet = passObj.from;
-        //         this.levelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
+        //         this.currentLevelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
         //         break;
         // }
     }
@@ -69,10 +85,10 @@ export default class PlanetLogicScene extends Phaser.Scene
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
 
-        // const tilemap = this.make.tilemap({ key: this.levelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
-        // const tileset = tilemap.addTilesetImage( this.levelAssetsPrefix + "Tileset");
+        // const tilemap = this.make.tilemap({ key: this.currentLevelAssetsPrefix + "Tilemap", tileWidth: 16, tileHeight: 16 });
+        // const tileset = tilemap.addTilesetImage( this.currentLevelAssetsPrefix + "Tileset");
 
-        const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.currentLevel, tileWidth: 16, tileHeight: 16 });
+        const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage("GrassTileset-extruded");
         const worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         const fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
@@ -221,7 +237,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
                     if(prop.name === "door")
                     {
-                        if(prop.value === this.gotoDoor)
+                        if(prop.value === this.loadData.enteredDoor)
                         {
                             doorGroup.getChildren().forEach((door: Door) =>
                             {
@@ -260,6 +276,11 @@ export default class PlanetLogicScene extends Phaser.Scene
         }
 
         this.player = new Player(this, spawnPoint.x as number, spawnPoint.y as number);
+
+        if(this.loadData.loadType === "door")
+        {
+            this.player.hp = this.loadData.playerStats.hp;
+        }
 
         this.physics.add.collider(this.player, worldLayer);
 
