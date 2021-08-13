@@ -10,7 +10,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     public maxHp: integer;
     public damage: integer;
     
-    public takeDamage(object: ILifeform | IDamage, blink: boolean)
+    public takeDamage(object: ILifeform | IDamage, blink?: boolean)
     {
         if(blink === undefined) { blink = true; }
 

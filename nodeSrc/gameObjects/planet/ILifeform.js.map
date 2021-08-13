@@ -1,1 +1,1 @@
-{"version":3,"file":"ILifeform.js","sourceRoot":"","sources":["../../../src/gameObjects/planet/ILifeform.ts"],"names":[],"mappings":";;AAEA;IAAA;QAEW,eAAU,GAAY,IAAI,CAAC;IAStC,CAAC;IAJU,8BAAU,GAAjB,UAAkB,MAA2B,EAAE,KAAc;IAG7D,CAAC;IACL,gBAAC;AAAD,CAAC,AAXD,IAWC"}
+{"version":3,"file":"ILifeform.js","sourceRoot":"","sources":["../../../src/gameObjects/planet/ILifeform.ts"],"names":[],"mappings":";;AAEA;IAAA;QAEW,eAAU,GAAY,IAAI,CAAC;IAStC,CAAC;IAJU,8BAAU,GAAjB,UAAkB,MAA2B,EAAE,KAAe;IAG9D,CAAC;IACL,gBAAC;AAAD,CAAC,AAXD,IAWC"}

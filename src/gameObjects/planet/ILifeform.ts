@@ -7,7 +7,7 @@ export default class ILifeform
     public hp: integer;
     public maxHp: integer;
     public damage: integer;
-    public takeDamage(object: ILifeform | IDamage, blink: boolean): any
+    public takeDamage(object: ILifeform | IDamage, blink?: boolean): any
     {
         
     }
