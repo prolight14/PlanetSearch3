@@ -5,11 +5,6 @@ export default class PlanetEffectsScene extends Phaser.Scene
         super("planetEffects");
     }    
 
-    create()
-    {
-        
-    }
-
     public fadeOut(...args: any[])
     {
         this.cameras.main.fadeOut.apply(this.cameras.main, arguments);

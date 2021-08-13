@@ -1,14 +1,40 @@
 import GameObject from "./GameObject";
+import IDamage from "./IDamage";
 import ILifeform from "./ILifeform";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite implements ILifeform
 {
     public isLifeform: boolean = true;
     public inWater: boolean = false;
+    public hp: integer;
+    public maxHp: integer;
+    public damage: integer;
+    
+    public takeDamage(object: ILifeform | IDamage, blink: boolean)
+    {
+        if(blink === undefined) { blink = true; }
+
+        if(!this.blinking)
+        {
+            this.hp -= object.damage;
+
+            if(blink)
+            {
+                this.startBlinking();
+            }
+        }
+    }
+
+    private blinking: boolean = false;
+    private blinkTime: integer = 1000; // Blink time in ms
+    private blinkSpeed: integer = 100; // Blink speed (change on/off) in ms
 
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
         super(scene, x, y, "Helix2", 0);
+
+        this.maxHp = this.hp = 5;
+        this.damage = 1;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -75,6 +101,31 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         {
             return this.controls.activate();
         };
+
+        this.blinkTimer = this.scene.time.addEvent({
+            delay: this.blinkSpeed,
+            callback: () =>
+            {
+                this.setVisible(!this.visible);
+            },  
+            repeat: -1 
+        });
+        this.blinkTimer.paused = true;
+    }
+
+    blinkTimer: Phaser.Time.TimerEvent;
+
+    private startBlinking()
+    {   
+        this.blinking = true;
+        this.blinkTimer.paused = false;
+
+        this.scene.time.delayedCall(this.blinkTime, () =>
+        {
+            this.blinking = false;
+            this.setVisible(true);
+            this.blinkTimer.paused = true;
+        });
     }
 
     public activate: Function;
@@ -198,7 +249,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
         if(this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight)
         {
-            this.kill();
+            this.kill("fellOff");
+        }
+        else if(this.hp <= 0)
+        {
+            this.kill("noHp");
         }
     }
 
@@ -214,7 +269,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         return this.dead;
     }
 
-    private kill()
+    private kill(reason: string)
     {
         this.dead = true;
         this.destroy();

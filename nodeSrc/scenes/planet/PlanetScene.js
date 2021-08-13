@@ -38,6 +38,7 @@ var PlanetScene = (function (_super) {
     PlanetScene.prototype.sleepScenes = function (calledByEntryScene) {
         this.scene.sleep("planetLogic");
         this.scene.sleep("planetEffects");
+        this.scene.sleep("planetUI");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetLogic");

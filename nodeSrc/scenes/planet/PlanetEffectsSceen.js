@@ -18,8 +18,6 @@ var PlanetEffectsScene = (function (_super) {
     function PlanetEffectsScene() {
         return _super.call(this, "planetEffects") || this;
     }
-    PlanetEffectsScene.prototype.create = function () {
-    };
     PlanetEffectsScene.prototype.fadeOut = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {

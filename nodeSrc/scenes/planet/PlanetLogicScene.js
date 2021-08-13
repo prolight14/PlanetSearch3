@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Door_1 = require("../../gameObjects/planet/Door");
+var Lava_1 = require("../../gameObjects/planet/Lava");
 var Player_1 = require("../../gameObjects/planet/Player");
 var Water_1 = require("../../gameObjects/planet/Water");
 var PlanetLogicScene = (function (_super) {
@@ -24,7 +25,7 @@ var PlanetLogicScene = (function (_super) {
             physics: {
                 default: "arcade",
                 arcade: {
-                    gravity: { y: 800 },
+                    gravity: { y: 950 },
                 }
             },
         }) || this;
@@ -52,6 +53,7 @@ var PlanetLogicScene = (function (_super) {
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
         var waterGroup = this.add.group();
+        var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var WORLD_INDEXES = {
             BACK_GRASS: 1,
@@ -64,9 +66,9 @@ var PlanetLogicScene = (function (_super) {
             TOP_WATER: 8,
             WATER: 9,
             WATER_2: 10,
-            TOP_LAVA: 8,
-            LAVA: 9,
-            LAVA_2: 10,
+            TOP_LAVA: 11,
+            LAVA: 12,
+            LAVA_2: 13,
             GREEN_DOOR_TOP: 20,
             GREEN_DOOR_BOTTOM: 21
         };
@@ -121,7 +123,15 @@ var PlanetLogicScene = (function (_super) {
                 case WORLD_INDEXES.WATER:
                 case WORLD_INDEXES.WATER_2:
                     tile.setCollision(false, false, false, false);
-                    waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+                    var water = new Water_1.default(_this, tile.pixelX, tile.pixelY);
+                    waterGroup.add(water);
+                    break;
+                case WORLD_INDEXES.TOP_LAVA:
+                case WORLD_INDEXES.LAVA:
+                case WORLD_INDEXES.LAVA_2:
+                    tile.setCollision(false, false, false, false);
+                    var lava = new Lava_1.default(_this, tile.pixelX, tile.pixelY);
+                    lavaGroup.add(lava);
                     break;
                 case WORLD_INDEXES.GREEN_DOOR_TOP:
                     tile.setCollision(false, false, false, false);
@@ -175,6 +185,9 @@ var PlanetLogicScene = (function (_super) {
         this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
         }, undefined, this);
+        this.physics.add.overlap(this.player, lavaGroup, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+        }, undefined, this);
         this.physics.add.overlap(this.player, doorGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
         }, undefined, this);
@@ -185,17 +198,18 @@ var PlanetLogicScene = (function (_super) {
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.scene.get("planetEffects").fadeIn(500, 0, 0, 0);
-        this.ended = false;
+        this.scene.run("planetUI");
+        this.sceneTransitioning = false;
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
         var _this = this;
-        if (this.player.isDead() && !this.ended) {
+        if (this.player.isDead() && !this.sceneTransitioning) {
             var effectsScene = this.scene.get("planetEffects");
             effectsScene.fadeOut(500, 0, 0, 0);
             effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
                 _this.scene.restart();
             });
-            this.ended = true;
+            this.sceneTransitioning = true;
         }
     };
     return PlanetLogicScene;

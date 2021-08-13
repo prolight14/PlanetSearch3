@@ -4,6 +4,8 @@ var ILifeform = (function () {
     function ILifeform() {
         this.isLifeform = true;
     }
+    ILifeform.prototype.takeDamage = function (object, blink) {
+    };
     return ILifeform;
 }());
 exports.default = ILifeform;

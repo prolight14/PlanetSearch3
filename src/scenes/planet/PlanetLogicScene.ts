@@ -1,4 +1,5 @@
 import Door from "../../gameObjects/planet/Door";
+import Lava from "../../gameObjects/planet/Lava";
 import Player from "../../gameObjects/planet/Player";
 import Water from "../../gameObjects/planet/Water";
 import PlanetEffectsScene from "./PlanetEffectsSceen";
@@ -12,7 +13,7 @@ export default class PlanetLogicScene extends Phaser.Scene
             physics: {
                 default: "arcade",
                 arcade: {
-                    gravity: { y: 800 },
+                    gravity: { y: 950 },
                     // debug: true 
                 }
             },
@@ -77,8 +78,9 @@ export default class PlanetLogicScene extends Phaser.Scene
         const fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
         fgLayer.setDepth(4);
         
-        var waterGroup = this.add.group();
-        var doorGroup = this.add.group();
+        const waterGroup = this.add.group();
+        const lavaGroup = this.add.group();
+        const doorGroup = this.add.group();
 
         const WORLD_INDEXES = {
             BACK_GRASS: 1,
@@ -91,9 +93,9 @@ export default class PlanetLogicScene extends Phaser.Scene
             TOP_WATER: 8,
             WATER: 9,
             WATER_2: 10,
-            TOP_LAVA: 8,
-            LAVA: 9,
-            LAVA_2: 10,
+            TOP_LAVA: 11,
+            LAVA: 12,
+            LAVA_2: 13,
             GREEN_DOOR_TOP: 20,
             GREEN_DOOR_BOTTOM: 21
         };
@@ -170,7 +172,17 @@ export default class PlanetLogicScene extends Phaser.Scene
                 case WORLD_INDEXES.TOP_WATER: case WORLD_INDEXES.WATER: case WORLD_INDEXES.WATER_2:
                     tile.setCollision(false, false, false, false);
 
-                    waterGroup.add(new Water(this, tile.pixelX, tile.pixelY));
+                    var water = new Water(this, tile.pixelX, tile.pixelY);
+
+                    waterGroup.add(water);
+                    break;
+
+                case WORLD_INDEXES.TOP_LAVA: case WORLD_INDEXES.LAVA: case WORLD_INDEXES.LAVA_2: 
+                    tile.setCollision(false, false, false, false);
+
+                    var lava = new Lava(this, tile.pixelX, tile.pixelY);
+
+                    lavaGroup.add(lava);
                     break;
 
                 case WORLD_INDEXES.GREEN_DOOR_TOP:
@@ -256,6 +268,11 @@ export default class PlanetLogicScene extends Phaser.Scene
             objectB.onCollide(objectA);
         }, undefined, this);
 
+        this.physics.add.overlap(this.player, lavaGroup, function(objectA: Player, objectB: Lava)
+        {
+            objectB.onCollide(objectA);
+        }, undefined, this);
+
         this.physics.add.overlap(this.player, doorGroup, function(objectA: Player, objectB: Door)
         {
             objectB.onCollide(objectA);
@@ -282,17 +299,17 @@ export default class PlanetLogicScene extends Phaser.Scene
         // };
         // this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
 
-        // cam.fadeIn(500, 0, 0, 0);
         (this.scene.get("planetEffects") as PlanetEffectsScene).fadeIn(500, 0, 0, 0);
 
-        this.ended = false;
+        this.scene.run("planetUI");
+        this.sceneTransitioning = false;
     }
 
-    private ended: boolean;
+    private sceneTransitioning: boolean;
 
     public update(time: number, delta: number)
     {
-        if(this.player.isDead() && !this.ended)
+        if(this.player.isDead() && !this.sceneTransitioning)
         {
             const effectsScene = this.scene.get("planetEffects") as PlanetEffectsScene;
 
@@ -303,9 +320,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                 this.scene.restart();
             });
         
-            this.ended = true;
+            this.sceneTransitioning = true;
         }
-
-        // this.controls.update(delta);
     }
 }
