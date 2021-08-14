@@ -1,4 +1,3 @@
-import GameObject from "./GameObject";
 import IDamage from "./IDamage";
 import ILifeform from "./ILifeform";
 

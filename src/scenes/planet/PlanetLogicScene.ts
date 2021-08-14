@@ -1,6 +1,7 @@
 import Door from "../../gameObjects/planet/Door";
 import Lava from "../../gameObjects/planet/Lava";
 import Player from "../../gameObjects/planet/Player";
+import Slope from "../../gameObjects/planet/Slope";
 import Water from "../../gameObjects/planet/Water";
 import PlanetEffectsScene from "./PlanetEffectsSceen";
 
@@ -16,7 +17,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
-                    // debug: true 
+                    debug: true 
                 }
             },
         });
@@ -97,6 +98,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         const waterGroup = this.add.group();
         const lavaGroup = this.add.group();
         const doorGroup = this.add.group();
+        const slopeGroup = this.add.group();
 
         const WORLD_INDEXES = {
             BACK_GRASS: 1,
@@ -113,7 +115,9 @@ export default class PlanetLogicScene extends Phaser.Scene
             LAVA: 12,
             LAVA_2: 13,
             GREEN_DOOR_TOP: 20,
-            GREEN_DOOR_BOTTOM: 21
+            GREEN_DOOR_BOTTOM: 21,
+            SLOPE_LEFT_UP: 23,
+            SLOPE_RIGHT_UP: 24
         };
 
         worldLayer.setCollisionByProperty({ collides: true });
@@ -210,6 +214,12 @@ export default class PlanetLogicScene extends Phaser.Scene
                 case WORLD_INDEXES.GREEN_DOOR_BOTTOM:
                     tile.setCollision(false, false, false, false);
                     break;
+
+                case WORLD_INDEXES.SLOPE_LEFT_UP:
+                    tile.setCollision(false, false, false, false);
+
+                    slopeGroup.add(new Slope(this, "leftUp", tile.pixelX, tile.pixelY));
+                    break;
             }
         });
 
@@ -295,6 +305,11 @@ export default class PlanetLogicScene extends Phaser.Scene
         }, undefined, this);
 
         this.physics.add.overlap(this.player, doorGroup, function(objectA: Player, objectB: Door)
+        {
+            objectB.onCollide(objectA);
+        }, undefined, this);
+
+        this.physics.add.overlap(this.player, slopeGroup, function(objectA: Player, objectB: Slope)
         {
             objectB.onCollide(objectA);
         }, undefined, this);

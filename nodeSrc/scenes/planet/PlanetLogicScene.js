@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Door_1 = require("../../gameObjects/planet/Door");
 var Lava_1 = require("../../gameObjects/planet/Lava");
 var Player_1 = require("../../gameObjects/planet/Player");
+var Slope_1 = require("../../gameObjects/planet/Slope");
 var Water_1 = require("../../gameObjects/planet/Water");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
@@ -26,6 +27,7 @@ var PlanetLogicScene = (function (_super) {
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
+                    debug: true
                 }
             },
         }) || this;
@@ -64,6 +66,7 @@ var PlanetLogicScene = (function (_super) {
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
+        var slopeGroup = this.add.group();
         var WORLD_INDEXES = {
             BACK_GRASS: 1,
             BACK_GRASS_2: 2,
@@ -79,7 +82,9 @@ var PlanetLogicScene = (function (_super) {
             LAVA: 12,
             LAVA_2: 13,
             GREEN_DOOR_TOP: 20,
-            GREEN_DOOR_BOTTOM: 21
+            GREEN_DOOR_BOTTOM: 21,
+            SLOPE_LEFT_UP: 23,
+            SLOPE_RIGHT_UP: 24
         };
         worldLayer.setCollisionByProperty({ collides: true });
         worldLayer.forEachTile(function (tile) {
@@ -149,6 +154,10 @@ var PlanetLogicScene = (function (_super) {
                 case WORLD_INDEXES.GREEN_DOOR_BOTTOM:
                     tile.setCollision(false, false, false, false);
                     break;
+                case WORLD_INDEXES.SLOPE_LEFT_UP:
+                    tile.setCollision(false, false, false, false);
+                    slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
+                    break;
             }
         });
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
@@ -201,6 +210,9 @@ var PlanetLogicScene = (function (_super) {
             objectB.onCollide(objectA);
         }, undefined, this);
         this.physics.add.overlap(this.player, doorGroup, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+        }, undefined, this);
+        this.physics.add.overlap(this.player, slopeGroup, function (objectA, objectB) {
             objectB.onCollide(objectA);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);

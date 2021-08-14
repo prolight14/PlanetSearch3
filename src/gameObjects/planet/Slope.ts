@@ -1,11 +1,12 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import ILifeform from "./ILifeform";
 
-export default class Water extends Phaser.Physics.Arcade.Image
+export default class Slope extends Phaser.Physics.Arcade.Image
 {
-    constructor(scene: PlanetLogicScene, x: number, y: number)
+    constructor(scene: PlanetLogicScene, way: string, x: number, y: number)
     {
-        super(scene, x, y, "water");
+        super(scene, x, y, "slope");
+        this.way = way;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -16,8 +17,10 @@ export default class Water extends Phaser.Physics.Arcade.Image
         this.setVisible(false);
     }
 
+    private way: string;
+    
     public onCollide(object: ILifeform)
     {
-        object.inWater = true;
+        console.log("Hit"); 
     }
 }
