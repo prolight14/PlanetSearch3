@@ -17,7 +17,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
-                    debug: true 
+                    // debug: true 
                 }
             },
         });
@@ -219,7 +219,29 @@ export default class PlanetLogicScene extends Phaser.Scene
                     tile.setCollision(false, false, false, false);
 
                     slopeGroup.add(new Slope(this, "leftUp", tile.pixelX, tile.pixelY));
+
+                    // if(tilemap.hasTileAt(tile.x - 1, tile.y))
+                    // {
+                    //     var leftTile: Phaser.Tilemaps.Tile = tilemap.getTileAt(tile.x - 1, tile.y);
+
+                    //     leftTile.setCollision(true, false, true, true, true);
+                    //     leftTile.faceLeft = true;
+                    // }
                     break;
+
+                    case WORLD_INDEXES.SLOPE_RIGHT_UP:
+                        tile.setCollision(false, false, false, false);
+    
+                        slopeGroup.add(new Slope(this, "rightUp", tile.pixelX, tile.pixelY));
+    
+                        // if(tilemap.hasTileAt(tile.x - 1, tile.y))
+                        // {
+                        //     var leftTile: Phaser.Tilemaps.Tile = tilemap.getTileAt(tile.x + 1, tile.y);
+    
+                        //     leftTile.setCollision(true, false, true, true, true);
+                        //     leftTile.faceLeft = true;
+                        // }
+                        break;
             }
         });
 
@@ -311,7 +333,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.physics.add.overlap(this.player, slopeGroup, function(objectA: Player, objectB: Slope)
         {
-            objectB.onCollide(objectA);
+            objectB.processCollision(objectA);
         }, undefined, this);
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);

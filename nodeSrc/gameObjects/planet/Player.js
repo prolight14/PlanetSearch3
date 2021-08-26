@@ -22,6 +22,7 @@ var Player = (function (_super) {
         _this.blinking = false;
         _this.blinkTime = 1000;
         _this.blinkSpeed = 100;
+        _this.isOnSlope = false;
         _this.jumping = false;
         _this.jumpSpeed = 80;
         _this.jumpHeight = 310;
@@ -173,6 +174,13 @@ var Player = (function (_super) {
         else {
             this.resetPhysics();
         }
+        if (this.isOnSlope) {
+            this.body.setAllowGravity(false);
+        }
+        else {
+            this.body.setAllowGravity(true);
+        }
+        this.isOnSlope = false;
         this.inWater = false;
         if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
             this.kill("fellOff");

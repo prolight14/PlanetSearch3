@@ -27,7 +27,6 @@ var PlanetLogicScene = (function (_super) {
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
-                    debug: true
                 }
             },
         }) || this;
@@ -158,6 +157,10 @@ var PlanetLogicScene = (function (_super) {
                     tile.setCollision(false, false, false, false);
                     slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
                     break;
+                case WORLD_INDEXES.SLOPE_RIGHT_UP:
+                    tile.setCollision(false, false, false, false);
+                    slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                    break;
             }
         });
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
@@ -213,7 +216,7 @@ var PlanetLogicScene = (function (_super) {
             objectB.onCollide(objectA);
         }, undefined, this);
         this.physics.add.overlap(this.player, slopeGroup, function (objectA, objectB) {
-            objectB.onCollide(objectA);
+            objectB.processCollision(objectA);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

@@ -135,6 +135,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     }
 
     public activate: Function;
+    public isOnSlope: boolean = false;
 
     private resetPhysics()
     {
@@ -251,6 +252,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
             this.resetPhysics();
         }
 
+        if(this.isOnSlope)
+        {
+            (this.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
+        }
+        else
+        {
+            (this.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
+        }
+
+        this.isOnSlope = false;
         this.inWater = false;
 
         if(this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight)

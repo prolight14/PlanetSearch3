@@ -183,6 +183,7 @@ var Player = (function (_super) {
         _this.blinking = false;
         _this.blinkTime = 1000;
         _this.blinkSpeed = 100;
+        _this.isOnSlope = false;
         _this.jumping = false;
         _this.jumpSpeed = 80;
         _this.jumpHeight = 310;
@@ -334,6 +335,13 @@ var Player = (function (_super) {
         else {
             this.resetPhysics();
         }
+        if (this.isOnSlope) {
+            this.body.setAllowGravity(false);
+        }
+        else {
+            this.body.setAllowGravity(true);
+        }
+        this.isOnSlope = false;
         this.inWater = false;
         if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
             this.kill("fellOff");
@@ -385,13 +393,44 @@ var Slope = (function (_super) {
         scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
+        _this.setImmovable(true);
         _this.setOrigin(0, 0);
         _this.setScale(16 / _this.displayWidth, 16 / _this.displayHeight);
         _this.setVisible(false);
+        switch (_this.way) {
+            case "leftUp":
+                _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y, _this.x, _this.y + _this.height, _this.x + _this.width, _this.y + _this.height);
+                _this.processCollision = function (object) {
+                    object.isOnSlope = false;
+                    if (this.intersects(object.getBounds())) {
+                        var dx = object.body.x - this.body.x;
+                        object.y = this.body.y + this.body.height - object.body.height + dx;
+                        object.body.blocked.down = true;
+                        object.isOnSlope = true;
+                        object.body.velocity.y = 0;
+                    }
+                };
+                break;
+            case "rightUp":
+                _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y, _this.x + _this.width, _this.y + _this.height, _this.x + _this.width, _this.y);
+                _this.processCollision = function (object) {
+                    object.isOnSlope = false;
+                    if (this.intersects(object.getBounds())) {
+                        console.log("HIT");
+                        var dx = this.body.x - object.body.x;
+                        object.y = this.body.y + this.body.height - object.body.height + dx;
+                        object.body.blocked.down = true;
+                        object.isOnSlope = true;
+                        object.body.velocity.y = 0;
+                    }
+                };
+                break;
+        }
         return _this;
     }
-    Slope.prototype.onCollide = function (object) {
-        console.log("Hit");
+    Slope.prototype.processCollision = function (object) { };
+    Slope.prototype.intersects = function (rect) {
+        return Phaser.Geom.Intersects.RectangleToTriangle(rect, this.triangle);
     };
     return Slope;
 }(Phaser.Physics.Arcade.Image));
@@ -973,7 +1012,6 @@ var PlanetLogicScene = (function (_super) {
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
-                    debug: true
                 }
             },
         }) || this;
@@ -1104,6 +1142,10 @@ var PlanetLogicScene = (function (_super) {
                     tile.setCollision(false, false, false, false);
                     slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
                     break;
+                case WORLD_INDEXES.SLOPE_RIGHT_UP:
+                    tile.setCollision(false, false, false, false);
+                    slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                    break;
             }
         });
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
@@ -1159,7 +1201,7 @@ var PlanetLogicScene = (function (_super) {
             objectB.onCollide(objectA);
         }, undefined, this);
         this.physics.add.overlap(this.player, slopeGroup, function (objectA, objectB) {
-            objectB.onCollide(objectA);
+            objectB.processCollision(objectA);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
