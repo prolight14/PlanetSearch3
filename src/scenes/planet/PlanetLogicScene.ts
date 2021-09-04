@@ -82,6 +82,7 @@ export default class PlanetLogicScene extends Phaser.Scene
     public create()
     {
         let backgraphics = this.add.graphics().setScrollFactor(0);
+        
 
         backgraphics.fillStyle(0x00ABFF);
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
@@ -91,9 +92,18 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage("GrassTileset-extruded");
+
+        if(tilemap.getTileLayerNames().indexOf("BackWorld") !== -1)
+        {
+            tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
+        }
         const worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         const fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
-        fgLayer.setDepth(4);
+
+        backgraphics.setDepth(-7);
+        worldLayer.setDepth(0);
+        fgLayer.setDepth(1);
+
         
         const waterGroup = this.add.group();
         const lavaGroup = this.add.group();

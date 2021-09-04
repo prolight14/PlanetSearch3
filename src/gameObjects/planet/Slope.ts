@@ -53,7 +53,6 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                     object.isOnSlope = false;
                     if(this.intersects(object.getBounds()))
                     {
-                        console.log("HIT");
                         let dx = this.body.x - object.body.x;
                         object.y = this.body.y + this.body.height - object.body.height + dx;
                         object.body.blocked.down = true;

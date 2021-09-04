@@ -59,9 +59,14 @@ var PlanetLogicScene = (function (_super) {
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage("GrassTileset-extruded");
+        if (tilemap.getTileLayerNames().indexOf("BackWorld") !== -1) {
+            tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
+        }
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
-        fgLayer.setDepth(4);
+        backgraphics.setDepth(-7);
+        worldLayer.setDepth(0);
+        fgLayer.setDepth(1);
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();

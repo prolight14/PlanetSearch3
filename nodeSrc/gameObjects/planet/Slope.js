@@ -44,7 +44,6 @@ var Slope = (function (_super) {
                 _this.processCollision = function (object) {
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
-                        console.log("HIT");
                         var dx = this.body.x - object.body.x;
                         object.y = this.body.y + this.body.height - object.body.height + dx;
                         object.body.blocked.down = true;
