@@ -164,7 +164,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     {
         super.preUpdate(time, delta);
 
-        const onGround = this.body.blocked.down;
+        const onGround = this.body.blocked.down || this.isOnSlope;
 
         if(this.controls.left())
         {

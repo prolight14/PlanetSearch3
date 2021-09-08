@@ -115,7 +115,7 @@ var Player = (function (_super) {
     };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var onGround = this.body.blocked.down;
+        var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
             this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);

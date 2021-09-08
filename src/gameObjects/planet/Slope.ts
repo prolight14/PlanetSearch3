@@ -23,8 +23,8 @@ export default class Slope extends Phaser.Physics.Arcade.Image
             case "leftUp":
                 this.triangle = new Phaser.Geom.Triangle(
                     this.x, this.y,
-                    this.x, this.y + this.height,
-                    this.x + this.width, this.y + this.height,
+                    this.x, this.y + this.displayHeight,
+                    this.x + this.displayWidth, this.y + this.displayHeight,
                 );
 
                 this.processCollision = function(object: Player)
@@ -33,7 +33,7 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                     if(this.intersects(object.getBounds()))
                     {
                         let dx = object.body.x - this.body.x;
-                        object.y = this.body.y + this.body.height - object.body.height + dx;
+                        object.y = this.body.y + this.body.height + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
@@ -43,9 +43,9 @@ export default class Slope extends Phaser.Physics.Arcade.Image
 
             case "rightUp":
                 this.triangle = new Phaser.Geom.Triangle(
-                    this.x, this.y,
-                    this.x + this.width, this.y + this.height,
-                    this.x + this.width, this.y,
+                    this.x, this.y + this.displayHeight,
+                    this.x + this.displayWidth, this.y,
+                    this.x + this.displayWidth, this.y + this.displayHeight
                 );
 
                 this.processCollision = function(object: Player)
@@ -54,7 +54,7 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                     if(this.intersects(object.getBounds()))
                     {
                         let dx = this.body.x - object.body.x;
-                        object.y = this.body.y + this.body.height - object.body.height + dx;
+                        object.y = this.body.y + this.body.height + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
@@ -62,6 +62,11 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                 };
                 break;
         }
+
+        // let graphics = scene.add.graphics({});
+
+        // graphics.lineStyle(2, 0x00ff00);
+        // graphics.strokeTriangleShape(this.triangle);
     }
     private way: string;
     processCollision(object: Player) {}
