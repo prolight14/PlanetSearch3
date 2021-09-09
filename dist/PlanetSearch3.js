@@ -109,6 +109,53 @@ exports.default = Door;
 
 /***/ }),
 
+/***/ "./gameObjects/planet/InvisiblePlatform.js":
+/*!*************************************************!*\
+  !*** ./gameObjects/planet/InvisiblePlatform.js ***!
+  \*************************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var InvisiblePlatform = (function (_super) {
+    __extends(InvisiblePlatform, _super);
+    function InvisiblePlatform(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "invisiblePlatform") || this;
+        scene.add.existing(_this);
+        scene.physics.add.existing(_this);
+        _this.setMaxVelocity(0, 0);
+        _this.setOrigin(0, 0);
+        _this.setScale(0.5, 0.5);
+        _this.setVisible(false);
+        return _this;
+    }
+    InvisiblePlatform.prototype.processCollision = function (object) {
+        if (object.body.velocity.y > 0 && object.body.y + object.body.height <= this.body.y + object.body.deltaAbsY()) {
+            object.body.y = this.body.y - object.body.height;
+            object.body.velocity.y = 0;
+            object.body.blocked.down = true;
+        }
+    };
+    return InvisiblePlatform;
+}(Phaser.Physics.Arcade.Image));
+exports.default = InvisiblePlatform;
+//# sourceMappingURL=InvisiblePlatform.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/planet/Lava.js":
 /*!************************************!*\
   !*** ./gameObjects/planet/Lava.js ***!
@@ -1034,6 +1081,7 @@ var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gam
 var Slope_1 = __webpack_require__(/*! ../../gameObjects/planet/Slope */ "./gameObjects/planet/Slope.js");
 var Water_1 = __webpack_require__(/*! ../../gameObjects/planet/Water */ "./gameObjects/planet/Water.js");
 var BlockIndexes_1 = __webpack_require__(/*! ./BlockIndexes */ "./scenes/planet/BlockIndexes.js");
+var InvisiblePlatform_1 = __webpack_require__(/*! ../../gameObjects/planet/InvisiblePlatform */ "./gameObjects/planet/InvisiblePlatform.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -1088,6 +1136,7 @@ var PlanetLogicScene = (function (_super) {
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
+        var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
                 var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
@@ -1097,25 +1146,33 @@ var PlanetLogicScene = (function (_super) {
                     if (WATERS_1.indexOf(tile.index) !== -1) {
                         tile.setCollision(false, false, false, false);
                         waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
                     }
                     else if (LAVA_1.indexOf(tile.index) !== -1) {
                         tile.setCollision(false, false, false, false);
                         lavaGroup.add(new Lava_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
                     }
-                    else if (tile.index === INDEXES_1.DOOR_TOP) {
-                        tile.setCollision(false, false, false, false);
-                        doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
-                    }
-                    else if (tile.index === INDEXES_1.DOOR_BOTTOM) {
-                        tile.setCollision(false, false, false, false);
-                    }
-                    else if (tile.index === INDEXES_1.SLOPE_UP_LEFT) {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
-                    }
-                    else if (tile.index === INDEXES_1.SLOPE_UP_RIGHT) {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                    switch (tile.index) {
+                        case INDEXES_1.DOOR_TOP:
+                            tile.setCollision(false, false, false, false);
+                            doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            break;
+                        case INDEXES_1.DOOR_BOTTOM:
+                            tile.setCollision(false, false, false, false);
+                            break;
+                        case INDEXES_1.SLOPE_UP_LEFT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.SLOPE_UP_RIGHT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.BACK_GRASS:
+                            tile.setCollision(false, false, false, false);
+                            invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
                 break;
@@ -1138,6 +1195,9 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
             slope.processCollision(player);
+        }, undefined, this);
+        this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
+            invisiblePlatform.processCollision(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

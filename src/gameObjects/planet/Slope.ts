@@ -27,7 +27,7 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                     this.x + this.displayWidth, this.y + this.displayHeight,
                 );
 
-                this.processCollision = function(object: Player)
+                this.processCollision = function(object: any)
                 {
                     object.isOnSlope = false;
                     if(this.intersects(object.getBounds()))
@@ -48,7 +48,7 @@ export default class Slope extends Phaser.Physics.Arcade.Image
                     this.x + this.displayWidth, this.y + this.displayHeight
                 );
 
-                this.processCollision = function(object: Player)
+                this.processCollision = function(object: any)
                 {
                     object.isOnSlope = false;
                     if(this.intersects(object.getBounds()))

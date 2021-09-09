@@ -19,6 +19,7 @@ var Player_1 = require("../../gameObjects/planet/Player");
 var Slope_1 = require("../../gameObjects/planet/Slope");
 var Water_1 = require("../../gameObjects/planet/Water");
 var BlockIndexes_1 = require("./BlockIndexes");
+var InvisiblePlatform_1 = require("../../gameObjects/planet/InvisiblePlatform");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -73,6 +74,7 @@ var PlanetLogicScene = (function (_super) {
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
+        var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
                 var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
@@ -82,25 +84,33 @@ var PlanetLogicScene = (function (_super) {
                     if (WATERS_1.indexOf(tile.index) !== -1) {
                         tile.setCollision(false, false, false, false);
                         waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
                     }
                     else if (LAVA_1.indexOf(tile.index) !== -1) {
                         tile.setCollision(false, false, false, false);
                         lavaGroup.add(new Lava_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
                     }
-                    else if (tile.index === INDEXES_1.DOOR_TOP) {
-                        tile.setCollision(false, false, false, false);
-                        doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
-                    }
-                    else if (tile.index === INDEXES_1.DOOR_BOTTOM) {
-                        tile.setCollision(false, false, false, false);
-                    }
-                    else if (tile.index === INDEXES_1.SLOPE_UP_LEFT) {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
-                    }
-                    else if (tile.index === INDEXES_1.SLOPE_UP_RIGHT) {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                    switch (tile.index) {
+                        case INDEXES_1.DOOR_TOP:
+                            tile.setCollision(false, false, false, false);
+                            doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            break;
+                        case INDEXES_1.DOOR_BOTTOM:
+                            tile.setCollision(false, false, false, false);
+                            break;
+                        case INDEXES_1.SLOPE_UP_LEFT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.SLOPE_UP_RIGHT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.BACK_GRASS:
+                            tile.setCollision(false, false, false, false);
+                            invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
                 break;
@@ -123,6 +133,9 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
             slope.processCollision(player);
+        }, undefined, this);
+        this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
+            invisiblePlatform.processCollision(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

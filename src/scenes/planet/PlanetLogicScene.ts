@@ -5,6 +5,7 @@ import Slope from "../../gameObjects/planet/Slope";
 import Water from "../../gameObjects/planet/Water";
 import PlanetEffectsScene from "./PlanetEffectsSceen";
 import BLOCK_INDEXES from "./BlockIndexes";
+import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
 
 type playerStats = { hp: number, maxHp: number };
 
@@ -105,6 +106,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         const lavaGroup = this.add.group();
         const doorGroup = this.add.group();
         const slopeGroup = this.add.group();
+        const invisiblePlatformGroup = this.add.group();
 
         switch(this.loadData.currentWorld)
         {
@@ -118,30 +120,40 @@ export default class PlanetLogicScene extends Phaser.Scene
                     {
                         tile.setCollision(false, false, false, false);
                         waterGroup.add(new Water(this, tile.pixelX, tile.pixelY));
+                        return;
                     }
                     else if(LAVA.indexOf(tile.index) !== -1)
                     {
                         tile.setCollision(false, false, false, false);
                         lavaGroup.add(new Lava(this, tile.pixelX, tile.pixelY));
+                        return;
                     }
-                    else if(tile.index === INDEXES.DOOR_TOP)
+
+                    switch(tile.index)
                     {
-                        tile.setCollision(false, false, false, false);
-                        doorGroup.add(new Door(this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
-                    }
-                    else if(tile.index === INDEXES.DOOR_BOTTOM)
-                    {
-                        tile.setCollision(false, false, false, false);
-                    }
-                    else if(tile.index === INDEXES.SLOPE_UP_LEFT)
-                    {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope(this, "leftUp", tile.pixelX, tile.pixelY));
-                    }
-                    else if(tile.index === INDEXES.SLOPE_UP_RIGHT)
-                    {
-                        tile.setCollision(false, false, false, false);
-                        slopeGroup.add(new Slope(this, "rightUp", tile.pixelX, tile.pixelY));
+                        case INDEXES.DOOR_TOP:
+                            tile.setCollision(false, false, false, false);
+                            doorGroup.add(new Door(this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            break;
+
+                        case INDEXES.DOOR_BOTTOM:
+                            tile.setCollision(false, false, false, false);
+                            break;
+
+                        case INDEXES.SLOPE_UP_LEFT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope(this, "leftUp", tile.pixelX, tile.pixelY));
+                            break;
+                        
+                        case INDEXES.SLOPE_UP_RIGHT:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope(this, "rightUp", tile.pixelX, tile.pixelY));
+                            break;
+
+                        case INDEXES.BACK_GRASS:
+                            tile.setCollision(false, false, false, false);
+                            invisiblePlatformGroup.add(new InvisiblePlatform(this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
                 
@@ -189,6 +201,11 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.physics.add.overlap(this.player, slopeGroup, function(player: Player, slope: Slope)
         {
             slope.processCollision(player);
+        }, undefined, this);
+
+        this.physics.add.overlap(this.player, invisiblePlatformGroup, function(player: Player, invisiblePlatform: InvisiblePlatform)
+        {
+            invisiblePlatform.processCollision(player);
         }, undefined, this);
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
