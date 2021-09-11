@@ -56,24 +56,32 @@ var PlanetLogicScene = (function (_super) {
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
+        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
+    PlanetLogicScene.prototype.getLevelWidth = function () {
+        return this.levelWidth;
+    };
+    PlanetLogicScene.prototype.getLevelHeight = function () {
+        return this.levelHeight;
+    };
     PlanetLogicScene.prototype.create = function () {
         var _this = this;
-        var backgraphics = this.add.graphics().setScrollFactor(0);
-        backgraphics.fillStyle(0x00ABFF);
-        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
-        backgraphics.setDepth(-1);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
+        tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
+        tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.levelWidth = tilemap.widthInPixels;
+        this.levelHeight = tilemap.heightInPixels;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
+        var brickGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
@@ -111,6 +119,8 @@ var PlanetLogicScene = (function (_super) {
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
+                        case INDEXES_1.BRICK:
+                            break;
                     }
                 });
                 break;
@@ -136,6 +146,9 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
+        }, undefined, this);
+        this.physics.add.collider(this.player, brickGroup, function (player, brick) {
+            brick.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

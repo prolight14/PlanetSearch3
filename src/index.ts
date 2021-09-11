@@ -11,14 +11,15 @@ import SpaceCameraControllerScene from "./scenes/space/SpaceCameraControllerScen
 import SpaceDebugScene from "./scenes/space/SpaceDebugScene";
 import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
 import StarSceneControllerScene from "./scenes/space/StarSceneControllerScene";
+import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
 
 // Planet scene(s)
 import PlanetScene from "./scenes/planet/PlanetScene";
 import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
 import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
-import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
 import PlanetEffectsScene from "./scenes/planet/PlanetEffectsSceen";
 import PlanetUIScene from "./scenes/planet/PlanetUIScene";
+import PlanetBackScene from "./scenes/planet/PlanetBackScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -52,7 +53,7 @@ let config: Phaser.Types.Core.GameConfig = {
         SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)
-        PlanetScene, PlanetLogicScene, PlanetUIScene, PlanetEffectsScene
+        PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetUIScene, PlanetEffectsScene
     ],
 }
 var game: Phaser.Game = new Phaser.Game(config);

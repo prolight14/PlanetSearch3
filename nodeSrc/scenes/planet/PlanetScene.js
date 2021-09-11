@@ -37,10 +37,12 @@ var PlanetScene = (function (_super) {
         this.scene.sleep("planetLogic");
         this.scene.sleep("planetEffects");
         this.scene.sleep("planetUI");
+        this.scene.sleep("planetBack");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetLogic");
         this.scene.run("planetEffects");
+        this.scene.run("planetBack");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");

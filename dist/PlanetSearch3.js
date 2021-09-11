@@ -448,6 +448,9 @@ var Slope = (function (_super) {
             case "leftUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y, _this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
                 _this.processCollision = function (object) {
+                    if (object.body.x <= this.body.x) {
+                        object.body.y = this.body.y - object.body.height;
+                    }
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = object.body.x - this.body.x;
@@ -461,6 +464,9 @@ var Slope = (function (_super) {
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
                 _this.processCollision = function (object) {
+                    if (object.body.width + object.body.x >= this.body.x + this.body.width) {
+                        object.body.y = this.body.y - object.body.height;
+                    }
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = this.body.x - object.body.x;
@@ -1007,6 +1013,84 @@ exports.default = {
 
 /***/ }),
 
+/***/ "./scenes/planet/PlanetBackScene.js":
+/*!******************************************!*\
+  !*** ./scenes/planet/PlanetBackScene.js ***!
+  \******************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var PlanetBackScene = (function (_super) {
+    __extends(PlanetBackScene, _super);
+    function PlanetBackScene() {
+        return _super.call(this, "planetBack") || this;
+    }
+    PlanetBackScene.prototype.preload = function () {
+        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/GrassLand.png", {
+            frameWidth: 400,
+            frameHeight: 225
+        });
+    };
+    PlanetBackScene.prototype.create = function () {
+        var backgraphics = this.add.graphics().setScrollFactor(0);
+        backgraphics.fillStyle(0x00ABFF);
+        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
+        backgraphics.setDepth(-2);
+        this.layerSpeeds = [
+            -1,
+            2.3,
+            1.6,
+            0.8
+        ];
+        var layerAmt = 4;
+        this.layers = [];
+        this.nextLayers = [];
+        for (var i = 0; i < layerAmt; i++) {
+            var layer = this.add.image(0, 0, "grassLand", i);
+            layer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
+            this.layers.push(layer);
+            var nextLayer = this.add.image(0, 0, "grassLand", i);
+            nextLayer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
+            this.nextLayers.push(nextLayer);
+        }
+    };
+    PlanetBackScene.prototype.update = function () {
+        var planetLogicScene = this.scene.get("planetLogic");
+        var cam = planetLogicScene.cameras.main;
+        var width = this.game.config.width;
+        var diff = planetLogicScene.getLevelWidth() - cam.scrollX;
+        for (var i = 0; i < this.layers.length; i++) {
+            if (this.layerSpeeds[i] === -1) {
+                continue;
+            }
+            var layer = this.layers[i];
+            var speed = diff / this.layerSpeeds[i];
+            var index = -Math.floor((speed + width) / layer.displayWidth);
+            layer.x = layer.displayWidth * index + speed;
+            this.nextLayers[i].x = layer.displayWidth * (index + 1) + speed;
+        }
+    };
+    return PlanetBackScene;
+}(Phaser.Scene));
+exports.default = PlanetBackScene;
+//# sourceMappingURL=PlanetBackScene.js.map
+
+/***/ }),
+
 /***/ "./scenes/planet/PlanetEffectsSceen.js":
 /*!*********************************************!*\
   !*** ./scenes/planet/PlanetEffectsSceen.js ***!
@@ -1118,24 +1202,32 @@ var PlanetLogicScene = (function (_super) {
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
+        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
+    PlanetLogicScene.prototype.getLevelWidth = function () {
+        return this.levelWidth;
+    };
+    PlanetLogicScene.prototype.getLevelHeight = function () {
+        return this.levelHeight;
+    };
     PlanetLogicScene.prototype.create = function () {
         var _this = this;
-        var backgraphics = this.add.graphics().setScrollFactor(0);
-        backgraphics.fillStyle(0x00ABFF);
-        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
-        backgraphics.setDepth(-1);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
+        tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
+        tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.levelWidth = tilemap.widthInPixels;
+        this.levelHeight = tilemap.heightInPixels;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
+        var brickGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
@@ -1173,6 +1265,8 @@ var PlanetLogicScene = (function (_super) {
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
+                        case INDEXES_1.BRICK:
+                            break;
                     }
                 });
                 break;
@@ -1198,6 +1292,9 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
+        }, undefined, this);
+        this.physics.add.collider(this.player, brickGroup, function (player, brick) {
+            brick.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -1309,10 +1406,12 @@ var PlanetScene = (function (_super) {
         this.scene.sleep("planetLogic");
         this.scene.sleep("planetEffects");
         this.scene.sleep("planetUI");
+        this.scene.sleep("planetBack");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetLogic");
         this.scene.run("planetEffects");
+        this.scene.run("planetBack");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
@@ -2093,12 +2192,13 @@ var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceC
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
 var StarSceneControllerScene_1 = __webpack_require__(/*! ./scenes/space/StarSceneControllerScene */ "./scenes/space/StarSceneControllerScene.js");
+var SpaceBackgroundScene_1 = __webpack_require__(/*! ./scenes/space/SpaceBackgroundScene */ "./scenes/space/SpaceBackgroundScene.js");
 var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var SpaceLogicScene_1 = __webpack_require__(/*! ./scenes/space/SpaceLogicScene */ "./scenes/space/SpaceLogicScene.js");
 var PlanetLogicScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLogicScene */ "./scenes/planet/PlanetLogicScene.js");
-var SpaceBackgroundScene_1 = __webpack_require__(/*! ./scenes/space/SpaceBackgroundScene */ "./scenes/space/SpaceBackgroundScene.js");
 var PlanetEffectsSceen_1 = __webpack_require__(/*! ./scenes/planet/PlanetEffectsSceen */ "./scenes/planet/PlanetEffectsSceen.js");
 var PlanetUIScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetUIScene */ "./scenes/planet/PlanetUIScene.js");
+var PlanetBackScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetBackScene */ "./scenes/planet/PlanetBackScene.js");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -2113,7 +2213,7 @@ var config = {
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
-        PlanetScene_1.default, PlanetLogicScene_1.default, PlanetUIScene_1.default, PlanetEffectsSceen_1.default
+        PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetUIScene_1.default, PlanetEffectsSceen_1.default
     ],
 };
 var game = new Phaser.Game(config);

@@ -6,6 +6,7 @@ import Water from "../../gameObjects/planet/Water";
 import PlanetEffectsScene from "./PlanetEffectsSceen";
 import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
+import Brick from "../../gameObjects/planet/Brick";
 
 type playerStats = { hp: number, maxHp: number };
 
@@ -19,6 +20,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
+                    // debug: true
                 }
             },
         });
@@ -59,6 +61,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     public preload()
     {   
+
         // this.load.image("IcyDwarfTileset", "./assets/Planet/levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
         // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
         
@@ -69,6 +72,8 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
+
+        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     }
 
     // private planetName: string;
@@ -87,27 +92,43 @@ export default class PlanetLogicScene extends Phaser.Scene
         //         break;
         // }
     }
+
+    private levelWidth: number;
     
+    public getLevelWidth(): number
+    {
+        return this.levelWidth;
+    }
+
+    private levelHeight: number;
+    
+    public getLevelHeight(): number
+    {
+        return this.levelHeight;
+    }
+
     public create()
     {
-        let backgraphics = this.add.graphics().setScrollFactor(0);
-        backgraphics.fillStyle(0x00ABFF);
-        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
-        backgraphics.setDepth(-1);
-
         const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
-
+        
+        tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
+        
         const worldLayer = tilemap.createLayer("World", tileset, 0, 0);
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
+        
+        tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.levelWidth = tilemap.widthInPixels;
+        this.levelHeight = tilemap.heightInPixels;
 
         const waterGroup = this.add.group();
         const lavaGroup = this.add.group();
         const doorGroup = this.add.group();
         const slopeGroup = this.add.group();
+        const brickGroup = this.add.group();
         const invisiblePlatformGroup = this.add.group();
-
+        
         switch(this.loadData.currentWorld)
         {
             case "GrassPlanet2":
@@ -139,65 +160,69 @@ export default class PlanetLogicScene extends Phaser.Scene
                         case INDEXES.DOOR_BOTTOM:
                             tile.setCollision(false, false, false, false);
                             break;
-
+                                
                         case INDEXES.SLOPE_UP_LEFT:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope(this, "leftUp", tile.pixelX, tile.pixelY));
                             break;
-                        
+                            
                         case INDEXES.SLOPE_UP_RIGHT:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope(this, "rightUp", tile.pixelX, tile.pixelY));
                             break;
-
+                            
                         case INDEXES.BACK_GRASS:
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform(this, tile.pixelX, tile.pixelY));
                             break;
+
+                        case INDEXES.BRICK:
+                            // tile.setCollision(false, false, false, false);
+                            // tile.setVisible(false);
+                            // brickGroup.add(new Brick(this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
-                
                 break;
-        }
-       
+        }      
+                
+                // var debugGraphics = this.add.graphics().setAlpha(0.75);
 
-        // var debugGraphics = this.add.graphics().setAlpha(0.75);
-
-        // worldLayer.renderDebug(debugGraphics, {
+                // worldLayer.renderDebug(debugGraphics, {
         //     tileColor: null, // Color of non-colliding tiles
         //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
-
+        
         
         let spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point");
-
+        
         this.handleDoors(tilemap, doorGroup, spawnPoint);
 
         this.player = new Player(this, spawnPoint.x as number, spawnPoint.y as number);
-
+        
         if(this.loadData.loadType === "door")
         {
             this.player.hp = this.loadData.playerStats.hp;
         }
 
         this.physics.add.collider(this.player, worldLayer);
-       
+        
         this.physics.add.overlap(this.player, waterGroup, function(player: Player, water: Water)
         {
             water.onCollide(player);
         }, undefined, this);
-
+        
         this.physics.add.overlap(this.player, lavaGroup, function(player: Player, lava: Lava)
         {
             lava.onCollide(player);
         }, undefined, this);
-
+        
         this.physics.add.overlap(this.player, doorGroup, function(player: Player, door: Door)
         {
             door.onCollide(player);
         }, undefined, this);
-
+        
         this.physics.add.overlap(this.player, slopeGroup, function(player: Player, slope: Slope)
         {
             slope.processCollision(player);
@@ -207,35 +232,41 @@ export default class PlanetLogicScene extends Phaser.Scene
         {
             invisiblePlatform.processCollision(player);
         }, undefined, this);
+        
+        this.physics.add.collider(this.player, brickGroup, function(player: Player, brick: Brick)
+        {
+            brick.onCollide(player);
+        }, undefined, this);
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
-       
+        
         // Camera stuff
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-
+        
         (this.scene.get("planetEffects") as PlanetEffectsScene).fadeIn(500, 0, 0, 0);
         this.scene.run("planetUI");
         this.sceneTransitioning = false;
-    }
 
+    }
+    
     private handleDoors(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, spawnPoint: { x?: number, y?: number})
     {
         const objects = tilemap.getObjectLayer("Objects").objects;
-
+        
         for(var i = 0; i < objects.length; i++)
         {
             const obj = objects[i];
-
+            
             if(obj.name === "Door")
             {
                 for(var j in obj.properties)
                 {
                     const prop = obj.properties[j];
-
+                    
                     if(prop.name === "door" && prop.value === this.loadData.enteredDoor)
                     {
                         doorGroup.getChildren().forEach((door: Door) =>
