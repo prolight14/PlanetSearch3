@@ -185,10 +185,10 @@ export default class PlanetLogicScene extends Phaser.Scene
                 });
                 break;
         }      
-                
-                // var debugGraphics = this.add.graphics().setAlpha(0.75);
+      
+        // var debugGraphics = this.add.graphics().setAlpha(0.75);
 
-                // worldLayer.renderDebug(debugGraphics, {
+        // worldLayer.renderDebug(debugGraphics, {
         //     tileColor: null, // Color of non-colliding tiles
         //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
@@ -251,8 +251,15 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.scene.run("planetUI");
         this.sceneTransitioning = false;
 
+        this.tilemap = tilemap;
+
+        this.graphics = this.add.graphics();
     }
+
+    private graphics: Phaser.GameObjects.Graphics;
     
+    private tilemap: Phaser.Tilemaps.Tilemap;
+
     private handleDoors(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, spawnPoint: { x?: number, y?: number})
     {
         const objects = tilemap.getObjectLayer("Objects").objects;
@@ -322,5 +329,75 @@ export default class PlanetLogicScene extends Phaser.Scene
         
             this.sceneTransitioning = true;
         }
+
+        const mainCam = this.cameras.main;
+
+
+        if(!this.player.body.blocked.up)
+        {
+            return;
+        }
+
+        let tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
+        let tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
+
+        if(tileLeft && tileLeft.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        {
+            this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+        }
+        else if(tileRight && tileRight.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        {
+            this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+        }
+
+        return;
+
+        // let tile = this.tilemap.getTileAtWorldXY(this.player.body.x + this.player.body.halfWidth, this.player.body.y - 1, undefined, mainCam, "World");
+
+        const rectShape: Phaser.Geom.Rectangle = new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y - 2, this.player.body.width, 5);
+
+        this.graphics.clear();
+        this.graphics.lineStyle(0.5, 0x00ff00);
+        this.graphics.strokeRectShape(rectShape);
+
+        var returnedTiles = this.tilemap.getTilesWithinShape(rectShape, 
+        {
+            // isColliding: true,
+            // isNotEmpty: true
+
+        }, 
+        mainCam, "World");
+
+        console.log(returnedTiles);
+
+        // returnedTiles.forEach((tile) =>
+        // {
+        //     if(tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        //     {
+                
+        //     }
+        // });
+
+        // var hitBricks = returnedTiles.filter((tile) => );
+
+        returnedTiles.forEach((tile) =>
+        {
+            if(tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+            {
+                console.log(true);
+                this.tilemap.removeTileAt(tile.x, tile.y, true, true, "World");
+            }
+        });
+
+        // var tile: any = 0;
+
+        // if(tile !== null && tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        // {
+        //     if(this.player.body.blocked.up)
+        //     {
+        //         console.log("Removed");
+        //         this.tilemap.removeTileAtWorldXY(this.player.body.x + this.player.body.halfWidth, this.player.body.y - 1, true, true, mainCam, "World");
+        //     }
+        // }
     }
 }

@@ -159,6 +159,8 @@ var PlanetLogicScene = (function (_super) {
         this.scene.get("planetEffects").fadeIn(500, 0, 0, 0);
         this.scene.run("planetUI");
         this.sceneTransitioning = false;
+        this.tilemap = tilemap;
+        this.graphics = this.add.graphics();
     };
     PlanetLogicScene.prototype.handleDoors = function (tilemap, doorGroup, spawnPoint) {
         var objects = tilemap.getObjectLayer("Objects").objects;
@@ -207,6 +209,31 @@ var PlanetLogicScene = (function (_super) {
             });
             this.sceneTransitioning = true;
         }
+        var mainCam = this.cameras.main;
+        if (!this.player.body.blocked.up) {
+            return;
+        }
+        var tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
+        var tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
+        if (tileLeft && tileLeft.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+        }
+        else if (tileRight && tileRight.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+        }
+        return;
+        var rectShape = new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y - 2, this.player.body.width, 5);
+        this.graphics.clear();
+        this.graphics.lineStyle(0.5, 0x00ff00);
+        this.graphics.strokeRectShape(rectShape);
+        var returnedTiles = this.tilemap.getTilesWithinShape(rectShape, {}, mainCam, "World");
+        console.log(returnedTiles);
+        returnedTiles.forEach(function (tile) {
+            if (tile.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+                console.log(true);
+                _this.tilemap.removeTileAt(tile.x, tile.y, true, true, "World");
+            }
+        });
     };
     return PlanetLogicScene;
 }(Phaser.Scene));
