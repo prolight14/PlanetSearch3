@@ -3,10 +3,9 @@ import Lava from "../../gameObjects/planet/Lava";
 import Player from "../../gameObjects/planet/Player";
 import Slope from "../../gameObjects/planet/Slope";
 import Water from "../../gameObjects/planet/Water";
-import PlanetEffectsScene from "./PlanetEffectsSceen";
+import PlanetEffectsScene from "./PlanetEffectsScene";
 import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
-import Brick from "../../gameObjects/planet/Brick";
 
 type playerStats = { hp: number, maxHp: number };
 
@@ -72,8 +71,6 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
-
-        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     }
 
     // private planetName: string;
@@ -126,7 +123,6 @@ export default class PlanetLogicScene extends Phaser.Scene
         const lavaGroup = this.add.group();
         const doorGroup = this.add.group();
         const slopeGroup = this.add.group();
-        const brickGroup = this.add.group();
         const invisiblePlatformGroup = this.add.group();
         
         switch(this.loadData.currentWorld)
@@ -175,12 +171,6 @@ export default class PlanetLogicScene extends Phaser.Scene
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform(this, tile.pixelX, tile.pixelY));
                             break;
-
-                        case INDEXES.BRICK:
-                            // tile.setCollision(false, false, false, false);
-                            // tile.setVisible(false);
-                            // brickGroup.add(new Brick(this, tile.pixelX, tile.pixelY));
-                            break;
                     }
                 });
                 break;
@@ -193,7 +183,6 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
-        
         
         let spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point");
         
@@ -233,11 +222,6 @@ export default class PlanetLogicScene extends Phaser.Scene
             invisiblePlatform.processCollision(player);
         }, undefined, this);
         
-        this.physics.add.collider(this.player, brickGroup, function(player: Player, brick: Brick)
-        {
-            brick.onCollide(player);
-        }, undefined, this);
-
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         
@@ -330,74 +314,32 @@ export default class PlanetLogicScene extends Phaser.Scene
             this.sceneTransitioning = true;
         }
 
-        const mainCam = this.cameras.main;
+        this.processBrickCollision();
+    }
 
-
+    private processBrickCollision()
+    {
         if(!this.player.body.blocked.up)
         {
             return;
         }
+
+        const mainCam = this.cameras.main;
 
         let tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
         let tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
 
         if(tileLeft && tileLeft.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
         {
+            const bounds = tileLeft.getBounds() as Phaser.Geom.Rectangle;
             this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+            (this.scene.get("planetEffects") as PlanetEffectsScene).emitBricks(bounds);
         }
         else if(tileRight && tileRight.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
         {
+            const bounds = tileRight.getBounds() as Phaser.Geom.Rectangle;
             this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+            (this.scene.get("planetEffects") as PlanetEffectsScene).emitBricks(bounds);
         }
-
-        return;
-
-        // let tile = this.tilemap.getTileAtWorldXY(this.player.body.x + this.player.body.halfWidth, this.player.body.y - 1, undefined, mainCam, "World");
-
-        const rectShape: Phaser.Geom.Rectangle = new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y - 2, this.player.body.width, 5);
-
-        this.graphics.clear();
-        this.graphics.lineStyle(0.5, 0x00ff00);
-        this.graphics.strokeRectShape(rectShape);
-
-        var returnedTiles = this.tilemap.getTilesWithinShape(rectShape, 
-        {
-            // isColliding: true,
-            // isNotEmpty: true
-
-        }, 
-        mainCam, "World");
-
-        console.log(returnedTiles);
-
-        // returnedTiles.forEach((tile) =>
-        // {
-        //     if(tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
-        //     {
-                
-        //     }
-        // });
-
-        // var hitBricks = returnedTiles.filter((tile) => );
-
-        returnedTiles.forEach((tile) =>
-        {
-            if(tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
-            {
-                console.log(true);
-                this.tilemap.removeTileAt(tile.x, tile.y, true, true, "World");
-            }
-        });
-
-        // var tile: any = 0;
-
-        // if(tile !== null && tile.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
-        // {
-        //     if(this.player.body.blocked.up)
-        //     {
-        //         console.log("Removed");
-        //         this.tilemap.removeTileAtWorldXY(this.player.body.x + this.player.body.halfWidth, this.player.body.y - 1, true, true, mainCam, "World");
-        //     }
-        // }
     }
 }

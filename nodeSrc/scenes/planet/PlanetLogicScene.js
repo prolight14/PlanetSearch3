@@ -56,7 +56,6 @@ var PlanetLogicScene = (function (_super) {
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
-        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
@@ -81,7 +80,6 @@ var PlanetLogicScene = (function (_super) {
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
-        var brickGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
@@ -119,8 +117,6 @@ var PlanetLogicScene = (function (_super) {
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
-                        case INDEXES_1.BRICK:
-                            break;
                     }
                 });
                 break;
@@ -146,9 +142,6 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
-        }, undefined, this);
-        this.physics.add.collider(this.player, brickGroup, function (player, brick) {
-            brick.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -209,31 +202,25 @@ var PlanetLogicScene = (function (_super) {
             });
             this.sceneTransitioning = true;
         }
-        var mainCam = this.cameras.main;
+        this.processBrickCollision();
+    };
+    PlanetLogicScene.prototype.processBrickCollision = function () {
         if (!this.player.body.blocked.up) {
             return;
         }
+        var mainCam = this.cameras.main;
         var tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
         var tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
         if (tileLeft && tileLeft.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileLeft.getBounds();
             this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+            this.scene.get("planetEffects").emitBricks(bounds);
         }
         else if (tileRight && tileRight.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileRight.getBounds();
             this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+            this.scene.get("planetEffects").emitBricks(bounds);
         }
-        return;
-        var rectShape = new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y - 2, this.player.body.width, 5);
-        this.graphics.clear();
-        this.graphics.lineStyle(0.5, 0x00ff00);
-        this.graphics.strokeRectShape(rectShape);
-        var returnedTiles = this.tilemap.getTilesWithinShape(rectShape, {}, mainCam, "World");
-        console.log(returnedTiles);
-        returnedTiles.forEach(function (tile) {
-            if (tile.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
-                console.log(true);
-                _this.tilemap.removeTileAt(tile.x, tile.y, true, true, "World");
-            }
-        });
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

@@ -35,7 +35,7 @@ var Slope = (function (_super) {
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = object.body.x - this.body.x;
-                        object.y = this.body.y + this.body.height + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
@@ -45,13 +45,13 @@ var Slope = (function (_super) {
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
                 _this.processCollision = function (object) {
-                    if (object.body.width + object.body.x >= this.body.x + this.body.width) {
+                    if (object.body.right >= this.body.right) {
                         object.body.y = this.body.y - object.body.height;
                     }
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = this.body.x - object.body.x;
-                        object.y = this.body.y + this.body.height + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;

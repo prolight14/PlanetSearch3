@@ -176,7 +176,6 @@ var Player = (function (_super) {
         }
         if (this.isOnSlope) {
             this.body.setAllowGravity(false);
-            this.body.velocity.y = 0;
         }
         else {
             this.body.setAllowGravity(true);

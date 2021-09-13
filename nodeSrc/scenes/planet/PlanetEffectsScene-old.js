@@ -18,22 +18,39 @@ var PlanetEffectsScene = (function (_super) {
     function PlanetEffectsScene() {
         return _super.call(this, "planetEffects") || this;
     }
-    PlanetEffectsScene.prototype.create = function () {
+    PlanetEffectsScene.prototype.preload = function () {
         this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
-        this.initBrickBreaking(2, 2);
+    };
+    PlanetEffectsScene.prototype.create = function () {
+        this.initBrickBreaking(3, 3);
     };
     PlanetEffectsScene.prototype.update = function (time, delta) {
     };
     PlanetEffectsScene.prototype.initBrickBreaking = function (blocksCol, blocksRow) {
         var graphicsHolders = {};
         var srcTexture = this.textures.get("brick").getSourceImage();
-        var blocksWidth = srcTexture.width / blocksCol;
-        var blocksHeight = srcTexture.height / blocksRow;
         for (var col = 0; col < blocksCol; col++) {
             for (var row = 0; row < blocksRow; row++) {
-                graphicsHolders[col + "-" + row] = this.make.graphics({ x: col * blocksWidth, y: row * blocksHeight, add: false });
+                var texKey = "brick" + col.toString() + row.toString();
+                graphicsHolders[texKey] = this.make.graphics({ x: 0, y: 0, add: false });
+                var maxX = srcTexture.width / blocksCol;
+                var maxY = srcTexture.height / blocksRow;
+                for (var x = 0; x < maxX; x++) {
+                    for (var y = 0; y < maxY; y++) {
+                        var pixel = this.textures.getPixel(x + maxX * col, y + maxY * row, "brick");
+                        if (pixel.alpha > 0) {
+                            graphicsHolders[texKey].fillStyle(pixel.color, pixel.alpha);
+                            graphicsHolders[texKey].fillRect(x, y, 1, 1);
+                        }
+                    }
+                }
+                graphicsHolders[texKey].generateTexture(texKey, maxX, maxY);
             }
         }
+        this.add.image(200, 200, "brick00").setScrollFactor(0).setScale(2);
+        this.add.image(200, 200 + 16, "brick01").setScrollFactor(0).setScale(2);
+        this.add.image(200 + 16, 200, "brick10").setScrollFactor(0).setScale(2);
+        this.add.image(200 + 16, 200 + 16, "brick11").setScrollFactor(0).setScale(2);
     };
     PlanetEffectsScene.prototype.showBrickBreaking = function () {
     };
@@ -54,4 +71,4 @@ var PlanetEffectsScene = (function (_super) {
     return PlanetEffectsScene;
 }(Phaser.Scene));
 exports.default = PlanetEffectsScene;
-//# sourceMappingURL=PlanetEffectsSceen.js.map
+//# sourceMappingURL=PlanetEffectsScene-old.js.map

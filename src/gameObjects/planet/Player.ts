@@ -255,7 +255,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         if(this.isOnSlope)
         {
             (this.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
-            (this.body as Phaser.Physics.Arcade.Body).velocity.y = 0;
         }
         else
         {

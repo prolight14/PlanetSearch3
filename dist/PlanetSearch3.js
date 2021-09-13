@@ -384,7 +384,6 @@ var Player = (function (_super) {
         }
         if (this.isOnSlope) {
             this.body.setAllowGravity(false);
-            this.body.velocity.y = 0;
         }
         else {
             this.body.setAllowGravity(true);
@@ -455,7 +454,7 @@ var Slope = (function (_super) {
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = object.body.x - this.body.x;
-                        object.y = this.body.y + this.body.height + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
@@ -465,13 +464,13 @@ var Slope = (function (_super) {
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
                 _this.processCollision = function (object) {
-                    if (object.body.width + object.body.x >= this.body.x + this.body.width) {
+                    if (object.body.right >= this.body.right) {
                         object.body.y = this.body.y - object.body.height;
                     }
                     object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = this.body.x - object.body.x;
-                        object.y = this.body.y + this.body.height + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.height;
                         object.body.blocked.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
@@ -1092,9 +1091,9 @@ exports.default = PlanetBackScene;
 
 /***/ }),
 
-/***/ "./scenes/planet/PlanetEffectsSceen.js":
+/***/ "./scenes/planet/PlanetEffectsScene.js":
 /*!*********************************************!*\
-  !*** ./scenes/planet/PlanetEffectsSceen.js ***!
+  !*** ./scenes/planet/PlanetEffectsScene.js ***!
   \*********************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
@@ -1118,6 +1117,45 @@ var PlanetEffectsScene = (function (_super) {
     function PlanetEffectsScene() {
         return _super.call(this, "planetEffects") || this;
     }
+    PlanetEffectsScene.prototype.preload = function () {
+        this.load.audio("brickBreak", "./assets/Planet/Sounds/quickBoom.wav");
+        this.load.spritesheet("brick", "./assets/Planet/GameObjects/blocks/brick.png", {
+            frameWidth: 8,
+            frameHeight: 8,
+        });
+    };
+    PlanetEffectsScene.prototype.create = function () {
+        this.brickParticles = this.add.particles("brick");
+        this.brickEmitter = this.brickParticles.createEmitter({
+            gravityY: 1600,
+            lifespan: 5000
+        });
+        this.brickEmitter.stop();
+        this.logicCam = this.scene.get("planetLogic").cameras.main;
+        this.sounds = {
+            brickBreak: this.sound.add("brickBreak")
+        };
+    };
+    PlanetEffectsScene.prototype.playSound = function (key) {
+        this.sounds[key].play();
+    };
+    ;
+    PlanetEffectsScene.prototype.emitBricks = function (bounds) {
+        var emitter = this.brickEmitter;
+        var xSpeed = 20;
+        var ySpeed = 300;
+        emitter.setFrame(0).setSpeedX(-xSpeed).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.25 * bounds.width, bounds.y + 0.25 * bounds.height);
+        emitter.setFrame(1).setSpeedX(xSpeed).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.75 * bounds.width, bounds.y + 0.25 * bounds.height);
+        emitter.setFrame(2).setSpeedX(-xSpeed * 2).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.25 * bounds.width, bounds.y + 0.75 * bounds.height);
+        emitter.setFrame(3).setSpeedX(xSpeed * 2).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.75 * bounds.width, bounds.y + 0.75 * bounds.height);
+        this.playSound("brickBreak");
+    };
+    PlanetEffectsScene.prototype.update = function (time, delta) {
+        var mainCam = this.cameras.main;
+        var logicCam = this.logicCam;
+        mainCam.setScroll(logicCam.scrollX, logicCam.scrollY);
+        mainCam.setZoom(logicCam.zoom);
+    };
     PlanetEffectsScene.prototype.fadeOut = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -1135,7 +1173,7 @@ var PlanetEffectsScene = (function (_super) {
     return PlanetEffectsScene;
 }(Phaser.Scene));
 exports.default = PlanetEffectsScene;
-//# sourceMappingURL=PlanetEffectsSceen.js.map
+//# sourceMappingURL=PlanetEffectsScene.js.map
 
 /***/ }),
 
@@ -1203,7 +1241,6 @@ var PlanetLogicScene = (function (_super) {
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
         this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
-        this.load.image("brick", "./assets/Planet/GameObjects/blocks/brick.png");
     };
     PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
     };
@@ -1228,7 +1265,6 @@ var PlanetLogicScene = (function (_super) {
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
-        var brickGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
@@ -1266,8 +1302,6 @@ var PlanetLogicScene = (function (_super) {
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
-                        case INDEXES_1.BRICK:
-                            break;
                     }
                 });
                 break;
@@ -1293,9 +1327,6 @@ var PlanetLogicScene = (function (_super) {
         }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
-        }, undefined, this);
-        this.physics.add.collider(this.player, brickGroup, function (player, brick) {
-            brick.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -1356,31 +1387,25 @@ var PlanetLogicScene = (function (_super) {
             });
             this.sceneTransitioning = true;
         }
-        var mainCam = this.cameras.main;
+        this.processBrickCollision();
+    };
+    PlanetLogicScene.prototype.processBrickCollision = function () {
         if (!this.player.body.blocked.up) {
             return;
         }
+        var mainCam = this.cameras.main;
         var tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
         var tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
         if (tileLeft && tileLeft.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileLeft.getBounds();
             this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+            this.scene.get("planetEffects").emitBricks(bounds);
         }
         else if (tileRight && tileRight.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileRight.getBounds();
             this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+            this.scene.get("planetEffects").emitBricks(bounds);
         }
-        return;
-        var rectShape = new Phaser.Geom.Rectangle(this.player.body.x, this.player.body.y - 2, this.player.body.width, 5);
-        this.graphics.clear();
-        this.graphics.lineStyle(0.5, 0x00ff00);
-        this.graphics.strokeRectShape(rectShape);
-        var returnedTiles = this.tilemap.getTilesWithinShape(rectShape, {}, mainCam, "World");
-        console.log(returnedTiles);
-        returnedTiles.forEach(function (tile) {
-            if (tile.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
-                console.log(true);
-                _this.tilemap.removeTileAt(tile.x, tile.y, true, true, "World");
-            }
-        });
     };
     return PlanetLogicScene;
 }(Phaser.Scene));
@@ -2224,7 +2249,7 @@ var SpaceBackgroundScene_1 = __webpack_require__(/*! ./scenes/space/SpaceBackgro
 var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var SpaceLogicScene_1 = __webpack_require__(/*! ./scenes/space/SpaceLogicScene */ "./scenes/space/SpaceLogicScene.js");
 var PlanetLogicScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLogicScene */ "./scenes/planet/PlanetLogicScene.js");
-var PlanetEffectsSceen_1 = __webpack_require__(/*! ./scenes/planet/PlanetEffectsSceen */ "./scenes/planet/PlanetEffectsSceen.js");
+var PlanetEffectsScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetEffectsScene */ "./scenes/planet/PlanetEffectsScene.js");
 var PlanetUIScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetUIScene */ "./scenes/planet/PlanetUIScene.js");
 var PlanetBackScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetBackScene */ "./scenes/planet/PlanetBackScene.js");
 var config = {
@@ -2241,7 +2266,7 @@ var config = {
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
-        PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetUIScene_1.default, PlanetEffectsSceen_1.default
+        PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
 };
 var game = new Phaser.Game(config);

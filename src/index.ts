@@ -17,7 +17,7 @@ import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
 import PlanetScene from "./scenes/planet/PlanetScene";
 import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
 import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
-import PlanetEffectsScene from "./scenes/planet/PlanetEffectsSceen";
+import PlanetEffectsScene from "./scenes/planet/PlanetEffectsScene";
 import PlanetUIScene from "./scenes/planet/PlanetUIScene";
 import PlanetBackScene from "./scenes/planet/PlanetBackScene";
 
