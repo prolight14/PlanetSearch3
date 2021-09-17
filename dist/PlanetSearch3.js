@@ -1141,6 +1141,7 @@ var PlanetEffectsScene = (function (_super) {
     };
     ;
     PlanetEffectsScene.prototype.emitBricks = function (bounds) {
+        this.logicCam = this.scene.get("planetLogic").cameras.main;
         var emitter = this.brickEmitter;
         var xSpeed = 20;
         var ySpeed = 300;

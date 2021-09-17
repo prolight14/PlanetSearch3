@@ -51,6 +51,8 @@ export default class PlanetEffectsScene extends Phaser.Scene
     
     public emitBricks(bounds: Phaser.Geom.Rectangle)
     {
+        this.logicCam = this.scene.get("planetLogic").cameras.main;
+
         const emitter = this.brickEmitter;
 
         const xSpeed = 20;

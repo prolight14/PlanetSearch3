@@ -1,4 +1,4 @@
-import PlanetEffectsScene from "../../scenes/planet/PlanetEffectsSceen";
+import PlanetEffectsScene from "../../scenes/planet/PlanetEffectsScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import Player from "./Player";
 
