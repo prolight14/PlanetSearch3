@@ -15,8 +15,9 @@ exports.default = {
         DOOR_BOTTOM: 11,
         BACK_GRASS: 12,
         BACK_DIRT: 13,
-        SLOPE_UP_LEFT: 14,
-        SLOPE_UP_RIGHT: 15
+        SLOPE_LEFT_UP: 14,
+        SLOPE_RIGHT_UP: 15,
+        GREEN_BEAKER: 21
     }
 };
 //# sourceMappingURL=BlockIndexes.js.map

@@ -13,11 +13,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var StaticGameObject_1 = require("./StaticGameObject");
 var Water = (function (_super) {
     __extends(Water, _super);
     function Water(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "water") || this;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -26,9 +26,9 @@ var Water = (function (_super) {
         return _this;
     }
     Water.prototype.onCollide = function (object) {
-        object.inWater = true;
+        object.inLiquid = true;
     };
     return Water;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Water;
 //# sourceMappingURL=Water.js.map

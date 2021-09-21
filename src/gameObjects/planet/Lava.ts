@@ -1,16 +1,20 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
-import IDamage from "./IDamage";
-import ILifeform from "./ILifeform";
+import Lifeform from "./Lifeform";
+import StaticGameObject from "./StaticGameObject";
 
-export default class Lava extends Phaser.Physics.Arcade.Image implements IDamage
+export default class Lava extends StaticGameObject
 {
-    public damage: integer = 1;
+    private damage: number = 1;
+
+    public getDamage(object: Lifeform): number
+    {
+        return this.damage;
+    }
 
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
         super(scene, x, y, "lava");
 
-        scene.add.existing(this);
         scene.physics.add.existing(this);
 
         this.setMaxVelocity(0, 0);
@@ -20,8 +24,9 @@ export default class Lava extends Phaser.Physics.Arcade.Image implements IDamage
         this.setVisible(false);
     }
 
-    public onCollide(object: ILifeform)
+    public onCollide(object: Lifeform)
     {
         object.takeDamage(this);
+        object.inLiquid = true;
     }
 }

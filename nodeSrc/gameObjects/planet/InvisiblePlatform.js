@@ -13,11 +13,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var StaticGameObject_1 = require("./StaticGameObject");
 var InvisiblePlatform = (function (_super) {
     __extends(InvisiblePlatform, _super);
     function InvisiblePlatform(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "invisiblePlatform") || this;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -33,6 +33,6 @@ var InvisiblePlatform = (function (_super) {
         }
     };
     return InvisiblePlatform;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = InvisiblePlatform;
 //# sourceMappingURL=InvisiblePlatform.js.map

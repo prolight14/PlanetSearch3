@@ -20,6 +20,7 @@ var Slope_1 = require("../../gameObjects/planet/Slope");
 var Water_1 = require("../../gameObjects/planet/Water");
 var BlockIndexes_1 = require("./BlockIndexes");
 var InvisiblePlatform_1 = require("../../gameObjects/planet/InvisiblePlatform");
+var GreenBeaker_1 = require("../../gameObjects/planet/GreenBeaker");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -51,7 +52,8 @@ var PlanetLogicScene = (function (_super) {
         };
     };
     PlanetLogicScene.prototype.preload = function () {
-        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });
         var currentWorld = this.loadData.currentWorld;
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
@@ -81,6 +83,7 @@ var PlanetLogicScene = (function (_super) {
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
+        var greenBeakerGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
                 var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
@@ -105,17 +108,31 @@ var PlanetLogicScene = (function (_super) {
                         case INDEXES_1.DOOR_BOTTOM:
                             tile.setCollision(false, false, false, false);
                             break;
-                        case INDEXES_1.SLOPE_UP_LEFT:
+                        case INDEXES_1.SLOPE_LEFT_UP:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
                             break;
-                        case INDEXES_1.SLOPE_UP_RIGHT:
+                        case INDEXES_1.SLOPE_RIGHT_UP:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
                             break;
                         case INDEXES_1.BACK_GRASS:
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
+                    }
+                });
+                break;
+        }
+        var itemsLayer = tilemap.createLayer("Items", tileset, 0, 0);
+        switch (this.loadData.currentWorld) {
+            case "GrassPlanet2":
+                var INDEXES_2 = BlockIndexes_1.default.GRASS_PLANET_2;
+                itemsLayer.forEachTile(function (tile) {
+                    switch (tile.index) {
+                        case INDEXES_2.GREEN_BEAKER:
+                            greenBeakerGroup.add(new GreenBeaker_1.default(_this, tile.pixelX, tile.pixelY));
+                            itemsLayer.removeTileAt(tile.x, tile.y);
                             break;
                     }
                 });
@@ -140,8 +157,27 @@ var PlanetLogicScene = (function (_super) {
         this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
             slope.processCollision(player);
         }, undefined, this);
+        this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
+            slope.processCollision(player);
+        }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
+        }, undefined, this);
+        this.physics.add.collider(greenBeakerGroup, worldLayer);
+        this.physics.add.overlap(greenBeakerGroup, waterGroup, function (beaker, water) {
+            water.onCollide(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, lavaGroup, function (beaker, lava) {
+            lava.onCollide(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
+            slope.processCollision(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
+            beaker.onCollide(slope);
+        }, undefined, this);
+        this.physics.add.collider(greenBeakerGroup, this.player, function (beaker, player) {
+            beaker.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

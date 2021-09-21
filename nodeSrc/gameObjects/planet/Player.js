@@ -13,39 +13,35 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var Lifeform_1 = require("./Lifeform");
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "Helix2", 0) || this;
+        var _this = _super.call(this, scene, x, y, "Player", 0) || this;
         _this.isLifeform = true;
         _this.inWater = false;
         _this.blinking = false;
         _this.blinkTime = 1000;
         _this.blinkSpeed = 100;
-        _this.isOnSlope = false;
-        _this.jumping = false;
-        _this.jumpSpeed = 80;
-        _this.jumpHeight = 310;
+        _this.enemyBounce = 160;
         _this.maxHp = _this.hp = 5;
         _this.damage = 1;
-        scene.add.existing(_this);
-        scene.physics.add.existing(_this);
         _this.setCollideWorldBounds(true);
-        _this.resetPhysics().setDisplaySize(16, 32);
+        _this.setDisplaySize(16, 32);
         scene.anims.create({
             key: "idle",
-            frames: [{ key: "Helix2", frame: 0 }],
+            frames: [{ key: "Player", frame: 0 }],
             frameRate: 20
         });
         scene.anims.create({
             key: "left",
-            frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
+            frames: [{ key: "Player", frame: 3 }, { key: "Player", frame: 4 }],
             frameRate: 5,
             repeat: -1
         });
         scene.anims.create({
             key: "right",
-            frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
+            frames: [{ key: "Player", frame: 1 }, { key: "Player", frame: 2 }],
             frameRate: 5,
             repeat: -1
         });
@@ -94,7 +90,7 @@ var Player = (function (_super) {
             blink = true;
         }
         if (!this.blinking) {
-            this.hp -= object.damage;
+            this.hp -= object.getDamage(this);
             if (blink) {
                 this.startBlinking();
             }
@@ -110,30 +106,17 @@ var Player = (function (_super) {
             _this.blinkTimer.paused = true;
         });
     };
-    Player.prototype.resetPhysics = function () {
-        return this.setDrag(30, 0).setMaxVelocity(175, 600);
-    };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
-            this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);
         }
         if (this.controls.right()) {
-            this.setVelocityX(this.body.velocity.x + 8);
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            var xDeacl = onGround ? 10 : 3;
-            if (this.body.velocity.x > 0) {
-                this.setVelocityX(this.body.velocity.x - xDeacl);
-            }
-            if (this.body.velocity.x < 0) {
-                this.setVelocityX(this.body.velocity.x + xDeacl);
-            }
-            if (Math.abs(this.body.velocity.x) < xDeacl) {
-                this.setVelocityX(0);
+            if (Math.abs(this.body.velocity.x) < 2) {
                 this.anims.play("idle");
             }
         }
@@ -145,58 +128,15 @@ var Player = (function (_super) {
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
         }
-        if (this.inWater) {
-            if (this.controls.up()) {
-                this.setVelocityY(-140);
-            }
-            else if (this.controls.down()) {
-                this.setVelocityY(140);
-            }
-        }
-        else if (onGround && this.controls.up()) {
-            this.jumping = true;
-        }
-        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
-            this.jumping = false;
-        }
-        if (this.jumping) {
-            this.body.velocity.y -= this.jumpSpeed;
-        }
-        var onCeiling = this.body.blocked.up;
-        if (onCeiling) {
-            this.jumping = false;
-            this.body.velocity.y = 0;
-        }
-        if (this.inWater) {
-            this.setMaxVelocity(85);
-            this.setGravity(0);
-        }
-        else {
-            this.resetPhysics();
-        }
-        if (this.isOnSlope) {
-            this.body.setAllowGravity(false);
-        }
-        else {
-            this.body.setAllowGravity(true);
-        }
-        this.isOnSlope = false;
-        this.inWater = false;
-        if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
-            this.kill("fellOff");
-        }
-        else if (this.hp <= 0) {
-            this.kill("noHp");
-        }
-    };
-    Player.prototype.isDead = function () {
-        return this.dead;
     };
     Player.prototype.kill = function (reason) {
         this.dead = true;
-        this.destroy();
+        this.setImmovable(true);
+        this.setVisible(false);
+        this.setMaxVelocity(0);
+        this.blinking = false;
     };
     return Player;
-}(Phaser.Physics.Arcade.Sprite));
+}(Lifeform_1.default));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map

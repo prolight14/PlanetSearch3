@@ -13,12 +13,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var StaticGameObject_1 = require("./StaticGameObject");
 var Lava = (function (_super) {
     __extends(Lava, _super);
     function Lava(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "lava") || this;
         _this.damage = 1;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -26,10 +26,14 @@ var Lava = (function (_super) {
         _this.setVisible(false);
         return _this;
     }
+    Lava.prototype.getDamage = function (object) {
+        return this.damage;
+    };
     Lava.prototype.onCollide = function (object) {
         object.takeDamage(this);
+        object.inLiquid = true;
     };
     return Lava;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Lava;
 //# sourceMappingURL=Lava.js.map

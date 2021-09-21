@@ -1,13 +1,13 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
-import ILifeform from "./ILifeform";
+import Lifeform from "./Lifeform";
+import StaticGameObject from "./StaticGameObject";
 
-export default class Water extends Phaser.Physics.Arcade.Image
+export default class Water extends StaticGameObject
 {
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
         super(scene, x, y, "water");
 
-        scene.add.existing(this);
         scene.physics.add.existing(this);
 
         this.setMaxVelocity(0, 0);
@@ -16,8 +16,8 @@ export default class Water extends Phaser.Physics.Arcade.Image
         this.setVisible(false);
     }
 
-    public onCollide(object: ILifeform)
+    public onCollide(object: Lifeform)
     {
-        object.inWater = true;
+        object.inLiquid = true;
     }
-}
+}  

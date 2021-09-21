@@ -13,13 +13,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var StaticGameObject_1 = require("./StaticGameObject");
-var Platform = (function (_super) {
-    __extends(Platform, _super);
-    function Platform(scene, x, y) {
-        return _super.call(this, scene, x, y, "GrassTileset", 0) || this;
+var GameObject = (function (_super) {
+    __extends(GameObject, _super);
+    function GameObject(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        scene.add.existing(_this);
+        return _this;
     }
-    return Platform;
-}(StaticGameObject_1.default));
-exports.default = Platform;
-//# sourceMappingURL=Platform.js.map
+    return GameObject;
+}(Phaser.Physics.Arcade.Image));
+exports.default = GameObject;
+//# sourceMappingURL=StaticGameObject.js.map

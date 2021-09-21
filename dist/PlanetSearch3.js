@@ -43,6 +43,107 @@ exports.default = InfoBar;
 
 /***/ }),
 
+/***/ "./gameObjects/planet/Beaker.js":
+/*!**************************************!*\
+  !*** ./gameObjects/planet/Beaker.js ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Lifeform_1 = __webpack_require__(/*! ./Lifeform */ "./gameObjects/planet/Lifeform.js");
+var Beaker = (function (_super) {
+    __extends(Beaker, _super);
+    function Beaker(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        _this.isOnSlope = false;
+        _this.slopeWay = "";
+        _this.maxHp = _this.hp = 2;
+        _this.damage = 1;
+        scene.add.existing(_this);
+        scene.physics.add.existing(_this);
+        _this.setCollideWorldBounds(true);
+        _this.resetPhysics();
+        _this.xDir = Phaser.Math.Between(0, 100) < 50 ? "left" : "right";
+        _this.controls = {
+            left: function () {
+                return _this.xDir === "left";
+            },
+            right: function () {
+                return _this.xDir === "right";
+            },
+            up: function () {
+                return _this.yDir === "up";
+            },
+            down: function () {
+                return false;
+            },
+            activate: function () {
+                return false;
+            }
+        };
+        return _this;
+    }
+    Beaker.prototype.takeDamage = function (object) {
+        this.hp -= object.getDamage(this);
+    };
+    Beaker.prototype.resetPhysics = function () {
+        return this.setDrag(30, 0).setMaxVelocity(50, 200);
+    };
+    Beaker.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+        if (!this.wasOnSlope && !this.wasInLiquid && !this.slopeWay) {
+            if (this.body.blocked.left || this.body.touching.left) {
+                this.xDir = "right";
+            }
+            if (this.body.blocked.right || this.body.touching.right) {
+                this.xDir = "left";
+            }
+        }
+        this.slopeWay = "";
+        if (this.wasInLiquid) {
+            this.yDir = "up";
+        }
+        else {
+            this.yDir = "";
+        }
+    };
+    Beaker.prototype.onCollide = function (object) {
+        if (object.name === "slope") {
+            var slope = object;
+            this.slopeWay = slope.way;
+        }
+        else if (object.texture.key === "Player") {
+            var player = object;
+            if (player.body.blocked.down && this.body.touching.up) {
+                player.body.velocity.y -= player.enemyBounce;
+                this.takeDamage(player);
+            }
+            else if ((player.body.touching.left || player.body.touching.right) && (this.body.touching.left || this.body.touching.right)) {
+                player.takeDamage(this);
+            }
+        }
+    };
+    return Beaker;
+}(Lifeform_1.default));
+exports.default = Beaker;
+//# sourceMappingURL=Beaker.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/planet/Door.js":
 /*!************************************!*\
   !*** ./gameObjects/planet/Door.js ***!
@@ -109,10 +210,10 @@ exports.default = Door;
 
 /***/ }),
 
-/***/ "./gameObjects/planet/InvisiblePlatform.js":
-/*!*************************************************!*\
-  !*** ./gameObjects/planet/InvisiblePlatform.js ***!
-  \*************************************************/
+/***/ "./gameObjects/planet/GameObject.js":
+/*!******************************************!*\
+  !*** ./gameObjects/planet/GameObject.js ***!
+  \******************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -130,11 +231,138 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var GameObject = (function (_super) {
+    __extends(GameObject, _super);
+    function GameObject(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        scene.add.existing(_this);
+        return _this;
+    }
+    return GameObject;
+}(Phaser.Physics.Arcade.Sprite));
+exports.default = GameObject;
+//# sourceMappingURL=GameObject.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/GreenBeaker.js":
+/*!*******************************************!*\
+  !*** ./gameObjects/planet/GreenBeaker.js ***!
+  \*******************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Beaker_1 = __webpack_require__(/*! ./Beaker */ "./gameObjects/planet/Beaker.js");
+var GreenBeaker = (function (_super) {
+    __extends(GreenBeaker, _super);
+    function GreenBeaker(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "GreenBeaker", 0) || this;
+        _this.anims.create({
+            key: "left",
+            frames: [{ key: "GreenBeaker", frame: 0 }],
+            frameRate: 20
+        });
+        _this.anims.create({
+            key: "right",
+            frames: [{ key: "GreenBeaker", frame: 1 }],
+            frameRate: 20
+        });
+        _this.anims.create({
+            key: "idle",
+            frames: [{ key: "GreenBeaker", frame: 2 }],
+            frameRate: 20
+        });
+        _this.anims.create({
+            key: "leftSmall",
+            frames: [{ key: "GreenBeaker", frame: 3 }],
+            frameRate: 20
+        });
+        _this.anims.create({
+            key: "rightSmall",
+            frames: [{ key: "GreenBeaker", frame: 4 }],
+            frameRate: 20
+        });
+        _this.anims.create({
+            key: "idleSmall",
+            frames: [{ key: "GreenBeaker", frame: 5 }],
+            frameRate: 20
+        });
+        return _this;
+    }
+    GreenBeaker.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+        if (this.hp < 2) {
+            this.setScale(1, 0.5);
+            this.displayHeight *= 2;
+            if (this.controls.left()) {
+                this.anims.play("leftSmall");
+            }
+            if (this.controls.right()) {
+                this.anims.play("rightSmall");
+            }
+            if (!this.controls.left() && !this.controls.right()) {
+                this.anims.play("idleSmall");
+            }
+        }
+        else {
+            if (this.controls.left()) {
+                this.anims.play("left");
+            }
+            if (this.controls.right()) {
+                this.anims.play("right");
+            }
+            if (!this.controls.left() && !this.controls.right()) {
+                this.anims.play("idle");
+            }
+        }
+    };
+    return GreenBeaker;
+}(Beaker_1.default));
+exports.default = GreenBeaker;
+//# sourceMappingURL=GreenBeaker.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/InvisiblePlatform.js":
+/*!*************************************************!*\
+  !*** ./gameObjects/planet/InvisiblePlatform.js ***!
+  \*************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var InvisiblePlatform = (function (_super) {
     __extends(InvisiblePlatform, _super);
     function InvisiblePlatform(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "invisiblePlatform") || this;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -150,7 +378,7 @@ var InvisiblePlatform = (function (_super) {
         }
     };
     return InvisiblePlatform;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = InvisiblePlatform;
 //# sourceMappingURL=InvisiblePlatform.js.map
 
@@ -160,7 +388,7 @@ exports.default = InvisiblePlatform;
 /*!************************************!*\
   !*** ./gameObjects/planet/Lava.js ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -177,12 +405,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var Lava = (function (_super) {
     __extends(Lava, _super);
     function Lava(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "lava") || this;
         _this.damage = 1;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -190,21 +418,25 @@ var Lava = (function (_super) {
         _this.setVisible(false);
         return _this;
     }
+    Lava.prototype.getDamage = function (object) {
+        return this.damage;
+    };
     Lava.prototype.onCollide = function (object) {
         object.takeDamage(this);
+        object.inLiquid = true;
     };
     return Lava;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Lava;
 //# sourceMappingURL=Lava.js.map
 
 /***/ }),
 
-/***/ "./gameObjects/planet/Player.js":
-/*!**************************************!*\
-  !*** ./gameObjects/planet/Player.js ***!
-  \**************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ "./gameObjects/planet/Lifeform.js":
+/*!****************************************!*\
+  !*** ./gameObjects/planet/Lifeform.js ***!
+  \****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -221,39 +453,178 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var GameObject_1 = __webpack_require__(/*! ./GameObject */ "./gameObjects/planet/GameObject.js");
+var Lifeform = (function (_super) {
+    __extends(Lifeform, _super);
+    function Lifeform(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        _this.hp = 2;
+        _this.maxHp = 2;
+        _this.damage = 1;
+        _this.isLifeform = true;
+        _this.inLiquid = false;
+        _this.isOnSlope = false;
+        _this.wasInLiquid = false;
+        _this.wasOnSlope = false;
+        _this.isJumping = false;
+        _this.jumpSpeed = 80;
+        _this.jumpHeight = 310;
+        _this.xSpeed = 8;
+        _this.maxVel = { x: 175, y: 600 };
+        _this.drag = { x: 30, y: 0 };
+        _this.xDeacl = 10;
+        _this.xDeaclInAir = 3;
+        _this.ySwimSpeed = 140;
+        _this.maxVelInWater = 75;
+        _this.dead = false;
+        scene.physics.add.existing(_this);
+        _this.resetPhysics();
+        return _this;
+    }
+    Lifeform.prototype.getDamage = function (object) {
+        return this.damage;
+    };
+    Lifeform.prototype.takeDamage = function (object) {
+        this.hp -= object.getDamage(this);
+    };
+    Lifeform.prototype.resetPhysics = function () {
+        return this.setDrag(this.drag.x, this.drag.y).setMaxVelocity(this.maxVel.x, this.maxVel.y);
+    };
+    Lifeform.prototype.preUpdate = function (time, delta) {
+        if (this.dead) {
+            return;
+        }
+        _super.prototype.preUpdate.call(this, time, delta);
+        var onGround = this.body.blocked.down || this.isOnSlope;
+        if (this.controls.left()) {
+            this.setVelocityX(this.body.velocity.x - this.xSpeed);
+        }
+        if (this.controls.right()) {
+            this.setVelocityX(this.body.velocity.x + this.xSpeed);
+        }
+        if (!this.controls.left() && !this.controls.right()) {
+            var xDeacl = onGround ? this.xDeacl : this.xDeaclInAir;
+            if (this.body.velocity.x > 0) {
+                this.setVelocityX(this.body.velocity.x - xDeacl);
+            }
+            if (this.body.velocity.x < 0) {
+                this.setVelocityX(this.body.velocity.x + xDeacl);
+            }
+            if (Math.abs(this.body.velocity.x) < xDeacl) {
+                this.setVelocityX(0);
+                this.anims.play("idle");
+            }
+        }
+        if (this.inLiquid) {
+            if (this.controls.up()) {
+                this.setVelocityY(-this.ySwimSpeed);
+            }
+            else if (this.controls.down()) {
+                this.setVelocityY(this.ySwimSpeed);
+            }
+        }
+        else if (onGround && this.controls.up()) {
+            this.isJumping = true;
+        }
+        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
+            this.isJumping = false;
+        }
+        if (this.isJumping) {
+            this.body.velocity.y -= this.jumpSpeed;
+        }
+        var onCeiling = this.body.blocked.up;
+        if (onCeiling) {
+            this.isJumping = false;
+            this.body.velocity.y = 0;
+        }
+        if (this.inLiquid) {
+            this.setMaxVelocity(this.maxVelInWater);
+            this.setGravity(0);
+        }
+        else {
+            this.resetPhysics();
+        }
+        this.body.setAllowGravity(!this.isOnSlope);
+        this.wasInLiquid = this.inLiquid;
+        this.wasOnSlope = this.isOnSlope;
+        this.isOnSlope = false;
+        this.inLiquid = false;
+        if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
+            this.kill("fellOff");
+        }
+        else if (this.hp <= 0) {
+            this.kill("noHp");
+        }
+    };
+    Lifeform.prototype.isDead = function () {
+        return this.dead;
+    };
+    Lifeform.prototype.kill = function (reason) {
+        var _this = this;
+        this.dead = true;
+        this.scene.time.delayedCall(0, function () {
+            _this.destroy();
+        });
+    };
+    Lifeform.prototype.onCollide = function (gameObject) {
+    };
+    return Lifeform;
+}(GameObject_1.default));
+exports.default = Lifeform;
+//# sourceMappingURL=Lifeform.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/Player.js":
+/*!**************************************!*\
+  !*** ./gameObjects/planet/Player.js ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Lifeform_1 = __webpack_require__(/*! ./Lifeform */ "./gameObjects/planet/Lifeform.js");
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "Helix2", 0) || this;
+        var _this = _super.call(this, scene, x, y, "Player", 0) || this;
         _this.isLifeform = true;
         _this.inWater = false;
         _this.blinking = false;
         _this.blinkTime = 1000;
         _this.blinkSpeed = 100;
-        _this.isOnSlope = false;
-        _this.jumping = false;
-        _this.jumpSpeed = 80;
-        _this.jumpHeight = 310;
+        _this.enemyBounce = 160;
         _this.maxHp = _this.hp = 5;
         _this.damage = 1;
-        scene.add.existing(_this);
-        scene.physics.add.existing(_this);
         _this.setCollideWorldBounds(true);
-        _this.resetPhysics().setDisplaySize(16, 32);
+        _this.setDisplaySize(16, 32);
         scene.anims.create({
             key: "idle",
-            frames: [{ key: "Helix2", frame: 0 }],
+            frames: [{ key: "Player", frame: 0 }],
             frameRate: 20
         });
         scene.anims.create({
             key: "left",
-            frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
+            frames: [{ key: "Player", frame: 3 }, { key: "Player", frame: 4 }],
             frameRate: 5,
             repeat: -1
         });
         scene.anims.create({
             key: "right",
-            frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
+            frames: [{ key: "Player", frame: 1 }, { key: "Player", frame: 2 }],
             frameRate: 5,
             repeat: -1
         });
@@ -302,7 +673,7 @@ var Player = (function (_super) {
             blink = true;
         }
         if (!this.blinking) {
-            this.hp -= object.damage;
+            this.hp -= object.getDamage(this);
             if (blink) {
                 this.startBlinking();
             }
@@ -318,30 +689,17 @@ var Player = (function (_super) {
             _this.blinkTimer.paused = true;
         });
     };
-    Player.prototype.resetPhysics = function () {
-        return this.setDrag(30, 0).setMaxVelocity(175, 600);
-    };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
-            this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);
         }
         if (this.controls.right()) {
-            this.setVelocityX(this.body.velocity.x + 8);
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            var xDeacl = onGround ? 10 : 3;
-            if (this.body.velocity.x > 0) {
-                this.setVelocityX(this.body.velocity.x - xDeacl);
-            }
-            if (this.body.velocity.x < 0) {
-                this.setVelocityX(this.body.velocity.x + xDeacl);
-            }
-            if (Math.abs(this.body.velocity.x) < xDeacl) {
-                this.setVelocityX(0);
+            if (Math.abs(this.body.velocity.x) < 2) {
                 this.anims.play("idle");
             }
         }
@@ -353,59 +711,16 @@ var Player = (function (_super) {
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
         }
-        if (this.inWater) {
-            if (this.controls.up()) {
-                this.setVelocityY(-140);
-            }
-            else if (this.controls.down()) {
-                this.setVelocityY(140);
-            }
-        }
-        else if (onGround && this.controls.up()) {
-            this.jumping = true;
-        }
-        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
-            this.jumping = false;
-        }
-        if (this.jumping) {
-            this.body.velocity.y -= this.jumpSpeed;
-        }
-        var onCeiling = this.body.blocked.up;
-        if (onCeiling) {
-            this.jumping = false;
-            this.body.velocity.y = 0;
-        }
-        if (this.inWater) {
-            this.setMaxVelocity(85);
-            this.setGravity(0);
-        }
-        else {
-            this.resetPhysics();
-        }
-        if (this.isOnSlope) {
-            this.body.setAllowGravity(false);
-        }
-        else {
-            this.body.setAllowGravity(true);
-        }
-        this.isOnSlope = false;
-        this.inWater = false;
-        if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
-            this.kill("fellOff");
-        }
-        else if (this.hp <= 0) {
-            this.kill("noHp");
-        }
-    };
-    Player.prototype.isDead = function () {
-        return this.dead;
     };
     Player.prototype.kill = function (reason) {
         this.dead = true;
-        this.destroy();
+        this.setImmovable(true);
+        this.setVisible(false);
+        this.setMaxVelocity(0);
+        this.blinking = false;
     };
     return Player;
-}(Phaser.Physics.Arcade.Sprite));
+}(Lifeform_1.default));
 exports.default = Player;
 //# sourceMappingURL=Player.js.map
 
@@ -415,7 +730,7 @@ exports.default = Player;
 /*!*************************************!*\
   !*** ./gameObjects/planet/Slope.js ***!
   \*************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -432,12 +747,13 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var Slope = (function (_super) {
     __extends(Slope, _super);
     function Slope(scene, way, x, y) {
         var _this = _super.call(this, scene, x, y, "slope") || this;
         _this.way = way;
-        scene.add.existing(_this);
+        _this.name = "slope";
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setImmovable(true);
@@ -446,16 +762,20 @@ var Slope = (function (_super) {
         _this.setVisible(false);
         switch (_this.way) {
             case "leftUp":
-                _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y, _this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
+                var offset = 0;
+                var yOffset_1 = 0;
+                _this.triangle = new Phaser.Geom.Triangle(_this.x - offset, _this.y - offset - yOffset_1, _this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth + offset, _this.y + _this.displayHeight + offset - yOffset_1);
                 _this.processCollision = function (object) {
-                    if (object.body.x <= this.body.x) {
-                        object.body.y = this.body.y - object.body.height;
-                    }
                     object.isOnSlope = false;
+                    if (object.body.x <= this.body.x) {
+                        object.isOnSlope = true;
+                        object.body.y = this.body.y - object.body.height - yOffset_1;
+                    }
                     if (this.intersects(object.getBounds())) {
                         var dx = object.body.x - this.body.x;
-                        object.y = this.body.bottom + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.halfHeight - this.body.height - yOffset_1;
                         object.body.blocked.down = true;
+                        object.body.touching.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
                     }
@@ -464,20 +784,25 @@ var Slope = (function (_super) {
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
                 _this.processCollision = function (object) {
+                    object.isOnSlope = false;
                     if (object.body.right >= this.body.right) {
                         object.body.y = this.body.y - object.body.height;
+                        object.isOnSlope = true;
                     }
-                    object.isOnSlope = false;
                     if (this.intersects(object.getBounds())) {
                         var dx = this.body.x - object.body.x;
-                        object.y = this.body.bottom + dx - object.body.height;
+                        object.y = this.body.bottom + dx - object.body.halfHeight - this.body.height;
                         object.body.blocked.down = true;
+                        object.body.touching.down = true;
                         object.isOnSlope = true;
                         object.body.velocity.y = 0;
                     }
                 };
                 break;
         }
+        var graphics = scene.add.graphics({});
+        graphics.lineStyle(2, 0x00ff00);
+        graphics.strokeTriangleShape(_this.triangle);
         return _this;
     }
     Slope.prototype.processCollision = function (object) { };
@@ -485,16 +810,16 @@ var Slope = (function (_super) {
         return Phaser.Geom.Intersects.RectangleToTriangle(rect, this.triangle);
     };
     return Slope;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Slope;
 //# sourceMappingURL=Slope.js.map
 
 /***/ }),
 
-/***/ "./gameObjects/planet/Water.js":
-/*!*************************************!*\
-  !*** ./gameObjects/planet/Water.js ***!
-  \*************************************/
+/***/ "./gameObjects/planet/StaticGameObject.js":
+/*!************************************************!*\
+  !*** ./gameObjects/planet/StaticGameObject.js ***!
+  \************************************************/
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -512,11 +837,46 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var GameObject = (function (_super) {
+    __extends(GameObject, _super);
+    function GameObject(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        scene.add.existing(_this);
+        return _this;
+    }
+    return GameObject;
+}(Phaser.Physics.Arcade.Image));
+exports.default = GameObject;
+//# sourceMappingURL=StaticGameObject.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/Water.js":
+/*!*************************************!*\
+  !*** ./gameObjects/planet/Water.js ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var Water = (function (_super) {
     __extends(Water, _super);
     function Water(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "water") || this;
-        scene.add.existing(_this);
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -525,10 +885,10 @@ var Water = (function (_super) {
         return _this;
     }
     Water.prototype.onCollide = function (object) {
-        object.inWater = true;
+        object.inLiquid = true;
     };
     return Water;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Water;
 //# sourceMappingURL=Water.js.map
 
@@ -1005,8 +1365,9 @@ exports.default = {
         DOOR_BOTTOM: 11,
         BACK_GRASS: 12,
         BACK_DIRT: 13,
-        SLOPE_UP_LEFT: 14,
-        SLOPE_UP_RIGHT: 15
+        SLOPE_LEFT_UP: 14,
+        SLOPE_RIGHT_UP: 15,
+        GREEN_BEAKER: 21
     }
 };
 //# sourceMappingURL=BlockIndexes.js.map
@@ -1206,6 +1567,7 @@ var Slope_1 = __webpack_require__(/*! ../../gameObjects/planet/Slope */ "./gameO
 var Water_1 = __webpack_require__(/*! ../../gameObjects/planet/Water */ "./gameObjects/planet/Water.js");
 var BlockIndexes_1 = __webpack_require__(/*! ./BlockIndexes */ "./scenes/planet/BlockIndexes.js");
 var InvisiblePlatform_1 = __webpack_require__(/*! ../../gameObjects/planet/InvisiblePlatform */ "./gameObjects/planet/InvisiblePlatform.js");
+var GreenBeaker_1 = __webpack_require__(/*! ../../gameObjects/planet/GreenBeaker */ "./gameObjects/planet/GreenBeaker.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -1237,7 +1599,8 @@ var PlanetLogicScene = (function (_super) {
         };
     };
     PlanetLogicScene.prototype.preload = function () {
-        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });
         var currentWorld = this.loadData.currentWorld;
         var currentTileset = this.loadData.currentTileset;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
@@ -1267,6 +1630,7 @@ var PlanetLogicScene = (function (_super) {
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
+        var greenBeakerGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
                 var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
@@ -1291,17 +1655,31 @@ var PlanetLogicScene = (function (_super) {
                         case INDEXES_1.DOOR_BOTTOM:
                             tile.setCollision(false, false, false, false);
                             break;
-                        case INDEXES_1.SLOPE_UP_LEFT:
+                        case INDEXES_1.SLOPE_LEFT_UP:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
                             break;
-                        case INDEXES_1.SLOPE_UP_RIGHT:
+                        case INDEXES_1.SLOPE_RIGHT_UP:
                             tile.setCollision(false, false, false, false);
                             slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
                             break;
                         case INDEXES_1.BACK_GRASS:
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
+                    }
+                });
+                break;
+        }
+        var itemsLayer = tilemap.createLayer("Items", tileset, 0, 0);
+        switch (this.loadData.currentWorld) {
+            case "GrassPlanet2":
+                var INDEXES_2 = BlockIndexes_1.default.GRASS_PLANET_2;
+                itemsLayer.forEachTile(function (tile) {
+                    switch (tile.index) {
+                        case INDEXES_2.GREEN_BEAKER:
+                            greenBeakerGroup.add(new GreenBeaker_1.default(_this, tile.pixelX, tile.pixelY));
+                            itemsLayer.removeTileAt(tile.x, tile.y);
                             break;
                     }
                 });
@@ -1326,8 +1704,27 @@ var PlanetLogicScene = (function (_super) {
         this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
             slope.processCollision(player);
         }, undefined, this);
+        this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
+            slope.processCollision(player);
+        }, undefined, this);
         this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
             invisiblePlatform.processCollision(player);
+        }, undefined, this);
+        this.physics.add.collider(greenBeakerGroup, worldLayer);
+        this.physics.add.overlap(greenBeakerGroup, waterGroup, function (beaker, water) {
+            water.onCollide(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, lavaGroup, function (beaker, lava) {
+            lava.onCollide(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
+            slope.processCollision(beaker);
+        }, undefined, this);
+        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
+            beaker.onCollide(slope);
+        }, undefined, this);
+        this.physics.add.collider(greenBeakerGroup, this.player, function (beaker, player) {
+            beaker.onCollide(player);
         }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);

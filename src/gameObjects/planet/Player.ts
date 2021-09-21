@@ -1,14 +1,13 @@
-import IDamage from "./IDamage";
-import ILifeform from "./ILifeform";
+import Lifeform from "./Lifeform";
 
 // TODO: 1. Make hp not fill up when going through doors (done)
 // 2. Add checkpoints
-// 3. Add slopes
-// 4. Fix oneway collision
+// 3. Add slopes (done)
+// 4. Fix oneway collision (done)
 // 5. Make player death animation
 // 6. Add leveling up system (surpassing a certain score will cause hp (by 5) or damage (by 1) to go up)
 
-export default class Player extends Phaser.Physics.Arcade.Sprite implements ILifeform
+export default class Player extends Lifeform
 {
     public isLifeform: boolean = true;
     public inWater: boolean = false;
@@ -16,15 +15,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
     public maxHp: integer;
     public damage: integer;
     
-    public takeDamage(object: ILifeform | IDamage, blink?: boolean)
+    public takeDamage(object: { getDamage: (object: Lifeform) => number }, blink?: boolean)
     {
         if(blink === undefined) { blink = true; }
 
         if(!this.blinking)
         {
-            this.hp -= object.damage;
+            this.hp -= object.getDamage(this);
 
-            if(blink)
+            if(blink) 
             {
                 this.startBlinking();
             }
@@ -37,34 +36,31 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
-        super(scene, x, y, "Helix2", 0);
+        super(scene, x, y, "Player", 0);
 
         this.maxHp = this.hp = 5;
         this.damage = 1;
 
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
-
         this.setCollideWorldBounds(true);
 
-        this.resetPhysics().setDisplaySize(16, 32);
+        this.setDisplaySize(16, 32);
         
         scene.anims.create({
             key: "idle",
-            frames: [{ key: "Helix2", frame: 0 }],
+            frames: [{ key: "Player", frame: 0 }],
             frameRate: 20
         });
        
         scene.anims.create({
             key: "left",
-            frames: [{ key: "Helix2", frame: 3 }, { key: "Helix2", frame: 4 }],
+            frames: [{ key: "Player", frame: 3 }, { key: "Player", frame: 4 }],
             frameRate: 5,
             repeat: -1
         });
 
         scene.anims.create({
             key: "right",
-            frames: [{ key: "Helix2", frame: 1 }, { key: "Helix2", frame: 2 }],
+            frames: [{ key: "Player", frame: 1 }, { key: "Player", frame: 2 }],
             frameRate: 5,
             repeat: -1
         });
@@ -119,6 +115,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         this.blinkTimer.paused = true;
     }
 
+    public activate: Function;
+    
     blinkTimer: Phaser.Time.TimerEvent;
 
     private startBlinking()
@@ -134,21 +132,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
         });
     }
 
-    public activate: Function;
-    public isOnSlope: boolean = false;
-
-    private resetPhysics()
-    {
-        return this.setDrag(30, 0).setMaxVelocity(175, 600);
-    }
-
-    private controls: {
-        left: Function;
-        right: Function;
-        up: Function;
-        down: Function;
-        activate: Function;
-    }
     private keys: {
         a: Phaser.Input.Keyboard.Key;
         d: Phaser.Input.Keyboard.Key;
@@ -168,30 +151,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
 
         if(this.controls.left())
         {
-            this.setVelocityX(this.body.velocity.x - 8);
             this.anims.play("left", true);
         }
         if(this.controls.right())
         {
-            this.setVelocityX(this.body.velocity.x + 8);
             this.anims.play("right", true);
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            const xDeacl = onGround ? 10 : 3;
-
-            if(this.body.velocity.x > 0)
+            if(Math.abs(this.body.velocity.x) < 2)
             {
-                this.setVelocityX(this.body.velocity.x - xDeacl);
-            }
-            if(this.body.velocity.x < 0)
-            {
-                this.setVelocityX(this.body.velocity.x + xDeacl);
-            }
-
-            if(Math.abs(this.body.velocity.x) < xDeacl)
-            {
-                this.setVelocityX(0);
                 this.anims.play("idle");
             }
         }
@@ -207,88 +176,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite implements ILif
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
         }
-
-        if(this.inWater)
-        {
-            if(this.controls.up())
-            {
-                this.setVelocityY(-140);
-            }
-            else if(this.controls.down())
-            {
-                this.setVelocityY(140);
-            }
-        }
-        else if(onGround && this.controls.up())
-        {
-            this.jumping = true;
-        }
-
-        if(!this.controls.up() || this.body.velocity.y < -this.jumpHeight)
-        {
-            this.jumping = false;
-        }
-
-        if(this.jumping)
-        {
-            this.body.velocity.y -= this.jumpSpeed;
-        }
-
-        const onCeiling = this.body.blocked.up;
-
-        if(onCeiling)
-        {
-            this.jumping = false;
-            this.body.velocity.y = 0;
-        }
-
-        if(this.inWater)
-        {
-            this.setMaxVelocity(85);
-            this.setGravity(0);
-        }
-        else
-        {
-            this.resetPhysics();
-        }
-
-        if(this.isOnSlope)
-        {
-            (this.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
-        }
-        else
-        {
-            (this.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
-        }
-
-        this.isOnSlope = false;
-        this.inWater = false;
-
-        if(this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight)
-        {
-            this.kill("fellOff");
-        }
-        else if(this.hp <= 0)
-        {
-            this.kill("noHp");
-        }
     }
 
-    // Physics stuff
-    private jumping: boolean = false;
-    private jumpSpeed: number = 80;
-    private jumpHeight: number = 310;
+    public enemyBounce: number = 160;
 
-    private dead: boolean;
-
-    public isDead()
-    {
-        return this.dead;
-    }
-
-    private kill(reason: string)
+    protected kill(reason?: string)
     {
         this.dead = true;
-        this.destroy();
+        this.setImmovable(true);
+        this.setVisible(false);
+        this.setMaxVelocity(0);
+        this.blinking = false;
     }
 }

@@ -1,4 +1,4 @@
-export default class GameObject extends Phaser.Physics.Arcade.Sprite
+export default class GameObject extends Phaser.Physics.Arcade.Image
 {
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string | Phaser.Textures.Texture, frame?: string | integer)
     {

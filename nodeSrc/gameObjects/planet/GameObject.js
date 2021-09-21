@@ -21,6 +21,6 @@ var GameObject = (function (_super) {
         return _this;
     }
     return GameObject;
-}(Phaser.GameObjects.Sprite));
+}(Phaser.Physics.Arcade.Sprite));
 exports.default = GameObject;
 //# sourceMappingURL=GameObject.js.map
