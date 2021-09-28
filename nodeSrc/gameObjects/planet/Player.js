@@ -54,6 +54,7 @@ var Player = (function (_super) {
             right: scene.input.keyboard.addKey("right"),
             up: scene.input.keyboard.addKey("up"),
             down: scene.input.keyboard.addKey("down"),
+            r: scene.input.keyboard.addKey('r'),
         };
         _this.controls = {
             left: function () {
@@ -70,6 +71,9 @@ var Player = (function (_super) {
             },
             activate: function () {
                 return _this.keys.s.isDown || _this.keys.down.isDown;
+            },
+            restart: function () {
+                return _this.keys.r.isDown;
             }
         };
         _this.activate = function () {
@@ -85,6 +89,16 @@ var Player = (function (_super) {
         _this.blinkTimer.paused = true;
         return _this;
     }
+    Player.prototype.getStats = function () {
+        return {
+            hp: this.hp,
+            maxHp: this.maxHp,
+        };
+    };
+    Player.prototype.setStats = function (stats) {
+        this.hp = stats.hp;
+        this.maxHp = stats.maxHp;
+    };
     Player.prototype.takeDamage = function (object, blink) {
         if (blink === undefined) {
             blink = true;
@@ -127,6 +141,11 @@ var Player = (function (_super) {
             else if (this.controls.right()) {
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
+        }
+        if (this.controls.restart() || this.dead) {
+            this.scene.restart({
+                loadType: "checkpoint",
+            });
         }
     };
     Player.prototype.kill = function (reason) {

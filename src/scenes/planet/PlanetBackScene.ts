@@ -54,7 +54,7 @@ export default class PlanetBackScene extends Phaser.Scene
         const planetLogicScene = (this.scene.get("planetLogic") as PlanetLogicScene);
         const cam: Phaser.Cameras.Scene2D.Camera = planetLogicScene.cameras.main;
         const width = (this.game.config.width as number);
-        const diff = planetLogicScene.getLevelWidth() - cam.scrollX;
+        const diff = width - cam.scrollX;
 
         for(var i = 0; i < this.layers.length; i++)
         {   

@@ -51,7 +51,7 @@ var PlanetBackScene = (function (_super) {
         var planetLogicScene = this.scene.get("planetLogic");
         var cam = planetLogicScene.cameras.main;
         var width = this.game.config.width;
-        var diff = planetLogicScene.getLevelWidth() - cam.scrollX;
+        var diff = width - cam.scrollX;
         for (var i = 0; i < this.layers.length; i++) {
             if (this.layerSpeeds[i] === -1) {
                 continue;

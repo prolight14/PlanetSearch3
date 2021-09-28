@@ -17,7 +17,8 @@ exports.default = {
         BACK_DIRT: 13,
         SLOPE_LEFT_UP: 14,
         SLOPE_RIGHT_UP: 15,
-        GREEN_BEAKER: 21
+        GREEN_BEAKER: 21,
+        CHECKPOINT: 22
     }
 };
 //# sourceMappingURL=BlockIndexes.js.map

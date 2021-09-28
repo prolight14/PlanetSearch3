@@ -79,10 +79,10 @@ export default class Slope extends StaticGameObject
                 break;
         }
 
-        let graphics = scene.add.graphics({});
+        // let graphics = scene.add.graphics({});
 
-        graphics.lineStyle(2, 0x00ff00);
-        graphics.strokeTriangleShape(this.triangle);
+        // graphics.lineStyle(2, 0x00ff00);
+        // graphics.strokeTriangleShape(this.triangle);
     }
     public way: string;
     processCollision(object: any) {}

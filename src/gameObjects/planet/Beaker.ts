@@ -75,15 +75,6 @@ export default class Beaker extends Lifeform
             }
         }
 
-        // if(this.slopeWay === "leftUp")
-        // {
-        //     this.xDir = "left";
-        // }
-        // else if(this.slopeWay === "rightUp")
-        // {
-        //     this.xDir = "right";
-        // }
-
         this.slopeWay = "";
 
         if(this.wasInLiquid)
@@ -103,23 +94,7 @@ export default class Beaker extends Lifeform
         if(object.name === "slope")
         {
             let slope: Slope = object as Slope;
-            // debugger;
-
-            // if(slope.intersects(this.getBounds()))
-            // {
-                // this.isOnSlope = true;
-                // this.wasOnSlope = true;
-                this.slopeWay = slope.way;
-                // this.xDir = "";
-                // if(this.slopeWay === "leftUp")
-                // {
-                //     this.xDir = "left";
-                // }
-                // else if(this.slopeWay === "rightUp")
-                // {
-                //     this.xDir = "right";
-                // }
-            // }
+            this.slopeWay = slope.way;
         }
         else if(object.texture.key === "Player")
         {

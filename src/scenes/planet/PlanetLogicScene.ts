@@ -7,8 +7,9 @@ import PlanetEffectsScene from "./PlanetEffectsScene";
 import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
 import GreenBeaker from "../../gameObjects/planet/GreenBeaker";
-
-type playerStats = { hp: number, maxHp: number };
+import Checkpoint from "../../gameObjects/planet/Checkpoint";
+import PlanetUIScene from "./PlanetUIScene";
+import logger from "../../logger";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -20,93 +21,53 @@ export default class PlanetLogicScene extends Phaser.Scene
                 default: "arcade",
                 arcade: {
                     gravity: { y: 950 },
-                    // debug: true
                 }
             },
         });
+
+        this.init();
+    }
+
+    private loadData: any;
+
+    private init()
+    {   
+        if(this.loadData !== undefined)
+        {
+            return;
+        }
+
+        this.loadData = {
+            currentWorld: "GrassPlanet2",
+            currentTileset: "GrassTileset2-extruded",
+            currentLevel: "start"
+        };
     }
 
     private player: Player;
 
-    public getPlayerStats(): playerStats
-    {
-        return {
-            hp: this.player.hp,
-            maxHp: this.player.maxHp,
-        };
-    }
-
-    private loadData: { 
-        loadType: string;
-        currentLevel: string;
-        currentWorld: string;
-        enteredDoor: string;
-        currentTileset: string;
-        playerStats: playerStats
-    };
-
-    public init(data: any)
-    {
-        const currentWorld = "GrassPlanet2";
-
-        this.loadData = {
-            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
-            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
-            currentWorld: currentWorld,
-            currentTileset: currentWorld.replace("Planet", "Tileset") + "-extruded",
-            enteredDoor: data.gotoDoor,
-            playerStats: data.playerStats
-        };
-    }
-
     public preload()
     {   
+        this.load.spritesheet("checkpoint", "./assets/Planet/GameObjects/Interactibles/Checkpoint.png", { frameWidth: 16, frameHeight: 16 });
 
-        // this.load.image("IcyDwarfTileset", "./assets/Planet/levels/IcyDwarf/Tilesets/IcyDwarfTileset.png");
-        // this.load.tilemapTiledJSON("IcyDwarfTilemap", "./assets/Planet/levels/IcyDwarf/Tilemaps/IcyDwarfTilemap.json");
-        
         this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });  
         this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });  
 
+       
         const currentWorld = this.loadData.currentWorld;
         const currentTileset = this.loadData.currentTileset;
+        const currentLevel = this.loadData.currentLevel;
 
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
-        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
+        this.load.tilemapTiledJSON(currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + currentLevel + ".json");
     }
 
-    // private planetName: string;
-    // private currentLevelName: string;   
-    
-    // private currentLevelAssetsPrefix: string = "IcyDwarf";
-    // private currentLevelAssetsPrefix: string = "IcyDwarf";
-    
-    public receiveLevelInfo(passObj: object)
+    public receiveLevelInfo(levelInfo: object)
     {
-        // switch(passObj.type)
-        // {
-        //     case "planet":
-        //         var planet = passObj.from;
-        //         this.currentLevelAssetsPrefix = this.planetName = planet.texture.key.replace("Planet", "");
-        //         break;
-        // }
+
     }
 
-    private levelWidth: number;
-    
-    public getLevelWidth(): number
-    {
-        return this.levelWidth;
-    }
-
-    private levelHeight: number;
-    
-    public getLevelHeight(): number
-    {
-        return this.levelHeight;
-    }
-
-    public create()
+    public create(inputData?: any)
     {
         const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
@@ -118,10 +79,6 @@ export default class PlanetLogicScene extends Phaser.Scene
         worldLayer.setCollisionByProperty({ collides: true });
         
         tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
-
-        
-        this.levelWidth = tilemap.widthInPixels;
-        this.levelHeight = tilemap.heightInPixels;
         
         const waterGroup = this.add.group();
         const lavaGroup = this.add.group();
@@ -129,6 +86,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         const slopeGroup = this.add.group();
         const invisiblePlatformGroup = this.add.group();
         const greenBeakerGroup = this.add.group();
+        const checkpointGroup = this.add.group();
         
         switch(this.loadData.currentWorld)
         {
@@ -176,6 +134,11 @@ export default class PlanetLogicScene extends Phaser.Scene
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform(this, tile.pixelX, tile.pixelY));
                         break;
+
+                        case INDEXES.CHECKPOINT:
+                            worldLayer.removeTileAt(tile.x, tile.y);
+                            checkpointGroup.add(new Checkpoint(this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
                 break;
@@ -208,16 +171,25 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
         
-        let spawnPoint = tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point");
+        let spawnPoint = (tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point") as ({ x: number; y: number }));
         
-        this.handleDoors(tilemap, doorGroup, spawnPoint);
+        if(!spawnPoint)
+        {
+            spawnPoint = {
+                x: 0,
+                y: 0
+            };
+        }
+
+        if(inputData.loadType === "door")
+        {
+            // this.handleDoors(tilemap, doorGroup, spawnPoint, inputData.doorGoto);
+            spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
+        }
+        
+        this.handleDoors(tilemap, doorGroup);
 
         this.player = new Player(this, spawnPoint.x as number, spawnPoint.y as number);
-        
-        if(this.loadData.loadType === "door")
-        {
-            this.player.hp = this.loadData.playerStats.hp;
-        }
 
         this.physics.add.collider(this.player, worldLayer);
 
@@ -279,7 +251,12 @@ export default class PlanetLogicScene extends Phaser.Scene
         {
             beaker.onCollide(player);
         }, undefined, this);
-        // this.physics.add.collider(greenBeakerGroup, greenBeakerGroup);
+
+        // Checkpoint
+        this.physics.add.overlap(checkpointGroup, this.player, function(checkpoint: Checkpoint, player: Player)
+        {
+            checkpoint.onCollide(player);
+        });
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -291,19 +268,69 @@ export default class PlanetLogicScene extends Phaser.Scene
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         
         (this.scene.get("planetEffects") as PlanetEffectsScene).fadeIn(500, 0, 0, 0);
-        this.scene.run("planetUI");
-        this.sceneTransitioning = false;
-
-        this.tilemap = tilemap;
 
         this.graphics = this.add.graphics();
+
+        this.tilemap = tilemap;
+    }
+
+    public getPlayerStats()
+    {
+        return this.player.getStats();
     }
 
     private graphics: Phaser.GameObjects.Graphics;
     
     private tilemap: Phaser.Tilemaps.Tilemap;
 
-    private handleDoors(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, spawnPoint: { x?: number, y?: number})
+    private getDoorEntryPoint(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, doorGoto: { level: string, door: string }): { x: number, y: number }
+    {
+        const objects = tilemap.getObjectLayer("Objects").objects;
+
+        for(var i = 0; i < objects.length; i++)
+        {
+            const obj = objects[i];
+            
+            if(obj.name !== "Door")
+            {
+                continue;
+            }
+
+            for(var j in obj.properties)
+            {
+                const prop = obj.properties[j];
+                
+                if(prop.name === "door" && prop.value === doorGoto.door)
+                {
+                    let doors = doorGroup.children.getArray();
+
+                    for(var i = 0; i < doors.length; i++)
+                    {
+                        var door = doors[i] as Door;
+
+                        const doorBounds = door.getBounds();
+
+                        if(doorBounds.contains(obj.x as number, obj.y as number))
+                        {
+                            return {
+                                x: door.x,
+                                y: door.y
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+        logger.warn("Couldn't find door at door symbol '" + doorGoto.door + "'");
+
+        return {
+            x: 0,
+            y: 0
+        };
+    }
+
+    private handleDoors(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, spawnPoint?: { x?: number, y?: number}, doorGoto?: { level: string, door: string })
     {
         const objects = tilemap.getObjectLayer("Objects").objects;
         
@@ -313,41 +340,54 @@ export default class PlanetLogicScene extends Phaser.Scene
             
             if(obj.name === "Door")
             {
-                for(var j in obj.properties)
+                if(spawnPoint !== undefined && doorGoto !== undefined)
                 {
-                    const prop = obj.properties[j];
-                    
-                    if(prop.name === "door" && prop.value === this.loadData.enteredDoor)
+                    for(var j in obj.properties)
                     {
-                        doorGroup.getChildren().forEach((door: Door) =>
+                        const prop = obj.properties[j];
+                        
+                        if(prop.name === "door" && prop.value === doorGoto.door)
                         {
-                            const doorBounds = door.getBounds();
-
-                            if(doorBounds.contains(obj.x as number, obj.y as number))
+                            doorGroup.getChildren().forEach((door: Door) =>
                             {
-                                spawnPoint.x = door.x;
-                                spawnPoint.y = door.y;
-                            }
-                        });
+                                const doorBounds = door.getBounds();
+    
+                                if(doorBounds.contains(obj.x as number, obj.y as number))
+                                {
+                                    spawnPoint.x = door.x;
+                                    spawnPoint.y = door.y;
+                                }
+                            });
+                        }
                     }
                 }
-
+                
                 doorGroup.getChildren().forEach((door: Door) =>
                 {
                     if(door.getBounds().contains(obj.x as number, obj.y as number))
                     {
+                        var gotoLevel, gotoDoor;
+
                         for(var j in obj.properties)
                         {
                             const prop = obj.properties[j];
 
                             if(prop.name === "gotoLevel")
                             {
-                                door.goto.level = prop.value;
+                                gotoLevel = prop.value;
                             }
                             else if(prop.name === "gotoDoor")
                             {
-                                door.goto.door = prop.value;
+                                gotoDoor = prop.value;
                             }
+                        }
+
+                        if(gotoLevel && gotoDoor)
+                        {
+                            door.setGoto({
+                                level: gotoLevel,
+                                door: gotoDoor
+                            })
                         }
                     }
                 });
@@ -355,24 +395,8 @@ export default class PlanetLogicScene extends Phaser.Scene
         }
     }
 
-    private sceneTransitioning: boolean;
-
     public update(time: number, delta: number)
     {
-        if(this.player.isDead() && !this.sceneTransitioning)
-        {
-            const effectsScene = this.scene.get("planetEffects") as PlanetEffectsScene;
-
-            effectsScene.fadeOut(500, 0, 0, 0);
-
-            effectsScene.cameras.main.once("camerafadeoutcomplete", () => 
-            {
-                this.scene.restart();
-            });
-        
-            this.sceneTransitioning = true;
-        }
-
         this.processBrickCollision();
     }
 
@@ -400,5 +424,25 @@ export default class PlanetLogicScene extends Phaser.Scene
             this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
             (this.scene.get("planetEffects") as PlanetEffectsScene).emitBricks(bounds);
         }
+    }
+
+    public restart(inputData: any)
+    {
+        this.scene.pause("planetLogic");
+
+        let effectsScene = this.scene.get("planetEffects") as PlanetEffectsScene;
+        effectsScene.fadeOut(500, 0, 0, 0);
+
+        effectsScene.cameras.main.once("camerafadeoutcomplete", () => 
+        {
+            this.scene.run("planetLogic");
+
+            if(inputData.loadType === "door")
+            {
+                this.loadData.currentLevel = inputData.doorGoto.level;
+            }   
+
+            this.scene.restart(inputData);
+        });
     }
 }

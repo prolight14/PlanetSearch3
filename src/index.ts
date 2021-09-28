@@ -1,6 +1,9 @@
 // @ts-nocheck
 
-// import PhaserMatterCollisionPlugin from "./libraries/phaser-matter-collision-plugin";
+
+// Title scene
+import TitleScene from "./scenes/TitleScene";
+
 
 // Entry scene 
 import EntryScene from "./scenes/EntryScene";
@@ -32,6 +35,8 @@ import PlanetBackScene from "./scenes/planet/PlanetBackScene";
     4. Move ./dist/PlanetSearch3.min.js to ./www/js
     5. Make sure I can play this only with resources from the www folder
     6. Properly copyright this game
+    7. Market this game correctly
+    8. Remove all unneeded assets
 */
 
 let config: Phaser.Types.Core.GameConfig = {
@@ -45,6 +50,8 @@ let config: Phaser.Types.Core.GameConfig = {
     },
     disableContextMenu: true,
     scene: [
+        // TitleScene,
+
         // Entry scene 
         EntryScene,
 

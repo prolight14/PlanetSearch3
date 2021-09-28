@@ -38,14 +38,15 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
     {
         this.scene.sleep("planetLogic");
         this.scene.sleep("planetEffects");
-        this.scene.sleep("planetUI");
         this.scene.sleep("planetBack");
+        this.scene.sleep("planetUI");
     }
     public runScenes(calledByEntryScene?: boolean) 
     {
         this.scene.run("planetLogic");
-        this.scene.run("planetEffects");
         this.scene.run("planetBack");
+        this.scene.run("planetUI");
+        this.scene.run("planetEffects");
     }
 
     public switchToSpaceSceneGroup()

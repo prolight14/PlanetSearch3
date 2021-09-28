@@ -20,10 +20,16 @@ var PlanetUIScene = (function (_super) {
         return _super.call(this, "planetUI") || this;
     }
     PlanetUIScene.prototype.create = function () {
+        var _this = this;
         this.infoBar = new InfoBar_1.default(this);
+        this.time.delayedCall(100, function () {
+            _this.infoBar.init();
+        });
     };
     PlanetUIScene.prototype.update = function () {
-        this.infoBar.update();
+        if (this.scene.isActive("planetLogic")) {
+            this.infoBar.update();
+        }
     };
     return PlanetUIScene;
 }(Phaser.Scene));

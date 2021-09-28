@@ -1,3 +1,4 @@
+import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import Lifeform from "./Lifeform";
 
 // TODO: 1. Make hp not fill up when going through doors (done)
@@ -11,28 +12,37 @@ export default class Player extends Lifeform
 {
     public isLifeform: boolean = true;
     public inWater: boolean = false;
-    public hp: integer;
-    public maxHp: integer;
-    public damage: integer;
     
-    public takeDamage(object: { getDamage: (object: Lifeform) => number }, blink?: boolean)
-    {
-        if(blink === undefined) { blink = true; }
-
-        if(!this.blinking)
-        {
-            this.hp -= object.getDamage(this);
-
-            if(blink) 
-            {
-                this.startBlinking();
-            }
-        }
-    }
-
     private blinking: boolean = false;
     private blinkTime: integer = 1000; // Blink time in ms
     private blinkSpeed: integer = 100; // Blink speed (change on/off) in ms
+    
+    protected controls: {
+        left: () => boolean;
+        right: () => boolean;
+        up: () => boolean;
+        down: () => boolean;
+        activate: () => boolean;
+        restart: () => boolean;
+    };
+    
+    public hp: integer;
+    public maxHp: integer;
+    public damage: integer;
+
+    public getStats(): { hp: number, maxHp: number }
+    {
+        return {
+            hp: this.hp,
+            maxHp: this.maxHp,
+        };
+    }
+
+    public setStats(stats: { hp: number, maxHp: number })
+    {
+        this.hp = stats.hp;
+        this.maxHp = stats.maxHp;
+    }
 
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
@@ -74,6 +84,7 @@ export default class Player extends Lifeform
             right: scene.input.keyboard.addKey("right"),
             up: scene.input.keyboard.addKey("up"),
             down: scene.input.keyboard.addKey("down"),
+            r: scene.input.keyboard.addKey('r'),
         };
 
         this.controls = {
@@ -96,6 +107,10 @@ export default class Player extends Lifeform
             activate: () =>
             {
                 return this.keys.s.isDown || this.keys.down.isDown;
+            },
+            restart: () =>
+            {
+                return this.keys.r.isDown;
             }
         };
 
@@ -113,6 +128,21 @@ export default class Player extends Lifeform
             repeat: -1 
         });
         this.blinkTimer.paused = true;
+    }
+
+    public takeDamage(object: { getDamage: (object: Lifeform) => number }, blink?: boolean)
+    {
+        if(blink === undefined) { blink = true; }
+
+        if(!this.blinking)
+        {
+            this.hp -= object.getDamage(this);
+
+            if(blink) 
+            {
+                this.startBlinking();
+            }
+        }
     }
 
     public activate: Function;
@@ -141,7 +171,8 @@ export default class Player extends Lifeform
         right: Phaser.Input.Keyboard.Key;
         up: Phaser.Input.Keyboard.Key;
         down: Phaser.Input.Keyboard.Key;
-    }
+        r: Phaser.Input.Keyboard.Key;
+    };
 
     preUpdate(time: number, delta: number)
     {
@@ -175,6 +206,14 @@ export default class Player extends Lifeform
             {
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
+        }
+
+        if(this.controls.restart() || this.dead)
+        {
+            (this.scene as PlanetLogicScene).restart({
+                loadType: "checkpoint",
+                // reason: this.controls.restart() ? "restart" : "death",
+            });
         }
     }
 

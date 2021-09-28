@@ -7,16 +7,22 @@ var InfoBar = (function () {
         this.graphics.fillStyle(0x000000, 0.4);
         this.graphics.fillRect(0, 0, 800, 25);
         this.hpBarGraphics = scene.add.graphics();
-        this.playerHpText = scene.add.text(20, 5, "HP: ? / ?", {
+        this.initialized = false;
+    }
+    InfoBar.prototype.init = function () {
+        this.initialized = true;
+        this.playerHpText = this.scene.add.text(20, 5, "HP: ? / ?", {
             fontSize: "18px",
             align: "left"
         });
-    }
+    };
     InfoBar.prototype.update = function () {
-        var logicScene = this.scene.scene.get("planetLogic");
-        var stats = logicScene.getPlayerStats();
-        var hp = stats.hp;
-        var maxHp = stats.maxHp;
+        if (!this.initialized) {
+            return;
+        }
+        var playerStats = this.scene.scene.get("planetLogic").getPlayerStats();
+        var hp = playerStats.hp;
+        var maxHp = playerStats.maxHp;
         this.playerHpText.setText("HP: " + hp.toFixed(0) + " / " + maxHp);
         var hpBarWidth = 200;
         this.hpBarGraphics.clear();

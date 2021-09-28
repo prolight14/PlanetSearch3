@@ -1,3 +1,4 @@
+import Player from "../../gameObjects/planet/Player";
 import InfoBar from "../../UI/planet/InfoBar";
 
 export default class PlanetUIScene extends Phaser.Scene
@@ -12,10 +13,18 @@ export default class PlanetUIScene extends Phaser.Scene
     public create()
     {
         this.infoBar = new InfoBar(this);
+
+        this.time.delayedCall(100, () =>
+        {
+            this.infoBar.init();
+        });
     }
 
     public update()
     {
-        this.infoBar.update();
+        if(this.scene.isActive("planetLogic"))
+        {
+            this.infoBar.update();
+        }
     }
 }

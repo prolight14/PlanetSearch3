@@ -18,16 +18,22 @@ var InfoBar = (function () {
         this.graphics.fillStyle(0x000000, 0.4);
         this.graphics.fillRect(0, 0, 800, 25);
         this.hpBarGraphics = scene.add.graphics();
-        this.playerHpText = scene.add.text(20, 5, "HP: ? / ?", {
+        this.initialized = false;
+    }
+    InfoBar.prototype.init = function () {
+        this.initialized = true;
+        this.playerHpText = this.scene.add.text(20, 5, "HP: ? / ?", {
             fontSize: "18px",
             align: "left"
         });
-    }
+    };
     InfoBar.prototype.update = function () {
-        var logicScene = this.scene.scene.get("planetLogic");
-        var stats = logicScene.getPlayerStats();
-        var hp = stats.hp;
-        var maxHp = stats.maxHp;
+        if (!this.initialized) {
+            return;
+        }
+        var playerStats = this.scene.scene.get("planetLogic").getPlayerStats();
+        var hp = playerStats.hp;
+        var maxHp = playerStats.maxHp;
         this.playerHpText.setText("HP: " + hp.toFixed(0) + " / " + maxHp);
         var hpBarWidth = 200;
         this.hpBarGraphics.clear();
@@ -144,6 +150,49 @@ exports.default = Beaker;
 
 /***/ }),
 
+/***/ "./gameObjects/planet/Checkpoint.js":
+/*!******************************************!*\
+  !*** ./gameObjects/planet/Checkpoint.js ***!
+  \******************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var GameObject_1 = __webpack_require__(/*! ./GameObject */ "./gameObjects/planet/GameObject.js");
+var Checkpoint = (function (_super) {
+    __extends(Checkpoint, _super);
+    function Checkpoint(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "checkpoint", 0) || this;
+        _this.setOrigin(0, 0);
+        scene.physics.add.existing(_this);
+        _this.setImmovable(true);
+        _this.setGravity(0, 0);
+        _this.setMaxVelocity(0, 0);
+        return _this;
+    }
+    Checkpoint.prototype.onCollide = function (player) {
+        this.setFrame(1);
+    };
+    return Checkpoint;
+}(GameObject_1.default));
+exports.default = Checkpoint;
+//# sourceMappingURL=Checkpoint.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/planet/Door.js":
 /*!************************************!*\
   !*** ./gameObjects/planet/Door.js ***!
@@ -175,32 +224,17 @@ var Door = (function (_super) {
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0.5, 0.5);
         _this.setSize(16, 32);
-        _this.goto = {
-            level: "",
-            door: "",
-        };
         return _this;
     }
-    Door.prototype.restartScene = function (scene) {
-        scene.scene.restart({
-            loadType: "door",
-            gotoLevel: this.goto.level,
-            gotoDoor: this.goto.door,
-            playerStats: scene.getPlayerStats()
-        });
+    Door.prototype.setGoto = function (goto) {
+        this.goto = goto;
     };
     Door.prototype.onCollide = function (player) {
-        var _this = this;
         if (player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
-            var scene_1 = this.scene;
-            var effectsScene = scene_1.scene.get("planetEffects");
-            effectsScene.fadeOut(500, 0, 0, 0);
-            scene_1.scene.pause("planetLogic");
-            effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-                scene_1.scene.run("planetLogic");
-                _this.restartScene(scene_1);
+            this.scene.restart({
+                loadType: "door",
+                doorGoto: this.goto,
             });
-            this.destroy();
         }
     };
     return Door;
@@ -637,6 +671,7 @@ var Player = (function (_super) {
             right: scene.input.keyboard.addKey("right"),
             up: scene.input.keyboard.addKey("up"),
             down: scene.input.keyboard.addKey("down"),
+            r: scene.input.keyboard.addKey('r'),
         };
         _this.controls = {
             left: function () {
@@ -653,6 +688,9 @@ var Player = (function (_super) {
             },
             activate: function () {
                 return _this.keys.s.isDown || _this.keys.down.isDown;
+            },
+            restart: function () {
+                return _this.keys.r.isDown;
             }
         };
         _this.activate = function () {
@@ -668,6 +706,16 @@ var Player = (function (_super) {
         _this.blinkTimer.paused = true;
         return _this;
     }
+    Player.prototype.getStats = function () {
+        return {
+            hp: this.hp,
+            maxHp: this.maxHp,
+        };
+    };
+    Player.prototype.setStats = function (stats) {
+        this.hp = stats.hp;
+        this.maxHp = stats.maxHp;
+    };
     Player.prototype.takeDamage = function (object, blink) {
         if (blink === undefined) {
             blink = true;
@@ -710,6 +758,11 @@ var Player = (function (_super) {
             else if (this.controls.right()) {
                 this.anims.pause(this.anims.currentAnim.frames[0]);
             }
+        }
+        if (this.controls.restart() || this.dead) {
+            this.scene.restart({
+                loadType: "checkpoint",
+            });
         }
     };
     Player.prototype.kill = function (reason) {
@@ -800,9 +853,6 @@ var Slope = (function (_super) {
                 };
                 break;
         }
-        var graphics = scene.add.graphics({});
-        graphics.lineStyle(2, 0x00ff00);
-        graphics.strokeTriangleShape(_this.triangle);
         return _this;
     }
     Slope.prototype.processCollision = function (object) { };
@@ -1287,6 +1337,28 @@ exports.default = SpaceGameObject;
 
 /***/ }),
 
+/***/ "./logger.js":
+/*!*******************!*\
+  !*** ./logger.js ***!
+  \*******************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var logger = {
+    warn: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.warn.apply(console, arguments);
+    }
+};
+exports.default = logger;
+//# sourceMappingURL=logger.js.map
+
+/***/ }),
+
 /***/ "./scenes/EntryScene.js":
 /*!******************************!*\
   !*** ./scenes/EntryScene.js ***!
@@ -1367,7 +1439,8 @@ exports.default = {
         BACK_DIRT: 13,
         SLOPE_LEFT_UP: 14,
         SLOPE_RIGHT_UP: 15,
-        GREEN_BEAKER: 21
+        GREEN_BEAKER: 21,
+        CHECKPOINT: 22
     }
 };
 //# sourceMappingURL=BlockIndexes.js.map
@@ -1433,7 +1506,7 @@ var PlanetBackScene = (function (_super) {
         var planetLogicScene = this.scene.get("planetLogic");
         var cam = planetLogicScene.cameras.main;
         var width = this.game.config.width;
-        var diff = planetLogicScene.getLevelWidth() - cam.scrollX;
+        var diff = width - cam.scrollX;
         for (var i = 0; i < this.layers.length; i++) {
             if (this.layerSpeeds[i] === -1) {
                 continue;
@@ -1568,10 +1641,12 @@ var Water_1 = __webpack_require__(/*! ../../gameObjects/planet/Water */ "./gameO
 var BlockIndexes_1 = __webpack_require__(/*! ./BlockIndexes */ "./scenes/planet/BlockIndexes.js");
 var InvisiblePlatform_1 = __webpack_require__(/*! ../../gameObjects/planet/InvisiblePlatform */ "./gameObjects/planet/InvisiblePlatform.js");
 var GreenBeaker_1 = __webpack_require__(/*! ../../gameObjects/planet/GreenBeaker */ "./gameObjects/planet/GreenBeaker.js");
+var Checkpoint_1 = __webpack_require__(/*! ../../gameObjects/planet/Checkpoint */ "./gameObjects/planet/Checkpoint.js");
+var logger_1 = __webpack_require__(/*! ../../logger */ "./logger.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        return _super.call(this, {
+        var _this = _super.call(this, {
             key: "planetLogic",
             physics: {
                 default: "arcade",
@@ -1580,41 +1655,32 @@ var PlanetLogicScene = (function (_super) {
                 }
             },
         }) || this;
+        _this.init();
+        return _this;
     }
-    PlanetLogicScene.prototype.getPlayerStats = function () {
-        return {
-            hp: this.player.hp,
-            maxHp: this.player.maxHp,
-        };
-    };
-    PlanetLogicScene.prototype.init = function (data) {
-        var currentWorld = "GrassPlanet2";
+    PlanetLogicScene.prototype.init = function () {
+        if (this.loadData !== undefined) {
+            return;
+        }
         this.loadData = {
-            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
-            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
-            currentWorld: currentWorld,
-            currentTileset: currentWorld.replace("Planet", "Tileset") + "-extruded",
-            enteredDoor: data.gotoDoor,
-            playerStats: data.playerStats
+            currentWorld: "GrassPlanet2",
+            currentTileset: "GrassTileset2-extruded",
+            currentLevel: "start"
         };
     };
     PlanetLogicScene.prototype.preload = function () {
+        this.load.spritesheet("checkpoint", "./assets/Planet/GameObjects/Interactibles/Checkpoint.png", { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
         this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });
         var currentWorld = this.loadData.currentWorld;
         var currentTileset = this.loadData.currentTileset;
+        var currentLevel = this.loadData.currentLevel;
         this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
-        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + this.loadData.currentLevel + ".json");
+        this.load.tilemapTiledJSON(currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + currentLevel + ".json");
     };
-    PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
+    PlanetLogicScene.prototype.receiveLevelInfo = function (levelInfo) {
     };
-    PlanetLogicScene.prototype.getLevelWidth = function () {
-        return this.levelWidth;
-    };
-    PlanetLogicScene.prototype.getLevelHeight = function () {
-        return this.levelHeight;
-    };
-    PlanetLogicScene.prototype.create = function () {
+    PlanetLogicScene.prototype.create = function (inputData) {
         var _this = this;
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
@@ -1623,14 +1689,13 @@ var PlanetLogicScene = (function (_super) {
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
         tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
-        this.levelWidth = tilemap.widthInPixels;
-        this.levelHeight = tilemap.heightInPixels;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
         var invisiblePlatformGroup = this.add.group();
         var greenBeakerGroup = this.add.group();
+        var checkpointGroup = this.add.group();
         switch (this.loadData.currentWorld) {
             case "GrassPlanet2":
                 var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
@@ -1667,6 +1732,10 @@ var PlanetLogicScene = (function (_super) {
                             tile.setCollision(false, false, false, false);
                             invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
+                        case INDEXES_1.CHECKPOINT:
+                            worldLayer.removeTileAt(tile.x, tile.y);
+                            checkpointGroup.add(new Checkpoint_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
                 break;
@@ -1686,11 +1755,17 @@ var PlanetLogicScene = (function (_super) {
                 break;
         }
         var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
-        this.handleDoors(tilemap, doorGroup, spawnPoint);
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        if (this.loadData.loadType === "door") {
-            this.player.hp = this.loadData.playerStats.hp;
+        if (!spawnPoint) {
+            spawnPoint = {
+                x: 0,
+                y: 0
+            };
         }
+        if (inputData.loadType === "door") {
+            spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
+        }
+        this.handleDoors(tilemap, doorGroup);
+        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (player, water) {
             water.onCollide(player);
@@ -1726,6 +1801,9 @@ var PlanetLogicScene = (function (_super) {
         this.physics.add.collider(greenBeakerGroup, this.player, function (beaker, player) {
             beaker.onCollide(player);
         }, undefined, this);
+        this.physics.add.overlap(checkpointGroup, this.player, function (checkpoint, player) {
+            checkpoint.onCollide(player);
+        });
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
@@ -1733,58 +1811,88 @@ var PlanetLogicScene = (function (_super) {
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.scene.get("planetEffects").fadeIn(500, 0, 0, 0);
-        this.scene.run("planetUI");
-        this.sceneTransitioning = false;
-        this.tilemap = tilemap;
         this.graphics = this.add.graphics();
+        this.tilemap = tilemap;
     };
-    PlanetLogicScene.prototype.handleDoors = function (tilemap, doorGroup, spawnPoint) {
+    PlanetLogicScene.prototype.getPlayerStats = function () {
+        return this.player.getStats();
+    };
+    PlanetLogicScene.prototype.getDoorEntryPoint = function (tilemap, doorGroup, doorGoto) {
+        var objects = tilemap.getObjectLayer("Objects").objects;
+        for (var i = 0; i < objects.length; i++) {
+            var obj = objects[i];
+            if (obj.name !== "Door") {
+                continue;
+            }
+            for (var j in obj.properties) {
+                var prop = obj.properties[j];
+                if (prop.name === "door" && prop.value === doorGoto.door) {
+                    var doors = doorGroup.children.getArray();
+                    for (var i = 0; i < doors.length; i++) {
+                        var door = doors[i];
+                        var doorBounds = door.getBounds();
+                        if (doorBounds.contains(obj.x, obj.y)) {
+                            return {
+                                x: door.x,
+                                y: door.y
+                            };
+                        }
+                    }
+                }
+            }
+        }
+        logger_1.default.warn("Couldn't find door at door symbol '" + doorGoto.door + "'");
+        return {
+            x: 0,
+            y: 0
+        };
+    };
+    PlanetLogicScene.prototype.handleDoors = function (tilemap, doorGroup, spawnPoint, doorGoto) {
         var objects = tilemap.getObjectLayer("Objects").objects;
         var _loop_1 = function () {
             var obj = objects[i];
             if (obj.name === "Door") {
-                for (var j in obj.properties) {
-                    var prop = obj.properties[j];
-                    if (prop.name === "door" && prop.value === this_1.loadData.enteredDoor) {
-                        doorGroup.getChildren().forEach(function (door) {
-                            var doorBounds = door.getBounds();
-                            if (doorBounds.contains(obj.x, obj.y)) {
-                                spawnPoint.x = door.x;
-                                spawnPoint.y = door.y;
-                            }
-                        });
+                if (spawnPoint !== undefined && doorGoto !== undefined) {
+                    for (var j in obj.properties) {
+                        var prop = obj.properties[j];
+                        if (prop.name === "door" && prop.value === doorGoto.door) {
+                            doorGroup.getChildren().forEach(function (door) {
+                                var doorBounds = door.getBounds();
+                                if (doorBounds.contains(obj.x, obj.y)) {
+                                    spawnPoint.x = door.x;
+                                    spawnPoint.y = door.y;
+                                }
+                            });
+                        }
                     }
                 }
                 doorGroup.getChildren().forEach(function (door) {
                     if (door.getBounds().contains(obj.x, obj.y)) {
+                        var gotoLevel, gotoDoor;
                         for (var j in obj.properties) {
                             var prop = obj.properties[j];
                             if (prop.name === "gotoLevel") {
-                                door.goto.level = prop.value;
+                                gotoLevel = prop.value;
                             }
                             else if (prop.name === "gotoDoor") {
-                                door.goto.door = prop.value;
+                                gotoDoor = prop.value;
                             }
+                        }
+                        if (gotoLevel && gotoDoor) {
+                            door.setGoto({
+                                level: gotoLevel,
+                                door: gotoDoor
+                            });
                         }
                     }
                 });
             }
         };
-        var this_1 = this;
         for (var i = 0; i < objects.length; i++) {
             _loop_1();
         }
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
-        var _this = this;
-        if (this.player.isDead() && !this.sceneTransitioning) {
-            var effectsScene = this.scene.get("planetEffects");
-            effectsScene.fadeOut(500, 0, 0, 0);
-            effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.restart();
-            });
-            this.sceneTransitioning = true;
-        }
         this.processBrickCollision();
     };
     PlanetLogicScene.prototype.processBrickCollision = function () {
@@ -1804,6 +1912,19 @@ var PlanetLogicScene = (function (_super) {
             this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
             this.scene.get("planetEffects").emitBricks(bounds);
         }
+    };
+    PlanetLogicScene.prototype.restart = function (inputData) {
+        var _this = this;
+        this.scene.pause("planetLogic");
+        var effectsScene = this.scene.get("planetEffects");
+        effectsScene.fadeOut(500, 0, 0, 0);
+        effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
+            _this.scene.run("planetLogic");
+            if (inputData.loadType === "door") {
+                _this.loadData.currentLevel = inputData.doorGoto.level;
+            }
+            _this.scene.restart(inputData);
+        });
     };
     return PlanetLogicScene;
 }(Phaser.Scene));
@@ -1856,13 +1977,14 @@ var PlanetScene = (function (_super) {
     PlanetScene.prototype.sleepScenes = function (calledByEntryScene) {
         this.scene.sleep("planetLogic");
         this.scene.sleep("planetEffects");
-        this.scene.sleep("planetUI");
         this.scene.sleep("planetBack");
+        this.scene.sleep("planetUI");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetLogic");
-        this.scene.run("planetEffects");
         this.scene.run("planetBack");
+        this.scene.run("planetUI");
+        this.scene.run("planetEffects");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
@@ -1904,10 +2026,16 @@ var PlanetUIScene = (function (_super) {
         return _super.call(this, "planetUI") || this;
     }
     PlanetUIScene.prototype.create = function () {
+        var _this = this;
         this.infoBar = new InfoBar_1.default(this);
+        this.time.delayedCall(100, function () {
+            _this.infoBar.init();
+        });
     };
     PlanetUIScene.prototype.update = function () {
-        this.infoBar.update();
+        if (this.scene.isActive("planetLogic")) {
+            this.infoBar.update();
+        }
     };
     return PlanetUIScene;
 }(Phaser.Scene));

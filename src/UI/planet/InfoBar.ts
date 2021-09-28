@@ -6,7 +6,8 @@ export default class InfoBar
     private graphics: Phaser.GameObjects.Graphics;
     private hpBarGraphics: Phaser.GameObjects.Graphics;
     private playerHpText: Phaser.GameObjects.Text;
-    
+    private initialized: boolean;
+
     constructor(scene: Phaser.Scene)
     {
         this.scene = scene;
@@ -17,24 +18,32 @@ export default class InfoBar
 
         this.hpBarGraphics = scene.add.graphics();
 
-        this.playerHpText = scene.add.text(20, 5, "HP: ? / ?", {
+        this.initialized = false;
+    }
+
+    public init()
+    {
+        this.initialized = true;
+
+        this.playerHpText = this.scene.add.text(20, 5, "HP: ? / ?", {
             fontSize: "18px",
             align: "left"
         });
-
     }
 
     public update()
     {
-        var logicScene = this.scene.scene.get("planetLogic") as PlanetLogicScene;
-        const stats = logicScene.getPlayerStats();
-        const hp = stats.hp;
-        const maxHp = stats.maxHp;
+        if(!this.initialized)
+        {
+            return;
+        }
 
+        const playerStats = (this.scene.scene.get("planetLogic") as PlanetLogicScene).getPlayerStats();
+        const hp = playerStats.hp;
+        const maxHp = playerStats.maxHp;
         this.playerHpText.setText(`HP: ${hp.toFixed(0)} / ${maxHp}`);
 
         const hpBarWidth = 200;
-
         this.hpBarGraphics.clear();
         this.hpBarGraphics.fillStyle(0x000000, 0.5);
         this.hpBarGraphics.fillRect(0, 0, hpBarWidth, 25);

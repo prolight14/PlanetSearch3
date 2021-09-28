@@ -66,9 +66,6 @@ var Slope = (function (_super) {
                 };
                 break;
         }
-        var graphics = scene.add.graphics({});
-        graphics.lineStyle(2, 0x00ff00);
-        graphics.strokeTriangleShape(_this.triangle);
         return _this;
     }
     Slope.prototype.processCollision = function (object) { };
