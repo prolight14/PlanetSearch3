@@ -1,4 +1,5 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
+import Checkpoint from "./Checkpoint";
 import Lifeform from "./Lifeform";
 
 // TODO: 1. Make hp not fill up when going through doors (done)
@@ -43,6 +44,22 @@ export default class Player extends Lifeform
         this.hp = stats.hp;
         this.maxHp = stats.maxHp;
     }
+    
+    public setCurrentState(info: any)
+    {
+        this.hp = info.hp;
+        this.maxHp = info.maxHp;
+        this.checkpointGoto = info.checkpointGoto;
+    }
+
+    public getCurrentState(): any
+    {
+        return {
+            hp: this.hp,
+            maxHp: this.maxHp,
+            checkpointGoto: this.checkpointGoto
+        };
+    }
 
     constructor(scene: Phaser.Scene, x: number, y: number)
     {
@@ -53,8 +70,6 @@ export default class Player extends Lifeform
 
         this.setCollideWorldBounds(true);
 
-        this.setDisplaySize(16, 32);
-        
         scene.anims.create({
             key: "idle",
             frames: [{ key: "Player", frame: 0 }],
@@ -210,11 +225,37 @@ export default class Player extends Lifeform
 
         if(this.controls.restart() || this.dead)
         {
-            (this.scene as PlanetLogicScene).restart({
-                loadType: "checkpoint",
-                // reason: this.controls.restart() ? "restart" : "death",
-            });
+            if(this.checkpointGoto !== undefined)
+            {
+                (this.scene as PlanetLogicScene).restart({
+                    loadType: "checkpoint",
+                    checkpointGoto: this.checkpointGoto,
+                    reason: this.controls.restart() ? "restart" : "death",
+                });
+            }
+            else
+            {
+                (this.scene as PlanetLogicScene).restart({
+                    loadType: "start",
+                    startGoto: {
+                        level: this.startLevel
+                    },
+                    reason: this.controls.restart() ? "restart" : "death",
+                });
+            }
         }
+    }
+
+    public startLevel: string;
+
+    private checkpointGoto: {
+        level: string,
+        index: number
+    };
+
+    public onCheckpoint(checkpoint: Checkpoint)
+    {
+        this.checkpointGoto = checkpoint.goto;
     }
 
     public enemyBounce: number = 160;

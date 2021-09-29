@@ -27,7 +27,6 @@ var Player = (function (_super) {
         _this.maxHp = _this.hp = 5;
         _this.damage = 1;
         _this.setCollideWorldBounds(true);
-        _this.setDisplaySize(16, 32);
         scene.anims.create({
             key: "idle",
             frames: [{ key: "Player", frame: 0 }],
@@ -99,6 +98,18 @@ var Player = (function (_super) {
         this.hp = stats.hp;
         this.maxHp = stats.maxHp;
     };
+    Player.prototype.setCurrentState = function (info) {
+        this.hp = info.hp;
+        this.maxHp = info.maxHp;
+        this.checkpointGoto = info.checkpointGoto;
+    };
+    Player.prototype.getCurrentState = function () {
+        return {
+            hp: this.hp,
+            maxHp: this.maxHp,
+            checkpointGoto: this.checkpointGoto
+        };
+    };
     Player.prototype.takeDamage = function (object, blink) {
         if (blink === undefined) {
             blink = true;
@@ -143,10 +154,26 @@ var Player = (function (_super) {
             }
         }
         if (this.controls.restart() || this.dead) {
-            this.scene.restart({
-                loadType: "checkpoint",
-            });
+            if (this.checkpointGoto !== undefined) {
+                this.scene.restart({
+                    loadType: "checkpoint",
+                    checkpointGoto: this.checkpointGoto,
+                    reason: this.controls.restart() ? "restart" : "death",
+                });
+            }
+            else {
+                this.scene.restart({
+                    loadType: "start",
+                    startGoto: {
+                        level: this.startLevel
+                    },
+                    reason: this.controls.restart() ? "restart" : "death",
+                });
+            }
         }
+    };
+    Player.prototype.onCheckpoint = function (checkpoint) {
+        this.checkpointGoto = checkpoint.goto;
     };
     Player.prototype.kill = function (reason) {
         this.dead = true;

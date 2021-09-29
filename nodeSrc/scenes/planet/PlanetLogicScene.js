@@ -23,6 +23,7 @@ var InvisiblePlatform_1 = require("../../gameObjects/planet/InvisiblePlatform");
 var GreenBeaker_1 = require("../../gameObjects/planet/GreenBeaker");
 var Checkpoint_1 = require("../../gameObjects/planet/Checkpoint");
 var logger_1 = require("../../logger");
+var Traveler_1 = require("../../Saver/Traveler");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -35,6 +36,7 @@ var PlanetLogicScene = (function (_super) {
                 }
             },
         }) || this;
+        _this.traveler = new Traveler_1.default();
         _this.init();
         return _this;
     }
@@ -46,6 +48,9 @@ var PlanetLogicScene = (function (_super) {
             currentWorld: "GrassPlanet2",
             currentTileset: "GrassTileset2-extruded",
             currentLevel: "start"
+        };
+        this.presetData = {
+            currentLevel: this.loadData.currentLevel
         };
     };
     PlanetLogicScene.prototype.preload = function () {
@@ -62,6 +67,7 @@ var PlanetLogicScene = (function (_super) {
     };
     PlanetLogicScene.prototype.create = function (inputData) {
         var _this = this;
+        var currentLevel = (this.loadData.currentLevel || inputData.currentLevel);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
         tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
@@ -141,11 +147,26 @@ var PlanetLogicScene = (function (_super) {
                 y: 0
             };
         }
+        this.handleDoors(tilemap, doorGroup);
+        this.handleCheckpoints(checkpointGroup, currentLevel);
         if (inputData.loadType === "door") {
             spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
         }
-        this.handleDoors(tilemap, doorGroup);
+        else if (inputData.loadType === "checkpoint") {
+            spawnPoint = this.getCheckpointPlace(checkpointGroup, inputData.checkpointGoto);
+        }
         this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
+        this.player.startLevel = this.presetData.currentLevel;
+        if (inputData.loadType === "checkpoint" &&
+            this.traveler.saveInfo !== undefined &&
+            this.traveler.saveInfo.playerStats !== undefined) {
+            this.player.setStats(this.traveler.saveInfo.playerStats);
+        }
+        if (this.traveler.containsInfo) {
+            var info = this.traveler.getInfo();
+            this.player.setCurrentState(info.player);
+        }
+        checkpointGroup.setDepth(10);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (player, water) {
             water.onCollide(player);
@@ -272,6 +293,30 @@ var PlanetLogicScene = (function (_super) {
             _loop_1();
         }
     };
+    PlanetLogicScene.prototype.getCheckpointPlace = function (checkpointGroup, goto) {
+        var checkpoints = checkpointGroup.getChildren();
+        for (var i = 0; i < checkpoints.length; i++) {
+            if (checkpoints[i].goto.index === goto.index) {
+                return {
+                    x: checkpoints[i].x + checkpoints[i].body.halfWidth,
+                    y: checkpoints[i].y
+                };
+            }
+        }
+        logger_1.default.warn("Couldn't load from checkpoint index '" + goto.index + "'");
+        return {
+            x: 0,
+            y: 0
+        };
+    };
+    PlanetLogicScene.prototype.handleCheckpoints = function (checkpointGroup, currentLevel) {
+        checkpointGroup.getChildren().forEach(function (checkpoint, index) {
+            checkpoint.goto = {
+                level: currentLevel,
+                index: index
+            };
+        });
+    };
     PlanetLogicScene.prototype.update = function (time, delta) {
         this.processBrickCollision();
     };
@@ -296,12 +341,23 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.restart = function (inputData) {
         var _this = this;
         this.scene.pause("planetLogic");
+        if (["restart", "death"].indexOf(inputData.reason) === -1) {
+            this.traveler.setInfo({
+                player: this.player.getCurrentState()
+            });
+        }
         var effectsScene = this.scene.get("planetEffects");
         effectsScene.fadeOut(500, 0, 0, 0);
         effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
             _this.scene.run("planetLogic");
             if (inputData.loadType === "door") {
                 _this.loadData.currentLevel = inputData.doorGoto.level;
+            }
+            else if (inputData.loadType === "checkpoint") {
+                _this.loadData.currentLevel = inputData.checkpointGoto.level;
+            }
+            else if (inputData.loadType === "start") {
+                _this.loadData.currentLevel = inputData.startGoto.level;
             }
             _this.scene.restart(inputData);
         });

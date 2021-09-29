@@ -14,9 +14,19 @@ export default class Checkpoint extends GameObject
         this.setGravity(0, 0);
         this.setMaxVelocity(0, 0);
     }
+    
+    public goto: {
+        level: string,
+        index: number
+    };
 
     public onCollide(player: Player)
     {
         this.setFrame(1);
+        player.onCheckpoint(this);
+
+        (this.scene as PlanetLogicScene).traveler.saveInfo = {
+            playerStats: player.getStats()
+        }; 
     }
 }

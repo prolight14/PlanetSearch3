@@ -10,6 +10,7 @@ import GreenBeaker from "../../gameObjects/planet/GreenBeaker";
 import Checkpoint from "../../gameObjects/planet/Checkpoint";
 import PlanetUIScene from "./PlanetUIScene";
 import logger from "../../logger";
+import Traveler from "../../Saver/Traveler";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -42,7 +43,15 @@ export default class PlanetLogicScene extends Phaser.Scene
             currentTileset: "GrassTileset2-extruded",
             currentLevel: "start"
         };
+
+        this.presetData = {
+            currentLevel: this.loadData.currentLevel
+        };
     }
+
+    private presetData: {
+        currentLevel: string    
+    };
 
     private player: Player;
 
@@ -69,6 +78,8 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     public create(inputData?: any)
     {
+        const currentLevel = (this.loadData.currentLevel || inputData.currentLevel);
+
         const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
         
@@ -181,15 +192,36 @@ export default class PlanetLogicScene extends Phaser.Scene
             };
         }
 
+        this.handleDoors(tilemap, doorGroup);
+        this.handleCheckpoints(checkpointGroup, currentLevel);
+
         if(inputData.loadType === "door")
         {
-            // this.handleDoors(tilemap, doorGroup, spawnPoint, inputData.doorGoto);
             spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
         }
-        
-        this.handleDoors(tilemap, doorGroup);
+        else if(inputData.loadType === "checkpoint")
+        {
+            spawnPoint = this.getCheckpointPlace(checkpointGroup, inputData.checkpointGoto);
+        }
 
         this.player = new Player(this, spawnPoint.x as number, spawnPoint.y as number);
+        this.player.startLevel = this.presetData.currentLevel;
+
+        if(inputData.loadType === "checkpoint" && 
+            this.traveler.saveInfo !== undefined &&
+            this.traveler.saveInfo.playerStats !== undefined)
+        {
+            this.player.setStats(this.traveler.saveInfo.playerStats);
+        }
+
+        if(this.traveler.containsInfo)
+        {
+            var info = this.traveler.getInfo();
+
+            this.player.setCurrentState(info.player);
+        }
+
+        checkpointGroup.setDepth(10);
 
         this.physics.add.collider(this.player, worldLayer);
 
@@ -395,6 +427,40 @@ export default class PlanetLogicScene extends Phaser.Scene
         }
     }
 
+    private getCheckpointPlace(checkpointGroup: Phaser.GameObjects.Group, goto: { level: string, index: number}): { x: number, y: number }
+    {
+        var checkpoints = checkpointGroup.getChildren() as Array<Checkpoint>;
+
+        for(var i = 0; i < checkpoints.length; i++)
+        {
+            if(checkpoints[i].goto.index === goto.index)
+            {
+                return {
+                    x: checkpoints[i].x + checkpoints[i].body.halfWidth,
+                    y: checkpoints[i].y
+                };
+            }
+        }
+
+        logger.warn("Couldn't load from checkpoint index '" + goto.index + "'")
+
+        return {
+            x: 0,
+            y: 0
+        };
+    }
+
+    private handleCheckpoints(checkpointGroup: Phaser.GameObjects.Group, currentLevel: string)
+    {
+        checkpointGroup.getChildren().forEach((checkpoint: Checkpoint, index: number) =>
+        {
+            checkpoint.goto = {
+                level: currentLevel,
+                index: index
+            };
+        });
+    }
+
     public update(time: number, delta: number)
     {
         this.processBrickCollision();
@@ -426,10 +492,19 @@ export default class PlanetLogicScene extends Phaser.Scene
         }
     }
 
+    public traveler: Traveler = new Traveler();
+
     public restart(inputData: any)
     {
         this.scene.pause("planetLogic");
 
+        if(["restart", "death"].indexOf(inputData.reason) === -1)
+        {
+            this.traveler.setInfo({
+                player: this.player.getCurrentState()
+            });
+        }
+       
         let effectsScene = this.scene.get("planetEffects") as PlanetEffectsScene;
         effectsScene.fadeOut(500, 0, 0, 0);
 
@@ -441,6 +516,14 @@ export default class PlanetLogicScene extends Phaser.Scene
             {
                 this.loadData.currentLevel = inputData.doorGoto.level;
             }   
+            else if(inputData.loadType === "checkpoint")
+            {
+                this.loadData.currentLevel = inputData.checkpointGoto.level;
+            }
+            else if(inputData.loadType === "start")
+            {
+                this.loadData.currentLevel = inputData.startGoto.level;
+            }
 
             this.scene.restart(inputData);
         });

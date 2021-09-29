@@ -27,6 +27,10 @@ var Checkpoint = (function (_super) {
     }
     Checkpoint.prototype.onCollide = function (player) {
         this.setFrame(1);
+        player.onCheckpoint(this);
+        this.scene.traveler.saveInfo = {
+            playerStats: player.getStats()
+        };
     };
     return Checkpoint;
 }(GameObject_1.default));
