@@ -8,9 +8,9 @@ import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
 import GreenBeaker from "../../gameObjects/planet/GreenBeaker";
 import Checkpoint from "../../gameObjects/planet/Checkpoint";
-import PlanetUIScene from "./PlanetUIScene";
-import logger from "../../logger";
 import Traveler from "../../Saver/Traveler";
+import PlanetLoaderScene from "./PlanetLoaderScene";
+
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -29,7 +29,7 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.init();
     }
 
-    private loadData: any;
+    public loadData: any;
 
     private init()
     {   
@@ -78,9 +78,7 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     public create(inputData?: any)
     {
-        const currentLevel = (this.loadData.currentLevel || inputData.currentLevel);
-
-        const tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
+        var tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         const tileset: Phaser.Tilemaps.Tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
         
         tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
@@ -182,44 +180,13 @@ export default class PlanetLogicScene extends Phaser.Scene
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         // });
         
-        let spawnPoint = (tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point") as ({ x: number; y: number }));
-        
-        if(!spawnPoint)
-        {
-            spawnPoint = {
-                x: 0,
-                y: 0
-            };
-        }
+        const loaderScene = this.scene.get("planetLoader") as PlanetLoaderScene;
 
-        this.handleDoors(tilemap, doorGroup);
-        this.handleCheckpoints(checkpointGroup, currentLevel);
-
-        if(inputData.loadType === "door")
-        {
-            spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
-        }
-        else if(inputData.loadType === "checkpoint")
-        {
-            spawnPoint = this.getCheckpointPlace(checkpointGroup, inputData.checkpointGoto);
-        }
-
-        this.player = new Player(this, spawnPoint.x as number, spawnPoint.y as number);
-        this.player.startLevel = this.presetData.currentLevel;
-
-        if(inputData.loadType === "checkpoint" && 
-            this.traveler.saveInfo !== undefined &&
-            this.traveler.saveInfo.playerStats !== undefined)
-        {
-            this.player.setStats(this.traveler.saveInfo.playerStats);
-        }
-
-        if(this.traveler.containsInfo)
-        {
-            var info = this.traveler.getInfo();
-
-            this.player.setCurrentState(info.player);
-        }
+        this.player = loaderScene.loadPlayer(
+            inputData, tilemap, doorGroup, checkpointGroup, 
+            this.loadData.currentLevel || inputData.currentLevel,
+            this.presetData.currentLevel
+        );
 
         checkpointGroup.setDepth(10);
 
@@ -293,7 +260,6 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         
-        // Camera stuff add
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
@@ -312,220 +278,10 @@ export default class PlanetLogicScene extends Phaser.Scene
     }
 
     private graphics: Phaser.GameObjects.Graphics;
-    
     private tilemap: Phaser.Tilemaps.Tilemap;
-
-    private getDoorEntryPoint(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, doorGoto: { level: string, door: string }): { x: number, y: number }
-    {
-        const objects = tilemap.getObjectLayer("Objects").objects;
-
-        for(var i = 0; i < objects.length; i++)
-        {
-            const obj = objects[i];
-            
-            if(obj.name !== "Door")
-            {
-                continue;
-            }
-
-            for(var j in obj.properties)
-            {
-                const prop = obj.properties[j];
-                
-                if(prop.name === "door" && prop.value === doorGoto.door)
-                {
-                    let doors = doorGroup.children.getArray();
-
-                    for(var i = 0; i < doors.length; i++)
-                    {
-                        var door = doors[i] as Door;
-
-                        const doorBounds = door.getBounds();
-
-                        if(doorBounds.contains(obj.x as number, obj.y as number))
-                        {
-                            return {
-                                x: door.x,
-                                y: door.y
-                            };
-                        }
-                    }
-                }
-            }
-        }
-
-        logger.warn("Couldn't find door at door symbol '" + doorGoto.door + "'");
-
-        return {
-            x: 0,
-            y: 0
-        };
-    }
-
-    private handleDoors(tilemap: Phaser.Tilemaps.Tilemap, doorGroup: Phaser.GameObjects.Group, spawnPoint?: { x?: number, y?: number}, doorGoto?: { level: string, door: string })
-    {
-        const objects = tilemap.getObjectLayer("Objects").objects;
-        
-        for(var i = 0; i < objects.length; i++)
-        {
-            const obj = objects[i];
-            
-            if(obj.name === "Door")
-            {
-                if(spawnPoint !== undefined && doorGoto !== undefined)
-                {
-                    for(var j in obj.properties)
-                    {
-                        const prop = obj.properties[j];
-                        
-                        if(prop.name === "door" && prop.value === doorGoto.door)
-                        {
-                            doorGroup.getChildren().forEach((door: Door) =>
-                            {
-                                const doorBounds = door.getBounds();
-    
-                                if(doorBounds.contains(obj.x as number, obj.y as number))
-                                {
-                                    spawnPoint.x = door.x;
-                                    spawnPoint.y = door.y;
-                                }
-                            });
-                        }
-                    }
-                }
-                
-                doorGroup.getChildren().forEach((door: Door) =>
-                {
-                    if(door.getBounds().contains(obj.x as number, obj.y as number))
-                    {
-                        var gotoLevel, gotoDoor;
-
-                        for(var j in obj.properties)
-                        {
-                            const prop = obj.properties[j];
-
-                            if(prop.name === "gotoLevel")
-                            {
-                                gotoLevel = prop.value;
-                            }
-                            else if(prop.name === "gotoDoor")
-                            {
-                                gotoDoor = prop.value;
-                            }
-                        }
-
-                        if(gotoLevel && gotoDoor)
-                        {
-                            door.setGoto({
-                                level: gotoLevel,
-                                door: gotoDoor
-                            })
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    private getCheckpointPlace(checkpointGroup: Phaser.GameObjects.Group, goto: { level: string, index: number}): { x: number, y: number }
-    {
-        var checkpoints = checkpointGroup.getChildren() as Array<Checkpoint>;
-
-        for(var i = 0; i < checkpoints.length; i++)
-        {
-            if(checkpoints[i].goto.index === goto.index)
-            {
-                return {
-                    x: checkpoints[i].x + checkpoints[i].body.halfWidth,
-                    y: checkpoints[i].y
-                };
-            }
-        }
-
-        logger.warn("Couldn't load from checkpoint index '" + goto.index + "'")
-
-        return {
-            x: 0,
-            y: 0
-        };
-    }
-
-    private handleCheckpoints(checkpointGroup: Phaser.GameObjects.Group, currentLevel: string)
-    {
-        checkpointGroup.getChildren().forEach((checkpoint: Checkpoint, index: number) =>
-        {
-            checkpoint.goto = {
-                level: currentLevel,
-                index: index
-            };
-        });
-    }
 
     public update(time: number, delta: number)
     {
-        this.processBrickCollision();
-    }
-
-    private processBrickCollision()
-    {
-        if(!this.player.body.blocked.up)
-        {
-            return;
-        }
-
-        const mainCam = this.cameras.main;
-
-        let tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
-        let tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
-
-        if(tileLeft && tileLeft.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
-        {
-            const bounds = tileLeft.getBounds() as Phaser.Geom.Rectangle;
-            this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
-            (this.scene.get("planetEffects") as PlanetEffectsScene).emitBricks(bounds);
-        }
-        else if(tileRight && tileRight.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
-        {
-            const bounds = tileRight.getBounds() as Phaser.Geom.Rectangle;
-            this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
-            (this.scene.get("planetEffects") as PlanetEffectsScene).emitBricks(bounds);
-        }
-    }
-
-    public traveler: Traveler = new Traveler();
-
-    public restart(inputData: any)
-    {
-        this.scene.pause("planetLogic");
-
-        if(["restart", "death"].indexOf(inputData.reason) === -1)
-        {
-            this.traveler.setInfo({
-                player: this.player.getCurrentState()
-            });
-        }
-       
-        let effectsScene = this.scene.get("planetEffects") as PlanetEffectsScene;
-        effectsScene.fadeOut(500, 0, 0, 0);
-
-        effectsScene.cameras.main.once("camerafadeoutcomplete", () => 
-        {
-            this.scene.run("planetLogic");
-
-            if(inputData.loadType === "door")
-            {
-                this.loadData.currentLevel = inputData.doorGoto.level;
-            }   
-            else if(inputData.loadType === "checkpoint")
-            {
-                this.loadData.currentLevel = inputData.checkpointGoto.level;
-            }
-            else if(inputData.loadType === "start")
-            {
-                this.loadData.currentLevel = inputData.startGoto.level;
-            }
-
-            this.scene.restart(inputData);
-        });
+        (this.scene.get("planetEffects") as PlanetEffectsScene).processBrickCollision(this.player, this.tilemap);
     }
 }

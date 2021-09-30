@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var BlockIndexes_1 = require("./BlockIndexes");
 var PlanetEffectsScene = (function (_super) {
     __extends(PlanetEffectsScene, _super);
     function PlanetEffectsScene() {
@@ -51,6 +52,24 @@ var PlanetEffectsScene = (function (_super) {
         emitter.setFrame(2).setSpeedX(-xSpeed * 2).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.25 * bounds.width, bounds.y + 0.75 * bounds.height);
         emitter.setFrame(3).setSpeedX(xSpeed * 2).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.75 * bounds.width, bounds.y + 0.75 * bounds.height);
         this.playSound("brickBreak");
+    };
+    PlanetEffectsScene.prototype.processBrickCollision = function (player, tilemap) {
+        if (!player.body.blocked.up) {
+            return;
+        }
+        var logicCam = this.scene.get("planetLogic").cameras.main;
+        var tileLeft = tilemap.getTileAtWorldXY(player.body.x, player.body.y - 1, undefined, logicCam, "World");
+        var tileRight = tilemap.getTileAtWorldXY(player.body.right, player.body.y - 1, undefined, logicCam, "World");
+        if (tileLeft && tileLeft.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileLeft.getBounds();
+            tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+            this.emitBricks(bounds);
+        }
+        else if (tileRight && tileRight.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
+            var bounds = tileRight.getBounds();
+            tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+            this.emitBricks(bounds);
+        }
     };
     PlanetEffectsScene.prototype.update = function (time, delta) {
         var mainCam = this.cameras.main;

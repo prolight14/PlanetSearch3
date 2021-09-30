@@ -1,3 +1,4 @@
+import PlanetLoaderScene from "../../scenes/planet/PlanetLoaderScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import Checkpoint from "./Checkpoint";
 import Lifeform from "./Lifeform";
@@ -227,7 +228,7 @@ export default class Player extends Lifeform
         {
             if(this.checkpointGoto !== undefined)
             {
-                (this.scene as PlanetLogicScene).restart({
+                (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
                     loadType: "checkpoint",
                     checkpointGoto: this.checkpointGoto,
                     reason: this.controls.restart() ? "restart" : "death",
@@ -235,7 +236,7 @@ export default class Player extends Lifeform
             }
             else
             {
-                (this.scene as PlanetLogicScene).restart({
+                (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
                     loadType: "start",
                     startGoto: {
                         level: this.startLevel

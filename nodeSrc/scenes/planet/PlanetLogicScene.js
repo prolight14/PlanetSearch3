@@ -15,15 +15,12 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Door_1 = require("../../gameObjects/planet/Door");
 var Lava_1 = require("../../gameObjects/planet/Lava");
-var Player_1 = require("../../gameObjects/planet/Player");
 var Slope_1 = require("../../gameObjects/planet/Slope");
 var Water_1 = require("../../gameObjects/planet/Water");
 var BlockIndexes_1 = require("./BlockIndexes");
 var InvisiblePlatform_1 = require("../../gameObjects/planet/InvisiblePlatform");
 var GreenBeaker_1 = require("../../gameObjects/planet/GreenBeaker");
 var Checkpoint_1 = require("../../gameObjects/planet/Checkpoint");
-var logger_1 = require("../../logger");
-var Traveler_1 = require("../../Saver/Traveler");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -36,7 +33,6 @@ var PlanetLogicScene = (function (_super) {
                 }
             },
         }) || this;
-        _this.traveler = new Traveler_1.default();
         _this.init();
         return _this;
     }
@@ -67,7 +63,6 @@ var PlanetLogicScene = (function (_super) {
     };
     PlanetLogicScene.prototype.create = function (inputData) {
         var _this = this;
-        var currentLevel = (this.loadData.currentLevel || inputData.currentLevel);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
         tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
@@ -140,32 +135,8 @@ var PlanetLogicScene = (function (_super) {
                 });
                 break;
         }
-        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
-        if (!spawnPoint) {
-            spawnPoint = {
-                x: 0,
-                y: 0
-            };
-        }
-        this.handleDoors(tilemap, doorGroup);
-        this.handleCheckpoints(checkpointGroup, currentLevel);
-        if (inputData.loadType === "door") {
-            spawnPoint = this.getDoorEntryPoint(tilemap, doorGroup, inputData.doorGoto);
-        }
-        else if (inputData.loadType === "checkpoint") {
-            spawnPoint = this.getCheckpointPlace(checkpointGroup, inputData.checkpointGoto);
-        }
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        this.player.startLevel = this.presetData.currentLevel;
-        if (inputData.loadType === "checkpoint" &&
-            this.traveler.saveInfo !== undefined &&
-            this.traveler.saveInfo.playerStats !== undefined) {
-            this.player.setStats(this.traveler.saveInfo.playerStats);
-        }
-        if (this.traveler.containsInfo) {
-            var info = this.traveler.getInfo();
-            this.player.setCurrentState(info.player);
-        }
+        var loaderScene = this.scene.get("planetLoader");
+        this.player = loaderScene.loadPlayer(inputData, tilemap, doorGroup, checkpointGroup, this.loadData.currentLevel || inputData.currentLevel, this.presetData.currentLevel);
         checkpointGroup.setDepth(10);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (player, water) {
@@ -218,149 +189,8 @@ var PlanetLogicScene = (function (_super) {
     PlanetLogicScene.prototype.getPlayerStats = function () {
         return this.player.getStats();
     };
-    PlanetLogicScene.prototype.getDoorEntryPoint = function (tilemap, doorGroup, doorGoto) {
-        var objects = tilemap.getObjectLayer("Objects").objects;
-        for (var i = 0; i < objects.length; i++) {
-            var obj = objects[i];
-            if (obj.name !== "Door") {
-                continue;
-            }
-            for (var j in obj.properties) {
-                var prop = obj.properties[j];
-                if (prop.name === "door" && prop.value === doorGoto.door) {
-                    var doors = doorGroup.children.getArray();
-                    for (var i = 0; i < doors.length; i++) {
-                        var door = doors[i];
-                        var doorBounds = door.getBounds();
-                        if (doorBounds.contains(obj.x, obj.y)) {
-                            return {
-                                x: door.x,
-                                y: door.y
-                            };
-                        }
-                    }
-                }
-            }
-        }
-        logger_1.default.warn("Couldn't find door at door symbol '" + doorGoto.door + "'");
-        return {
-            x: 0,
-            y: 0
-        };
-    };
-    PlanetLogicScene.prototype.handleDoors = function (tilemap, doorGroup, spawnPoint, doorGoto) {
-        var objects = tilemap.getObjectLayer("Objects").objects;
-        var _loop_1 = function () {
-            var obj = objects[i];
-            if (obj.name === "Door") {
-                if (spawnPoint !== undefined && doorGoto !== undefined) {
-                    for (var j in obj.properties) {
-                        var prop = obj.properties[j];
-                        if (prop.name === "door" && prop.value === doorGoto.door) {
-                            doorGroup.getChildren().forEach(function (door) {
-                                var doorBounds = door.getBounds();
-                                if (doorBounds.contains(obj.x, obj.y)) {
-                                    spawnPoint.x = door.x;
-                                    spawnPoint.y = door.y;
-                                }
-                            });
-                        }
-                    }
-                }
-                doorGroup.getChildren().forEach(function (door) {
-                    if (door.getBounds().contains(obj.x, obj.y)) {
-                        var gotoLevel, gotoDoor;
-                        for (var j in obj.properties) {
-                            var prop = obj.properties[j];
-                            if (prop.name === "gotoLevel") {
-                                gotoLevel = prop.value;
-                            }
-                            else if (prop.name === "gotoDoor") {
-                                gotoDoor = prop.value;
-                            }
-                        }
-                        if (gotoLevel && gotoDoor) {
-                            door.setGoto({
-                                level: gotoLevel,
-                                door: gotoDoor
-                            });
-                        }
-                    }
-                });
-            }
-        };
-        for (var i = 0; i < objects.length; i++) {
-            _loop_1();
-        }
-    };
-    PlanetLogicScene.prototype.getCheckpointPlace = function (checkpointGroup, goto) {
-        var checkpoints = checkpointGroup.getChildren();
-        for (var i = 0; i < checkpoints.length; i++) {
-            if (checkpoints[i].goto.index === goto.index) {
-                return {
-                    x: checkpoints[i].x + checkpoints[i].body.halfWidth,
-                    y: checkpoints[i].y
-                };
-            }
-        }
-        logger_1.default.warn("Couldn't load from checkpoint index '" + goto.index + "'");
-        return {
-            x: 0,
-            y: 0
-        };
-    };
-    PlanetLogicScene.prototype.handleCheckpoints = function (checkpointGroup, currentLevel) {
-        checkpointGroup.getChildren().forEach(function (checkpoint, index) {
-            checkpoint.goto = {
-                level: currentLevel,
-                index: index
-            };
-        });
-    };
     PlanetLogicScene.prototype.update = function (time, delta) {
-        this.processBrickCollision();
-    };
-    PlanetLogicScene.prototype.processBrickCollision = function () {
-        if (!this.player.body.blocked.up) {
-            return;
-        }
-        var mainCam = this.cameras.main;
-        var tileLeft = this.tilemap.getTileAtWorldXY(this.player.body.x, this.player.body.y - 1, undefined, mainCam, "World");
-        var tileRight = this.tilemap.getTileAtWorldXY(this.player.body.right, this.player.body.y - 1, undefined, mainCam, "World");
-        if (tileLeft && tileLeft.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
-            var bounds = tileLeft.getBounds();
-            this.tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
-            this.scene.get("planetEffects").emitBricks(bounds);
-        }
-        else if (tileRight && tileRight.index === BlockIndexes_1.default.GRASS_PLANET_2.BRICK) {
-            var bounds = tileRight.getBounds();
-            this.tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
-            this.scene.get("planetEffects").emitBricks(bounds);
-        }
-    };
-    PlanetLogicScene.prototype.restart = function (inputData) {
-        var _this = this;
-        this.scene.pause("planetLogic");
-        if (["restart", "death"].indexOf(inputData.reason) === -1) {
-            this.traveler.setInfo({
-                player: this.player.getCurrentState()
-            });
-        }
-        var effectsScene = this.scene.get("planetEffects");
-        effectsScene.fadeOut(500, 0, 0, 0);
-        effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-            _this.scene.run("planetLogic");
-            if (inputData.loadType === "door") {
-                _this.loadData.currentLevel = inputData.doorGoto.level;
-            }
-            else if (inputData.loadType === "checkpoint") {
-                _this.loadData.currentLevel = inputData.checkpointGoto.level;
-            }
-            else if (inputData.loadType === "start") {
-                _this.loadData.currentLevel = inputData.startGoto.level;
-            }
-            _this.scene.restart(inputData);
-        });
+        this.scene.get("planetEffects").processBrickCollision(this.player, this.tilemap);
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

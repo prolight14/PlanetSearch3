@@ -23,6 +23,7 @@ import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
 import PlanetEffectsScene from "./scenes/planet/PlanetEffectsScene";
 import PlanetUIScene from "./scenes/planet/PlanetUIScene";
 import PlanetBackScene from "./scenes/planet/PlanetBackScene";
+import PlanetLoaderScene from "./scenes/planet/PlanetLoaderScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -60,7 +61,7 @@ let config: Phaser.Types.Core.GameConfig = {
         SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)
-        PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetUIScene, PlanetEffectsScene
+        PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene
     ],
 }
 var game: Phaser.Game = new Phaser.Game(config);

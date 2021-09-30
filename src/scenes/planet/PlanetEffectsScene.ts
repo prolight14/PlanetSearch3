@@ -1,4 +1,6 @@
+import Player from "../../gameObjects/planet/Player";
 import PlanetLogicScene from "./PlanetLogicScene";
+import BLOCK_INDEXES from "./BlockIndexes";
 
 interface Sounds {
     [key: string]: Phaser.Sound.BaseSound;
@@ -64,6 +66,32 @@ export default class PlanetEffectsScene extends Phaser.Scene
         emitter.setFrame(3).setSpeedX(xSpeed * 2).setSpeedY(-ySpeed).emitParticleAt(bounds.x + 0.75 * bounds.width, bounds.y + 0.75 * bounds.height);
 
         this.playSound("brickBreak");
+    }
+
+    public processBrickCollision(player: Player, tilemap: Phaser.Tilemaps.Tilemap)
+    {
+        if(!player.body.blocked.up)
+        {
+            return;
+        }
+
+        const logicCam = this.scene.get("planetLogic").cameras.main;
+
+        let tileLeft = tilemap.getTileAtWorldXY(player.body.x, player.body.y - 1, undefined, logicCam, "World");
+        let tileRight = tilemap.getTileAtWorldXY(player.body.right, player.body.y - 1, undefined, logicCam, "World");
+
+        if(tileLeft && tileLeft.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        {
+            const bounds = tileLeft.getBounds() as Phaser.Geom.Rectangle;
+            tilemap.removeTileAt(tileLeft.x, tileLeft.y, true, true, "World");
+            this.emitBricks(bounds);
+        }
+        else if(tileRight && tileRight.index === BLOCK_INDEXES.GRASS_PLANET_2.BRICK)
+        {
+            const bounds = tileRight.getBounds() as Phaser.Geom.Rectangle;
+            tilemap.removeTileAt(tileRight.x, tileRight.y, true, true, "World");
+            this.emitBricks(bounds);
+        }
     }
 
     public update(time: number, delta: number)

@@ -13,6 +13,7 @@ var PlanetLogicScene_1 = require("./scenes/planet/PlanetLogicScene");
 var PlanetEffectsScene_1 = require("./scenes/planet/PlanetEffectsScene");
 var PlanetUIScene_1 = require("./scenes/planet/PlanetUIScene");
 var PlanetBackScene_1 = require("./scenes/planet/PlanetBackScene");
+var PlanetLoaderScene_1 = require("./scenes/planet/PlanetLoaderScene");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -27,7 +28,7 @@ var config = {
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
-        PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
+        PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
 };
 var game = new Phaser.Game(config);

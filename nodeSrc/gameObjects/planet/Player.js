@@ -155,14 +155,14 @@ var Player = (function (_super) {
         }
         if (this.controls.restart() || this.dead) {
             if (this.checkpointGoto !== undefined) {
-                this.scene.restart({
+                this.scene.scene.get("planetLoader").restart({
                     loadType: "checkpoint",
                     checkpointGoto: this.checkpointGoto,
                     reason: this.controls.restart() ? "restart" : "death",
                 });
             }
             else {
-                this.scene.restart({
+                this.scene.scene.get("planetLoader").restart({
                     loadType: "start",
                     startGoto: {
                         level: this.startLevel

@@ -28,7 +28,7 @@ var Checkpoint = (function (_super) {
     Checkpoint.prototype.onCollide = function (player) {
         this.setFrame(1);
         player.onCheckpoint(this);
-        this.scene.traveler.saveInfo = {
+        this.scene.scene.get("planetLoader").traveler.saveInfo = {
             playerStats: player.getStats()
         };
     };

@@ -30,8 +30,9 @@ var Door = (function (_super) {
     };
     Door.prototype.onCollide = function (player) {
         if (player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
-            this.scene.restart({
+            this.scene.scene.get("planetLoader").restart({
                 loadType: "door",
+                reason: "door",
                 doorGoto: this.goto,
             });
         }

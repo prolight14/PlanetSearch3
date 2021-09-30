@@ -1,3 +1,4 @@
+import PlanetLoaderScene from "../../scenes/planet/PlanetLoaderScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import GameObject from "./GameObject";
 import Player from "./Player";
@@ -25,7 +26,7 @@ export default class Checkpoint extends GameObject
         this.setFrame(1);
         player.onCheckpoint(this);
 
-        (this.scene as PlanetLogicScene).traveler.saveInfo = {
+        (this.scene.scene.get("planetLoader") as PlanetLoaderScene).traveler.saveInfo = {
             playerStats: player.getStats()
         }; 
     }

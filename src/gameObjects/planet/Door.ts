@@ -1,3 +1,4 @@
+import PlanetLoaderScene from "../../scenes/planet/PlanetLoaderScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import Player from "./Player";
 
@@ -30,9 +31,9 @@ export default class Door extends Phaser.Physics.Arcade.Image
     {
         if(player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05)
         {
-            (this.scene as PlanetLogicScene).restart({
+            (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
                 loadType: "door",
-                // reason: "door",
+                reason: "door",
                 doorGoto: this.goto,
             }); 
         }
