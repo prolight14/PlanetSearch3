@@ -5,4 +5,19 @@ export default class GameObject extends Phaser.Physics.Arcade.Image
         super(scene, x, y, texture, frame);
         scene.add.existing(this);
     }
+
+    public onCollide(object: GameObject) 
+    {
+
+    }
+
+    public onOverlap(object: GameObject) 
+    {
+
+    }
+
+    public processCollision(object: GameObject)
+    {
+        
+    }
 }

@@ -13,19 +13,15 @@ export default class PlanetLoaderScene extends Phaser.Scene
         super("planetLoader");
     }
 
-    public preload()
+    private traveler: Traveler = new Traveler();
+
+    public setTravelerSaveInfo(info: any)
     {
-
+        if(info !== undefined)
+        {
+            this.traveler.saveInfo = info;
+        }
     }
-
-    public create()
-    {
-        // const logicScene = this.scene.get("planetLogic");
-
-        // this.loadPlayer();
-    }
-
-    public traveler: Traveler = new Traveler();
 
     public loadPlayer(
         inputData: any,

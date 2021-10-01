@@ -23,9 +23,10 @@ var PlanetLoaderScene = (function (_super) {
         _this.traveler = new Traveler_1.default();
         return _this;
     }
-    PlanetLoaderScene.prototype.preload = function () {
-    };
-    PlanetLoaderScene.prototype.create = function () {
+    PlanetLoaderScene.prototype.setTravelerSaveInfo = function (info) {
+        if (info !== undefined) {
+            this.traveler.saveInfo = info;
+        }
     };
     PlanetLoaderScene.prototype.loadPlayer = function (inputData, tilemap, doorGroup, checkpointGroup, currentLevel, defaultLevel) {
         var spawnPoint = tilemap.findObject("Objects", function (obj) {

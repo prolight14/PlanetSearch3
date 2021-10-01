@@ -8,9 +8,8 @@ import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
 import GreenBeaker from "../../gameObjects/planet/GreenBeaker";
 import Checkpoint from "../../gameObjects/planet/Checkpoint";
-import Traveler from "../../Saver/Traveler";
 import PlanetLoaderScene from "./PlanetLoaderScene";
-
+import GameObject from "../../gameObjects/planet/GameObject";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {
@@ -190,8 +189,11 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         checkpointGroup.setDepth(10);
 
+    
         this.physics.add.collider(this.player, worldLayer);
+        this.physics.add.collider(greenBeakerGroup, worldLayer);
 
+        
         this.physics.add.overlap(this.player, waterGroup, function(player: Player, water: Water)
         {
             water.onCollide(player);
@@ -236,26 +238,91 @@ export default class PlanetLogicScene extends Phaser.Scene
             lava.onCollide(beaker);
         }, undefined, this);
 
-        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function(beaker: GreenBeaker, slope: Slope)
-        {
-            slope.processCollision(beaker);
-        }, undefined, this);
-
+        
         this.physics.add.overlap(greenBeakerGroup, slopeGroup, function(beaker: GreenBeaker, slope: Slope)
         {
             beaker.onCollide(slope);
         }, undefined, this);
-
+        
         this.physics.add.collider(greenBeakerGroup, this.player, function(beaker: GreenBeaker, player: Player)
         {
             beaker.onCollide(player);
         }, undefined, this);
-
+        
         // Checkpoint
         this.physics.add.overlap(checkpointGroup, this.player, function(checkpoint: Checkpoint, player: Player)
         {
             checkpoint.onCollide(player);
         });
+        
+        this.physics.add.overlap(slopeGroup, greenBeakerGroup, function(slope: Slope, beaker: GameObject)
+        {
+            slope.processCollision(beaker);
+        }, undefined, this);
+       
+        /*
+        var updateGameObjects = this.sys.updateList.getActive();
+        var displayGameObjects = this.sys.displayList.getChildren();
+        
+        this.physics.add.overlap(slopeGroup, updateGameObjects, function(slope: Slope, object: GameObject)
+        {
+            slope.processCollision(object);
+        }, undefined, this);
+        */
+
+        // this.physics.add.collider(updateGameObjects, updateGameObjects, function(objectA: GameObject, objectB: GameObject)
+        // {
+        //     objectA.onCollide(objectB);
+        //     objectB.onCollide(objectA);
+        //     objectA.processCollision(objectB);
+        //     objectB.processCollision(objectA);
+        // }, undefined, this);
+
+        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
+        // {
+        //     objectA.onCollide(objectB);
+        //     objectB.onCollide(objectA);
+        //     objectA.processCollision(objectB);
+        //     objectB.processCollision(objectA);
+        // }, undefined, this);
+
+        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
+        // {
+        //     if(objectA.onOverlap !== undefined)
+        //     {
+        //         objectA.onOverlap(objectB);
+        //     }
+        //     if(objectB.onOverlap !== undefined)
+        //     {
+        //         objectB.onOverlap(objectA);
+        //     }
+
+        //     if(objectB.body !== undefined && objectA.processCollision !== undefined)
+        //     {   
+        //         objectA.processCollision(objectB);
+        //     }
+
+        // }, undefined, this);
+
+        // this.physics.add.collider(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
+        // {
+        //     if(objectB.onCollide !== undefined)
+        //     {
+        //         objectA.onCollide(objectB);
+        //         objectB.onCollide(objectA);
+        //     }
+        //     // console.log(objectA, objectB);
+        // });
+
+        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
+        // {
+        //     if(objectB.onOverlap !== undefined)
+        //     {
+        //         objectA.onOverlap(objectB);
+        //         objectB.onOverlap(objectA);
+        //     }
+        //     // console.log(objectA, objectB);
+        // });
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
@@ -283,5 +350,10 @@ export default class PlanetLogicScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         (this.scene.get("planetEffects") as PlanetEffectsScene).processBrickCollision(this.player, this.tilemap);
+
+        // this.sys.updateList.getActive().forEach((gameObject: Phaser.GameObjects.GameObject) => 
+        // {
+
+        // }); 
     }
 }

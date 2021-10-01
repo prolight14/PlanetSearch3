@@ -25,12 +25,15 @@ var Checkpoint = (function (_super) {
         _this.setMaxVelocity(0, 0);
         return _this;
     }
-    Checkpoint.prototype.onCollide = function (player) {
-        this.setFrame(1);
-        player.onCheckpoint(this);
-        this.scene.scene.get("planetLoader").traveler.saveInfo = {
-            playerStats: player.getStats()
-        };
+    Checkpoint.prototype.onCollide = function (object) {
+        if (object.texture.key === "Player") {
+            var player = object;
+            this.setFrame(1);
+            player.onCheckpoint(this);
+            this.scene.scene.get("planetLoader").setTravelerSaveInfo({
+                playerStats: player.getStats()
+            });
+        }
     };
     return Checkpoint;
 }(GameObject_1.default));

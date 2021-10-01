@@ -2,6 +2,7 @@ import PlanetLoaderScene from "../../scenes/planet/PlanetLoaderScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import GameObject from "./GameObject";
 import Player from "./Player";
+import StaticGameObject from "./StaticGameObject";
 
 export default class Checkpoint extends GameObject
 {
@@ -21,13 +22,18 @@ export default class Checkpoint extends GameObject
         index: number
     };
 
-    public onCollide(player: Player)
+    public onCollide(object: GameObject)
     {
-        this.setFrame(1);
-        player.onCheckpoint(this);
+        if(object.texture.key === "Player")
+        {
+            const player: Player = object as Player;
 
-        (this.scene.scene.get("planetLoader") as PlanetLoaderScene).traveler.saveInfo = {
-            playerStats: player.getStats()
-        }; 
+            this.setFrame(1);
+            player.onCheckpoint(this);
+    
+            (this.scene.scene.get("planetLoader") as PlanetLoaderScene).setTravelerSaveInfo({
+                playerStats: player.getStats()
+            }); 
+        }
     }
 }

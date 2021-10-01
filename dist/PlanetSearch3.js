@@ -209,12 +209,15 @@ var Checkpoint = (function (_super) {
         _this.setMaxVelocity(0, 0);
         return _this;
     }
-    Checkpoint.prototype.onCollide = function (player) {
-        this.setFrame(1);
-        player.onCheckpoint(this);
-        this.scene.scene.get("planetLoader").traveler.saveInfo = {
-            playerStats: player.getStats()
-        };
+    Checkpoint.prototype.onCollide = function (object) {
+        if (object.texture.key === "Player") {
+            var player = object;
+            this.setFrame(1);
+            player.onCheckpoint(this);
+            this.scene.scene.get("planetLoader").setTravelerSaveInfo({
+                playerStats: player.getStats()
+            });
+        }
     };
     return Checkpoint;
 }(GameObject_1.default));
@@ -303,6 +306,12 @@ var GameObject = (function (_super) {
         scene.add.existing(_this);
         return _this;
     }
+    GameObject.prototype.onCollide = function (object) {
+    };
+    GameObject.prototype.onOverlap = function (object) {
+    };
+    GameObject.prototype.processCollision = function (object) {
+    };
     return GameObject;
 }(Phaser.Physics.Arcade.Sprite));
 exports.default = GameObject;
@@ -952,6 +961,12 @@ var GameObject = (function (_super) {
         scene.add.existing(_this);
         return _this;
     }
+    GameObject.prototype.onCollide = function (object) {
+    };
+    GameObject.prototype.onOverlap = function (object) {
+    };
+    GameObject.prototype.processCollision = function (object) {
+    };
     return GameObject;
 }(Phaser.Physics.Arcade.Image));
 exports.default = GameObject;
@@ -1720,9 +1735,10 @@ var PlanetLoaderScene = (function (_super) {
         _this.traveler = new Traveler_1.default();
         return _this;
     }
-    PlanetLoaderScene.prototype.preload = function () {
-    };
-    PlanetLoaderScene.prototype.create = function () {
+    PlanetLoaderScene.prototype.setTravelerSaveInfo = function (info) {
+        if (info !== undefined) {
+            this.traveler.saveInfo = info;
+        }
     };
     PlanetLoaderScene.prototype.loadPlayer = function (inputData, tilemap, doorGroup, checkpointGroup, currentLevel, defaultLevel) {
         var spawnPoint = tilemap.findObject("Objects", function (obj) {
@@ -2037,6 +2053,7 @@ var PlanetLogicScene = (function (_super) {
         this.player = loaderScene.loadPlayer(inputData, tilemap, doorGroup, checkpointGroup, this.loadData.currentLevel || inputData.currentLevel, this.presetData.currentLevel);
         checkpointGroup.setDepth(10);
         this.physics.add.collider(this.player, worldLayer);
+        this.physics.add.collider(greenBeakerGroup, worldLayer);
         this.physics.add.overlap(this.player, waterGroup, function (player, water) {
             water.onCollide(player);
         }, undefined, this);
@@ -2063,9 +2080,6 @@ var PlanetLogicScene = (function (_super) {
             lava.onCollide(beaker);
         }, undefined, this);
         this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
-            slope.processCollision(beaker);
-        }, undefined, this);
-        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
             beaker.onCollide(slope);
         }, undefined, this);
         this.physics.add.collider(greenBeakerGroup, this.player, function (beaker, player) {
@@ -2074,6 +2088,9 @@ var PlanetLogicScene = (function (_super) {
         this.physics.add.overlap(checkpointGroup, this.player, function (checkpoint, player) {
             checkpoint.onCollide(player);
         });
+        this.physics.add.overlap(slopeGroup, greenBeakerGroup, function (slope, beaker) {
+            slope.processCollision(beaker);
+        }, undefined, this);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;

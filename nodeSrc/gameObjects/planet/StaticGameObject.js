@@ -20,6 +20,12 @@ var GameObject = (function (_super) {
         scene.add.existing(_this);
         return _this;
     }
+    GameObject.prototype.onCollide = function (object) {
+    };
+    GameObject.prototype.onOverlap = function (object) {
+    };
+    GameObject.prototype.processCollision = function (object) {
+    };
     return GameObject;
 }(Phaser.Physics.Arcade.Image));
 exports.default = GameObject;
