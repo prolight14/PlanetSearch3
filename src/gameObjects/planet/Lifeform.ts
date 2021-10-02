@@ -1,3 +1,4 @@
+import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import GameObject from "./GameObject";
 
 export default class Lifeform extends GameObject
@@ -116,7 +117,7 @@ export default class Lifeform extends GameObject
         {
             this.isJumping = false;
         }
-
+  
         if(this.isJumping)
         {
             this.body.velocity.y -= this.jumpSpeed;
@@ -171,10 +172,5 @@ export default class Lifeform extends GameObject
         {
             this.destroy();
         });
-    }
-
-    public onCollide(gameObject: Phaser.GameObjects.GameObject)
-    {
-
     }
 }

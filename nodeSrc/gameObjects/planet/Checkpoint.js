@@ -13,11 +13,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var GameObject_1 = require("./GameObject");
+var StaticGameObject_1 = require("./StaticGameObject");
 var Checkpoint = (function (_super) {
     __extends(Checkpoint, _super);
     function Checkpoint(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "checkpoint", 0) || this;
+        var _this = _super.call(this, scene, x, y, "checkpoint", 0, false) || this;
         _this.setOrigin(0, 0);
         scene.physics.add.existing(_this);
         _this.setImmovable(true);
@@ -25,7 +25,7 @@ var Checkpoint = (function (_super) {
         _this.setMaxVelocity(0, 0);
         return _this;
     }
-    Checkpoint.prototype.onCollide = function (object) {
+    Checkpoint.prototype.onOverlap = function (object) {
         if (object.texture.key === "Player") {
             var player = object;
             this.setFrame(1);
@@ -36,6 +36,6 @@ var Checkpoint = (function (_super) {
         }
     };
     return Checkpoint;
-}(GameObject_1.default));
+}(StaticGameObject_1.default));
 exports.default = Checkpoint;
 //# sourceMappingURL=Checkpoint.js.map

@@ -17,7 +17,7 @@ var StaticGameObject_1 = require("./StaticGameObject");
 var Slope = (function (_super) {
     __extends(Slope, _super);
     function Slope(scene, way, x, y) {
-        var _this = _super.call(this, scene, x, y, "slope") || this;
+        var _this = _super.call(this, scene, x, y, "slope", undefined, false) || this;
         _this.way = way;
         _this.name = "slope";
         scene.physics.add.existing(_this);
@@ -31,7 +31,7 @@ var Slope = (function (_super) {
                 var offset = 0;
                 var yOffset_1 = 0;
                 _this.triangle = new Phaser.Geom.Triangle(_this.x - offset, _this.y - offset - yOffset_1, _this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth + offset, _this.y + _this.displayHeight + offset - yOffset_1);
-                _this.processCollision = function (object) {
+                _this.onOverlap = function (object) {
                     object.isOnSlope = false;
                     if (object.body.x <= this.body.x) {
                         object.isOnSlope = true;
@@ -49,7 +49,7 @@ var Slope = (function (_super) {
                 break;
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
-                _this.processCollision = function (object) {
+                _this.onOverlap = function (object) {
                     object.isOnSlope = false;
                     if (object.body.right >= this.body.right) {
                         object.body.y = this.body.y - object.body.height;

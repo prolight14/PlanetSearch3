@@ -197,11 +197,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var GameObject_1 = __webpack_require__(/*! ./GameObject */ "./gameObjects/planet/GameObject.js");
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var Checkpoint = (function (_super) {
     __extends(Checkpoint, _super);
     function Checkpoint(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "checkpoint", 0) || this;
+        var _this = _super.call(this, scene, x, y, "checkpoint", 0, false) || this;
         _this.setOrigin(0, 0);
         scene.physics.add.existing(_this);
         _this.setImmovable(true);
@@ -209,7 +209,7 @@ var Checkpoint = (function (_super) {
         _this.setMaxVelocity(0, 0);
         return _this;
     }
-    Checkpoint.prototype.onCollide = function (object) {
+    Checkpoint.prototype.onOverlap = function (object) {
         if (object.texture.key === "Player") {
             var player = object;
             this.setFrame(1);
@@ -220,7 +220,7 @@ var Checkpoint = (function (_super) {
         }
     };
     return Checkpoint;
-}(GameObject_1.default));
+}(StaticGameObject_1.default));
 exports.default = Checkpoint;
 //# sourceMappingURL=Checkpoint.js.map
 
@@ -301,9 +301,19 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var GameObject = (function (_super) {
     __extends(GameObject, _super);
-    function GameObject(scene, x, y, texture, frame) {
+    function GameObject(scene, x, y, texture, frame, solid) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         scene.add.existing(_this);
+        scene.gameObjects.push(_this);
+        if (solid === undefined) {
+            solid = true;
+        }
+        if (solid) {
+            scene.solidGameObjects.push(_this);
+        }
+        if (_this.body) {
+            _this.body.onCollide = true;
+        }
         return _this;
     }
     GameObject.prototype.onCollide = function (object) {
@@ -436,7 +446,7 @@ var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameOb
 var InvisiblePlatform = (function (_super) {
     __extends(InvisiblePlatform, _super);
     function InvisiblePlatform(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "invisiblePlatform") || this;
+        var _this = _super.call(this, scene, x, y, "invisiblePlatform", undefined, false) || this;
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -444,7 +454,7 @@ var InvisiblePlatform = (function (_super) {
         _this.setVisible(false);
         return _this;
     }
-    InvisiblePlatform.prototype.processCollision = function (object) {
+    InvisiblePlatform.prototype.onOverlap = function (object) {
         if (object.body.velocity.y > 0 && object.body.y + object.body.height <= this.body.y + object.body.deltaAbsY()) {
             object.body.y = this.body.y - object.body.height;
             object.body.velocity.y = 0;
@@ -483,7 +493,7 @@ var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameOb
 var Lava = (function (_super) {
     __extends(Lava, _super);
     function Lava(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "lava") || this;
+        var _this = _super.call(this, scene, x, y, "lava", undefined, false) || this;
         _this.damage = 1;
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
@@ -495,7 +505,7 @@ var Lava = (function (_super) {
     Lava.prototype.getDamage = function (object) {
         return this.damage;
     };
-    Lava.prototype.onCollide = function (object) {
+    Lava.prototype.onOverlap = function (object) {
         object.takeDamage(this);
         object.inLiquid = true;
     };
@@ -639,8 +649,6 @@ var Lifeform = (function (_super) {
         this.scene.time.delayedCall(0, function () {
             _this.destroy();
         });
-    };
-    Lifeform.prototype.onCollide = function (gameObject) {
     };
     return Lifeform;
 }(GameObject_1.default));
@@ -871,7 +879,7 @@ var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameOb
 var Slope = (function (_super) {
     __extends(Slope, _super);
     function Slope(scene, way, x, y) {
-        var _this = _super.call(this, scene, x, y, "slope") || this;
+        var _this = _super.call(this, scene, x, y, "slope", undefined, false) || this;
         _this.way = way;
         _this.name = "slope";
         scene.physics.add.existing(_this);
@@ -885,7 +893,7 @@ var Slope = (function (_super) {
                 var offset = 0;
                 var yOffset_1 = 0;
                 _this.triangle = new Phaser.Geom.Triangle(_this.x - offset, _this.y - offset - yOffset_1, _this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth + offset, _this.y + _this.displayHeight + offset - yOffset_1);
-                _this.processCollision = function (object) {
+                _this.onOverlap = function (object) {
                     object.isOnSlope = false;
                     if (object.body.x <= this.body.x) {
                         object.isOnSlope = true;
@@ -903,7 +911,7 @@ var Slope = (function (_super) {
                 break;
             case "rightUp":
                 _this.triangle = new Phaser.Geom.Triangle(_this.x, _this.y + _this.displayHeight, _this.x + _this.displayWidth, _this.y, _this.x + _this.displayWidth, _this.y + _this.displayHeight);
-                _this.processCollision = function (object) {
+                _this.onOverlap = function (object) {
                     object.isOnSlope = false;
                     if (object.body.right >= this.body.right) {
                         object.body.y = this.body.y - object.body.height;
@@ -956,9 +964,16 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var GameObject = (function (_super) {
     __extends(GameObject, _super);
-    function GameObject(scene, x, y, texture, frame) {
+    function GameObject(scene, x, y, texture, frame, solid) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         scene.add.existing(_this);
+        scene.gameObjects.push(_this);
+        if (solid === undefined) {
+            solid = true;
+        }
+        if (solid) {
+            scene.solidGameObjects.push(_this);
+        }
         return _this;
     }
     GameObject.prototype.onCollide = function (object) {
@@ -1947,6 +1962,8 @@ var PlanetLogicScene = (function (_super) {
                 }
             },
         }) || this;
+        _this.gameObjects = [];
+        _this.solidGameObjects = [];
         _this.init();
         return _this;
     }
@@ -2054,43 +2071,14 @@ var PlanetLogicScene = (function (_super) {
         checkpointGroup.setDepth(10);
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.collider(greenBeakerGroup, worldLayer);
-        this.physics.add.overlap(this.player, waterGroup, function (player, water) {
-            water.onCollide(player);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, lavaGroup, function (player, lava) {
-            lava.onCollide(player);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, doorGroup, function (player, door) {
-            door.onCollide(player);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
-            slope.processCollision(player);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, slopeGroup, function (player, slope) {
-            slope.processCollision(player);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, invisiblePlatformGroup, function (player, invisiblePlatform) {
-            invisiblePlatform.processCollision(player);
-        }, undefined, this);
-        this.physics.add.collider(greenBeakerGroup, worldLayer);
-        this.physics.add.overlap(greenBeakerGroup, waterGroup, function (beaker, water) {
-            water.onCollide(beaker);
-        }, undefined, this);
-        this.physics.add.overlap(greenBeakerGroup, lavaGroup, function (beaker, lava) {
-            lava.onCollide(beaker);
-        }, undefined, this);
-        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function (beaker, slope) {
-            beaker.onCollide(slope);
-        }, undefined, this);
-        this.physics.add.collider(greenBeakerGroup, this.player, function (beaker, player) {
-            beaker.onCollide(player);
-        }, undefined, this);
-        this.physics.add.overlap(checkpointGroup, this.player, function (checkpoint, player) {
-            checkpoint.onCollide(player);
+        this.physics.add.collider(this.solidGameObjects, this.solidGameObjects, function (objectA, objectB) {
+            objectA.onCollide(objectB);
+            objectB.onCollide(objectA);
         });
-        this.physics.add.overlap(slopeGroup, greenBeakerGroup, function (slope, beaker) {
-            slope.processCollision(beaker);
-        }, undefined, this);
+        this.physics.add.overlap(this.gameObjects, this.gameObjects, function (objectA, objectB) {
+            objectA.onOverlap(objectB);
+            objectB.onOverlap(objectA);
+        });
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;

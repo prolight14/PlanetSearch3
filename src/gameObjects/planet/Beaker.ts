@@ -1,3 +1,4 @@
+import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 import Lifeform from "./Lifeform";
 import Player from "./Player";
 import Slope from "./Slope";

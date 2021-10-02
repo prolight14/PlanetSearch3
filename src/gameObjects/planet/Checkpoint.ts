@@ -4,11 +4,11 @@ import GameObject from "./GameObject";
 import Player from "./Player";
 import StaticGameObject from "./StaticGameObject";
 
-export default class Checkpoint extends GameObject
+export default class Checkpoint extends StaticGameObject
 {
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
-        super(scene, x, y, "checkpoint", 0);
+        super(scene, x, y, "checkpoint", 0, false);
 
         this.setOrigin(0, 0);
         scene.physics.add.existing(this);
@@ -22,7 +22,7 @@ export default class Checkpoint extends GameObject
         index: number
     };
 
-    public onCollide(object: GameObject)
+    public onOverlap(object: GameObject)
     {
         if(object.texture.key === "Player")
         {

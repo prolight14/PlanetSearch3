@@ -13,7 +13,7 @@ export default class Lava extends StaticGameObject
 
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
-        super(scene, x, y, "lava");
+        super(scene, x, y, "lava", undefined, false);
 
         scene.physics.add.existing(this);
 
@@ -24,7 +24,7 @@ export default class Lava extends StaticGameObject
         this.setVisible(false);
     }
 
-    public onCollide(object: Lifeform)
+    public onOverlap(object: Lifeform)
     {
         object.takeDamage(this);
         object.inLiquid = true;

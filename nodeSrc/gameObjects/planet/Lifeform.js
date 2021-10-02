@@ -126,8 +126,6 @@ var Lifeform = (function (_super) {
             _this.destroy();
         });
     };
-    Lifeform.prototype.onCollide = function (gameObject) {
-    };
     return Lifeform;
 }(GameObject_1.default));
 exports.default = Lifeform;

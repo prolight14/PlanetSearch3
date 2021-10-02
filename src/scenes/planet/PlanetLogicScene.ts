@@ -75,6 +75,9 @@ export default class PlanetLogicScene extends Phaser.Scene
 
     }
 
+    public gameObjects: Array<Phaser.GameObjects.GameObject> = [];
+    public solidGameObjects: Array<Phaser.GameObjects.GameObject> = [];
+
     public create(inputData?: any)
     {
         var tilemap: Phaser.Tilemaps.Tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
@@ -193,11 +196,23 @@ export default class PlanetLogicScene extends Phaser.Scene
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.collider(greenBeakerGroup, worldLayer);
 
-        
-        this.physics.add.overlap(this.player, waterGroup, function(player: Player, water: Water)
+
+        this.physics.add.collider(this.solidGameObjects, this.solidGameObjects, function(objectA: GameObject, objectB: GameObject)
         {
-            water.onCollide(player);
-        }, undefined, this);
+            objectA.onCollide(objectB);
+            objectB.onCollide(objectA);
+        });
+        this.physics.add.overlap(this.gameObjects, this.gameObjects, function(objectA: GameObject, objectB: GameObject)
+        {
+            objectA.onOverlap(objectB);
+            objectB.onOverlap(objectA);
+        });
+        
+        // this.physics.add.overlap(this.player, waterGroup, function(player: Player, water: Water)
+        // {
+        //     water.onCollide(player);
+        // }, undefined, this);
+        /*
         
         this.physics.add.overlap(this.player, lavaGroup, function(player: Player, lava: Lava)
         {
@@ -259,7 +274,8 @@ export default class PlanetLogicScene extends Phaser.Scene
         {
             slope.processCollision(beaker);
         }, undefined, this);
-       
+        */
+
         /*
         var updateGameObjects = this.sys.updateList.getActive();
         var displayGameObjects = this.sys.displayList.getChildren();
@@ -322,6 +338,11 @@ export default class PlanetLogicScene extends Phaser.Scene
         //         objectB.onOverlap(objectA);
         //     }
         //     // console.log(objectA, objectB);
+        // });]
+
+        // this.physics.world.on("collide", () =>
+        // {
+        //     console.log(true);
         // });
 
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
@@ -351,9 +372,27 @@ export default class PlanetLogicScene extends Phaser.Scene
     {
         (this.scene.get("planetEffects") as PlanetEffectsScene).processBrickCollision(this.player, this.tilemap);
 
-        // this.sys.updateList.getActive().forEach((gameObject: Phaser.GameObjects.GameObject) => 
+        // const activeList =  this.sys.updateList.getActive();
+        
+        // activeList.forEach((objectA: GameObject, i: number) => 
         // {
+        //     var bodyA = objectA;
+        //     const rectA = new Phaser.Geom.Rectangle(bodyA.x, bodyA.y, bodyA.width, bodyA.height);
 
+        //     activeList.forEach((objectB: GameObject, j: number) => 
+        //     {
+        //         if(i === j)
+        //         {
+        //             return;
+        //         }
+        //         var bodyB = objectB;
+        //         const rectB = new Phaser.Geom.Rectangle(bodyB.x, bodyB.y, bodyB.width, bodyB.height);
+
+        //         if(Phaser.Geom.Intersects.RectangleToRectangle(rectA, rectB))
+        //         {
+        //             objectA.onCollide(objectB);
+        //         }
+        //     }); 
         // }); 
     }
 }

@@ -17,7 +17,7 @@ var StaticGameObject_1 = require("./StaticGameObject");
 var InvisiblePlatform = (function (_super) {
     __extends(InvisiblePlatform, _super);
     function InvisiblePlatform(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "invisiblePlatform") || this;
+        var _this = _super.call(this, scene, x, y, "invisiblePlatform", undefined, false) || this;
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
@@ -25,7 +25,7 @@ var InvisiblePlatform = (function (_super) {
         _this.setVisible(false);
         return _this;
     }
-    InvisiblePlatform.prototype.processCollision = function (object) {
+    InvisiblePlatform.prototype.onOverlap = function (object) {
         if (object.body.velocity.y > 0 && object.body.y + object.body.height <= this.body.y + object.body.deltaAbsY()) {
             object.body.y = this.body.y - object.body.height;
             object.body.velocity.y = 0;

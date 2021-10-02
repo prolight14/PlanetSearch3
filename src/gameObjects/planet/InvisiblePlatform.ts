@@ -6,7 +6,7 @@ export default class InvisiblePlatform extends StaticGameObject
 {
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
-        super(scene, x, y, "invisiblePlatform");
+        super(scene, x, y, "invisiblePlatform", undefined, false);
 
         scene.physics.add.existing(this);
 
@@ -16,7 +16,7 @@ export default class InvisiblePlatform extends StaticGameObject
         this.setVisible(false);
     }
 
-    public processCollision(object: Player)
+    public onOverlap(object: Player)
     {
         if(object.body.velocity.y > 0 && object.body.y + object.body.height <= this.body.y + (object.body.deltaAbsY() as number))
         {

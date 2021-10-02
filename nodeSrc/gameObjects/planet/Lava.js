@@ -17,7 +17,7 @@ var StaticGameObject_1 = require("./StaticGameObject");
 var Lava = (function (_super) {
     __extends(Lava, _super);
     function Lava(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "lava") || this;
+        var _this = _super.call(this, scene, x, y, "lava", undefined, false) || this;
         _this.damage = 1;
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
@@ -29,7 +29,7 @@ var Lava = (function (_super) {
     Lava.prototype.getDamage = function (object) {
         return this.damage;
     };
-    Lava.prototype.onCollide = function (object) {
+    Lava.prototype.onOverlap = function (object) {
         object.takeDamage(this);
         object.inLiquid = true;
     };

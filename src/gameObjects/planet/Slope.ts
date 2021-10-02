@@ -5,7 +5,7 @@ export default class Slope extends StaticGameObject
 {
     constructor(scene: PlanetLogicScene, way: string, x: number, y: number)
     {
-        super(scene, x, y, "slope");
+        super(scene, x, y, "slope", undefined, false);
         this.way = way;
         this.name = "slope";
 
@@ -29,7 +29,7 @@ export default class Slope extends StaticGameObject
                     this.x + this.displayWidth + offset, this.y + this.displayHeight + offset - yOffset,
                 );
 
-                this.processCollision = function(object: any)
+                this.onOverlap = function(object: any)
                 {
                     object.isOnSlope = false;
                     if(object.body.x <= this.body.x)
@@ -57,7 +57,7 @@ export default class Slope extends StaticGameObject
                     this.x + this.displayWidth, this.y + this.displayHeight
                 );
 
-                this.processCollision = function(object: any)
+                this.onOverlap = function(object: any)
                 {
                     object.isOnSlope = false;
                     if(object.body.right >= this.body.right)
