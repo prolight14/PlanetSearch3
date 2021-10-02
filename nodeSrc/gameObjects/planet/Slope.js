@@ -19,7 +19,6 @@ var Slope = (function (_super) {
     function Slope(scene, way, x, y) {
         var _this = _super.call(this, scene, x, y, "slope", undefined, false) || this;
         _this.way = way;
-        _this.name = "slope";
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setImmovable(true);

@@ -7,7 +7,6 @@ export default class Slope extends StaticGameObject
     {
         super(scene, x, y, "slope", undefined, false);
         this.way = way;
-        this.name = "slope";
 
         scene.physics.add.existing(this);
 

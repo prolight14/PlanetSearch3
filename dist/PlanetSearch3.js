@@ -102,7 +102,6 @@ var Beaker = (function (_super) {
     function Beaker(scene, x, y, texture, frame) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         _this.isOnSlope = false;
-        _this.slopeWay = "";
         _this.maxHp = _this.hp = 2;
         _this.damage = 1;
         scene.add.existing(_this);
@@ -137,7 +136,7 @@ var Beaker = (function (_super) {
     };
     Beaker.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (!this.wasOnSlope && !this.touchingSlope && !this.slopeWay) {
+        if (!this.wasOnSlope && !this.wasInLiquid) {
             if (this.body.blocked.right || this.body.touching.right) {
                 this.xDir = "left";
             }
@@ -145,10 +144,6 @@ var Beaker = (function (_super) {
                 this.xDir = "right";
             }
         }
-        else {
-        }
-        this.touchingSlope = false;
-        this.slopeWay = "";
         if (this.wasInLiquid) {
             this.yDir = "up";
         }
@@ -156,19 +151,7 @@ var Beaker = (function (_super) {
             this.yDir = "";
         }
     };
-    Beaker.prototype.onOverlap = function (object) {
-        if (object.texture.key !== "slope") {
-        }
-        else if (this.xDir) {
-            this.touchingSlope = true;
-        }
-    };
     Beaker.prototype.onCollide = function (object) {
-        if (object.name === "slope") {
-            var slope = object;
-            this.slopeWay = slope.way;
-            slope.body.touching;
-        }
         if (object.texture.key === "Player") {
             var player = object;
             if (player.body.blocked.down && this.body.touching.up) {
@@ -897,7 +880,6 @@ var Slope = (function (_super) {
     function Slope(scene, way, x, y) {
         var _this = _super.call(this, scene, x, y, "slope", undefined, false) || this;
         _this.way = way;
-        _this.name = "slope";
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setImmovable(true);
