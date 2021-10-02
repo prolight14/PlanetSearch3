@@ -64,18 +64,52 @@ export default class Beaker extends Lifeform
     {   
         super.preUpdate(time, delta);
 
-        if(!this.wasOnSlope && !this.wasInLiquid && !this.slopeWay)
+        if(!this.wasOnSlope && !this.touchingSlope && !this.slopeWay)
         {
-            if(this.body.blocked.left || this.body.touching.left)
-            {
-                this.xDir = "right";
-            }
             if(this.body.blocked.right || this.body.touching.right)
             {
                 this.xDir = "left";
             }
+            if(this.body.blocked.left || this.body.touching.left)
+            {
+                this.xDir = "right";
+            }
+        }
+        else
+        {
+            // if(this.body.blocked.right && this.body.touching.right)
+            // {
+            //     this.xDir = "left";
+            // }
+            // if(this.body.blocked.left && this.body.touching.left)
+            // {
+            //     this.xDir = "right";
+            // }
+
+            // if(this.body.touching.right)
+            // {
+            //     this.xDir = "left";
+            // }
+            // if(this.body.touching.left)
+            // {
+            //     this.xDir = "right";
+            // }
+            // this.xDir = this.slopeXDir;
         }
 
+        // if(/* this.slopeWay && !this.wasOnSlope && */!this.wasInLiquid)
+        // {
+        //     if(this.body.blocked.left && this.body.touching.left)
+        //     {
+        //         this.xDir = "right";
+        //     }
+        //     if(this.body.blocked.right && this.body.touching.right)
+        //     {
+        //         this.xDir = "left";
+        //     }
+        // }
+
+        this.touchingSlope = false;
         this.slopeWay = "";
 
         if(this.wasInLiquid)
@@ -89,6 +123,30 @@ export default class Beaker extends Lifeform
     }
 
     private slopeWay: string = "";
+    private touchingSlope: boolean;
+    private slopeXDir: string;
+
+    public onOverlap(object: any)
+    {
+        if(object.texture.key !== "slope")
+        {
+            // if(this.body.touching.left)
+            // {
+            //     this.xDir = "right";
+            // }
+            // if(this.body.touching.right)
+            // {
+            //     this.xDir = "left";
+            // }
+        }
+        else if(this.xDir)
+        {
+            // this.slopeXDir = this.slopeWay;
+            this.touchingSlope = true;
+
+
+        }
+    }
 
     public onCollide(object: any)
     {
@@ -96,8 +154,18 @@ export default class Beaker extends Lifeform
         {
             let slope: Slope = object as Slope;
             this.slopeWay = slope.way;
+            slope.body.touching
         }
-        else if(object.texture.key === "Player")
+        // else 
+        // if(this.body.blocked.right)
+        // {
+        //     this.xDir = "left";
+        // }
+        // if(this.body.blocked.left)
+        // {
+        //     this.xDir = "right";
+        // }
+        if(object.texture.key === "Player")
         {
             let player: Player = object as Player;
 

@@ -13,31 +13,36 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var StaticGameObject_1 = require("./StaticGameObject");
 var Door = (function (_super) {
     __extends(Door, _super);
     function Door(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "door") || this;
-        scene.add.existing(_this);
+        var _this = _super.call(this, scene, x, y, "door", undefined, false) || this;
         scene.physics.add.existing(_this);
+        _this.setImmovable(true);
         _this.setVisible(false);
         _this.setMaxVelocity(0, 0);
-        _this.setOrigin(0.5, 0.5);
-        _this.setSize(16, 32);
+        _this.setOrigin(0, 0);
+        _this.width = _this.displayWidth = 16;
+        _this.height = _this.displayHeight = 32;
         return _this;
     }
     Door.prototype.setGoto = function (goto) {
         this.goto = goto;
     };
-    Door.prototype.onCollide = function (player) {
-        if (player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
-            this.scene.scene.get("planetLoader").restart({
-                loadType: "door",
-                reason: "door",
-                doorGoto: this.goto,
-            });
+    Door.prototype.onOverlap = function (object) {
+        if (object.texture.key === "Player") {
+            var player = object;
+            if (player.activate() && Math.abs(player.body.y - this.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
+                this.scene.scene.get("planetLoader").restart({
+                    loadType: "door",
+                    reason: "door",
+                    doorGoto: this.goto,
+                });
+            }
         }
     };
     return Door;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Door;
 //# sourceMappingURL=Door.js.map

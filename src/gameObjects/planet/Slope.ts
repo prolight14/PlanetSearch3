@@ -85,7 +85,7 @@ export default class Slope extends StaticGameObject
         // graphics.strokeTriangleShape(this.triangle);
     }
     public way: string;
-    processCollision(object: any) {}
+    onOverlap(object: any) {}
 
     triangle: Phaser.Geom.Triangle;
     

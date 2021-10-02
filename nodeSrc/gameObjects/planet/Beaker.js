@@ -54,14 +54,17 @@ var Beaker = (function (_super) {
     };
     Beaker.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (!this.wasOnSlope && !this.wasInLiquid && !this.slopeWay) {
-            if (this.body.blocked.left || this.body.touching.left) {
-                this.xDir = "right";
-            }
+        if (!this.wasOnSlope && !this.touchingSlope && !this.slopeWay) {
             if (this.body.blocked.right || this.body.touching.right) {
                 this.xDir = "left";
             }
+            if (this.body.blocked.left || this.body.touching.left) {
+                this.xDir = "right";
+            }
         }
+        else {
+        }
+        this.touchingSlope = false;
         this.slopeWay = "";
         if (this.wasInLiquid) {
             this.yDir = "up";
@@ -70,12 +73,20 @@ var Beaker = (function (_super) {
             this.yDir = "";
         }
     };
+    Beaker.prototype.onOverlap = function (object) {
+        if (object.texture.key !== "slope") {
+        }
+        else if (this.xDir) {
+            this.touchingSlope = true;
+        }
+    };
     Beaker.prototype.onCollide = function (object) {
         if (object.name === "slope") {
             var slope = object;
             this.slopeWay = slope.way;
+            slope.body.touching;
         }
-        else if (object.texture.key === "Player") {
+        if (object.texture.key === "Player") {
             var player = object;
             if (player.body.blocked.down && this.body.touching.up) {
                 player.body.velocity.y -= player.enemyBounce;

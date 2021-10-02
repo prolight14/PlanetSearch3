@@ -91,6 +91,9 @@ export default class PlanetLogicScene extends Phaser.Scene
         
         tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
         
+        this.gameObjects.length = 0;
+        this.solidGameObjects.length = 0;
+
         const waterGroup = this.add.group();
         const lavaGroup = this.add.group();
         const doorGroup = this.add.group();
@@ -124,7 +127,7 @@ export default class PlanetLogicScene extends Phaser.Scene
                     {
                         case INDEXES.DOOR_TOP:
                             tile.setCollision(false, false, false, false);
-                            doorGroup.add(new Door(this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            doorGroup.add(new Door(this, tile.pixelX, tile.pixelY));
                         break;
 
                         case INDEXES.DOOR_BOTTOM:
@@ -192,7 +195,6 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         checkpointGroup.setDepth(10);
 
-    
         this.physics.add.collider(this.player, worldLayer);
         this.physics.add.collider(greenBeakerGroup, worldLayer);
 
@@ -207,144 +209,9 @@ export default class PlanetLogicScene extends Phaser.Scene
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
-        
-        // this.physics.add.overlap(this.player, waterGroup, function(player: Player, water: Water)
-        // {
-        //     water.onCollide(player);
-        // }, undefined, this);
-        /*
-        
-        this.physics.add.overlap(this.player, lavaGroup, function(player: Player, lava: Lava)
-        {
-            lava.onCollide(player);
-        }, undefined, this);
-        
-        this.physics.add.overlap(this.player, doorGroup, function(player: Player, door: Door)
-        {
-            door.onCollide(player);
-        }, undefined, this);
-        
-        this.physics.add.overlap(this.player, slopeGroup, function(player: Player, slope: Slope)
-        {
-            slope.processCollision(player);
-        }, undefined, this);
 
-        this.physics.add.overlap(this.player, slopeGroup, function(player: Player, slope: Slope)
-        {
-            slope.processCollision(player);
-        }, undefined, this);
-
-        this.physics.add.overlap(this.player, invisiblePlatformGroup, function(player: Player, invisiblePlatform: InvisiblePlatform)
-        {
-            invisiblePlatform.processCollision(player);
-        }, undefined, this);
-        
-        // Slope stuff
-
-        this.physics.add.collider(greenBeakerGroup, worldLayer);
-        
-        this.physics.add.overlap(greenBeakerGroup, waterGroup, function(beaker: GreenBeaker, water: Water)
-        {
-            water.onCollide(beaker);
-        }, undefined, this);
-        
-        this.physics.add.overlap(greenBeakerGroup, lavaGroup, function(beaker: GreenBeaker, lava: Lava)
-        {
-            lava.onCollide(beaker);
-        }, undefined, this);
-
-        
-        this.physics.add.overlap(greenBeakerGroup, slopeGroup, function(beaker: GreenBeaker, slope: Slope)
-        {
-            beaker.onCollide(slope);
-        }, undefined, this);
-        
-        this.physics.add.collider(greenBeakerGroup, this.player, function(beaker: GreenBeaker, player: Player)
-        {
-            beaker.onCollide(player);
-        }, undefined, this);
-        
-        // Checkpoint
-        this.physics.add.overlap(checkpointGroup, this.player, function(checkpoint: Checkpoint, player: Player)
-        {
-            checkpoint.onCollide(player);
-        });
-        
-        this.physics.add.overlap(slopeGroup, greenBeakerGroup, function(slope: Slope, beaker: GameObject)
-        {
-            slope.processCollision(beaker);
-        }, undefined, this);
-        */
-
-        /*
-        var updateGameObjects = this.sys.updateList.getActive();
-        var displayGameObjects = this.sys.displayList.getChildren();
-        
-        this.physics.add.overlap(slopeGroup, updateGameObjects, function(slope: Slope, object: GameObject)
-        {
-            slope.processCollision(object);
-        }, undefined, this);
-        */
-
-        // this.physics.add.collider(updateGameObjects, updateGameObjects, function(objectA: GameObject, objectB: GameObject)
-        // {
-        //     objectA.onCollide(objectB);
-        //     objectB.onCollide(objectA);
-        //     objectA.processCollision(objectB);
-        //     objectB.processCollision(objectA);
-        // }, undefined, this);
-
-        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
-        // {
-        //     objectA.onCollide(objectB);
-        //     objectB.onCollide(objectA);
-        //     objectA.processCollision(objectB);
-        //     objectB.processCollision(objectA);
-        // }, undefined, this);
-
-        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
-        // {
-        //     if(objectA.onOverlap !== undefined)
-        //     {
-        //         objectA.onOverlap(objectB);
-        //     }
-        //     if(objectB.onOverlap !== undefined)
-        //     {
-        //         objectB.onOverlap(objectA);
-        //     }
-
-        //     if(objectB.body !== undefined && objectA.processCollision !== undefined)
-        //     {   
-        //         objectA.processCollision(objectB);
-        //     }
-
-        // }, undefined, this);
-
-        // this.physics.add.collider(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
-        // {
-        //     if(objectB.onCollide !== undefined)
-        //     {
-        //         objectA.onCollide(objectB);
-        //         objectB.onCollide(objectA);
-        //     }
-        //     // console.log(objectA, objectB);
-        // });
-
-        // this.physics.add.overlap(updateGameObjects, displayGameObjects, function(objectA: GameObject, objectB: GameObject)
-        // {
-        //     if(objectB.onOverlap !== undefined)
-        //     {
-        //         objectA.onOverlap(objectB);
-        //         objectB.onOverlap(objectA);
-        //     }
-        //     // console.log(objectA, objectB);
-        // });]
-
-        // this.physics.world.on("collide", () =>
-        // {
-        //     console.log(true);
-        // });
-
+        console.log(this.gameObjects, this.solidGameObjects);
+       
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         
@@ -371,28 +238,5 @@ export default class PlanetLogicScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         (this.scene.get("planetEffects") as PlanetEffectsScene).processBrickCollision(this.player, this.tilemap);
-
-        // const activeList =  this.sys.updateList.getActive();
-        
-        // activeList.forEach((objectA: GameObject, i: number) => 
-        // {
-        //     var bodyA = objectA;
-        //     const rectA = new Phaser.Geom.Rectangle(bodyA.x, bodyA.y, bodyA.width, bodyA.height);
-
-        //     activeList.forEach((objectB: GameObject, j: number) => 
-        //     {
-        //         if(i === j)
-        //         {
-        //             return;
-        //         }
-        //         var bodyB = objectB;
-        //         const rectB = new Phaser.Geom.Rectangle(bodyB.x, bodyB.y, bodyB.width, bodyB.height);
-
-        //         if(Phaser.Geom.Intersects.RectangleToRectangle(rectA, rectB))
-        //         {
-        //             objectA.onCollide(objectB);
-        //         }
-        //     }); 
-        // }); 
     }
 }

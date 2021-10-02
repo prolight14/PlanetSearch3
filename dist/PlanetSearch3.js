@@ -137,14 +137,17 @@ var Beaker = (function (_super) {
     };
     Beaker.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (!this.wasOnSlope && !this.wasInLiquid && !this.slopeWay) {
-            if (this.body.blocked.left || this.body.touching.left) {
-                this.xDir = "right";
-            }
+        if (!this.wasOnSlope && !this.touchingSlope && !this.slopeWay) {
             if (this.body.blocked.right || this.body.touching.right) {
                 this.xDir = "left";
             }
+            if (this.body.blocked.left || this.body.touching.left) {
+                this.xDir = "right";
+            }
         }
+        else {
+        }
+        this.touchingSlope = false;
         this.slopeWay = "";
         if (this.wasInLiquid) {
             this.yDir = "up";
@@ -153,12 +156,20 @@ var Beaker = (function (_super) {
             this.yDir = "";
         }
     };
+    Beaker.prototype.onOverlap = function (object) {
+        if (object.texture.key !== "slope") {
+        }
+        else if (this.xDir) {
+            this.touchingSlope = true;
+        }
+    };
     Beaker.prototype.onCollide = function (object) {
         if (object.name === "slope") {
             var slope = object;
             this.slopeWay = slope.way;
+            slope.body.touching;
         }
-        else if (object.texture.key === "Player") {
+        if (object.texture.key === "Player") {
             var player = object;
             if (player.body.blocked.down && this.body.touching.up) {
                 player.body.velocity.y -= player.enemyBounce;
@@ -230,7 +241,7 @@ exports.default = Checkpoint;
 /*!************************************!*\
   !*** ./gameObjects/planet/Door.js ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -247,32 +258,37 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
 var Door = (function (_super) {
     __extends(Door, _super);
     function Door(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "door") || this;
-        scene.add.existing(_this);
+        var _this = _super.call(this, scene, x, y, "door", undefined, false) || this;
         scene.physics.add.existing(_this);
+        _this.setImmovable(true);
         _this.setVisible(false);
         _this.setMaxVelocity(0, 0);
-        _this.setOrigin(0.5, 0.5);
-        _this.setSize(16, 32);
+        _this.setOrigin(0, 0);
+        _this.width = _this.displayWidth = 16;
+        _this.height = _this.displayHeight = 32;
         return _this;
     }
     Door.prototype.setGoto = function (goto) {
         this.goto = goto;
     };
-    Door.prototype.onCollide = function (player) {
-        if (player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
-            this.scene.scene.get("planetLoader").restart({
-                loadType: "door",
-                reason: "door",
-                doorGoto: this.goto,
-            });
+    Door.prototype.onOverlap = function (object) {
+        if (object.texture.key === "Player") {
+            var player = object;
+            if (player.activate() && Math.abs(player.body.y - this.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
+                this.scene.scene.get("planetLoader").restart({
+                    loadType: "door",
+                    reason: "door",
+                    doorGoto: this.goto,
+                });
+            }
         }
     };
     return Door;
-}(Phaser.Physics.Arcade.Image));
+}(StaticGameObject_1.default));
 exports.default = Door;
 //# sourceMappingURL=Door.js.map
 
@@ -930,7 +946,7 @@ var Slope = (function (_super) {
         }
         return _this;
     }
-    Slope.prototype.processCollision = function (object) { };
+    Slope.prototype.onOverlap = function (object) { };
     Slope.prototype.intersects = function (rect) {
         return Phaser.Geom.Intersects.RectangleToTriangle(rect, this.triangle);
     };
@@ -1890,6 +1906,10 @@ var PlanetLoaderScene = (function (_super) {
     };
     PlanetLoaderScene.prototype.restart = function (inputData) {
         var _this = this;
+        if (this.loading) {
+            return;
+        }
+        this.loading = true;
         this.scene.pause("planetLogic");
         if (["restart", "death"].indexOf(inputData.reason) === -1) {
             this.traveler.setInfo({
@@ -1912,6 +1932,7 @@ var PlanetLoaderScene = (function (_super) {
                 loadData.currentLevel = inputData.startGoto.level;
             }
             planetLogicScene.scene.restart(inputData);
+            _this.loading = false;
         });
     };
     return PlanetLoaderScene;
@@ -2001,6 +2022,8 @@ var PlanetLogicScene = (function (_super) {
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
         tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.gameObjects.length = 0;
+        this.solidGameObjects.length = 0;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
@@ -2027,7 +2050,7 @@ var PlanetLogicScene = (function (_super) {
                     switch (tile.index) {
                         case INDEXES_1.DOOR_TOP:
                             tile.setCollision(false, false, false, false);
-                            doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            doorGroup.add(new Door_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
                         case INDEXES_1.DOOR_BOTTOM:
                             tile.setCollision(false, false, false, false);
@@ -2079,6 +2102,7 @@ var PlanetLogicScene = (function (_super) {
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
+        console.log(this.gameObjects, this.solidGameObjects);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;

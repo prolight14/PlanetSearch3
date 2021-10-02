@@ -163,6 +163,10 @@ var PlanetLoaderScene = (function (_super) {
     };
     PlanetLoaderScene.prototype.restart = function (inputData) {
         var _this = this;
+        if (this.loading) {
+            return;
+        }
+        this.loading = true;
         this.scene.pause("planetLogic");
         if (["restart", "death"].indexOf(inputData.reason) === -1) {
             this.traveler.setInfo({
@@ -185,6 +189,7 @@ var PlanetLoaderScene = (function (_super) {
                 loadData.currentLevel = inputData.startGoto.level;
             }
             planetLogicScene.scene.restart(inputData);
+            _this.loading = false;
         });
     };
     return PlanetLoaderScene;

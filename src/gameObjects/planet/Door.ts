@@ -1,20 +1,23 @@
 import PlanetLoaderScene from "../../scenes/planet/PlanetLoaderScene";
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
+import GameObject from "./GameObject";
 import Player from "./Player";
+import StaticGameObject from "./StaticGameObject";
 
-export default class Door extends Phaser.Physics.Arcade.Image
+export default class Door extends StaticGameObject
 {
     constructor(scene: PlanetLogicScene, x: number, y: number)
     {
-        super(scene, x, y, "door");
+        super(scene, x, y, "door", undefined, false);
 
-        scene.add.existing(this);
         scene.physics.add.existing(this);
-        this.setVisible(false);
 
+        this.setImmovable(true);
+        this.setVisible(false);
         this.setMaxVelocity(0, 0);
-        this.setOrigin(0.5, 0.5);
-        this.setSize(16, 32);
+        this.setOrigin(0, 0);
+        this.width = this.displayWidth = 16;
+        this.height = this.displayHeight = 32;
     }
 
     private goto: {
@@ -27,15 +30,20 @@ export default class Door extends Phaser.Physics.Arcade.Image
         this.goto = goto;
     }
 
-    public onCollide(player: Player)
+    public onOverlap(object: any)
     {
-        if(player.activate() && Math.abs(player.body.y - this.body.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05)
+        if(object.texture.key === "Player")
         {
-            (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
-                loadType: "door",
-                reason: "door",
-                doorGoto: this.goto,
-            }); 
+            const player: Player = object as Player;
+
+            if(player.activate() && Math.abs(player.body.y - this.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05)
+            {
+                (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
+                    loadType: "door",
+                    reason: "door",
+                    doorGoto: this.goto,
+                }); 
+            }
         }
     }
 }

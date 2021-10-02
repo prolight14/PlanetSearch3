@@ -68,7 +68,7 @@ var Slope = (function (_super) {
         }
         return _this;
     }
-    Slope.prototype.processCollision = function (object) { };
+    Slope.prototype.onOverlap = function (object) { };
     Slope.prototype.intersects = function (rect) {
         return Phaser.Geom.Intersects.RectangleToTriangle(rect, this.triangle);
     };

@@ -235,9 +235,17 @@ export default class PlanetLoaderScene extends Phaser.Scene
     }
 
     private player: Player;
+    private loading: boolean;
 
     public restart(inputData: any)
     {
+        if(this.loading)
+        {
+            return;
+        }
+
+        this.loading = true;
+
         this.scene.pause("planetLogic");
 
         if(["restart", "death"].indexOf(inputData.reason) === -1)
@@ -271,6 +279,8 @@ export default class PlanetLoaderScene extends Phaser.Scene
             }
 
             planetLogicScene.scene.restart(inputData);
+
+            this.loading = false;
         });
     }
 }

@@ -72,6 +72,8 @@ var PlanetLogicScene = (function (_super) {
         worldLayer.setDepth(0);
         worldLayer.setCollisionByProperty({ collides: true });
         tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.gameObjects.length = 0;
+        this.solidGameObjects.length = 0;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
@@ -98,7 +100,7 @@ var PlanetLogicScene = (function (_super) {
                     switch (tile.index) {
                         case INDEXES_1.DOOR_TOP:
                             tile.setCollision(false, false, false, false);
-                            doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
+                            doorGroup.add(new Door_1.default(_this, tile.pixelX, tile.pixelY));
                             break;
                         case INDEXES_1.DOOR_BOTTOM:
                             tile.setCollision(false, false, false, false);
@@ -150,6 +152,7 @@ var PlanetLogicScene = (function (_super) {
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
+        console.log(this.gameObjects, this.solidGameObjects);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
