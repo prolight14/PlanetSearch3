@@ -8,7 +8,7 @@ import BLOCK_INDEXES from "./BlockIndexes";
 import InvisiblePlatform from "../../gameObjects/planet/InvisiblePlatform";
 import GreenBeaker from "../../gameObjects/planet/GreenBeaker";
 import Checkpoint from "../../gameObjects/planet/Checkpoint";
-import PlanetLoaderScene from "./PlanetLoaderScene";
+import PlanetLoaderScene from "../planet/PlanetLoaderScene";
 import GameObject from "../../gameObjects/planet/GameObject";
 
 export default class PlanetLogicScene extends Phaser.Scene
@@ -209,9 +209,7 @@ export default class PlanetLogicScene extends Phaser.Scene
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
-
-        console.log(this.gameObjects, this.solidGameObjects);
-       
+        
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         

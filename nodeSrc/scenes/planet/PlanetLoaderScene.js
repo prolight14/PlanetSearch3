@@ -29,13 +29,18 @@ var PlanetLoaderScene = (function (_super) {
         }
     };
     PlanetLoaderScene.prototype.loadPlayer = function (inputData, tilemap, doorGroup, checkpointGroup, currentLevel, defaultLevel) {
-        var spawnPoint = tilemap.findObject("Objects", function (obj) {
-            return obj.name === "Player Spawn Point";
-        });
-        if (!spawnPoint) {
+        var spawnPointObj = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
+        var spawnPoint;
+        if (!spawnPointObj) {
             spawnPoint = {
                 x: 0,
                 y: 0
+            };
+        }
+        else {
+            spawnPoint = {
+                x: spawnPointObj.x,
+                y: spawnPointObj.y
             };
         }
         this.handleDoors(tilemap, doorGroup);

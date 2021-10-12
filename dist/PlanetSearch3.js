@@ -1472,7 +1472,7 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "planet";
+        this.currentSceneGroup = "space";
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
@@ -1497,55 +1497,6 @@ var EntryScene = (function (_super) {
 }(Phaser.Scene));
 exports.default = EntryScene;
 //# sourceMappingURL=EntryScene.js.map
-
-/***/ }),
-
-/***/ "./scenes/TitleScene.js":
-/*!******************************!*\
-  !*** ./scenes/TitleScene.js ***!
-  \******************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene = (function (_super) {
-    __extends(TitleScene, _super);
-    function TitleScene() {
-        return _super.call(this, "title") || this;
-    }
-    TitleScene.prototype.preload = function () {
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
-    };
-    TitleScene.prototype.create = function () {
-        var _this = this;
-        var gameWidth = this.game.canvas.width;
-        var gameHeight = this.game.canvas.height;
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
-        this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
-        this.input.keyboard.once("keydown", function () {
-            _this.cameras.main.fadeOut(500, 0, 0, 0);
-            _this.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.start("entry");
-            });
-        });
-    };
-    return TitleScene;
-}(Phaser.Scene));
-exports.default = TitleScene;
-//# sourceMappingURL=TitleScene.js.map
 
 /***/ }),
 
@@ -1803,13 +1754,18 @@ var PlanetLoaderScene = (function (_super) {
         }
     };
     PlanetLoaderScene.prototype.loadPlayer = function (inputData, tilemap, doorGroup, checkpointGroup, currentLevel, defaultLevel) {
-        var spawnPoint = tilemap.findObject("Objects", function (obj) {
-            return obj.name === "Player Spawn Point";
-        });
-        if (!spawnPoint) {
+        var spawnPointObj = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
+        var spawnPoint;
+        if (!spawnPointObj) {
             spawnPoint = {
                 x: 0,
                 y: 0
+            };
+        }
+        else {
+            spawnPoint = {
+                x: spawnPointObj.x,
+                y: spawnPointObj.y
             };
         }
         this.handleDoors(tilemap, doorGroup);
@@ -2133,7 +2089,6 @@ var PlanetLogicScene = (function (_super) {
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
-        console.log(this.gameObjects, this.solidGameObjects);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
@@ -2989,7 +2944,6 @@ var exports = __webpack_exports__;
   \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene_1 = __webpack_require__(/*! ./scenes/TitleScene */ "./scenes/TitleScene.js");
 var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/EntryScene.js");
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
@@ -3015,7 +2969,6 @@ var config = {
     },
     disableContextMenu: true,
     scene: [
-        TitleScene_1.default,
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,

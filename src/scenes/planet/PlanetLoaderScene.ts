@@ -32,20 +32,24 @@ export default class PlanetLoaderScene extends Phaser.Scene
         defaultLevel: string,
     )
     {
-        let spawnPoint = (tilemap.findObject("Objects", obj =>
-        {
-            return obj.name === "Player Spawn Point";
-        }) as ({ 
-            x: number; 
-            y: number 
-        }));
-        
-        if(!spawnPoint)
+        let spawnPointObj = tilemap.findObject("Objects", obj => obj.name === "Player Spawn Point");
+
+        var spawnPoint;
+
+        if(!spawnPointObj)
         {
             spawnPoint = {
                 x: 0,
                 y: 0
             };
+        }
+        else
+        {
+
+            spawnPoint = {
+               x: spawnPointObj.x,
+               y: spawnPointObj.y
+           };
         }
 
         this.handleDoors(tilemap, doorGroup);

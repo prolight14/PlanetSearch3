@@ -152,7 +152,6 @@ var PlanetLogicScene = (function (_super) {
             objectA.onOverlap(objectB);
             objectB.onOverlap(objectA);
         });
-        console.log(this.gameObjects, this.solidGameObjects);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
