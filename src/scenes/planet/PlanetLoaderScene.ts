@@ -113,8 +113,8 @@ export default class PlanetLoaderScene extends Phaser.Scene
                         if(doorBounds.contains(obj.x as number, obj.y as number))
                         {
                             return {
-                                x: door.x,
-                                y: door.y
+                                x: door.x + door.body.halfWidth / 2,
+                                y: door.y + door.body.halfHeight
                             };
                         }
                     }

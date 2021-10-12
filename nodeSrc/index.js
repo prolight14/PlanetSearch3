@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var TitleScene_1 = require("./scenes/TitleScene");
 var EntryScene_1 = require("./scenes/EntryScene");
 var SpaceScene_1 = require("./scenes/space/SpaceScene");
 var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraControllerScene");
@@ -25,6 +26,7 @@ var config = {
     },
     disableContextMenu: true,
     scene: [
+        TitleScene_1.default,
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,

@@ -76,8 +76,8 @@ var PlanetLoaderScene = (function (_super) {
                         var doorBounds = door.getBounds();
                         if (doorBounds.contains(obj.x, obj.y)) {
                             return {
-                                x: door.x,
-                                y: door.y
+                                x: door.x + door.body.halfWidth / 2,
+                                y: door.y + door.body.halfHeight
                             };
                         }
                     }
