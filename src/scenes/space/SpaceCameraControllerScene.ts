@@ -42,11 +42,6 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         this.updateZoom(1);
     }
-
-    public getCamAngle(): number
-    {
-        return this.camAngle;
-    }
    
     public getCameraAngle(): number
     {
