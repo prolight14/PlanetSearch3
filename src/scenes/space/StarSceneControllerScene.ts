@@ -1,3 +1,4 @@
+import SpaceScene from "./SpaceScene";
 import SpaceStarScene from "./SpaceStarScene";
 
 export default class StarSceneControllerScene extends Phaser.Scene
@@ -9,6 +10,12 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
     starScenesSleeping: boolean;
 
+    public preload()
+    {
+        this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
+        this.load.image("starBackground2", "./assets/Space/Stars/starBackground2.png");
+    }
+
     public create()
     {
         this.startStarScenes();
@@ -18,32 +25,73 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
     private startStarScenes()
     {
-        this.scene.add("spaceStar", SpaceStarScene, true,
-        {
-            // starsPerCell: 100,
-            starsPerCell: 20,
-            starSize: 4,
-            starScroll: 1
-        });
-        this.scene.sendToBack("spaceStar");
+        const spaceScene = this.scene.get("space") as SpaceScene;
+       
+        // this.scene.add("spaceStar", SpaceStarScene, true,
+        // {
+        //     // starsPerCell: 100,
+        //     starsPerCell: 20,
+        //     starSize: 4,
+        //     starScroll: 1,
+        //     imageKey: "backstars1"
+        // });
+        // this.scene.sendToBack("spaceStar");
+
+        // this.scene.add("spaceStar2", SpaceStarScene, true,
+        // {
+        //     // starsPerCell: 124,
+        //     starsPerCell: 29,
+        //     starSize: 3,
+        //     starScroll: 0.73,
+        //     imageKey: "backstars1"
+        // });
+        // this.scene.sendToBack("spaceStar2");
 
         this.scene.add("spaceStar2", SpaceStarScene, true,
         {
-            // starsPerCell: 124,
-            starsPerCell: 29,
-            starSize: 3,
-            starScroll: 0.73
+            // starsPerCell: 250,
+            // starsPerCell: 42,
+            // starSize: 2,
+            starScroll: 0.87,
+
+            imageKey: "starBackground2",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 800,
+                    cellHeight: 800
+                }
+            }
         });
         this.scene.sendToBack("spaceStar2");
 
-        this.scene.add("spaceStar3", SpaceStarScene, true,
+        this.scene.add("spaceStar", SpaceStarScene, true,
         {
             // starsPerCell: 250,
-            starsPerCell: 42,
-            starSize: 2,
-            starScroll: 0.56
+            // starsPerCell: 42,
+            // starSize: 2,
+            starScroll: 0.65,
+
+            imageKey: "starBackground",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 800,
+                    cellHeight: 800
+                }
+            }
         });
-        this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceStar");
 
         this.scene.sendToBack("spaceBackground");
 

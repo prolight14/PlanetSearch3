@@ -34,6 +34,8 @@ var SpaceGameObject = (function (_super) {
         _this_1.bodyConf.updateBoundingBox();
         return _this_1;
     }
+    SpaceGameObject.prototype.onCollide = function (object) {
+    };
     return SpaceGameObject;
 }(Phaser.GameObjects.Sprite));
 exports.default = SpaceGameObject;

@@ -15,20 +15,62 @@ export default class Ship extends SpaceGameObject
         shoot: () => boolean;
     }
 
+    protected maxSpeed: number = 10;
+
     protected angleVel: number;
+    protected angleAcl: number = 0.4;
+    protected angleDeacl: number = 0.1;
+    protected maxAngleVel: number = 3;
+    protected useAngleAcl: boolean = false;
+
     protected speed: number = 0;
 
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
 
-        if(this.controls.turnLeft())
+        if(this.useAngleAcl)
         {
-            this.setAngle(this.angle - this.angleVel);
-        }     
-        if(this.controls.turnRight())
-        {
+            if(this.controls.turnLeft())
+            {
+                this.angleVel -= this.angleAcl;
+            }
+            if(this.controls.turnRight())
+            {
+                this.angleVel += this.angleAcl;
+            }
+            this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
+
+            if(!this.controls.turnLeft() && !this.controls.turnRight())
+            {
+                if(this.angleVel > 0)
+                {
+                    this.angleVel -= this.angleDeacl;
+                }
+                if(this.angleVel < 0)
+                {
+                    this.angleVel += this.angleDeacl;
+                }
+
+                if(this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl)
+                {
+                    this.angleVel = 0;
+                }
+
+            }
+
             this.setAngle(this.angle + this.angleVel);
+        }
+        else
+        {
+            if(this.controls.turnLeft())
+            {
+                this.setAngle(this.angle - this.angleVel);
+            }     
+            if(this.controls.turnRight())
+            {
+                this.setAngle(this.angle + this.angleVel);
+            }
         }
 
         if(this.controls.goForward())
@@ -59,7 +101,7 @@ export default class Ship extends SpaceGameObject
             } 
         }
 
-        this.speed = Math.min(this.speed, 10);
+        this.speed = Math.min(this.speed, this.maxSpeed);
 
         let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
         this.x += Math.cos(angle) * this.speed;

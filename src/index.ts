@@ -52,7 +52,7 @@ let config: Phaser.Types.Core.GameConfig = {
     disableContextMenu: true,
     scene: [
         // TitleScene,
-
+ 
         // Entry scene 
         EntryScene,
 

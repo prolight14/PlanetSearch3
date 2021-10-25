@@ -14,10 +14,13 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public preload()
     {
-        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
-        this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
+        this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
+        this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
+        this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
@@ -150,6 +153,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.csp.updateWorld((csp?: any) =>
         {
             csp.systems.displayList.add(playerShip.particles);
+
+            this.sys.displayList.list.forEach((object: any) =>
+            {   
+                if(object.particles)
+                {
+                    csp.systems.displayList.add(object.particles);
+                }
+            });
         });
     }
 }

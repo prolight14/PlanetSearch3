@@ -13,23 +13,15 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceGameObject_1 = require("./SpaceGameObject");
-var Planet = (function (_super) {
-    __extends(Planet, _super);
-    function Planet(scene, x, y, texture) {
+var EnemyShip_1 = require("./EnemyShip");
+var HyperBeamerShip = (function (_super) {
+    __extends(HyperBeamerShip, _super);
+    function HyperBeamerShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setScale(7);
+        _this.maxSpeed = 7.5;
         return _this;
     }
-    Planet.prototype.preUpdate = function (time, delta) {
-        _super.prototype.preUpdate.call(this, time, delta);
-        this.bodyConf.update();
-    };
-    Planet.prototype.onCollide = function (object) {
-        if (object._arrayName === "playerShip") {
-        }
-    };
-    return Planet;
-}(SpaceGameObject_1.default));
-exports.default = Planet;
-//# sourceMappingURL=Planet.js.map
+    return HyperBeamerShip;
+}(EnemyShip_1.default));
+exports.default = HyperBeamerShip;
+//# sourceMappingURL=HyperBeamerShip.js.map

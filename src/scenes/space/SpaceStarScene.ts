@@ -15,11 +15,6 @@ export default class SpaceStarScene extends Phaser.Scene
             url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csStars'
         });
-
-        if(!this.textures.exists("backstars1"))
-        {
-            this.load.image("backstars1", "./assets/Space/Stars/backstars1.png");
-        }
     }
 
     private spaceScene: SpaceScene;
@@ -27,7 +22,26 @@ export default class SpaceStarScene extends Phaser.Scene
     private subScrollX: number;
     private subScrollY: number;
     
-    public create(data: { starsPerCell: number, starSize: number, starScroll: number })
+    public create(data: { 
+
+        starsPerCell: number, 
+        starSize: number, 
+        starScroll: number, 
+        imageKey: string, 
+
+        cspConfig?: { 
+            window: {
+                width: number,
+                height: number
+            },
+            grid: {
+                cols: number,
+                rows: number,
+                cellWidth: number,
+                cellHeight: number
+            }
+        } 
+    })
     {
         this.starsPerCell = data.starsPerCell;
         this.starSize = data.starSize;
@@ -35,7 +49,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController") as SpaceCameraControllerScene;
-        this.csStars.initWorld(this.spaceScene.cspConfig);
+        this.csStars.initWorld(data.cspConfig || this.spaceScene.cspConfig);
 
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
@@ -45,32 +59,48 @@ export default class SpaceStarScene extends Phaser.Scene
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
         
         this.stars = this.add.graphics();
-        
-        const screenWidth: number = this.game.config.width as number;
-        const screenHeight: number = this.game.config.height as number;
-        
-        
-        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight);
-        // this.rt.setScrollFactor(0, 0);
+         
+        this.rt = this.add.renderTexture(0, 0, this.game.config.width as number, this.game.config.height as number);
         this.cameras.main.ignore(this.rt);
-        this.backstars1 = this.add.image(0, 0, "backstars1");
+        this.starImage = this.add.image(0, 0, data.imageKey).setScale(2, 2);
         
-        // this.cameras.main.ignore(this.rt);
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
-        // this.frontCamera.x = -400;
-        // this.frontCamera.y = -400;
         this.frontCamera.ignore(this.rt);
         this.frontCamera.startFollow(this.cameras.main);
 
-        this.backCamera = this.cameras.add(0, 0, screenWidth, screenHeight);
+        this.cameras.add();
+
+        this.tileStarImage();
     }
 
-    private frontCamera: Phaser.Cameras.Scene2D.Camera;
-    private backCamera: Phaser.Cameras.Scene2D.Camera;
+    private tileStarImage()
+    {
+        var cellWidth = this.csStars.world.cameraGrid.cellWidth;
+        var cellHeight = this.csStars.world.cameraGrid.cellHeight;
 
-    private rt: Phaser.GameObjects.RenderTexture
-    private backstars1: Phaser.GameObjects.Image;
+        var cellImageRT = this.add.renderTexture(0, 0, cellWidth, cellHeight);
+
+        cellImageRT.beginDraw();
+
+        for(var x = 0; x < cellWidth; x += this.starImage.displayWidth)
+        {
+            for(var y = 0; y < cellHeight; y += this.starImage.displayHeight)
+            {
+                cellImageRT.batchDraw(this.starImage, x, y);
+            }
+        }
+
+        cellImageRT.endDraw();
+
+        this.cellImageRT = cellImageRT;
+    }
+
+    private cellImageRT: Phaser.GameObjects.RenderTexture;
+    private rt: Phaser.GameObjects.RenderTexture;
+    private frontCamera: Phaser.Cameras.Scene2D.Camera;
+
+    private starImage: Phaser.GameObjects.Image;
 
     public update()
     {  
@@ -89,7 +119,10 @@ export default class SpaceStarScene extends Phaser.Scene
 
         var world = this.spaceScene.csp.world;
         this.csStars.world.camera.setWindow(
-            world.camera.x, world.camera.y, world.camera.width + Math.floor(world.camera.width / mainCam.zoom), world.camera.height + Math.floor(world.camera.height / mainCam.zoom)
+            world.camera.x, 
+            world.camera.y, 
+            world.camera.width + Math.floor(world.camera.width / mainCam.zoom),
+            world.camera.height + Math.floor(world.camera.height / mainCam.zoom)
         );
 
         var follow: { x: number, y: number } = this.spaceScene.getCameraTarget();
@@ -105,8 +138,6 @@ export default class SpaceStarScene extends Phaser.Scene
         this.renderStars();
 
         this.frontCamera.zoom = cam.zoom;
-        // this.frontCamera.setA = cam.zoom;
-
     }
 
 
@@ -114,37 +145,14 @@ export default class SpaceStarScene extends Phaser.Scene
 
     private renderStars()
     {
-        // Performance ideas:
-        // 1. Try rendering only 1 star layer
-        // 2. Try rendering an image of stars instead of indiviual points
-        // var stars: Phaser.GameObjects.Graphics = this.stars;
-
-        // stars.clear();
-        // stars.fillStyle(0xFFFFFF);
-
         let world: any = this.csStars.world;
         let mainCam: Phaser.Cameras.Scene2D.Camera = this.cameras.main;
-
-        // let rng, i, x, y;
 
         let cellWidth: number = world.cameraGrid.cellWidth;
         let cellHeight: number = world.cameraGrid.cellHeight;
 
-        // const screenWidth: number = this.game.config.width as number;
-        // const screenHeight: number = this.game.config.height as number;
-
-        // this.rt.displayWidth = this.rt.width = mainCam.displayWidth * 2;//setScale(mainCam.displayWidth / screenWidth, mainCam.displayHeight / screenHeight);
-        // this.rt.displayHeight = this.rt.height = mainCam.displayHeight * 2;
-        // this.rt.resize(mainCam.displayWidth, mainCam.displayHeight);
-        // this.rt.setOrigin(0, 0);
-        // this.rt.x = -1000;
-        // this.rt.x = this.subScrollX * 0.25;
-        // this.rt.y = this.subScrollY * 0.25;
-
-        this.rt.camera.x = -this.frontCamera.scrollX * this.frontCamera.zoom;//-this.frontCamera.scrollX;
-        this.rt.camera.y = -this.frontCamera.scrollY * this.frontCamera.zoom;//-this.frontCamera.scrollY;
-        // this.rt.camera.width = mainCam.width * this.frontCamera.zoom;
-        // this.rt.camera.height = mainCam.height * this.frontCamera.zoom;
+        this.rt.camera.x = -this.frontCamera.scrollX * this.frontCamera.zoom;
+        this.rt.camera.y = -this.frontCamera.scrollY * this.frontCamera.zoom;
         this.rt.camera.zoom = this.frontCamera.zoom;
         this.rt.camera.setAngle((this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle());
 
@@ -153,27 +161,7 @@ export default class SpaceStarScene extends Phaser.Scene
 
         world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
         {
-            // rng = new Phaser.Math.RandomDataGenerator([col.toString() + row.toString()]);
-
-            // x = col * cellWidth;
-            // y = row * cellHeight;
-
-            // for(i = 0; i < this.starsPerCell; i++)
-            // {
-            //     stars.fillRect(x + rng.between(0, cellWidth), y + rng.between(0, cellHeight), this.starSize, this.starSize);
-            // }
-
-            this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
-            this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX) + 300, Math.floor(row * cellHeight - mainCam.scrollY));
-            this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY) + 300);
-            this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX) + 300, Math.floor(row * cellHeight - mainCam.scrollY) + 300);
-            // this.rt.draw("backstars1", Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
-
-            // this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth), Math.floor(row * cellHeight));
-            // this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth) + 300, Math.floor(row * cellHeight));
-            // this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth), Math.floor(row * cellHeight) + 300);
-            // this.rt.batchDraw(this.backstars1, Math.floor(col * cellWidth) + 300, Math.floor(row * cellHeight) + 300);
-
+            this.rt.batchDraw(this.cellImageRT, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
         });
 
         this.rt.endDraw();

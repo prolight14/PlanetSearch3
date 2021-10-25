@@ -25,8 +25,14 @@ export default class SpaceGameObject extends Phaser.GameObjects.Sprite
         this.bodyConf.updateBoundingBox();
     }
 
+    public _id: number;
     body: any;
     bodyConf: any;
     _arrayName: string;
     _name: string;
+
+    public onCollide(object: SpaceGameObject)
+    {
+
+    }
 }

@@ -19,30 +19,51 @@ var StarSceneControllerScene = (function (_super) {
     function StarSceneControllerScene() {
         return _super.call(this, "starSceneController") || this;
     }
+    StarSceneControllerScene.prototype.preload = function () {
+        this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
+        this.load.image("starBackground2", "./assets/Space/Stars/starBackground2.png");
+    };
     StarSceneControllerScene.prototype.create = function () {
         this.startStarScenes();
         this.events.on("sleep", this.onSleep, this);
         this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
-        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starsPerCell: 20,
-            starSize: 4,
-            starScroll: 1
-        });
-        this.scene.sendToBack("spaceStar");
+        var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starsPerCell: 29,
-            starSize: 3,
-            starScroll: 0.73
+            starScroll: 0.87,
+            imageKey: "starBackground2",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 800,
+                    cellHeight: 800
+                }
+            }
         });
         this.scene.sendToBack("spaceStar2");
-        this.scene.add("spaceStar3", SpaceStarScene_1.default, true, {
-            starsPerCell: 42,
-            starSize: 2,
-            starScroll: 0.56
+        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
+            starScroll: 0.65,
+            imageKey: "starBackground",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 800,
+                    cellHeight: 800
+                }
+            }
         });
-        this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceStar");
         this.scene.sendToBack("spaceBackground");
         this.starScenesSleeping = false;
     };

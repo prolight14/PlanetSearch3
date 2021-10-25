@@ -24,9 +24,6 @@ var SpaceStarScene = (function (_super) {
             url: "./libraries/CartesianSystemPlugin.js",
             sceneKey: 'csStars'
         });
-        if (!this.textures.exists("backstars1")) {
-            this.load.image("backstars1", "./assets/Space/Stars/backstars1.png");
-        }
     };
     SpaceStarScene.prototype.create = function (data) {
         this.starsPerCell = data.starsPerCell;
@@ -34,23 +31,35 @@ var SpaceStarScene = (function (_super) {
         this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
-        this.csStars.initWorld(this.spaceScene.cspConfig);
+        this.csStars.initWorld(data.cspConfig || this.spaceScene.cspConfig);
         var bounds = this.csStars.world.bounds;
         var width = bounds.maxX - bounds.minX;
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
         this.stars = this.add.graphics();
-        var screenWidth = this.game.config.width;
-        var screenHeight = this.game.config.height;
-        this.rt = this.add.renderTexture(0, 0, screenWidth, screenHeight);
+        this.rt = this.add.renderTexture(0, 0, this.game.config.width, this.game.config.height);
         this.cameras.main.ignore(this.rt);
-        this.backstars1 = this.add.image(0, 0, "backstars1");
+        this.starImage = this.add.image(0, 0, data.imageKey).setScale(2, 2);
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
         this.frontCamera.ignore(this.rt);
         this.frontCamera.startFollow(this.cameras.main);
-        this.backCamera = this.cameras.add(0, 0, screenWidth, screenHeight);
+        this.cameras.add();
+        this.tileStarImage();
+    };
+    SpaceStarScene.prototype.tileStarImage = function () {
+        var cellWidth = this.csStars.world.cameraGrid.cellWidth;
+        var cellHeight = this.csStars.world.cameraGrid.cellHeight;
+        var cellImageRT = this.add.renderTexture(0, 0, cellWidth, cellHeight);
+        cellImageRT.beginDraw();
+        for (var x = 0; x < cellWidth; x += this.starImage.displayWidth) {
+            for (var y = 0; y < cellHeight; y += this.starImage.displayHeight) {
+                cellImageRT.batchDraw(this.starImage, x, y);
+            }
+        }
+        cellImageRT.endDraw();
+        this.cellImageRT = cellImageRT;
     };
     SpaceStarScene.prototype.update = function () {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
@@ -86,10 +95,7 @@ var SpaceStarScene = (function (_super) {
         this.rt.clear();
         this.rt.beginDraw();
         world.loopThroughVisibleCells(function (cell, col, row) {
-            _this.rt.batchDraw(_this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
-            _this.rt.batchDraw(_this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX) + 300, Math.floor(row * cellHeight - mainCam.scrollY));
-            _this.rt.batchDraw(_this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY) + 300);
-            _this.rt.batchDraw(_this.backstars1, Math.floor(col * cellWidth - mainCam.scrollX) + 300, Math.floor(row * cellHeight - mainCam.scrollY) + 300);
+            _this.rt.batchDraw(_this.cellImageRT, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
         });
         this.rt.endDraw();
     };

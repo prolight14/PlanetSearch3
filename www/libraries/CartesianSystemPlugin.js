@@ -70,13 +70,13 @@ CartesianSystemPlugin.prototype = {
 
         sys.updateList.update();
 
-        callback(this);
-
         world.loopProcessList(function(object)
         {
             sys.displayList.add(object);
             sys.updateList.add(object);
         });
+        
+        callback(this);
 
         sys.displayList.queueDepthSort();
     },

@@ -5,12 +5,22 @@ import Planet from "../../gameObjects/space/Planet";
 import EnemyShip from "../../gameObjects/space/EnemyShip";
 import Nebula from "../../gameObjects/space/Nebula";
 import Asteroid from "../../gameObjects/space/Asteroid";
+import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
+import PlayerShipBullet from "../../gameObjects/space/PlayerShipBullet";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
     {
-        super("spaceLogic");
+        super({
+            key: "spaceLogic",
+            physics: {
+                default: "matter",
+                matter: {
+                    debug: true
+                }
+            }
+        });
     }
 
     spaceScene: SpaceScene;
@@ -23,7 +33,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         var world: any = this.spaceScene.csp.world;
 
         
-        var nebulae = world.add.gameObjectArray(Nebula);
+        var nebulae = world.add.gameObjectArray(Nebula, "nebula");
 
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
@@ -38,30 +48,61 @@ export default class SpaceLogicScene extends Phaser.Scene
             nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
         
-        var planets = world.add.gameObjectArray(Planet);
+        var planets = world.add.gameObjectArray(Planet, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
 
-        var enemyShips = world.add.gameObjectArray(EnemyShip);
-        enemyShips.add(this.spaceScene, 67000, 60000);
-        enemyShips.add(this.spaceScene, 70000, 60000);
-
-        var asteroids = world.add.gameObjectArray(Asteroid);
+        var asteroids = world.add.gameObjectArray(Asteroid, "asteroid");
 
         asteroids.add(this.spaceScene, 69300, 61000);
 
-        this.playerShip = world.add.gameObjectArray(PlayerShip).add(this.spaceScene, 69000, 61000);
+        var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet, "playerShipBullet");
+
+        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
+        this.playerShip.setBullets(playerShipBullets);
+
+        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 61000);
+
+        console.log(this.playerShip);
 
         this.spaceScene.sys.displayList.list.forEach((object: any) =>
         {
-            object.setScale(2);
+            if(object.scale < 2)
+            {
+                object.setScale(2);
+            }
         });
     }
 
     public update()
     {
         this.updatePlanets();
+
+        var updateList = this.spaceScene.sys.updateList.getActive();
+
+        /*updateList.forEach((objectA: SpaceGameObject) =>
+        {
+            updateList.forEach((objectB: SpaceGameObject) =>
+            {
+                // if(objectA._id === objectB._id)
+                // {
+                //     return;
+                // }
+
+                var boundsA = objectA.getBounds();
+	            var boundsB = objectB.getBounds();
+
+                if(Phaser.Geom.Intersects.RectangleToRectangle(boundsA, boundsB))
+                {
+                    console.log("hit! (2)");
+                    objectA.onCollide(objectB);
+                    objectB.onCollide(objectA);
+                }
+
+            });
+        });*/
     }
 
     private updatePlanets()

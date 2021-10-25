@@ -1,4 +1,6 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
+import timer from "../Utils/timer";
+import PlayerShipBullet from "./PlayerShipBullet";
 import Ship from "./Ship";
 
 export default class PlayerShip extends Ship
@@ -10,11 +12,15 @@ export default class PlayerShip extends Ship
     {
         super(scene, x, y, "helixShip");
 
+        this.useAngleAcl = true;
+        this.angleVel = 0;
+
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
             d: scene.input.keyboard.addKey('d'),
             w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s')
+            s: scene.input.keyboard.addKey('s'),
+            space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
         };
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -28,7 +34,12 @@ export default class PlayerShip extends Ship
             x: 0,
             y: 0,
             quantity: 1,
-            alpha: { min: 0x00, max: 0xFF }
+            // alpha: { min: 0x00, max: 0xFF }
+            alpha: {
+                start: 0xFF,
+                end: 0x00,
+                steps: 10
+            }
         });
         
         this.controls = {
@@ -48,14 +59,40 @@ export default class PlayerShip extends Ship
             {
                 return this.keys.s.isDown;
             },
-            shoot: () => false         
+            shoot: () =>
+            {
+                return this.keys.space.isDown;
+            }         
         };
         
         this.setScale(1, 1);
-        this.angleVel = 3;
         this.speed = 6;
+
+        this.setupShootTimer();
     }
     
+    private setupShootTimer()
+    {
+        this.shootTimer = timer(true, 750, () =>
+        {
+            if(this.controls.shoot())
+            {
+                this.bullets.add(this.scene, this.x, this.y, this.angle - 90);
+            }
+
+            this.shootTimer.reset();
+        });
+    }
+
+    private shootTimer: any;
+
+    public setBullets(playerShipBullets: any)
+    {
+        this.bullets = playerShipBullets
+    }
+
+    private bullets: any;
+
     public keys: any;
     
     public preUpdate()
@@ -68,7 +105,8 @@ export default class PlayerShip extends Ship
         this.particles.y = this.y + Math.sin(rot) * this.height;
         this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
         this.pEmitter.setVisible(this.speed >= 0.005);
-        this.pEmitter.setSpeed(this.speed * 100 / 10);
+        this.pEmitter.setSpeed(this.speed * 10);
         
+        this.shootTimer.update();
     }
 }

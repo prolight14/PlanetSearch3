@@ -13,23 +13,13 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceGameObject_1 = require("./SpaceGameObject");
-var Planet = (function (_super) {
-    __extends(Planet, _super);
-    function Planet(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setScale(7);
-        return _this;
+var HyperBeamerShip_1 = require("./HyperBeamerShip");
+var HyperBeamerSType = (function (_super) {
+    __extends(HyperBeamerSType, _super);
+    function HyperBeamerSType(scene, x, y) {
+        return _super.call(this, scene, x, y, "hyperBeamerSType") || this;
     }
-    Planet.prototype.preUpdate = function (time, delta) {
-        _super.prototype.preUpdate.call(this, time, delta);
-        this.bodyConf.update();
-    };
-    Planet.prototype.onCollide = function (object) {
-        if (object._arrayName === "playerShip") {
-        }
-    };
-    return Planet;
-}(SpaceGameObject_1.default));
-exports.default = Planet;
-//# sourceMappingURL=Planet.js.map
+    return HyperBeamerSType;
+}(HyperBeamerShip_1.default));
+exports.default = HyperBeamerSType;
+//# sourceMappingURL=GreenHyperBeamerShip.js.map

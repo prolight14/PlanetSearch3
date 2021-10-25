@@ -21,10 +21,12 @@ var SpaceScene = (function (_super) {
         return _this;
     }
     SpaceScene.prototype.preload = function () {
-        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
-        this.load.image("enemyShip", "./assets/Space/Ships/enemyShip.png");
+        this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
+        this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
+        this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
@@ -111,10 +113,16 @@ var SpaceScene = (function (_super) {
         return this.cameraTarget;
     };
     SpaceScene.prototype.update = function (time, delta) {
+        var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
             csp.systems.displayList.add(playerShip.particles);
+            _this.sys.displayList.list.forEach(function (object) {
+                if (object.particles) {
+                    csp.systems.displayList.add(object.particles);
+                }
+            });
         });
     };
     return SpaceScene;

@@ -18,16 +18,44 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.maxSpeed = 10;
+        _this.angleAcl = 0.4;
+        _this.angleDeacl = 0.1;
+        _this.maxAngleVel = 3;
+        _this.useAngleAcl = false;
         _this.speed = 0;
         return _this;
     }
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (this.controls.turnLeft()) {
-            this.setAngle(this.angle - this.angleVel);
-        }
-        if (this.controls.turnRight()) {
+        if (this.useAngleAcl) {
+            if (this.controls.turnLeft()) {
+                this.angleVel -= this.angleAcl;
+            }
+            if (this.controls.turnRight()) {
+                this.angleVel += this.angleAcl;
+            }
+            this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
+            if (!this.controls.turnLeft() && !this.controls.turnRight()) {
+                if (this.angleVel > 0) {
+                    this.angleVel -= this.angleDeacl;
+                }
+                if (this.angleVel < 0) {
+                    this.angleVel += this.angleDeacl;
+                }
+                if (this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl) {
+                    this.angleVel = 0;
+                }
+            }
             this.setAngle(this.angle + this.angleVel);
+        }
+        else {
+            if (this.controls.turnLeft()) {
+                this.setAngle(this.angle - this.angleVel);
+            }
+            if (this.controls.turnRight()) {
+                this.setAngle(this.angle + this.angleVel);
+            }
         }
         if (this.controls.goForward()) {
             this.speed += 0.5;
@@ -48,7 +76,7 @@ var Ship = (function (_super) {
                 this.speed = 0;
             }
         }
-        this.speed = Math.min(this.speed, 10);
+        this.speed = Math.min(this.speed, this.maxSpeed);
         var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
         this.x += Math.cos(angle) * this.speed;
         this.y += Math.sin(angle) * this.speed;

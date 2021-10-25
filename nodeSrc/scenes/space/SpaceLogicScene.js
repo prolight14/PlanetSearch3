@@ -15,18 +15,27 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
-var EnemyShip_1 = require("../../gameObjects/space/EnemyShip");
 var Nebula_1 = require("../../gameObjects/space/Nebula");
 var Asteroid_1 = require("../../gameObjects/space/Asteroid");
+var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
+var PlayerShipBullet_1 = require("../../gameObjects/space/PlayerShipBullet");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
-        return _super.call(this, "spaceLogic") || this;
+        return _super.call(this, {
+            key: "spaceLogic",
+            physics: {
+                default: "matter",
+                matter: {
+                    debug: true
+                }
+            }
+        }) || this;
     }
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
-        var nebulae = world.add.gameObjectArray(Nebula_1.default);
+        var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
@@ -35,22 +44,27 @@ var SpaceLogicScene = (function (_super) {
         for (var i = 0; i < nebulaeAmt; i++) {
             nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
-        var planets = world.add.gameObjectArray(Planet_1.default);
+        var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
-        var enemyShips = world.add.gameObjectArray(EnemyShip_1.default);
-        enemyShips.add(this.spaceScene, 67000, 60000);
-        enemyShips.add(this.spaceScene, 70000, 60000);
-        var asteroids = world.add.gameObjectArray(Asteroid_1.default);
+        var asteroids = world.add.gameObjectArray(Asteroid_1.default, "asteroid");
         asteroids.add(this.spaceScene, 69300, 61000);
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default).add(this.spaceScene, 69000, 61000);
+        var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet_1.default, "playerShipBullet");
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
+        this.playerShip.setBullets(playerShipBullets);
+        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 61000);
+        console.log(this.playerShip);
         this.spaceScene.sys.displayList.list.forEach(function (object) {
-            object.setScale(2);
+            if (object.scale < 2) {
+                object.setScale(2);
+            }
         });
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();
+        var updateList = this.spaceScene.sys.updateList.getActive();
     };
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
