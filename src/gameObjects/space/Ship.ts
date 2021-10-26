@@ -2,9 +2,9 @@ import SpaceGameObject from "./SpaceGameObject";
 
 export default class Ship extends SpaceGameObject
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
+    constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: number | string, config?: any)
     {
-        super(scene, x, y, texture);
+        super(scene, x, y, texture, frame, config);
     }
 
     protected controls: {

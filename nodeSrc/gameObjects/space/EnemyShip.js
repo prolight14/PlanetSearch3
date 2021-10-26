@@ -18,6 +18,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.move = false;
         _this.turnDir = "";
         _this.controls = {
             turnLeft: function () {
@@ -26,7 +27,9 @@ var EnemyShip = (function (_super) {
             turnRight: function () {
                 return _this.turnDir === "right";
             },
-            goForward: function () { return true; },
+            goForward: function () {
+                return _this.move;
+            },
             slowDown: function () { return false; },
             shoot: function () { return false; }
         };

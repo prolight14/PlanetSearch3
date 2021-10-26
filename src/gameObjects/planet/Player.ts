@@ -76,20 +76,35 @@ export default class Player extends Lifeform
             frames: [{ key: "Player", frame: 0 }],
             frameRate: 20
         });
-       
+
         scene.anims.create({
             key: "left",
-            frames: [{ key: "Player", frame: 3 }, { key: "Player", frame: 4 }],
+            frames: [{ key: "Player", frame: 4 }, { key: "Player", frame: 5 }, { key: "Player", frame: 6 }, { key: "Player", frame: 7 }],
+            frameRate: 8,
+            repeat: -1
+        });
+       
+        scene.anims.create({
+            key: "right",
+            frames: [{ key: "Player", frame: 0 }, { key: "Player", frame: 1 }, { key: "Player", frame: 2 }, { key: "Player", frame: 3 }],
             frameRate: 5,
             repeat: -1
         });
 
         scene.anims.create({
-            key: "right",
-            frames: [{ key: "Player", frame: 1 }, { key: "Player", frame: 2 }],
-            frameRate: 5,
+            key: "lookLeft",
+            frames: [{ key: "Player", frame: 4 }],
+            frameRate: 8,
             repeat: -1
         });
+       
+        scene.anims.create({
+            key: "lookRight",
+            frames: [{ key: "Player", frame: 0 }],
+            frameRate: 8,
+            repeat: -1
+        });
+    
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -189,6 +204,7 @@ export default class Player extends Lifeform
         down: Phaser.Input.Keyboard.Key;
         r: Phaser.Input.Keyboard.Key;
     };
+    private looking: string;
 
     preUpdate(time: number, delta: number)
     {
@@ -206,10 +222,50 @@ export default class Player extends Lifeform
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            if(Math.abs(this.body.velocity.x) < 2)
+            if(this.body.velocity.x < 0)
             {
-                this.anims.play("idle");
+                this.setFrame(4);
+                this.looking = "left";
             }
+            else if(this.body.velocity.x > 0)
+            {
+                this.setFrame(0);
+                this.looking = "right";
+            }
+        }
+        else
+        {
+            this.looking = "";
+        }
+
+        if(this.looking === "left")
+        {
+            this.setFrame(4);
+            console.log("left");
+
+            if(!onGround)
+            {
+                this.setFrame(5);
+            }
+        }
+        else if(this.looking === "right")
+        {
+            this.setFrame(0);
+            console.log("right");
+
+            if(!onGround)
+            {
+                this.setFrame(1);
+            }
+        }
+
+        if(this.body.blocked.left && this.body.velocity.x < 0 && this.controls.left() && onGround)
+        {
+            this.setFrame(4);
+        }
+        if(this.body.blocked.right && this.body.velocity.x > 0 && this.controls.right() && onGround)
+        {
+            this.setFrame(0);
         }
 
         if(!onGround)
@@ -220,7 +276,7 @@ export default class Player extends Lifeform
             }
             else if(this.controls.right())
             {
-                this.anims.pause(this.anims.currentAnim.frames[0]);
+                this.anims.pause(this.anims.currentAnim.frames[1]);
             }
         }
 

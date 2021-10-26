@@ -20,13 +20,18 @@ export default class EnemyShip extends Ship
             {
                 return this.turnDir === "right";
             },
-            goForward: () => true,
+            goForward: () =>
+            {
+                return this.move;
+            },
             slowDown: () => false,
             shoot: () => false         
         };
 
         this.angleVel = 3;
     }
+
+    protected move: boolean = false;
 
     public preUpdate()
     {

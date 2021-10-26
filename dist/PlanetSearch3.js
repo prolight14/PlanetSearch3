@@ -365,7 +365,7 @@ var Door = (function (_super) {
     Door.prototype.onOverlap = function (object) {
         if (object.texture.key === "Player") {
             var player = object;
-            if (player.activate() && Math.abs(player.body.y - this.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
+            if (player.activate() && Math.abs(player.body.y + player.body.height - this.y + this.height) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
                 this.scene.scene.get("planetLoader").restart({
                     loadType: "door",
                     reason: "door",
@@ -802,14 +802,26 @@ var Player = (function (_super) {
         });
         scene.anims.create({
             key: "left",
-            frames: [{ key: "Player", frame: 3 }, { key: "Player", frame: 4 }],
-            frameRate: 5,
+            frames: [{ key: "Player", frame: 4 }, { key: "Player", frame: 5 }, { key: "Player", frame: 6 }, { key: "Player", frame: 7 }],
+            frameRate: 8,
             repeat: -1
         });
         scene.anims.create({
             key: "right",
-            frames: [{ key: "Player", frame: 1 }, { key: "Player", frame: 2 }],
+            frames: [{ key: "Player", frame: 0 }, { key: "Player", frame: 1 }, { key: "Player", frame: 2 }, { key: "Player", frame: 3 }],
             frameRate: 5,
+            repeat: -1
+        });
+        scene.anims.create({
+            key: "lookLeft",
+            frames: [{ key: "Player", frame: 4 }],
+            frameRate: 8,
+            repeat: -1
+        });
+        scene.anims.create({
+            key: "lookRight",
+            frames: [{ key: "Player", frame: 0 }],
+            frameRate: 8,
             repeat: -1
         });
         _this.keys = {
@@ -909,16 +921,44 @@ var Player = (function (_super) {
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            if (Math.abs(this.body.velocity.x) < 2) {
-                this.anims.play("idle");
+            if (this.body.velocity.x < 0) {
+                this.setFrame(4);
+                this.looking = "left";
             }
+            else if (this.body.velocity.x > 0) {
+                this.setFrame(0);
+                this.looking = "right";
+            }
+        }
+        else {
+            this.looking = "";
+        }
+        if (this.looking === "left") {
+            this.setFrame(4);
+            console.log("left");
+            if (!onGround) {
+                this.setFrame(5);
+            }
+        }
+        else if (this.looking === "right") {
+            this.setFrame(0);
+            console.log("right");
+            if (!onGround) {
+                this.setFrame(1);
+            }
+        }
+        if (this.body.blocked.left && this.body.velocity.x < 0 && this.controls.left() && onGround) {
+            this.setFrame(4);
+        }
+        if (this.body.blocked.right && this.body.velocity.x > 0 && this.controls.right() && onGround) {
+            this.setFrame(0);
         }
         if (!onGround) {
             if (this.controls.left()) {
                 this.anims.pause(this.anims.currentAnim.frames[1]);
             }
             else if (this.controls.right()) {
-                this.anims.pause(this.anims.currentAnim.frames[0]);
+                this.anims.pause(this.anims.currentAnim.frames[1]);
             }
         }
         if (this.controls.restart() || this.dead) {
@@ -1237,6 +1277,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.move = false;
         _this.turnDir = "";
         _this.controls = {
             turnLeft: function () {
@@ -1245,7 +1286,9 @@ var EnemyShip = (function (_super) {
             turnRight: function () {
                 return _this.turnDir === "right";
             },
-            goForward: function () { return true; },
+            goForward: function () {
+                return _this.move;
+            },
             slowDown: function () { return false; },
             shoot: function () { return false; }
         };
@@ -1306,6 +1349,7 @@ var HyperBeamerSType = (function (_super) {
                 steps: 10
             }
         });
+        _this_1.move = false;
         var _this = _this_1;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
@@ -1332,7 +1376,6 @@ var HyperBeamerSType = (function (_super) {
                 }
             }
         });
-        _this_1.sm.start("wander");
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function () {
@@ -1449,6 +1492,12 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.setScale(7);
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
         return _this;
     }
     Planet.prototype.preUpdate = function (time, delta) {
@@ -1492,7 +1541,7 @@ var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helixShip") || this;
+        var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {
@@ -1631,8 +1680,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Ship = (function (_super) {
     __extends(Ship, _super);
-    function Ship(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
+    function Ship(scene, x, y, texture, frame, config) {
+        var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
         _this.maxSpeed = 10;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
@@ -1727,8 +1776,8 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
-    function SpaceGameObject(scene, x, y, texture, frame) {
-        var _this_1 = _super.call(this, scene, x, y, texture, frame) || this;
+    function SpaceGameObject(scene, x, y, texture, frame, config) {
+        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame, config) || this;
         scene.add.existing(_this_1);
         var _this = _this_1;
         _this_1.bodyConf = {
@@ -1749,7 +1798,7 @@ var SpaceGameObject = (function (_super) {
     SpaceGameObject.prototype.onCollide = function (object) {
     };
     return SpaceGameObject;
-}(Phaser.GameObjects.Sprite));
+}(Phaser.Physics.Matter.Sprite));
 exports.default = SpaceGameObject;
 //# sourceMappingURL=SpaceGameObject.js.map
 
@@ -1804,7 +1853,7 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "space";
+        this.currentSceneGroup = "planet";
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
@@ -1892,7 +1941,7 @@ var PlanetBackScene = (function (_super) {
         return _super.call(this, "planetBack") || this;
     }
     PlanetBackScene.prototype.preload = function () {
-        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/GrassLand.png", {
+        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/CaveBackground.png", {
             frameWidth: 400,
             frameHeight: 225
         });
@@ -1903,10 +1952,12 @@ var PlanetBackScene = (function (_super) {
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
         backgraphics.setDepth(-2);
         this.layerSpeeds = [
-            -1,
+            3,
             2.3,
             1.6,
-            0.8
+            0.8,
+            0.67,
+            0.5
         ];
         var layerAmt = 4;
         this.layers = [];
@@ -2322,7 +2373,7 @@ var PlanetLogicScene = (function (_super) {
     };
     PlanetLogicScene.prototype.preload = function () {
         this.load.spritesheet("checkpoint", "./assets/Planet/GameObjects/Interactibles/Checkpoint.png", { frameWidth: 16, frameHeight: 16 });
-        this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/NewHelix.png", { frameWidth: 17, frameHeight: 29 });
         this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });
         var currentWorld = this.loadData.currentWorld;
         var currentTileset = this.loadData.currentTileset;
@@ -2810,16 +2861,10 @@ var PlayerShipBullet_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerS
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
-        return _super.call(this, {
-            key: "spaceLogic",
-            physics: {
-                default: "matter",
-                matter: {
-                    debug: true
-                }
-            }
-        }) || this;
+        return _super.call(this, "spaceLogic") || this;
     }
+    SpaceLogicScene.prototype.create = function () {
+    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
@@ -2902,7 +2947,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
-        var _this = _super.call(this, "space") || this;
+        var _this = _super.call(this, {
+            key: "space",
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    debug: true
+                }
+            }
+        }) || this;
         _this.loaded = false;
         return _this;
     }

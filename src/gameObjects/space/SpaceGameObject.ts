@@ -1,8 +1,8 @@
-export default class SpaceGameObject extends Phaser.GameObjects.Sprite
+export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
 {
-    constructor (scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number)
+    constructor (scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number, config?: any)
     {
-        super(scene, x, y, texture, frame);
+        super(scene.matter.world, x, y, texture, frame, config);
 
         scene.add.existing(this);
 

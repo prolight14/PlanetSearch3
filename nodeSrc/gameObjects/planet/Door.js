@@ -33,7 +33,7 @@ var Door = (function (_super) {
     Door.prototype.onOverlap = function (object) {
         if (object.texture.key === "Player") {
             var player = object;
-            if (player.activate() && Math.abs(player.body.y - this.y) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
+            if (player.activate() && Math.abs(player.body.y + player.body.height - this.y + this.height) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
                 this.scene.scene.get("planetLoader").restart({
                     loadType: "door",
                     reason: "door",

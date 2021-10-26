@@ -15,8 +15,8 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
-    function SpaceGameObject(scene, x, y, texture, frame) {
-        var _this_1 = _super.call(this, scene, x, y, texture, frame) || this;
+    function SpaceGameObject(scene, x, y, texture, frame, config) {
+        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame, config) || this;
         scene.add.existing(_this_1);
         var _this = _this_1;
         _this_1.bodyConf = {
@@ -37,6 +37,6 @@ var SpaceGameObject = (function (_super) {
     SpaceGameObject.prototype.onCollide = function (object) {
     };
     return SpaceGameObject;
-}(Phaser.GameObjects.Sprite));
+}(Phaser.Physics.Matter.Sprite));
 exports.default = SpaceGameObject;
 //# sourceMappingURL=SpaceGameObject.js.map

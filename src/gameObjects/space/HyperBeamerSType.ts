@@ -28,6 +28,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         });
 
+        this.move = false;
+
         var _this = this;
 
         this.sm = new StateMachine({
@@ -68,7 +70,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         });
 
-        this.sm.start("wander");
+        // this.sm.start("wander");
     }
 
     private sm: StateMachine;

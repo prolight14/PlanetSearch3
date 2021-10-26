@@ -16,8 +16,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Ship = (function (_super) {
     __extends(Ship, _super);
-    function Ship(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
+    function Ship(scene, x, y, texture, frame, config) {
+        var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
         _this.maxSpeed = 10;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;

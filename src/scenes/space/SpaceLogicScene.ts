@@ -12,19 +12,16 @@ export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
     {
-        super({
-            key: "spaceLogic",
-            physics: {
-                default: "matter",
-                matter: {
-                    debug: true
-                }
-            }
-        });
+        super("spaceLogic");
     }
 
     spaceScene: SpaceScene;
     playerShip: PlayerShip;
+
+    public create()
+    {
+        
+    }
 
     public addObjectsToSpace()
     {

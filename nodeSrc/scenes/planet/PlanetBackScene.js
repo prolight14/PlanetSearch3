@@ -19,7 +19,7 @@ var PlanetBackScene = (function (_super) {
         return _super.call(this, "planetBack") || this;
     }
     PlanetBackScene.prototype.preload = function () {
-        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/GrassLand.png", {
+        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/CaveBackground.png", {
             frameWidth: 400,
             frameHeight: 225
         });
@@ -30,10 +30,12 @@ var PlanetBackScene = (function (_super) {
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
         backgraphics.setDepth(-2);
         this.layerSpeeds = [
-            -1,
+            3,
             2.3,
             1.6,
-            0.8
+            0.8,
+            0.67,
+            0.5
         ];
         var layerAmt = 4;
         this.layers = [];

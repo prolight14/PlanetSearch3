@@ -16,7 +16,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
-        var _this = _super.call(this, "space") || this;
+        var _this = _super.call(this, {
+            key: "space",
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    debug: true
+                }
+            }
+        }) || this;
         _this.loaded = false;
         return _this;
     }

@@ -9,7 +9,16 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 {
     constructor()
     {
-        super("space");
+        super({
+            key: "space",
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    debug: true
+                }
+            }
+        });
     }
 
     public preload()

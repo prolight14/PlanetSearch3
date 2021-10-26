@@ -18,7 +18,7 @@ var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helixShip") || this;
+        var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {

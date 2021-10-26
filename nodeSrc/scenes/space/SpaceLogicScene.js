@@ -22,16 +22,10 @@ var PlayerShipBullet_1 = require("../../gameObjects/space/PlayerShipBullet");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
-        return _super.call(this, {
-            key: "spaceLogic",
-            physics: {
-                default: "matter",
-                matter: {
-                    debug: true
-                }
-            }
-        }) || this;
+        return _super.call(this, "spaceLogic") || this;
     }
+    SpaceLogicScene.prototype.create = function () {
+    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;

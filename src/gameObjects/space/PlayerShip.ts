@@ -1,6 +1,5 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
-import PlayerShipBullet from "./PlayerShipBullet";
 import Ship from "./Ship";
 
 export default class PlayerShip extends Ship
@@ -10,7 +9,7 @@ export default class PlayerShip extends Ship
 
     constructor (scene: SpaceScene, x: number, y: number)
     {
-        super(scene, x, y, "helixShip");
+        super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });
 
         this.useAngleAcl = true;
         this.angleVel = 0;

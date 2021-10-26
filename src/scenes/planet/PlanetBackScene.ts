@@ -9,7 +9,8 @@ export default class PlanetBackScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/GrassLand.png", {
+        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/CaveBackground.png", 
+        {
             frameWidth: 400,
             frameHeight: 225
         });
@@ -27,10 +28,12 @@ export default class PlanetBackScene extends Phaser.Scene
         backgraphics.setDepth(-2);
 
         this.layerSpeeds = [
-            -1, 
+            3, 
             2.3,
             1.6,
-            0.8
+            0.8,
+            0.67,
+            0.5
         ];
 
         const layerAmt = 4;
