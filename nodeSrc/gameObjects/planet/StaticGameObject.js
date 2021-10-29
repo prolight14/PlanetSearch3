@@ -18,13 +18,6 @@ var GameObject = (function (_super) {
     function GameObject(scene, x, y, texture, frame, solid) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         scene.add.existing(_this);
-        scene.gameObjects.push(_this);
-        if (solid === undefined) {
-            solid = true;
-        }
-        if (solid) {
-            scene.solidGameObjects.push(_this);
-        }
         return _this;
     }
     GameObject.prototype.onCollide = function (object) {

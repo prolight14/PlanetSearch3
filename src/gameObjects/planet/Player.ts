@@ -265,27 +265,27 @@ export default class Player extends Lifeform
             }
         }
 
-        if(this.controls.restart() || this.dead)
-        {
-            if(this.checkpointGoto !== undefined)
-            {
-                (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
-                    loadType: "checkpoint",
-                    checkpointGoto: this.checkpointGoto,
-                    reason: this.controls.restart() ? "restart" : "death",
-                });
-            }
-            else
-            {
-                (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
-                    loadType: "start",
-                    startGoto: {
-                        level: this.startLevel
-                    },
-                    reason: this.controls.restart() ? "restart" : "death",
-                });
-            }
-        }
+        // if(this.controls.restart() || this.dead)
+        // {
+        //     if(this.checkpointGoto !== undefined)
+        //     {
+        //         (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
+        //             loadType: "checkpoint",
+        //             checkpointGoto: this.checkpointGoto,
+        //             reason: this.controls.restart() ? "restart" : "death",
+        //         });
+        //     }
+        //     else
+        //     {
+        //         (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
+        //             loadType: "start",
+        //             startGoto: {
+        //                 level: this.startLevel
+        //             },
+        //             reason: this.controls.restart() ? "restart" : "death",
+        //         });
+        //     }
+        // }
     }
 
     public startLevel: string;

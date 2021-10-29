@@ -6,13 +6,13 @@ export default class GameObject extends Phaser.Physics.Arcade.Image
     {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);
-        (scene as PlanetLogicScene).gameObjects.push(this);
+        // (scene as PlanetLogicScene).gameObjects.push(this);
 
-        if(solid === undefined) { solid = true; }
-        if(solid)
-        {
-            (scene as PlanetLogicScene).solidGameObjects.push(this);
-        }
+        // if(solid === undefined) { solid = true; }
+        // if(solid)
+        // {
+        //     (scene as PlanetLogicScene).solidGameObjects.push(this);
+        // }
     }
 
     public onCollide(object: GameObject) 

@@ -6,18 +6,18 @@ export default class GameObject extends Phaser.Physics.Arcade.Sprite
     {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);
-        (scene as PlanetLogicScene).gameObjects.push(this);
+        // (scene as PlanetLogicScene).gameObjects.push(this);
 
-        if(solid === undefined) { solid = true; }
-        if(solid)
-        {
-            (scene as PlanetLogicScene).solidGameObjects.push(this);
-        }
+        // if(solid === undefined) { solid = true; }
+        // if(solid)
+        // {
+        //     (scene as PlanetLogicScene).solidGameObjects.push(this);
+        // }
 
-        if(this.body)
-        {   
-            this.body.onCollide = true;
-        }
+        // if(this.body)
+        // {   
+        //     this.body.onCollide = true;
+        // }
     }
 
     public onCollide(object: GameObject) 

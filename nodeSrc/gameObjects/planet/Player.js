@@ -134,10 +134,10 @@ var Player = (function (_super) {
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
-        if (this.body.velocity.x < 0) {
+        if (this.controls.left()) {
             this.anims.play("left", true);
         }
-        if (this.body.velocity.x > 0) {
+        if (this.controls.right()) {
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
@@ -175,24 +175,6 @@ var Player = (function (_super) {
             }
             else if (this.controls.right()) {
                 this.anims.pause(this.anims.currentAnim.frames[1]);
-            }
-        }
-        if (this.controls.restart() || this.dead) {
-            if (this.checkpointGoto !== undefined) {
-                this.scene.scene.get("planetLoader").restart({
-                    loadType: "checkpoint",
-                    checkpointGoto: this.checkpointGoto,
-                    reason: this.controls.restart() ? "restart" : "death",
-                });
-            }
-            else {
-                this.scene.scene.get("planetLoader").restart({
-                    loadType: "start",
-                    startGoto: {
-                        level: this.startLevel
-                    },
-                    reason: this.controls.restart() ? "restart" : "death",
-                });
             }
         }
     };

@@ -15,13 +15,16 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Door_1 = require("../../gameObjects/planet/Door");
 var Lava_1 = require("../../gameObjects/planet/Lava");
-var Player_1 = require("../../gameObjects/planet/Player");
 var Slope_1 = require("../../gameObjects/planet/Slope");
 var Water_1 = require("../../gameObjects/planet/Water");
+var BlockIndexes_1 = require("./BlockIndexes");
+var InvisiblePlatform_1 = require("../../gameObjects/planet/InvisiblePlatform");
+var GreenBeaker_1 = require("../../gameObjects/planet/GreenBeaker");
+var Checkpoint_1 = require("../../gameObjects/planet/Checkpoint");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
-        return _super.call(this, {
+        var _this = _super.call(this, {
             key: "planetLogic",
             physics: {
                 default: "arcade",
@@ -30,199 +33,125 @@ var PlanetLogicScene = (function (_super) {
                 }
             },
         }) || this;
+        _this.gameObjects = [];
+        _this.solidGameObjects = [];
+        _this.init();
+        return _this;
     }
-    PlanetLogicScene.prototype.getPlayerStats = function () {
-        return {
-            hp: this.player.hp,
-            maxHp: this.player.maxHp,
-        };
-    };
-    PlanetLogicScene.prototype.init = function (data) {
+    PlanetLogicScene.prototype.init = function () {
+        if (this.loadData !== undefined) {
+            return;
+        }
         this.loadData = {
-            loadType: (data.loadType === undefined) ? "landedByShip" : data.loadType,
-            currentLevel: (data.gotoLevel === undefined) ? "start" : data.gotoLevel,
-            enteredDoor: data.gotoDoor,
-            playerStats: data.playerStats
+            currentWorld: "CavePLanet",
+            currentTileset: "CaveTileset-extruded",
+            currentLevel: "Cave"
+        };
+        this.presetData = {
+            currentLevel: this.loadData.currentLevel
         };
     };
     PlanetLogicScene.prototype.preload = function () {
-        this.load.spritesheet("Helix2", "./assets/Planet/GameObjects/Player/Helix2.png", { frameWidth: 16, frameHeight: 32 });
-        this.load.image("GrassTileset2-extruded", "./assets/Planet/levels/GrassPlanet/tilesets/GrassTileset-extruded.png");
-        this.load.tilemapTiledJSON(this.loadData.currentLevel, "./assets/Planet/levels/GrassPlanet2/tilemaps/" + this.loadData.currentLevel + ".json");
+        this.load.spritesheet("checkpoint", "./assets/Planet/GameObjects/Interactibles/Checkpoint.png", { frameWidth: 16, frameHeight: 16 });
+        this.load.spritesheet("Player", "./assets/Planet/GameObjects/Player/NewHelix.png", { frameWidth: 17, frameHeight: 29 });
+        this.load.spritesheet("GreenBeaker", "./assets/Planet/GameObjects/Enemy/Beakers/GreenBeaker.png", { frameWidth: 16, frameHeight: 16 });
+        var currentWorld = this.loadData.currentWorld;
+        var currentTileset = this.loadData.currentTileset;
+        var currentLevel = this.loadData.currentLevel;
+        this.load.image(currentTileset, "./assets/Planet/levels/" + currentWorld + "/tilesets/" + currentTileset + ".png");
+        this.load.tilemapTiledJSON(currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + currentLevel + ".json");
     };
-    PlanetLogicScene.prototype.receiveLevelInfo = function (passObj) {
+    PlanetLogicScene.prototype.receiveLevelInfo = function (levelInfo) {
     };
-    PlanetLogicScene.prototype.create = function () {
+    PlanetLogicScene.prototype.create = function (inputData) {
         var _this = this;
-        var backgraphics = this.add.graphics().setScrollFactor(0);
-        backgraphics.fillStyle(0x00ABFF);
-        backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
-        var tileset = tilemap.addTilesetImage("GrassTileset-extruded");
-        if (tilemap.getTileLayerNames().indexOf("BackWorld") !== -1) {
-            tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
-        }
+        var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
+        tilemap.createLayer("BackWorld", tileset, 0, 0).setDepth(-1);
         var worldLayer = tilemap.createLayer("World", tileset, 0, 0);
-        var fgLayer = tilemap.createLayer("FG", tileset, 0, 0);
-        backgraphics.setDepth(-7);
         worldLayer.setDepth(0);
-        fgLayer.setDepth(1);
+        worldLayer.setCollisionByProperty({ collides: true });
+        tilemap.createLayer("Foreground", tileset, 0, 0).setDepth(10);
+        this.gameObjects.length = 0;
+        this.solidGameObjects.length = 0;
         var waterGroup = this.add.group();
         var lavaGroup = this.add.group();
         var doorGroup = this.add.group();
         var slopeGroup = this.add.group();
-        var WORLD_INDEXES = {
-            BACK_GRASS: 1,
-            BACK_GRASS_2: 2,
-            BACK_DIRT: 3,
-            GRASS: 4,
-            GRASS_2: 5,
-            DIRT: 6,
-            STONE_BRICKS: 7,
-            TOP_WATER: 8,
-            WATER: 9,
-            WATER_2: 10,
-            TOP_LAVA: 11,
-            LAVA: 12,
-            LAVA_2: 13,
-            GREEN_DOOR_TOP: 20,
-            GREEN_DOOR_BOTTOM: 21,
-            SLOPE_LEFT_UP: 23,
-            SLOPE_RIGHT_UP: 24
-        };
-        worldLayer.setCollisionByProperty({ collides: true });
-        worldLayer.forEachTile(function (tile) {
-            if (tile.index === WORLD_INDEXES.BACK_DIRT) {
-                tile.collideLeft = false;
-                tile.collideRight = false;
-                tile.collideDown = false;
-                tile.collideUp = false;
-            }
-            else if (tile.index === WORLD_INDEXES.BACK_GRASS || tile.index === WORLD_INDEXES.BACK_GRASS_2) {
-                tile.collideLeft = false;
-                tile.collideRight = false;
-                tile.collideDown = false;
-                tile.collideUp = true;
-                var tileAbove;
-                if ((tileAbove = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
-                    tileAbove.index === WORLD_INDEXES.BACK_DIRT) {
-                    tile.faceTop = true;
-                }
-            }
-            else if (tile.index > WORLD_INDEXES.BACK_DIRT) {
-                var toAvoid = [WORLD_INDEXES.BACK_GRASS, WORLD_INDEXES.BACK_GRASS_2, WORLD_INDEXES.BACK_DIRT];
-                var tileLeft = void 0;
-                if (tile.x > 0 &&
-                    (tileLeft = worldLayer.getTileAt(tile.x - 1, tile.y)) &&
-                    toAvoid.indexOf(tileLeft.index) !== -1) {
-                    tile.faceLeft = true;
-                }
-                var tileRight = void 0;
-                if (tile.x < tilemap.width &&
-                    (tileRight = worldLayer.getTileAt(tile.x + 1, tile.y)) &&
-                    toAvoid.indexOf(tileRight.index) !== -1) {
-                    tile.faceRight = true;
-                }
-                var tileAbove_1;
-                if (tile.y > 0 &&
-                    (tileAbove_1 = worldLayer.getTileAt(tile.x, tile.y - 1)) &&
-                    (toAvoid.indexOf(tileAbove_1.index) !== -1)) {
-                    tile.faceTop = true;
-                }
-                var tileBelow = void 0;
-                if (tile.y < tilemap.height &&
-                    (tileBelow = worldLayer.getTileAt(tile.x, tile.y + 1)) &&
-                    (toAvoid.indexOf(tileBelow.index) !== -1)) {
-                    tile.faceBottom = true;
-                }
-            }
-            switch (tile.index) {
-                case WORLD_INDEXES.TOP_WATER:
-                case WORLD_INDEXES.WATER:
-                case WORLD_INDEXES.WATER_2:
-                    tile.setCollision(false, false, false, false);
-                    var water = new Water_1.default(_this, tile.pixelX, tile.pixelY);
-                    waterGroup.add(water);
-                    break;
-                case WORLD_INDEXES.TOP_LAVA:
-                case WORLD_INDEXES.LAVA:
-                case WORLD_INDEXES.LAVA_2:
-                    tile.setCollision(false, false, false, false);
-                    var lava = new Lava_1.default(_this, tile.pixelX, tile.pixelY);
-                    lavaGroup.add(lava);
-                    break;
-                case WORLD_INDEXES.GREEN_DOOR_TOP:
-                    tile.setCollision(false, false, false, false);
-                    doorGroup.add(new Door_1.default(_this, tile.pixelX + tile.width / 2, tile.pixelY + tile.height));
-                    break;
-                case WORLD_INDEXES.GREEN_DOOR_BOTTOM:
-                    tile.setCollision(false, false, false, false);
-                    break;
-                case WORLD_INDEXES.SLOPE_LEFT_UP:
-                    tile.setCollision(false, false, false, false);
-                    slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
-                    break;
-                case WORLD_INDEXES.SLOPE_RIGHT_UP:
-                    tile.setCollision(false, false, false, false);
-                    slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
-                    break;
-            }
-        });
-        var spawnPoint = tilemap.findObject("Objects", function (obj) { return obj.name === "Player Spawn Point"; });
-        var objects = tilemap.getObjectLayer("Objects").objects;
-        var _loop_1 = function () {
-            var obj = objects[i];
-            if (obj.name === "Door") {
-                for (var j in obj.properties) {
-                    var prop = obj.properties[j];
-                    if (prop.name === "door") {
-                        if (prop.value === this_1.loadData.enteredDoor) {
-                            doorGroup.getChildren().forEach(function (door) {
-                                var doorBounds = door.getBounds();
-                                if (doorBounds.contains(obj.x, obj.y)) {
-                                    spawnPoint.x = door.x;
-                                    spawnPoint.y = door.y;
-                                }
-                            });
-                        }
+        var invisiblePlatformGroup = this.add.group();
+        var greenBeakerGroup = this.add.group();
+        var checkpointGroup = this.add.group();
+        switch (this.loadData.currentWorld) {
+            case "GrassPlanet2":
+                var INDEXES_1 = BlockIndexes_1.default.GRASS_PLANET_2;
+                var WATERS_1 = [INDEXES_1.WATER_TOP, INDEXES_1.WATER, INDEXES_1.WATER_BLANK];
+                var LAVA_1 = [INDEXES_1.LAVA_TOP, INDEXES_1.LAVA, INDEXES_1.LAVA_BLANK];
+                worldLayer.forEachTile(function (tile) {
+                    if (WATERS_1.indexOf(tile.index) !== -1) {
+                        tile.setCollision(false, false, false, false);
+                        waterGroup.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
                     }
-                }
-                doorGroup.getChildren().forEach(function (door) {
-                    if (door.getBounds().contains(obj.x, obj.y)) {
-                        for (var j in obj.properties) {
-                            var prop = obj.properties[j];
-                            if (prop.name === "gotoLevel") {
-                                door.goto.level = prop.value;
-                            }
-                            else if (prop.name === "gotoDoor") {
-                                door.goto.door = prop.value;
-                            }
-                        }
+                    else if (LAVA_1.indexOf(tile.index) !== -1) {
+                        tile.setCollision(false, false, false, false);
+                        lavaGroup.add(new Lava_1.default(_this, tile.pixelX, tile.pixelY));
+                        return;
+                    }
+                    switch (tile.index) {
+                        case INDEXES_1.DOOR_TOP:
+                            tile.setCollision(false, false, false, false);
+                            doorGroup.add(new Door_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.DOOR_BOTTOM:
+                            tile.setCollision(false, false, false, false);
+                            break;
+                        case INDEXES_1.SLOPE_LEFT_UP:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "leftUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.SLOPE_RIGHT_UP:
+                            tile.setCollision(false, false, false, false);
+                            slopeGroup.add(new Slope_1.default(_this, "rightUp", tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.BACK_GRASS:
+                            tile.setCollision(false, false, false, false);
+                            invisiblePlatformGroup.add(new InvisiblePlatform_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
+                        case INDEXES_1.CHECKPOINT:
+                            worldLayer.removeTileAt(tile.x, tile.y);
+                            checkpointGroup.add(new Checkpoint_1.default(_this, tile.pixelX, tile.pixelY));
+                            break;
                     }
                 });
-            }
-        };
-        var this_1 = this;
-        for (var i = 0; i < objects.length; i++) {
-            _loop_1();
+                break;
         }
-        this.player = new Player_1.default(this, spawnPoint.x, spawnPoint.y);
-        if (this.loadData.loadType === "door") {
-            this.player.hp = this.loadData.playerStats.hp;
+        var itemsLayer = tilemap.createLayer("Items", tileset, 0, 0);
+        switch (this.loadData.currentWorld) {
+            case "GrassPlanet2":
+                var INDEXES_2 = BlockIndexes_1.default.GRASS_PLANET_2;
+                itemsLayer.forEachTile(function (tile) {
+                    switch (tile.index) {
+                        case INDEXES_2.GREEN_BEAKER:
+                            greenBeakerGroup.add(new GreenBeaker_1.default(_this, tile.pixelX, tile.pixelY));
+                            itemsLayer.removeTileAt(tile.x, tile.y);
+                            break;
+                    }
+                });
+                break;
         }
+        var loaderScene = this.scene.get("planetLoader");
+        this.player = loaderScene.loadPlayer(inputData, tilemap, doorGroup, checkpointGroup, this.loadData.currentLevel || inputData.currentLevel, this.presetData.currentLevel);
+        checkpointGroup.setDepth(10);
         this.physics.add.collider(this.player, worldLayer);
-        this.physics.add.overlap(this.player, waterGroup, function (objectA, objectB) {
+        this.physics.add.collider(greenBeakerGroup, worldLayer);
+        this.physics.add.collider(this.solidGameObjects, this.solidGameObjects, function (objectA, objectB) {
+            objectA.onCollide(objectB);
             objectB.onCollide(objectA);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, lavaGroup, function (objectA, objectB) {
-            objectB.onCollide(objectA);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, doorGroup, function (objectA, objectB) {
-            objectB.onCollide(objectA);
-        }, undefined, this);
-        this.physics.add.overlap(this.player, slopeGroup, function (objectA, objectB) {
-            objectB.processCollision(objectA);
-        }, undefined, this);
+        });
+        this.physics.add.overlap(this.gameObjects, this.gameObjects, function (objectA, objectB) {
+            objectA.onOverlap(objectB);
+            objectB.onOverlap(objectA);
+        });
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
@@ -230,19 +159,14 @@ var PlanetLogicScene = (function (_super) {
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.scene.get("planetEffects").fadeIn(500, 0, 0, 0);
-        this.scene.run("planetUI");
-        this.sceneTransitioning = false;
+        this.graphics = this.add.graphics();
+        this.tilemap = tilemap;
+    };
+    PlanetLogicScene.prototype.getPlayerStats = function () {
+        return this.player.getStats();
     };
     PlanetLogicScene.prototype.update = function (time, delta) {
-        var _this = this;
-        if (this.player.isDead() && !this.sceneTransitioning) {
-            var effectsScene = this.scene.get("planetEffects");
-            effectsScene.fadeOut(500, 0, 0, 0);
-            effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.restart();
-            });
-            this.sceneTransitioning = true;
-        }
+        this.scene.get("planetEffects").processBrickCollision(this.player, this.tilemap);
     };
     return PlanetLogicScene;
 }(Phaser.Scene));

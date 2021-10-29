@@ -19,7 +19,7 @@ var PlanetBackScene = (function (_super) {
         return _super.call(this, "planetBack") || this;
     }
     PlanetBackScene.prototype.preload = function () {
-        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/CaveBackground.png", {
+        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/CavePlanet/Cave.png", {
             frameWidth: 400,
             frameHeight: 225
         });
@@ -31,20 +31,15 @@ var PlanetBackScene = (function (_super) {
         backgraphics.setDepth(-2);
         this.layerSpeeds = [
             3,
-            2.3,
-            1.6,
-            0.8,
-            0.67,
-            0.5
         ];
-        var layerAmt = 6;
+        var layerAmt = 1;
         this.layers = [];
         this.nextLayers = [];
         for (var i = 0; i < layerAmt; i++) {
-            var layer = this.add.image(0, 0, "grassLand", i);
+            var layer = this.add.image(0, 0, "scrollBackground", i);
             layer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.layers.push(layer);
-            var nextLayer = this.add.image(0, 0, "grassLand", i);
+            var nextLayer = this.add.image(0, 0, "scrollBackground", i);
             nextLayer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.nextLayers.push(nextLayer);
         }

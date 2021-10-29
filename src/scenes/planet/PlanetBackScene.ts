@@ -9,7 +9,7 @@ export default class PlanetBackScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.spritesheet("grassLand", "./assets/Planet/Backgrounds/GrassPlanet2/CaveBackground.png", 
+        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/CavePlanet/Cave.png", 
         {
             frameWidth: 400,
             frameHeight: 225
@@ -29,24 +29,24 @@ export default class PlanetBackScene extends Phaser.Scene
 
         this.layerSpeeds = [
             3, 
-            2.3,
-            1.6,
-            0.8,
-            0.67,
-            0.5
+            // 2.3,
+            // 1.6,
+            // 0.8,
+            // 0.67,
+            // 0.5
         ];
 
-        const layerAmt = 6;
+        const layerAmt = 1;
         this.layers = [];
         this.nextLayers = [];
-
+ 
         for(var i = 0; i < layerAmt; i++)
         {
-            var layer = this.add.image(0, 0, "grassLand", i);
+            var layer = this.add.image(0, 0, "scrollBackground", i);
             layer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.layers.push(layer);
 
-            var nextLayer = this.add.image(0, 0, "grassLand", i);
+            var nextLayer = this.add.image(0, 0, "scrollBackground", i);
             nextLayer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.nextLayers.push(nextLayer);
         }

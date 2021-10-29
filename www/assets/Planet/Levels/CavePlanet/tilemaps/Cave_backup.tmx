@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#131300" nextlayerid="5" nextobjectid="1">
- <tileset firstgid="1" name="stone" tilewidth="16" tileheight="16" tilecount="25" columns="5">
-  <image source="../Downloads/stone.png" width="80" height="80"/>
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#131300" nextlayerid="5" nextobjectid="1">
+ <tileset firstgid="1" name="CaveTileset" tilewidth="16" tileheight="16" tilecount="25" columns="5">
+  <image source="../tilesets/CaveTileset.png" width="80" height="80"/>
  </tileset>
  <layer id="3" name="Background" width="40" height="25">
   <data encoding="csv">
@@ -32,7 +32,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,14,14,14
 </data>
  </layer>
- <layer id="1" name="Tile Layer 1" width="40" height="25">
+ <layer id="1" name="Ground" width="40" height="25">
   <data encoding="csv">
 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 5,5,5,5,9,0,0,0,0,8,5,9,0,0,0,8,5,5,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
