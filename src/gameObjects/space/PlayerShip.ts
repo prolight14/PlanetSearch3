@@ -72,7 +72,7 @@ export default class PlayerShip extends Ship
     
     private setupShootTimer()
     {
-        this.shootTimer = timer(true, 750, () =>
+        this.shootTimer = timer(true, 450, () =>
         {
             if(this.controls.shoot())
             {

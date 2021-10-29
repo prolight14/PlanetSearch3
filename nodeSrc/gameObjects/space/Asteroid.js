@@ -17,7 +17,9 @@ var SpaceGameObject_1 = require("./SpaceGameObject");
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(scene, x, y) {
-        return _super.call(this, scene, x, y, "asteroid1") || this;
+        var _this = _super.call(this, scene, x, y, "asteroid1") || this;
+        _this.setStatic(true);
+        return _this;
     }
     return Asteroid;
 }(SpaceGameObject_1.default));

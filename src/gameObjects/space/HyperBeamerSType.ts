@@ -28,8 +28,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         });
 
-        this.move = false;
-
         var _this = this;
 
         this.sm = new StateMachine({
@@ -38,10 +36,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
                 {
                     this.changeDirTimer = timer(true, 500, (stopTurningTime?: number) =>
                     {
-                        // _this.turnDir = Math.random() < 0.5 ? "left" : "right";
-
-                        // console.log(_this.turnDir);
-
                         this.turn(Math.random() < 0.5 ? "left" : "right", stopTurningTime || 500, () =>
                         {
                             this.changeDirTimer.reset(Phaser.Math.Between(500, 1500), [Phaser.Math.Between(500, 1500)]);
@@ -70,7 +64,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         });
 
-        // this.sm.start("wander");
+        this.sm.start("wander");
     }
 
     private sm: StateMachine;

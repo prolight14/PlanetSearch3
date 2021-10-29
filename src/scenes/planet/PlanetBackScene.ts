@@ -36,7 +36,7 @@ export default class PlanetBackScene extends Phaser.Scene
             0.5
         ];
 
-        const layerAmt = 4;
+        const layerAmt = 6;
         this.layers = [];
         this.nextLayers = [];
 

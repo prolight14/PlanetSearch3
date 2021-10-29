@@ -38,7 +38,7 @@ var SpaceUIDebugScene = (function (_super) {
         this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
         var txt = "";
         for (var i in cell) {
-            txt += i;
+            txt += i + "\n";
         }
         this.cellText.setText(txt);
     };

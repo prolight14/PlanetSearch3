@@ -365,7 +365,7 @@ var Door = (function (_super) {
     Door.prototype.onOverlap = function (object) {
         if (object.texture.key === "Player") {
             var player = object;
-            if (player.activate() && Math.abs(player.body.y + player.body.height - this.y + this.height) < 0.5 && Math.abs(player.body.velocity.y) < 0.05) {
+            if (player.activate() && player.body.blocked.down) {
                 this.scene.scene.get("planetLoader").restart({
                     loadType: "door",
                     reason: "door",
@@ -812,18 +812,6 @@ var Player = (function (_super) {
             frameRate: 5,
             repeat: -1
         });
-        scene.anims.create({
-            key: "lookLeft",
-            frames: [{ key: "Player", frame: 4 }],
-            frameRate: 8,
-            repeat: -1
-        });
-        scene.anims.create({
-            key: "lookRight",
-            frames: [{ key: "Player", frame: 0 }],
-            frameRate: 8,
-            repeat: -1
-        });
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -914,19 +902,17 @@ var Player = (function (_super) {
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
-        if (this.controls.left()) {
+        if (this.body.velocity.x < 0) {
             this.anims.play("left", true);
         }
-        if (this.controls.right()) {
+        if (this.body.velocity.x > 0) {
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
             if (this.body.velocity.x < 0) {
-                this.setFrame(4);
                 this.looking = "left";
             }
             else if (this.body.velocity.x > 0) {
-                this.setFrame(0);
                 this.looking = "right";
             }
         }
@@ -935,14 +921,12 @@ var Player = (function (_super) {
         }
         if (this.looking === "left") {
             this.setFrame(4);
-            console.log("left");
             if (!onGround) {
                 this.setFrame(5);
             }
         }
         else if (this.looking === "right") {
             this.setFrame(0);
-            console.log("right");
             if (!onGround) {
                 this.setFrame(1);
             }
@@ -1199,7 +1183,9 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(scene, x, y) {
-        return _super.call(this, scene, x, y, "asteroid1") || this;
+        var _this = _super.call(this, scene, x, y, "asteroid1") || this;
+        _this.setStatic(true);
+        return _this;
     }
     return Asteroid;
 }(SpaceGameObject_1.default));
@@ -1277,7 +1263,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.move = false;
+        _this.move = true;
         _this.turnDir = "";
         _this.controls = {
             turnLeft: function () {
@@ -1349,7 +1335,6 @@ var HyperBeamerSType = (function (_super) {
                 steps: 10
             }
         });
-        _this_1.move = false;
         var _this = _this_1;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
@@ -1376,6 +1361,7 @@ var HyperBeamerSType = (function (_super) {
                 }
             }
         });
+        _this_1.sm.start("wander");
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function () {
@@ -1456,7 +1442,14 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Nebula = (function (_super) {
     __extends(Nebula, _super);
     function Nebula(scene, x, y, texture) {
-        return _super.call(this, scene, x, y, texture) || this;
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
+        return _this;
     }
     return Nebula;
 }(SpaceGameObject_1.default));
@@ -1591,7 +1584,7 @@ var PlayerShip = (function (_super) {
     }
     PlayerShip.prototype.setupShootTimer = function () {
         var _this = this;
-        this.shootTimer = timer_1.default(true, 750, function () {
+        this.shootTimer = timer_1.default(true, 450, function () {
             if (_this.controls.shoot()) {
                 _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
             }
@@ -1959,7 +1952,7 @@ var PlanetBackScene = (function (_super) {
             0.67,
             0.5
         ];
-        var layerAmt = 4;
+        var layerAmt = 6;
         this.layers = [];
         this.nextLayers = [];
         for (var i = 0; i < layerAmt; i++) {
@@ -2874,6 +2867,9 @@ var SpaceLogicScene = (function (_super) {
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
         var rng = new Phaser.Math.RandomDataGenerator("rand1");
+        var random = function (min, max) {
+            return rng.frac() * (max - min) + min;
+        };
         for (var i = 0; i < nebulaeAmt; i++) {
             nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
@@ -2887,8 +2883,9 @@ var SpaceLogicScene = (function (_super) {
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 61000);
-        console.log(this.playerShip);
+        for (var i = 0; i < 100; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+        }
         this.spaceScene.sys.displayList.list.forEach(function (object) {
             if (object.scale < 2) {
                 object.setScale(2);
@@ -2897,7 +2894,6 @@ var SpaceLogicScene = (function (_super) {
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();
-        var updateList = this.spaceScene.sys.updateList.getActive();
     };
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
@@ -3232,7 +3228,7 @@ var SpaceUIDebugScene = (function (_super) {
         this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
         var txt = "";
         for (var i in cell) {
-            txt += i;
+            txt += i + "\n";
         }
         this.cellText.setText(txt);
     };

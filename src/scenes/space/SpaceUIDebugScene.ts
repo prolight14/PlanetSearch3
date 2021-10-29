@@ -53,7 +53,7 @@ export default class SpaceUIDebugScene extends Phaser.Scene
         var txt: string = "";
         for(var i in cell)
         {
-            txt += i;
+            txt += i + "\n";
         }
 
         this.cellText.setText(txt);

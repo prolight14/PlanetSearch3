@@ -37,7 +37,7 @@ var PlanetBackScene = (function (_super) {
             0.67,
             0.5
         ];
-        var layerAmt = 4;
+        var layerAmt = 6;
         this.layers = [];
         this.nextLayers = [];
         for (var i = 0; i < layerAmt; i++) {

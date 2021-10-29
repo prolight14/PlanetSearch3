@@ -6,5 +6,7 @@ export default class Asteroid extends SpaceGameObject
     constructor(scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "asteroid1");
+
+        this.setStatic(true);
     }
 }

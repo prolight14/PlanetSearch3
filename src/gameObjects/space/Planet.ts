@@ -1,3 +1,4 @@
+import SpaceScene from "../../scenes/space/SpaceScene";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Planet extends SpaceGameObject
@@ -25,6 +26,10 @@ export default class Planet extends SpaceGameObject
     {
         if(object._arrayName === "playerShip")
         {
+            // (this.scene.scene.get("spaceScene") as SpaceScene).switchToPlanetSceneGroup({
+            //     type: "planet",
+            //     from: this
+            // });
         }
     }
 }

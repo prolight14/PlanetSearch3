@@ -36,7 +36,6 @@ var HyperBeamerSType = (function (_super) {
                 steps: 10
             }
         });
-        _this_1.move = false;
         var _this = _this_1;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
@@ -63,6 +62,7 @@ var HyperBeamerSType = (function (_super) {
                 }
             }
         });
+        _this_1.sm.start("wander");
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function () {

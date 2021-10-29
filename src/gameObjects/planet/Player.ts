@@ -91,21 +91,6 @@ export default class Player extends Lifeform
             repeat: -1
         });
 
-        scene.anims.create({
-            key: "lookLeft",
-            frames: [{ key: "Player", frame: 4 }],
-            frameRate: 8,
-            repeat: -1
-        });
-       
-        scene.anims.create({
-            key: "lookRight",
-            frames: [{ key: "Player", frame: 0 }],
-            frameRate: 8,
-            repeat: -1
-        });
-    
-
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
             d: scene.input.keyboard.addKey('d'),
@@ -213,10 +198,12 @@ export default class Player extends Lifeform
         const onGround = this.body.blocked.down || this.isOnSlope;
 
         if(this.controls.left())
+        // if(this.body.velocity.x < 0)
         {
             this.anims.play("left", true);
         }
         if(this.controls.right())
+        // if(this.body.velocity.x > 0)
         {
             this.anims.play("right", true);
         }
@@ -224,12 +211,12 @@ export default class Player extends Lifeform
         {
             if(this.body.velocity.x < 0)
             {
-                this.setFrame(4);
+                // this.setFrame(4);
                 this.looking = "left";
             }
             else if(this.body.velocity.x > 0)
             {
-                this.setFrame(0);
+                // this.setFrame(0);
                 this.looking = "right";
             }
         }
@@ -241,7 +228,6 @@ export default class Player extends Lifeform
         if(this.looking === "left")
         {
             this.setFrame(4);
-            console.log("left");
 
             if(!onGround)
             {
@@ -251,8 +237,7 @@ export default class Player extends Lifeform
         else if(this.looking === "right")
         {
             this.setFrame(0);
-            console.log("right");
-
+           
             if(!onGround)
             {
                 this.setFrame(1);

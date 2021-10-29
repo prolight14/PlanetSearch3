@@ -36,7 +36,7 @@ export default class Door extends StaticGameObject
         {
             const player: Player = object as Player;
 
-            if(player.activate() && Math.abs(player.body.y + player.body.height - this.y + this.height) < 0.5 && Math.abs(player.body.velocity.y) < 0.05)
+            if(player.activate() && player.body.blocked.down)
             {
                 (this.scene.scene.get("planetLoader") as PlanetLoaderScene).restart({
                     loadType: "door",

@@ -40,6 +40,11 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var rng = new Phaser.Math.RandomDataGenerator("rand1");
 
+        var random = function(min: number, max: number)
+        {
+            return rng.frac() * (max - min) + min;
+        };
+
         for(var i = 0; i < nebulaeAmt; i++)
         {
             nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
@@ -60,9 +65,11 @@ export default class SpaceLogicScene extends Phaser.Scene
         this.playerShip.setBullets(playerShipBullets);
 
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 61000);
 
-        console.log(this.playerShip);
+        for(var i = 0; i < 100; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+        }
 
         this.spaceScene.sys.displayList.list.forEach((object: any) =>
         {
@@ -76,30 +83,6 @@ export default class SpaceLogicScene extends Phaser.Scene
     public update()
     {
         this.updatePlanets();
-
-        var updateList = this.spaceScene.sys.updateList.getActive();
-
-        /*updateList.forEach((objectA: SpaceGameObject) =>
-        {
-            updateList.forEach((objectB: SpaceGameObject) =>
-            {
-                // if(objectA._id === objectB._id)
-                // {
-                //     return;
-                // }
-
-                var boundsA = objectA.getBounds();
-	            var boundsB = objectB.getBounds();
-
-                if(Phaser.Geom.Intersects.RectangleToRectangle(boundsA, boundsB))
-                {
-                    console.log("hit! (2)");
-                    objectA.onCollide(objectB);
-                    objectB.onCollide(objectA);
-                }
-
-            });
-        });*/
     }
 
     private updatePlanets()

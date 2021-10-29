@@ -68,7 +68,7 @@ var PlayerShip = (function (_super) {
     }
     PlayerShip.prototype.setupShootTimer = function () {
         var _this = this;
-        this.shootTimer = timer_1.default(true, 750, function () {
+        this.shootTimer = timer_1.default(true, 450, function () {
             if (_this.controls.shoot()) {
                 _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
             }

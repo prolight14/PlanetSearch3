@@ -31,7 +31,7 @@ export default class EnemyShip extends Ship
         this.angleVel = 3;
     }
 
-    protected move: boolean = false;
+    protected move: boolean = true;
 
     public preUpdate()
     {

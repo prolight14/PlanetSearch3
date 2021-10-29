@@ -44,18 +44,6 @@ var Player = (function (_super) {
             frameRate: 5,
             repeat: -1
         });
-        scene.anims.create({
-            key: "lookLeft",
-            frames: [{ key: "Player", frame: 4 }],
-            frameRate: 8,
-            repeat: -1
-        });
-        scene.anims.create({
-            key: "lookRight",
-            frames: [{ key: "Player", frame: 0 }],
-            frameRate: 8,
-            repeat: -1
-        });
         _this.keys = {
             a: scene.input.keyboard.addKey('a'),
             d: scene.input.keyboard.addKey('d'),
@@ -146,19 +134,17 @@ var Player = (function (_super) {
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
-        if (this.controls.left()) {
+        if (this.body.velocity.x < 0) {
             this.anims.play("left", true);
         }
-        if (this.controls.right()) {
+        if (this.body.velocity.x > 0) {
             this.anims.play("right", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
             if (this.body.velocity.x < 0) {
-                this.setFrame(4);
                 this.looking = "left";
             }
             else if (this.body.velocity.x > 0) {
-                this.setFrame(0);
                 this.looking = "right";
             }
         }
@@ -167,14 +153,12 @@ var Player = (function (_super) {
         }
         if (this.looking === "left") {
             this.setFrame(4);
-            console.log("left");
             if (!onGround) {
                 this.setFrame(5);
             }
         }
         else if (this.looking === "right") {
             this.setFrame(0);
-            console.log("right");
             if (!onGround) {
                 this.setFrame(1);
             }

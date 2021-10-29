@@ -35,6 +35,9 @@ var SpaceLogicScene = (function (_super) {
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
         var rng = new Phaser.Math.RandomDataGenerator("rand1");
+        var random = function (min, max) {
+            return rng.frac() * (max - min) + min;
+        };
         for (var i = 0; i < nebulaeAmt; i++) {
             nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
         }
@@ -48,8 +51,9 @@ var SpaceLogicScene = (function (_super) {
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 61000);
-        console.log(this.playerShip);
+        for (var i = 0; i < 100; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+        }
         this.spaceScene.sys.displayList.list.forEach(function (object) {
             if (object.scale < 2) {
                 object.setScale(2);
@@ -58,7 +62,6 @@ var SpaceLogicScene = (function (_super) {
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();
-        var updateList = this.spaceScene.sys.updateList.getActive();
     };
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
