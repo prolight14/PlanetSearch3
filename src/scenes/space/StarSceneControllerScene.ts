@@ -52,7 +52,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
             // starsPerCell: 250,
             // starsPerCell: 42,
             // starSize: 2,
-            starScroll: 0.87,
+            // starScroll: 0.87,
 
             imageKey: "starBackground2",
             cspConfig: {
@@ -61,10 +61,14 @@ export default class StarSceneControllerScene extends Phaser.Scene
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
+                    // cols: 200 * 3,
+                    // rows: 200 * 3,
+                    // cellWidth: Math.floor(800 * 0.33333),
+                    // cellHeight: Math.floor(800 * 0.33333)
                     cols: 200,
                     rows: 200,
                     cellWidth: 800,
-                    cellHeight: 800
+                    cellHeight: 800,
                 }
             }
         });
@@ -84,10 +88,14 @@ export default class StarSceneControllerScene extends Phaser.Scene
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
+                    // cols: 200 * 3,
+                    // rows: 200 * 3,
+                    // cellWidth: Math.floor(800 * 0.33333),
+                    // cellHeight: Math.floor(800 * 0.33333),
                     cols: 200,
                     rows: 200,
                     cellWidth: 800,
-                    cellHeight: 800
+                    cellHeight: 800,
                 }
             }
         });

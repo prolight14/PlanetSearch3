@@ -19,7 +19,7 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "planet";
+        this.currentSceneGroup = "space";
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);

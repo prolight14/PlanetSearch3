@@ -41,7 +41,7 @@ var Player = (function (_super) {
         scene.anims.create({
             key: "right",
             frames: [{ key: "Player", frame: 0 }, { key: "Player", frame: 1 }, { key: "Player", frame: 2 }, { key: "Player", frame: 3 }],
-            frameRate: 5,
+            frameRate: 8,
             repeat: -1
         });
         _this.keys = {
@@ -136,9 +136,16 @@ var Player = (function (_super) {
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
             this.anims.play("left", true);
+            this.playingLeft = true;
         }
         if (this.controls.right()) {
             this.anims.play("right", true);
+        }
+        if (this.body.deltaX() < 0.01) {
+            this.playingLeft = false;
+        }
+        if (this.playingLeft) {
+            this.anims.play("left", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
             if (this.body.velocity.x < 0) {

@@ -87,9 +87,10 @@ export default class Player extends Lifeform
         scene.anims.create({
             key: "right",
             frames: [{ key: "Player", frame: 0 }, { key: "Player", frame: 1 }, { key: "Player", frame: 2 }, { key: "Player", frame: 3 }],
-            frameRate: 5,
+            frameRate: 8,
             repeat: -1
         });
+
 
         this.keys = {
             a: scene.input.keyboard.addKey('a'), 
@@ -190,6 +191,7 @@ export default class Player extends Lifeform
         r: Phaser.Input.Keyboard.Key;
     };
     private looking: string;
+    private playingLeft: boolean;
 
     preUpdate(time: number, delta: number)
     {
@@ -201,12 +203,25 @@ export default class Player extends Lifeform
         // if(this.body.velocity.x < 0)
         {
             this.anims.play("left", true);
+
+            this.playingLeft = true;
         }
         if(this.controls.right())
         // if(this.body.velocity.x > 0)
         {
             this.anims.play("right", true);
         }
+
+        if(this.body.deltaX() < 0.01)
+        {
+            this.playingLeft = false;
+        }
+
+        if(this.playingLeft)
+        {
+            this.anims.play("left", true);
+        }
+
         if(!this.controls.left() && !this.controls.right())
         {
             if(this.body.velocity.x < 0)

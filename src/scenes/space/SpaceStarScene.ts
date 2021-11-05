@@ -72,6 +72,8 @@ export default class SpaceStarScene extends Phaser.Scene
         this.cameras.add();
 
         this.tileStarImage();
+
+        this.cellGraphics = this.add.graphics();
     }
 
     private tileStarImage()
@@ -133,9 +135,12 @@ export default class SpaceStarScene extends Phaser.Scene
         );
         this.csStars.updateWorld();
 
-        this.sys.displayList.add(this.stars);
+        this.showGrid();
+        // this.sys.displayList.add(this.stars);
         this.sys.displayList.add(this.rt);
+        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
+
 
         this.frontCamera.zoom = cam.zoom;
     }
@@ -165,6 +170,23 @@ export default class SpaceStarScene extends Phaser.Scene
         });
 
         this.rt.endDraw();
+    }
 
+    private cellGraphics: Phaser.GameObjects.Graphics;
+
+    private showGrid()
+    {
+        this.cellGraphics.clear();
+
+        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        
+        let world: any = this.csStars.world;
+        let cellWidth: number = world.cameraGrid.cellWidth;
+        let cellHeight: number = world.cameraGrid.cellHeight;
+
+        world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
+        {
+            this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        });
     }
 }

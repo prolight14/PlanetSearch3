@@ -410,7 +410,7 @@ var Player = (function (_super) {
         scene.anims.create({
             key: "right",
             frames: [{ key: "Player", frame: 0 }, { key: "Player", frame: 1 }, { key: "Player", frame: 2 }, { key: "Player", frame: 3 }],
-            frameRate: 5,
+            frameRate: 8,
             repeat: -1
         });
         _this.keys = {
@@ -505,9 +505,16 @@ var Player = (function (_super) {
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
             this.anims.play("left", true);
+            this.playingLeft = true;
         }
         if (this.controls.right()) {
             this.anims.play("right", true);
+        }
+        if (this.body.deltaX() < 0.01) {
+            this.playingLeft = false;
+        }
+        if (this.playingLeft) {
+            this.anims.play("left", true);
         }
         if (!this.controls.left() && !this.controls.right()) {
             if (this.body.velocity.x < 0) {
@@ -1252,7 +1259,7 @@ var EntryScene = (function (_super) {
         return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "planet";
+        this.currentSceneGroup = "space";
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
@@ -2426,6 +2433,7 @@ var SpaceStarScene = (function (_super) {
         this.frontCamera.startFollow(this.cameras.main);
         this.cameras.add();
         this.tileStarImage();
+        this.cellGraphics = this.add.graphics();
     };
     SpaceStarScene.prototype.tileStarImage = function () {
         var cellWidth = this.csStars.world.cameraGrid.cellWidth;
@@ -2456,8 +2464,9 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.sys.displayList.add(this.stars);
+        this.showGrid();
         this.sys.displayList.add(this.rt);
+        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
     };
@@ -2477,6 +2486,17 @@ var SpaceStarScene = (function (_super) {
             _this.rt.batchDraw(_this.cellImageRT, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
         });
         this.rt.endDraw();
+    };
+    SpaceStarScene.prototype.showGrid = function () {
+        var _this = this;
+        this.cellGraphics.clear();
+        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        var world = this.csStars.world;
+        var cellWidth = world.cameraGrid.cellWidth;
+        var cellHeight = world.cameraGrid.cellHeight;
+        world.loopThroughVisibleCells(function (cell, col, row) {
+            _this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        });
     };
     return SpaceStarScene;
 }(Phaser.Scene));
@@ -2581,7 +2601,6 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starScroll: 0.87,
             imageKey: "starBackground2",
             cspConfig: {
                 window: {
@@ -2592,7 +2611,7 @@ var StarSceneControllerScene = (function (_super) {
                     cols: 200,
                     rows: 200,
                     cellWidth: 800,
-                    cellHeight: 800
+                    cellHeight: 800,
                 }
             }
         });
@@ -2609,7 +2628,7 @@ var StarSceneControllerScene = (function (_super) {
                     cols: 200,
                     rows: 200,
                     cellWidth: 800,
-                    cellHeight: 800
+                    cellHeight: 800,
                 }
             }
         });

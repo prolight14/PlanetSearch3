@@ -47,6 +47,7 @@ var SpaceStarScene = (function (_super) {
         this.frontCamera.startFollow(this.cameras.main);
         this.cameras.add();
         this.tileStarImage();
+        this.cellGraphics = this.add.graphics();
     };
     SpaceStarScene.prototype.tileStarImage = function () {
         var cellWidth = this.csStars.world.cameraGrid.cellWidth;
@@ -77,8 +78,9 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.sys.displayList.add(this.stars);
+        this.showGrid();
         this.sys.displayList.add(this.rt);
+        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
     };
@@ -98,6 +100,17 @@ var SpaceStarScene = (function (_super) {
             _this.rt.batchDraw(_this.cellImageRT, Math.floor(col * cellWidth - mainCam.scrollX), Math.floor(row * cellHeight - mainCam.scrollY));
         });
         this.rt.endDraw();
+    };
+    SpaceStarScene.prototype.showGrid = function () {
+        var _this = this;
+        this.cellGraphics.clear();
+        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        var world = this.csStars.world;
+        var cellWidth = world.cameraGrid.cellWidth;
+        var cellHeight = world.cameraGrid.cellHeight;
+        world.loopThroughVisibleCells(function (cell, col, row) {
+            _this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        });
     };
     return SpaceStarScene;
 }(Phaser.Scene));
