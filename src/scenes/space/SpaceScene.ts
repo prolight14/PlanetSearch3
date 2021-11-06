@@ -15,7 +15,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 default: "matter",
                 matter: {
                     gravity: false,
-                    debug: true
+                    // debug: true
                 }
             }
         });
@@ -59,6 +59,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             }
         };
 
+        
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.csp.syncWithGrid();

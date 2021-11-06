@@ -40,7 +40,7 @@ var SpaceStarScene = (function (_super) {
         this.stars = this.add.graphics();
         this.rt = this.add.renderTexture(0, 0, this.game.config.width, this.game.config.height);
         this.cameras.main.ignore(this.rt);
-        this.starImage = this.add.image(0, 0, data.imageKey).setScale(2, 2);
+        this.starImage = this.add.image(0, 0, data.imageKey);
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
         this.frontCamera.ignore(this.rt);
@@ -78,9 +78,7 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.showGrid();
         this.sys.displayList.add(this.rt);
-        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
     };

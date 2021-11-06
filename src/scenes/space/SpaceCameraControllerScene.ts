@@ -27,7 +27,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         { 
             var cam = this.cameras.main;
 
-            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 4));
+            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.45), 4));
 
         });
 

@@ -26,7 +26,9 @@ export default class StarSceneControllerScene extends Phaser.Scene
     private startStarScenes()
     {
         const spaceScene = this.scene.get("space") as SpaceScene;
-       
+        
+        // this.add.tile
+
         // this.scene.add("spaceStar", SpaceStarScene, true,
         // {
         //     // starsPerCell: 100,

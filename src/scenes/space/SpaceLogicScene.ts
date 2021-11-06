@@ -71,13 +71,15 @@ export default class SpaceLogicScene extends Phaser.Scene
             hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
         }
 
-        this.spaceScene.sys.displayList.list.forEach((object: any) =>
-        {
-            if(object.scale < 2)
-            {
-                object.setScale(2);
-            }
-        });
+        // this.spaceScene.sys.displayList.list.forEach((object: any) =>
+        // {
+        //     // if(object.scale < 2)
+        //     // {
+        //     //     object.setScale(2);
+        //     // }
+
+        //     object.setScale(object.scale * 0.5);
+        // });
     }
 
     public update()

@@ -897,7 +897,7 @@ var Planet = (function (_super) {
     __extends(Planet, _super);
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setScale(7);
+        _this.setScale(3);
         _this.setStatic(true);
         _this.body.collisionFilter = {
             'group': -1,
@@ -1983,7 +1983,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.3), 4));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.45), 4));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -2196,11 +2196,6 @@ var SpaceLogicScene = (function (_super) {
         for (var i = 0; i < 100; i++) {
             hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
         }
-        this.spaceScene.sys.displayList.list.forEach(function (object) {
-            if (object.scale < 2) {
-                object.setScale(2);
-            }
-        });
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();
@@ -2259,7 +2254,6 @@ var SpaceScene = (function (_super) {
                 default: "matter",
                 matter: {
                     gravity: false,
-                    debug: true
                 }
             }
         }) || this;
@@ -2426,7 +2420,7 @@ var SpaceStarScene = (function (_super) {
         this.stars = this.add.graphics();
         this.rt = this.add.renderTexture(0, 0, this.game.config.width, this.game.config.height);
         this.cameras.main.ignore(this.rt);
-        this.starImage = this.add.image(0, 0, data.imageKey).setScale(2, 2);
+        this.starImage = this.add.image(0, 0, data.imageKey);
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
         this.frontCamera.ignore(this.rt);
@@ -2464,9 +2458,7 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.showGrid();
         this.sys.displayList.add(this.rt);
-        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
     };

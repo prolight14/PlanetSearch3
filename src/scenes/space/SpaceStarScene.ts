@@ -62,7 +62,7 @@ export default class SpaceStarScene extends Phaser.Scene
          
         this.rt = this.add.renderTexture(0, 0, this.game.config.width as number, this.game.config.height as number);
         this.cameras.main.ignore(this.rt);
-        this.starImage = this.add.image(0, 0, data.imageKey).setScale(2, 2);
+        this.starImage = this.add.image(0, 0, data.imageKey);//.setScale(0.5);
         
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
@@ -135,10 +135,10 @@ export default class SpaceStarScene extends Phaser.Scene
         );
         this.csStars.updateWorld();
 
-        this.showGrid();
+        // this.showGrid();
         // this.sys.displayList.add(this.stars);
         this.sys.displayList.add(this.rt);
-        this.sys.displayList.add(this.cellGraphics);
+        // this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
 
 

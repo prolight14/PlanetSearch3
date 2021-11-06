@@ -54,11 +54,6 @@ var SpaceLogicScene = (function (_super) {
         for (var i = 0; i < 100; i++) {
             hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
         }
-        this.spaceScene.sys.displayList.list.forEach(function (object) {
-            if (object.scale < 2) {
-                object.setScale(2);
-            }
-        });
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();

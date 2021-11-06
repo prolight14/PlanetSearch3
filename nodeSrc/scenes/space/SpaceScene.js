@@ -22,7 +22,6 @@ var SpaceScene = (function (_super) {
                 default: "matter",
                 matter: {
                     gravity: false,
-                    debug: true
                 }
             }
         }) || this;
