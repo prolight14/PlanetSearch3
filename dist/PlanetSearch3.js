@@ -2009,7 +2009,8 @@ var SpaceCameraControllerScene = (function (_super) {
     SpaceCameraControllerScene.prototype.update = function () {
         var cam = this.cameras.main;
         var cameraTarget = this.spaceScene.getCameraTarget();
-        cam.setScroll(cameraTarget.x - cam.width / 2, cameraTarget.y - cam.height / 2);
+        var spaceCam = this.spaceScene.cameras.main;
+        cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
         if (this.keys.rotateLeft.isDown) {
             this.camAngle -= this.angleSpeed;

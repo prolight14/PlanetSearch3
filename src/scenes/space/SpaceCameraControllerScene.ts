@@ -78,7 +78,9 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         var cam = this.cameras.main;
 
         var cameraTarget: { x: number, y: number } = this.spaceScene.getCameraTarget();
-        cam.setScroll(cameraTarget.x - cam.width / 2, cameraTarget.y - cam.height / 2);
+
+        var spaceCam = this.spaceScene.cameras.main;
+        cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
 
         if(this.keys.rotateLeft.isDown)
