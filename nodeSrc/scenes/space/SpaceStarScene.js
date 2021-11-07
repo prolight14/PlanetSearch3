@@ -26,8 +26,6 @@ var SpaceStarScene = (function (_super) {
         });
     };
     SpaceStarScene.prototype.create = function (data) {
-        this.starsPerCell = data.starsPerCell;
-        this.starSize = data.starSize;
         this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
@@ -37,7 +35,6 @@ var SpaceStarScene = (function (_super) {
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
-        this.stars = this.add.graphics();
         this.rt = this.add.renderTexture(0, 0, this.game.config.width, this.game.config.height);
         this.cameras.main.ignore(this.rt);
         this.starImage = this.add.image(0, 0, data.imageKey);

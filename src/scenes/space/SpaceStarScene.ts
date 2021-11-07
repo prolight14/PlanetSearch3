@@ -3,8 +3,6 @@ import SpaceScene from "./SpaceScene";
 
 export default class SpaceStarScene extends Phaser.Scene
 {
-    private starsPerCell: number;
-    private starSize: number;
     private starScroll: number;
     private csStars: any;
 
@@ -43,8 +41,6 @@ export default class SpaceStarScene extends Phaser.Scene
         } 
     })
     {
-        this.starsPerCell = data.starsPerCell;
-        this.starSize = data.starSize;
         this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
 
         this.spaceScene = this.scene.get("space") as SpaceScene;
@@ -58,11 +54,9 @@ export default class SpaceStarScene extends Phaser.Scene
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
         
-        this.stars = this.add.graphics();
-         
         this.rt = this.add.renderTexture(0, 0, this.game.config.width as number, this.game.config.height as number);
         this.cameras.main.ignore(this.rt);
-        this.starImage = this.add.image(0, 0, data.imageKey);//.setScale(0.5);
+        this.starImage = this.add.image(0, 0, data.imageKey);
         
         this.frontCamera = this.cameras.add();
         this.frontCamera.setOrigin(0, 0);
@@ -136,7 +130,6 @@ export default class SpaceStarScene extends Phaser.Scene
         this.csStars.updateWorld();
 
         // this.showGrid();
-        // this.sys.displayList.add(this.stars);
         this.sys.displayList.add(this.rt);
         // this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
@@ -145,8 +138,6 @@ export default class SpaceStarScene extends Phaser.Scene
         this.frontCamera.zoom = cam.zoom;
     }
 
-
-    private stars: Phaser.GameObjects.Graphics;
 
     private renderStars()
     {

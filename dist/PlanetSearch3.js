@@ -2283,10 +2283,10 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 200,
-                rows: 200,
-                cellWidth: 800,
-                cellHeight: 800
+                cols: 100,
+                rows: 100,
+                cellWidth: 1600,
+                cellHeight: 1600
             }
         };
         this.csp.initWorld(this.cspConfig);
@@ -2406,8 +2406,6 @@ var SpaceStarScene = (function (_super) {
         });
     };
     SpaceStarScene.prototype.create = function (data) {
-        this.starsPerCell = data.starsPerCell;
-        this.starSize = data.starSize;
         this.starScroll = (!data.starScroll || data.starScroll <= 0) ? 1 : data.starScroll;
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
@@ -2417,7 +2415,6 @@ var SpaceStarScene = (function (_super) {
         var height = bounds.maxY - bounds.minY;
         this.subScrollX = (width - width / this.starScroll) * this.starScroll;
         this.subScrollY = (height - height / this.starScroll) * this.starScroll;
-        this.stars = this.add.graphics();
         this.rt = this.add.renderTexture(0, 0, this.game.config.width, this.game.config.height);
         this.cameras.main.ignore(this.rt);
         this.starImage = this.add.image(0, 0, data.imageKey);
@@ -2591,38 +2588,13 @@ var StarSceneControllerScene = (function (_super) {
         this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
-        var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             imageKey: "starBackground2",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 200,
-                    rows: 200,
-                    cellWidth: 800,
-                    cellHeight: 800,
-                }
-            }
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starScroll: 0.65,
             imageKey: "starBackground",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 200,
-                    rows: 200,
-                    cellWidth: 800,
-                    cellHeight: 800,
-                }
-            }
         });
         this.scene.sendToBack("spaceStar");
         this.scene.sendToBack("spaceBackground");
