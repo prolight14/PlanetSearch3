@@ -40,8 +40,8 @@ var PlanetScene = (function (_super) {
         this.scene.sleep("planetUI");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
-        this.scene.run("planetLogic");
         this.scene.run("planetBack");
+        this.scene.run("planetLogic");
         this.scene.run("planetUI");
         this.scene.run("planetEffects");
     };
