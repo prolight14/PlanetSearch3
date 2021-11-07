@@ -15,7 +15,7 @@ export default class Ship extends SpaceGameObject
         shoot: () => boolean;
     }
 
-    protected maxSpeed: number = 10;
+    protected maxSpeed: number = 5;
 
     protected angleVel: number;
     protected angleAcl: number = 0.4;

@@ -18,7 +18,7 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture, frame, config) {
         var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
-        _this.maxSpeed = 10;
+        _this.maxSpeed = 5;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;

@@ -51,10 +51,10 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 100,
-                rows: 100,
-                cellWidth: 1600,
-                cellHeight: 1600
+                cols: 200,
+                rows: 200,
+                cellWidth: 800,
+                cellHeight: 800
             }
         };
         this.csp.initWorld(this.cspConfig);

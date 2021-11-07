@@ -27,18 +27,15 @@ export default class PlayerShip extends Ship
         this.pEmitter = this.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
-            speed: 70,
-            angle: { min: 65, max: 115 },
             rotate: 0,
             x: 0,
             y: 0,
-            quantity: 1,
-            // alpha: { min: 0x00, max: 0xFF }
-            alpha: {
-                start: 0xFF,
-                end: 0x00,
-                steps: 10
-            }
+            quantity: 1
+        });
+
+        this.pEmitter.setAlpha(function(p: any, k: any, t: number)
+        {
+            return 1 - t;
         });
         
         this.controls = {
@@ -99,13 +96,13 @@ export default class PlayerShip extends Ship
         Ship.prototype.preUpdate.apply(this, arguments);
 
         var rot = this.rotation + Math.PI / 2;
-
-        this.particles.x = this.x + Math.cos(rot) * this.height;
-        this.particles.y = this.y + Math.sin(rot) * this.height;
-        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        var length = this.height * this.scaleX * 0.4;
+        this.particles.x = this.x + Math.cos(rot) * length;
+        this.particles.y = this.y + Math.sin(rot) * length;
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
-        this.pEmitter.setSpeed(this.speed * 10);
-        
+        this.pEmitter.setSpeed(this.speed * 30);
+
         this.shootTimer.update();
     }
 }

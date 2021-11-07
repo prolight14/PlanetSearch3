@@ -24,17 +24,13 @@ var HyperBeamerSType = (function (_super) {
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
-            speed: 70,
-            angle: { min: 65, max: 115 },
             rotate: 0,
             x: 0,
             y: 0,
-            quantity: 1,
-            alpha: {
-                start: 0xFF,
-                end: 0x00,
-                steps: 10
-            }
+            quantity: 1
+        });
+        _this_1.pEmitter.setAlpha(function (p, k, t) {
+            return 1 - t;
         });
         var _this = _this_1;
         _this_1.sm = new StateMachine_1.default({
@@ -68,11 +64,12 @@ var HyperBeamerSType = (function (_super) {
     HyperBeamerSType.prototype.preUpdate = function () {
         HyperBeamerShip_1.default.prototype.preUpdate.apply(this, arguments);
         var rot = this.rotation + Math.PI / 2;
-        this.particles.x = this.x + Math.cos(rot) * this.height * 0.8;
-        this.particles.y = this.y + Math.sin(rot) * this.height * 0.8;
-        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        var length = this.height * this.scaleX * 0.4;
+        this.particles.x = this.x + Math.cos(rot) * length;
+        this.particles.y = this.y + Math.sin(rot) * length;
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
-        this.pEmitter.setSpeed(this.speed * 10);
+        this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
     };
     return HyperBeamerSType;

@@ -52,21 +52,12 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 height: this.game.config.height
             },
             grid: {
-                // cols: 200,
-                // rows: 200,
-                // cellWidth: 800,
-                // cellHeight: 800
-                // cols: 400,
-                // rows: 400,
-                // cellWidth: 400,
-                // cellHeight: 400
-                cols: 100,
-                rows: 100,
-                cellWidth: 1600,
-                cellHeight: 1600
+                cols: 200,
+                rows: 200,
+                cellWidth: 800,
+                cellHeight: 800
             }
         };
-
         
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();

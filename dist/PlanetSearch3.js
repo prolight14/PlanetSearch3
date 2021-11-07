@@ -736,17 +736,13 @@ var HyperBeamerSType = (function (_super) {
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
-            speed: 70,
-            angle: { min: 65, max: 115 },
             rotate: 0,
             x: 0,
             y: 0,
-            quantity: 1,
-            alpha: {
-                start: 0xFF,
-                end: 0x00,
-                steps: 10
-            }
+            quantity: 1
+        });
+        _this_1.pEmitter.setAlpha(function (p, k, t) {
+            return 1 - t;
         });
         var _this = _this_1;
         _this_1.sm = new StateMachine_1.default({
@@ -780,11 +776,12 @@ var HyperBeamerSType = (function (_super) {
     HyperBeamerSType.prototype.preUpdate = function () {
         HyperBeamerShip_1.default.prototype.preUpdate.apply(this, arguments);
         var rot = this.rotation + Math.PI / 2;
-        this.particles.x = this.x + Math.cos(rot) * this.height * 0.8;
-        this.particles.y = this.y + Math.sin(rot) * this.height * 0.8;
-        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        var length = this.height * this.scaleX * 0.4;
+        this.particles.x = this.x + Math.cos(rot) * length;
+        this.particles.y = this.y + Math.sin(rot) * length;
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
-        this.pEmitter.setSpeed(this.speed * 10);
+        this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
     };
     return HyperBeamerSType;
@@ -961,17 +958,13 @@ var PlayerShip = (function (_super) {
         _this.pEmitter = _this.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
-            speed: 70,
-            angle: { min: 65, max: 115 },
             rotate: 0,
             x: 0,
             y: 0,
-            quantity: 1,
-            alpha: {
-                start: 0xFF,
-                end: 0x00,
-                steps: 10
-            }
+            quantity: 1
+        });
+        _this.pEmitter.setAlpha(function (p, k, t) {
+            return 1 - t;
         });
         _this.controls = {
             turnLeft: function () {
@@ -1010,11 +1003,12 @@ var PlayerShip = (function (_super) {
     PlayerShip.prototype.preUpdate = function () {
         Ship_1.default.prototype.preUpdate.apply(this, arguments);
         var rot = this.rotation + Math.PI / 2;
-        this.particles.x = this.x + Math.cos(rot) * this.height;
-        this.particles.y = this.y + Math.sin(rot) * this.height;
-        this.pEmitter.setAngle(this.angle + 90 + 90 * Math.random() - 45);
+        var length = this.height * this.scaleX * 0.4;
+        this.particles.x = this.x + Math.cos(rot) * length;
+        this.particles.y = this.y + Math.sin(rot) * length;
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
-        this.pEmitter.setSpeed(this.speed * 10);
+        this.pEmitter.setSpeed(this.speed * 30);
         this.shootTimer.update();
     };
     return PlayerShip;
@@ -1088,7 +1082,7 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture, frame, config) {
         var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
-        _this.maxSpeed = 10;
+        _this.maxSpeed = 5;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;
@@ -2283,10 +2277,10 @@ var SpaceScene = (function (_super) {
                 height: this.game.config.height
             },
             grid: {
-                cols: 100,
-                rows: 100,
-                cellWidth: 1600,
-                cellHeight: 1600
+                cols: 200,
+                rows: 200,
+                cellWidth: 800,
+                cellHeight: 800
             }
         };
         this.csp.initWorld(this.cspConfig);
@@ -2588,13 +2582,38 @@ var StarSceneControllerScene = (function (_super) {
         this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
+        var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             imageKey: "starBackground2",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starScroll: 0.65,
             imageKey: "starBackground",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar");
         this.scene.sendToBack("spaceBackground");

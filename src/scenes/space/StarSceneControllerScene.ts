@@ -25,28 +25,23 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
     private startStarScenes()
     {
+        const spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
 
         this.scene.add("spaceStar2", SpaceStarScene, true,
         {
-            // starScroll: 0.87,
-
             imageKey: "starBackground2",
-            // cspConfig: {
-            //     window: {
-            //         width: spaceScene.cspConfig.width,
-            //         height: spaceScene.cspConfig.height
-            //     },
-            //     grid: {
-            //         // cols: 200 * 3,
-            //         // rows: 200 * 3,
-            //         // cellWidth: Math.floor(800 * 0.33333),
-            //         // cellHeight: Math.floor(800 * 0.33333)
-            //         cols: 200,
-            //         rows: 200,
-            //         cellWidth: 800,
-            //         cellHeight: 800,
-            //     }
-            // }
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar2");
 
@@ -55,22 +50,18 @@ export default class StarSceneControllerScene extends Phaser.Scene
             starScroll: 0.65,
 
             imageKey: "starBackground",
-            // cspConfig: {
-            //     window: {
-            //         width: spaceScene.cspConfig.width,
-            //         height: spaceScene.cspConfig.height
-            //     },
-            //     grid: {
-            //         // cols: 200 * 3,
-            //         // rows: 200 * 3,
-            //         // cellWidth: Math.floor(800 * 0.33333),
-            //         // cellHeight: Math.floor(800 * 0.33333),
-            //         cols: 200,
-            //         rows: 200,
-            //         cellWidth: 800,
-            //         cellHeight: 800,
-            //     }
-            // }
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar");
 

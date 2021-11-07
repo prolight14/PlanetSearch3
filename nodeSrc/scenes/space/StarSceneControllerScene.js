@@ -29,13 +29,38 @@ var StarSceneControllerScene = (function (_super) {
         this.events.on("wake", this.onWake, this);
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
+        var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
             imageKey: "starBackground2",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starScroll: 0.65,
             imageKey: "starBackground",
+            cspConfig: {
+                window: {
+                    width: spaceScene.cspConfig.width,
+                    height: spaceScene.cspConfig.height
+                },
+                grid: {
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
+                }
+            }
         });
         this.scene.sendToBack("spaceStar");
         this.scene.sendToBack("spaceBackground");
