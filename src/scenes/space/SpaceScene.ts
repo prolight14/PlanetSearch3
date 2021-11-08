@@ -1,4 +1,3 @@
-import Planet from "../../gameObjects/space/Planet";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
@@ -15,7 +14,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 default: "matter",
                 matter: {
                     gravity: false,
-                    // debug: true
+                    autoUpdate: false, 
+                    positionIterations: 4,
+                    velocityIterations: 2,
+                    constraintIterations: 1
                 }
             }
         });
@@ -66,10 +68,12 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.loaded = true;
     }
 
-    playerShip: PlayerShip;
+    private stepMatter: boolean = true;
+
+    private playerShip: PlayerShip;
 
     public runScenes(calledByEntryScene?: boolean)
-    {
+    { 
         this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
@@ -171,5 +175,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
             });
         });
+
+        if(this.stepMatter = !this.stepMatter)
+        {
+            this.matter.step(33.333333);
+        }
     }
 }

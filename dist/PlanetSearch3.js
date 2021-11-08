@@ -2249,10 +2249,15 @@ var SpaceScene = (function (_super) {
                 default: "matter",
                 matter: {
                     gravity: false,
+                    autoUpdate: false,
+                    positionIterations: 4,
+                    velocityIterations: 2,
+                    constraintIterations: 1
                 }
             }
         }) || this;
         _this.loaded = false;
+        _this.stepMatter = true;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -2359,6 +2364,9 @@ var SpaceScene = (function (_super) {
                 }
             });
         });
+        if (this.stepMatter = !this.stepMatter) {
+            this.matter.step(33.333333);
+        }
     };
     return SpaceScene;
 }(Phaser.Scene));
@@ -2592,10 +2600,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    cols: 134,
+                    rows: 134,
+                    cellWidth: 1200,
+                    cellHeight: 1200,
                 }
             }
         });
@@ -2609,10 +2617,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    cols: 134,
+                    rows: 134,
+                    cellWidth: 1200,
+                    cellHeight: 1200,
                 }
             }
         });

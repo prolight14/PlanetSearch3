@@ -36,10 +36,14 @@ export default class StarSceneControllerScene extends Phaser.Scene
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    // cols: 100,
+                    // rows: 100,
+                    // cellWidth: 1600,
+                    // cellHeight: 1600,
+                    cols: 134,
+                    rows: 134,
+                    cellWidth: 1200,
+                    cellHeight: 1200,
                 }
             }
         });
@@ -56,10 +60,14 @@ export default class StarSceneControllerScene extends Phaser.Scene
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    // cols: 100,
+                    // rows: 100,
+                    // cellWidth: 1600,
+                    // cellHeight: 1600,
+                    cols: 134,
+                    rows: 134,
+                    cellWidth: 1200,
+                    cellHeight: 1200,
                 }
             }
         });
