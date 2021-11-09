@@ -4,6 +4,8 @@ import Ship from "./Ship";
 export default class EnemyShip extends Ship
 {
     protected turnDir: string;
+    
+    protected typeName: string = "enemyShip";
 
     constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {

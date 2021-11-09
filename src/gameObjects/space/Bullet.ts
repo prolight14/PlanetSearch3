@@ -20,8 +20,8 @@ export default class Bullet extends SpaceGameObject
         this.y += Math.sin(angle) * this.speed;
     }
 
-    public onCollide(object: SpaceGameObject)
+    public getDamage()
     {
-        console.log("Hit!");
+        return this.damage;
     }
 }

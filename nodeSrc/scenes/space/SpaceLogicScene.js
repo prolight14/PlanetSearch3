@@ -52,7 +52,7 @@ var SpaceLogicScene = (function (_super) {
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000) / 2, 61000 + random(-7000, 7000) / 2);
         }
     };
     SpaceLogicScene.prototype.update = function () {

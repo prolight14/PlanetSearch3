@@ -13,21 +13,26 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
 var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {
-            a: scene.input.keyboard.addKey('a'),
-            d: scene.input.keyboard.addKey('d'),
-            w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s'),
-            space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+            turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+            turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+            slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+        _this.scene.input.keyboard.on("keyup-Z", function () {
+            _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
+        });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
             lifespan: 500,
@@ -42,34 +47,29 @@ var PlayerShip = (function (_super) {
         });
         _this.controls = {
             turnLeft: function () {
-                return _this.keys.a.isDown;
+                return _this.keys.turnLeft.isDown;
             },
             turnRight: function () {
-                return _this.keys.d.isDown;
+                return _this.keys.turnRight.isDown;
             },
             goForward: function () {
-                return _this.keys.w.isDown;
+                return _this.keys.goForward.isDown;
             },
             slowDown: function () {
-                return _this.keys.s.isDown;
+                return _this.keys.slowDown.isDown;
             },
             shoot: function () {
-                return _this.keys.space.isDown;
+                return false;
             }
         };
         _this.setScale(1, 1);
         _this.speed = 6;
-        _this.setupShootTimer();
         return _this;
     }
-    PlayerShip.prototype.setupShootTimer = function () {
-        var _this = this;
-        this.shootTimer = timer_1.default(true, 450, function () {
-            if (_this.controls.shoot()) {
-                _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
-            }
-            _this.shootTimer.reset();
-        });
+    PlayerShip.prototype.resetKeys = function () {
+        for (var i in this.keys) {
+            this.keys[i].reset();
+        }
     };
     PlayerShip.prototype.setBullets = function (playerShipBullets) {
         this.bullets = playerShipBullets;
@@ -83,7 +83,6 @@ var PlayerShip = (function (_super) {
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
-        this.shootTimer.update();
     };
     return PlayerShip;
 }(Ship_1.default));

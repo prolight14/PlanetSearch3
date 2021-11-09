@@ -25,8 +25,8 @@ var Bullet = (function (_super) {
         this.x += Math.cos(angle) * this.speed;
         this.y += Math.sin(angle) * this.speed;
     };
-    Bullet.prototype.onCollide = function (object) {
-        console.log("Hit!");
+    Bullet.prototype.getDamage = function () {
+        return this.damage;
     };
     return Bullet;
 }(SpaceGameObject_1.default));

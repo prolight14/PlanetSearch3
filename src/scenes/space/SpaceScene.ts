@@ -1,3 +1,4 @@
+import EnemyShip from "../../gameObjects/space/EnemyShip";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
@@ -66,6 +67,15 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
+
+        this.prepareStatsGraphics();
+    }
+
+    private statsGraphics: Phaser.GameObjects.Graphics;
+
+    private prepareStatsGraphics()
+    {
+        this.statsGraphics = this.add.graphics().setDepth(4);
     }
 
     private stepMatter: boolean = true;
@@ -78,16 +88,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
+
         this.runDebugScenes();
 
         if(calledByEntryScene)
         {
             var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
             playerShip.y += 500;
-            for(var i in playerShip.keys)
-            {
-                playerShip.keys[i].reset();
-            }
+            playerShip.resetKeys();
         }
 
     }
@@ -96,7 +104,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         this.scene.run("spaceDebug");
         this.scene.run("spaceUIDebug");
-
+        
         this.scene.sleep("spaceDebug");
  
         this.input.keyboard.on("keydown-U", () =>
@@ -162,10 +170,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
+        this.csp.systems.displayList.add(playerShip.particles);
+
+        
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld((csp?: any) =>
         {
-            csp.systems.displayList.add(playerShip.particles);
+            this.updateStatsGraphics();
+
 
             this.sys.displayList.list.forEach((object: any) =>
             {   
@@ -173,12 +185,39 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 {
                     csp.systems.displayList.add(object.particles);
                 }
+                if(object.dead)
+                {
+                    object.bodyConf.destroy();
+                    object.destroy();
+                    csp.systems.displayList.remove(object);
+                }
             });
         });
-
+        
         if(this.stepMatter = !this.stepMatter)
         {
             this.matter.step(33.333333);
         }
+    }
+
+    private updateStatsGraphics()
+    {
+        this.csp.systems.displayList.add(this.statsGraphics);
+
+        var cam = this.cameras.main;
+
+        this.statsGraphics.clear();
+
+        this.sys.displayList.list.forEach((object: any) =>
+        {
+            if(object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp())
+            {
+                var enemyShip = object as EnemyShip;
+                this.statsGraphics.fillStyle(0x0A297E);
+                this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.width, 4);
+                this.statsGraphics.fillStyle(0x54B70E);
+                this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+            }
+        });
     }
 }

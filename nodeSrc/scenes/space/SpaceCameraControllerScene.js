@@ -27,8 +27,8 @@ var SpaceCameraControllerScene = (function (_super) {
             _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.45), 4));
         });
         this.keys = {
-            rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-            rotateRight: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            rotateLeft: this.input.keyboard.addKey('a'),
+            rotateRight: this.input.keyboard.addKey('d'),
             rotateReset: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO)
         };
         this.camAngle = 0;

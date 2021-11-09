@@ -20,6 +20,8 @@ var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
+        _this_1.setCollisionGroup(1);
+        _this_1.setCollidesWith(0);
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,

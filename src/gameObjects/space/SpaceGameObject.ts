@@ -25,13 +25,20 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
         this.bodyConf.updateBoundingBox();
     }
 
+    protected typeName: string = "gameObject";
+
+    public getTypeName()
+    {
+        return this.typeName;
+    }
+
     public _id: number;
     body: any;
     bodyConf: any;
     _arrayName: string;
     _name: string;
 
-    public onCollide(object: SpaceGameObject)
+    protected onCollide(object: SpaceGameObject)
     {
 
     }

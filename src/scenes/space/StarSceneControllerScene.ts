@@ -29,6 +29,8 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
         this.scene.add("spaceStar2", SpaceStarScene, true,
         {
+            starScroll: 0.7,
+
             imageKey: "starBackground2",
             cspConfig: {
                 window: {

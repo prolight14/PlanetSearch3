@@ -18,14 +18,31 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture, frame, config) {
         var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
+        _this.maxHp = 10;
+        _this.hp = 10;
+        _this.damage = 1;
+        _this.isShip = true;
         _this.maxSpeed = 5;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;
         _this.useAngleAcl = false;
         _this.speed = 0;
+        _this.dead = false;
         return _this;
     }
+    Ship.prototype.takeDamage = function (object) {
+        this.hp -= object.getDamage();
+    };
+    Ship.prototype.getMaxHp = function () {
+        return this.maxHp;
+    };
+    Ship.prototype.getHp = function () {
+        return this.hp;
+    };
+    Ship.prototype.getDamage = function () {
+        return this.damage;
+    };
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         if (this.useAngleAcl) {
@@ -81,6 +98,12 @@ var Ship = (function (_super) {
         this.x += Math.cos(angle) * this.speed;
         this.y += Math.sin(angle) * this.speed;
         this.bodyConf.update();
+        if (this.hp <= 0) {
+            this.kill();
+        }
+    };
+    Ship.prototype.kill = function () {
+        this.dead = true;
     };
     return Ship;
 }(SpaceGameObject_1.default));

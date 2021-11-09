@@ -15,8 +15,8 @@ export default class SpaceLogicScene extends Phaser.Scene
         super("spaceLogic");
     }
 
-    spaceScene: SpaceScene;
-    playerShip: PlayerShip;
+    private spaceScene: SpaceScene;
+    public playerShip: PlayerShip;
 
     public create()
     {
@@ -68,18 +68,8 @@ export default class SpaceLogicScene extends Phaser.Scene
 
         for(var i = 0; i < 100; i++)
         {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000) / 2, 61000 + random(-7000, 7000) / 2);
         }
-
-        // this.spaceScene.sys.displayList.list.forEach((object: any) =>
-        // {
-        //     // if(object.scale < 2)
-        //     // {
-        //     //     object.setScale(2);
-        //     // }
-
-        //     object.setScale(object.scale * 0.5);
-        // });
     }
 
     public update()

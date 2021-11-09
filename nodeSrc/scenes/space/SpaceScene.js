@@ -67,6 +67,10 @@ var SpaceScene = (function (_super) {
         this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
+        this.prepareStatsGraphics();
+    };
+    SpaceScene.prototype.prepareStatsGraphics = function () {
+        this.statsGraphics = this.add.graphics().setDepth(4);
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("spaceBackground");
@@ -77,9 +81,7 @@ var SpaceScene = (function (_super) {
         if (calledByEntryScene) {
             var playerShip = this.scene.get("spaceLogic").playerShip;
             playerShip.y += 500;
-            for (var i in playerShip.keys) {
-                playerShip.keys[i].reset();
-            }
+            playerShip.resetKeys();
         }
     };
     SpaceScene.prototype.runDebugScenes = function () {
@@ -128,18 +130,39 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
+        this.csp.systems.displayList.add(playerShip.particles);
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
-            csp.systems.displayList.add(playerShip.particles);
+            _this.updateStatsGraphics();
             _this.sys.displayList.list.forEach(function (object) {
                 if (object.particles) {
                     csp.systems.displayList.add(object.particles);
+                }
+                if (object.dead) {
+                    object.bodyConf.destroy();
+                    object.destroy();
+                    csp.systems.displayList.remove(object);
                 }
             });
         });
         if (this.stepMatter = !this.stepMatter) {
             this.matter.step(33.333333);
         }
+    };
+    SpaceScene.prototype.updateStatsGraphics = function () {
+        var _this = this;
+        this.csp.systems.displayList.add(this.statsGraphics);
+        var cam = this.cameras.main;
+        this.statsGraphics.clear();
+        this.sys.displayList.list.forEach(function (object) {
+            if (object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp()) {
+                var enemyShip = object;
+                _this.statsGraphics.fillStyle(0x0A297E);
+                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.width, 4);
+                _this.statsGraphics.fillStyle(0x54B70E);
+                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+            }
+        });
     };
     return SpaceScene;
 }(Phaser.Scene));

@@ -1,3 +1,4 @@
+import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Ship extends SpaceGameObject
@@ -5,6 +6,31 @@ export default class Ship extends SpaceGameObject
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: number | string, config?: any)
     {
         super(scene, x, y, texture, frame, config);
+    }
+
+    protected maxHp: number = 10;
+    protected hp: number = 10;
+    protected damage: number = 1;
+    public isShip: boolean = true;
+
+    public takeDamage(object: Bullet)
+    {
+        this.hp -= object.getDamage();
+    }
+
+    public getMaxHp()
+    {
+        return this.maxHp;
+    }
+
+    public getHp()
+    {
+        return this.hp;
+    }
+
+    public getDamage()
+    {
+        return this.damage;
     }
 
     protected controls: {
@@ -108,5 +134,20 @@ export default class Ship extends SpaceGameObject
         this.y += Math.sin(angle) * this.speed;
 
         this.bodyConf.update();
+
+        if(this.hp <= 0)
+        {
+            this.kill();
+        }
+    }
+
+    /**
+     * Is the ship dead?
+     */
+    public dead: boolean = false;
+
+    protected kill()
+    {
+        this.dead = true;
     }
 }

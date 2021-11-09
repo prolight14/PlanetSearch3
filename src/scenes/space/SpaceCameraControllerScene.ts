@@ -32,8 +32,8 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         });
 
         this.keys = {
-            rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-            rotateRight: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            rotateLeft: this.input.keyboard.addKey('a'),
+            rotateRight: this.input.keyboard.addKey('d'),
             rotateReset: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO)
         };
 

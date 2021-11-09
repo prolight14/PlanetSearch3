@@ -18,7 +18,7 @@ var HyperBeamerShip = (function (_super) {
     __extends(HyperBeamerShip, _super);
     function HyperBeamerShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.maxSpeed = 7.5;
+        _this.maxSpeed = 3.75;
         return _this;
     }
     return HyperBeamerShip;

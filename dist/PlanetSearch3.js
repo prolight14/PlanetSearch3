@@ -640,8 +640,8 @@ var Bullet = (function (_super) {
         this.x += Math.cos(angle) * this.speed;
         this.y += Math.sin(angle) * this.speed;
     };
-    Bullet.prototype.onCollide = function (object) {
-        console.log("Hit!");
+    Bullet.prototype.getDamage = function () {
+        return this.damage;
     };
     return Bullet;
 }(SpaceGameObject_1.default));
@@ -676,6 +676,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.typeName = "enemyShip";
         _this.move = true;
         _this.turnDir = "";
         _this.controls = {
@@ -732,6 +733,8 @@ var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
+        _this_1.setCollisionGroup(1);
+        _this_1.setCollidesWith(0);
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
@@ -817,7 +820,7 @@ var HyperBeamerShip = (function (_super) {
     __extends(HyperBeamerShip, _super);
     function HyperBeamerShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.maxSpeed = 7.5;
+        _this.maxSpeed = 3.75;
         return _this;
     }
     return HyperBeamerShip;
@@ -939,21 +942,26 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {
-            a: scene.input.keyboard.addKey('a'),
-            d: scene.input.keyboard.addKey('d'),
-            w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s'),
-            space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+            turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+            turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+            slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+        _this.scene.input.keyboard.on("keyup-Z", function () {
+            _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
+        });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
             lifespan: 500,
@@ -968,34 +976,29 @@ var PlayerShip = (function (_super) {
         });
         _this.controls = {
             turnLeft: function () {
-                return _this.keys.a.isDown;
+                return _this.keys.turnLeft.isDown;
             },
             turnRight: function () {
-                return _this.keys.d.isDown;
+                return _this.keys.turnRight.isDown;
             },
             goForward: function () {
-                return _this.keys.w.isDown;
+                return _this.keys.goForward.isDown;
             },
             slowDown: function () {
-                return _this.keys.s.isDown;
+                return _this.keys.slowDown.isDown;
             },
             shoot: function () {
-                return _this.keys.space.isDown;
+                return false;
             }
         };
         _this.setScale(1, 1);
         _this.speed = 6;
-        _this.setupShootTimer();
         return _this;
     }
-    PlayerShip.prototype.setupShootTimer = function () {
-        var _this = this;
-        this.shootTimer = timer_1.default(true, 450, function () {
-            if (_this.controls.shoot()) {
-                _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
-            }
-            _this.shootTimer.reset();
-        });
+    PlayerShip.prototype.resetKeys = function () {
+        for (var i in this.keys) {
+            this.keys[i].reset();
+        }
     };
     PlayerShip.prototype.setBullets = function (playerShipBullets) {
         this.bullets = playerShipBullets;
@@ -1009,7 +1012,6 @@ var PlayerShip = (function (_super) {
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed >= 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
-        this.shootTimer.update();
     };
     return PlayerShip;
 }(Ship_1.default));
@@ -1047,8 +1049,20 @@ var PlayerShipBullet = (function (_super) {
         _this.shootAngle = shootAngle;
         _this.speed = 15;
         _this.damage = 2;
+        _this.setCollisionGroup(1);
+        _this.setCollidesWith(0);
+        _this.setOnCollide(function (colData) {
+            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
+                _this.onCollide(colData.bodyA.gameObject);
+            }
+        });
         return _this;
     }
+    PlayerShipBullet.prototype.onCollide = function (object) {
+        object.takeDamage(this);
+        this.bodyConf.destroy();
+        this.destroy();
+    };
     return PlayerShipBullet;
 }(Bullet_1.default));
 exports.default = PlayerShipBullet;
@@ -1082,14 +1096,31 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture, frame, config) {
         var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
+        _this.maxHp = 10;
+        _this.hp = 10;
+        _this.damage = 1;
+        _this.isShip = true;
         _this.maxSpeed = 5;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;
         _this.useAngleAcl = false;
         _this.speed = 0;
+        _this.dead = false;
         return _this;
     }
+    Ship.prototype.takeDamage = function (object) {
+        this.hp -= object.getDamage();
+    };
+    Ship.prototype.getMaxHp = function () {
+        return this.maxHp;
+    };
+    Ship.prototype.getHp = function () {
+        return this.hp;
+    };
+    Ship.prototype.getDamage = function () {
+        return this.damage;
+    };
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         if (this.useAngleAcl) {
@@ -1145,6 +1176,12 @@ var Ship = (function (_super) {
         this.x += Math.cos(angle) * this.speed;
         this.y += Math.sin(angle) * this.speed;
         this.bodyConf.update();
+        if (this.hp <= 0) {
+            this.kill();
+        }
+    };
+    Ship.prototype.kill = function () {
+        this.dead = true;
     };
     return Ship;
 }(SpaceGameObject_1.default));
@@ -1178,6 +1215,7 @@ var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame, config) {
         var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame, config) || this;
+        _this_1.typeName = "gameObject";
         scene.add.existing(_this_1);
         var _this = _this_1;
         _this_1.bodyConf = {
@@ -1195,6 +1233,9 @@ var SpaceGameObject = (function (_super) {
         _this_1.bodyConf.updateBoundingBox();
         return _this_1;
     }
+    SpaceGameObject.prototype.getTypeName = function () {
+        return this.typeName;
+    };
     SpaceGameObject.prototype.onCollide = function (object) {
     };
     return SpaceGameObject;
@@ -1980,8 +2021,8 @@ var SpaceCameraControllerScene = (function (_super) {
             _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.45), 4));
         });
         this.keys = {
-            rotateLeft: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-            rotateRight: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            rotateLeft: this.input.keyboard.addKey('a'),
+            rotateRight: this.input.keyboard.addKey('d'),
             rotateReset: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO)
         };
         this.camAngle = 0;
@@ -2189,7 +2230,7 @@ var SpaceLogicScene = (function (_super) {
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000) / 2, 61000 + random(-7000, 7000) / 2);
         }
     };
     SpaceLogicScene.prototype.update = function () {
@@ -2294,6 +2335,10 @@ var SpaceScene = (function (_super) {
         this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
+        this.prepareStatsGraphics();
+    };
+    SpaceScene.prototype.prepareStatsGraphics = function () {
+        this.statsGraphics = this.add.graphics().setDepth(4);
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("spaceBackground");
@@ -2304,9 +2349,7 @@ var SpaceScene = (function (_super) {
         if (calledByEntryScene) {
             var playerShip = this.scene.get("spaceLogic").playerShip;
             playerShip.y += 500;
-            for (var i in playerShip.keys) {
-                playerShip.keys[i].reset();
-            }
+            playerShip.resetKeys();
         }
     };
     SpaceScene.prototype.runDebugScenes = function () {
@@ -2355,18 +2398,39 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
+        this.csp.systems.displayList.add(playerShip.particles);
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
-            csp.systems.displayList.add(playerShip.particles);
+            _this.updateStatsGraphics();
             _this.sys.displayList.list.forEach(function (object) {
                 if (object.particles) {
                     csp.systems.displayList.add(object.particles);
+                }
+                if (object.dead) {
+                    object.bodyConf.destroy();
+                    object.destroy();
+                    csp.systems.displayList.remove(object);
                 }
             });
         });
         if (this.stepMatter = !this.stepMatter) {
             this.matter.step(33.333333);
         }
+    };
+    SpaceScene.prototype.updateStatsGraphics = function () {
+        var _this = this;
+        this.csp.systems.displayList.add(this.statsGraphics);
+        var cam = this.cameras.main;
+        this.statsGraphics.clear();
+        this.sys.displayList.list.forEach(function (object) {
+            if (object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp()) {
+                var enemyShip = object;
+                _this.statsGraphics.fillStyle(0x0A297E);
+                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.width, 4);
+                _this.statsGraphics.fillStyle(0x54B70E);
+                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+            }
+        });
     };
     return SpaceScene;
 }(Phaser.Scene));
@@ -2593,6 +2657,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
+            starScroll: 0.7,
             imageKey: "starBackground2",
             cspConfig: {
                 window: {

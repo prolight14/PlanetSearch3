@@ -1,5 +1,6 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
+import PlayerShipBullet from "./PlayerShipBullet";
 import Ship from "./Ship";
 
 export default class PlayerShip extends Ship
@@ -7,20 +8,46 @@ export default class PlayerShip extends Ship
     public particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
     private pEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
+    private keys: {
+        turnLeft: Phaser.Input.Keyboard.Key;
+        turnRight: Phaser.Input.Keyboard.Key;
+        goForward: Phaser.Input.Keyboard.Key;
+        slowDown: Phaser.Input.Keyboard.Key;
+        shoot: Phaser.Input.Keyboard.Key;
+        shootZ: Phaser.Input.Keyboard.Key;
+    };
+
+    public resetKeys()
+    {
+        for(var i in this.keys)
+        {
+            (this.keys as any)[i].reset();
+        }
+    }
+
     constructor (scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });
+
+        this.setCollisionGroup(2);
+        this.setCollidesWith(0);
 
         this.useAngleAcl = true;
         this.angleVel = 0;
 
         this.keys = {
-            a: scene.input.keyboard.addKey('a'), 
-            d: scene.input.keyboard.addKey('d'),
-            w: scene.input.keyboard.addKey('w'),
-            s: scene.input.keyboard.addKey('s'),
-            space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+            turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT), 
+            turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
+            goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+            slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+
+        this.scene.input.keyboard.on("keyup-Z", () =>
+        {
+            this.bullets.add(this.scene, this.x, this.y, this.angle - 90) as PlayerShipBullet;
+        });
 
         this.particles = scene.add.particles("helixShipParticle");
 
@@ -41,55 +68,36 @@ export default class PlayerShip extends Ship
         this.controls = {
             turnLeft: () =>
             {
-                return this.keys.a.isDown;
+                return this.keys.turnLeft.isDown;
             },
             turnRight: () =>
             {
-                return this.keys.d.isDown;
+                return this.keys.turnRight.isDown;
             },
             goForward: () =>
             {
-                return this.keys.w.isDown;
+                return this.keys.goForward.isDown;
             },
             slowDown: () =>
             {
-                return this.keys.s.isDown;
+                return this.keys.slowDown.isDown;
             },
             shoot: () =>
             {
-                return this.keys.space.isDown;
+                return false;
             }         
         };
         
         this.setScale(1, 1);
         this.speed = 6;
-
-        this.setupShootTimer();
     }
-    
-    private setupShootTimer()
-    {
-        this.shootTimer = timer(true, 450, () =>
-        {
-            if(this.controls.shoot())
-            {
-                this.bullets.add(this.scene, this.x, this.y, this.angle - 90);
-            }
-
-            this.shootTimer.reset();
-        });
-    }
-
-    private shootTimer: any;
 
     public setBullets(playerShipBullets: any)
     {
-        this.bullets = playerShipBullets
+        this.bullets = playerShipBullets;
     }
 
     private bullets: any;
-
-    public keys: any;
     
     public preUpdate()
     {
@@ -103,6 +111,6 @@ export default class PlayerShip extends Ship
         this.pEmitter.setVisible(this.speed >= 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
 
-        this.shootTimer.update();
+        // this.shootTimer.update();
     }
 }

@@ -18,6 +18,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.typeName = "enemyShip";
         _this.move = true;
         _this.turnDir = "";
         _this.controls = {

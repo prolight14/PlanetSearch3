@@ -31,6 +31,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
+            starScroll: 0.7,
             imageKey: "starBackground2",
             cspConfig: {
                 window: {
