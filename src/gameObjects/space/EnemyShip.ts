@@ -1,3 +1,4 @@
+import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import Ship from "./Ship";
 
@@ -38,5 +39,27 @@ export default class EnemyShip extends Ship
     public preUpdate()
     {
         Ship.prototype.preUpdate.apply(this, arguments);
+    }
+
+    protected onKill?: Function = function()
+    {
+        this.dropXP();
+    }
+
+    protected xpDropAmt: number = 3;
+
+    private dropXP()
+    {
+        for(var i = 0; i < this.xpDropAmt; i++)
+        {
+            if(Phaser.Math.RND.frac() < 0.5)
+            {
+                (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addXPStar(this.x, this.y);
+            }
+            else
+            {
+                (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addSmallXPStar(this.x, this.y);
+            }
+        }
     }
 }

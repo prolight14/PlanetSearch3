@@ -30,6 +30,7 @@ var config = {
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
+    seed: "explorationHelix1"
 };
 var game = new Phaser.Game(config);
 window.game = game;

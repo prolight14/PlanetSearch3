@@ -2,6 +2,7 @@ import SpaceScene from "../../scenes/space/SpaceScene";
 import HyperBeamerShip from "./HyperBeamerShip";
 import timer from "../Utils/timer";
 import StateMachine from "../Utils/StateMachine";
+import XPStar from "./XPStar";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -66,7 +67,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.sm.start("wander");
     }
-
     private sm: StateMachine;
 
     private particles: Phaser.GameObjects.Particles.ParticleEmitterManager;

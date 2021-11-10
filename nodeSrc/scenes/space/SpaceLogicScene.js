@@ -16,9 +16,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
 var Nebula_1 = require("../../gameObjects/space/Nebula");
-var Asteroid_1 = require("../../gameObjects/space/Asteroid");
 var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var PlayerShipBullet_1 = require("../../gameObjects/space/PlayerShipBullet");
+var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
+var XPStar_1 = require("../../gameObjects/space/XPStar");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -29,31 +30,51 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
+        var random = function (min, max) {
+            return Phaser.Math.RND.frac() * (max - min) + min;
+        };
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
-        var rng = new Phaser.Math.RandomDataGenerator("rand1");
-        var random = function (min, max) {
-            return rng.frac() * (max - min) + min;
-        };
         for (var i = 0; i < nebulaeAmt; i++) {
-            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
+            nebulae.add(this.spaceScene, placeWidth * Phaser.Math.RND.frac(), placeHeight * Phaser.Math.RND.frac(), "grayNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
-        var asteroids = world.add.gameObjectArray(Asteroid_1.default, "asteroid");
-        asteroids.add(this.spaceScene, 69300, 61000);
+        world.add.gameObjectArray(XPStar_1.default, "xpStar");
+        var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
+        var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
+        for (var i = 0; i < shrapnelClustAmt; i++) {
+            var shrapnelClusterX = random(500, placeWidth - 500);
+            var shrapnelClusterY = random(500, placeHeight - 500);
+            for (var j = 0; j < random(4, 6); j++) {
+                shrapnels.add(this.spaceScene, shrapnelClusterX + random(-200, 200), shrapnelClusterY + random(-200, 200), "shrapnel" + Math.floor(random(1, 5)));
+            }
+        }
+        shrapnels.add(this.spaceScene, 69000, 62000, "shrapnel1");
+        shrapnels.add(this.spaceScene, 69000, 62200, "shrapnel2");
+        shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
+        shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
+        shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet_1.default, "playerShipBullet");
         this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000) / 2, 61000 + random(-7000, 7000) / 2);
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
         }
+    };
+    SpaceLogicScene.prototype.addXPStar = function (x, y) {
+        var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
+    };
+    SpaceLogicScene.prototype.addSmallXPStar = function (x, y) {
+        var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();

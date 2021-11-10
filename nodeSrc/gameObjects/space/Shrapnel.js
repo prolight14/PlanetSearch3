@@ -14,33 +14,16 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject_1 = require("./SpaceGameObject");
-var Bullet = (function (_super) {
-    __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture) {
+var Shrapnel = (function (_super) {
+    __extends(Shrapnel, _super);
+    function Shrapnel(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.life = 200;
-        _this.dead = false;
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
+        _this.setFrictionAir(0.0001);
         return _this;
     }
-    Bullet.prototype.preUpdate = function (time, delta) {
-        _super.prototype.preUpdate.call(this, time, delta);
-        var angle = this.shootAngle * Phaser.Math.DEG_TO_RAD;
-        this.x += Math.cos(angle) * this.speed;
-        this.y += Math.sin(angle) * this.speed;
-        this.life -= 3.5;
-        if (this.life <= 0) {
-            this.kill();
-        }
-    };
-    Bullet.prototype.kill = function () {
-        this.dead = true;
-        this.bodyConf.destroy();
-        this.destroy();
-    };
-    Bullet.prototype.getDamage = function () {
-        return this.damage;
-    };
-    return Bullet;
+    return Shrapnel;
 }(SpaceGameObject_1.default));
-exports.default = Bullet;
-//# sourceMappingURL=Bullet.js.map
+exports.default = Shrapnel;
+//# sourceMappingURL=Shrapnel.js.map

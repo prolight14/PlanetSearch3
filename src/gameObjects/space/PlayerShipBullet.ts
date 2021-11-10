@@ -6,7 +6,7 @@ export default class PlayerShipBullet extends Bullet
 {
     constructor(scene: Phaser.Scene, x: number, y: number, shootAngle: number)
     {
-        super(scene, x, y, "playerShipBullet");
+        super(scene, x, y, "helixShipLvl1Bullet");
 
         this.shootAngle = shootAngle;
         this.speed = 15;
@@ -24,10 +24,14 @@ export default class PlayerShipBullet extends Bullet
         });
     }
 
+    public preUpdate(time: number, delta: number)
+    {
+        super.preUpdate(time, delta);
+    }
+
     protected onCollide(object: Ship)
     {
         object.takeDamage(this);
-        this.bodyConf.destroy();
-        this.destroy();
+        this.kill();
     }
 }

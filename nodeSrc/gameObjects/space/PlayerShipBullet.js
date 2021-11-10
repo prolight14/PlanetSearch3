@@ -17,7 +17,7 @@ var Bullet_1 = require("./Bullet");
 var PlayerShipBullet = (function (_super) {
     __extends(PlayerShipBullet, _super);
     function PlayerShipBullet(scene, x, y, shootAngle) {
-        var _this = _super.call(this, scene, x, y, "playerShipBullet") || this;
+        var _this = _super.call(this, scene, x, y, "helixShipLvl1Bullet") || this;
         _this.shootAngle = shootAngle;
         _this.speed = 15;
         _this.damage = 2;
@@ -30,10 +30,12 @@ var PlayerShipBullet = (function (_super) {
         });
         return _this;
     }
+    PlayerShipBullet.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+    };
     PlayerShipBullet.prototype.onCollide = function (object) {
         object.takeDamage(this);
-        this.bodyConf.destroy();
-        this.destroy();
+        this.kill();
     };
     return PlayerShipBullet;
 }(Bullet_1.default));

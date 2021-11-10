@@ -1,5 +1,6 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import EnemyShip from "./EnemyShip";
+import XPStar from "./XPStar";
 
 export default class HyperBeamerShip extends EnemyShip
 {

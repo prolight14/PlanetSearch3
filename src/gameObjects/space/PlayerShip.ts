@@ -2,6 +2,7 @@ import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import PlayerShipBullet from "./PlayerShipBullet";
 import Ship from "./Ship";
+import XPStar from "./XPStar";
 
 export default class PlayerShip extends Ship
 {
@@ -25,6 +26,14 @@ export default class PlayerShip extends Ship
         }
     }
 
+    private xp: number = 0;
+
+    public collectXPStars(xpStar: XPStar)
+    {
+        this.xp += xpStar.amt;
+        console.log(this.xp);
+    }
+
     constructor (scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });
@@ -46,7 +55,9 @@ export default class PlayerShip extends Ship
 
         this.scene.input.keyboard.on("keyup-Z", () =>
         {
-            this.bullets.add(this.scene, this.x, this.y, this.angle - 90) as PlayerShipBullet;
+            var theta = 30 * Phaser.Math.DEG_TO_RAD + this.rotation;
+            var length = 30;
+            this.bullets.add(this.scene, this.x + Math.cos(theta) * length, this.y + Math.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
         });
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -108,9 +119,7 @@ export default class PlayerShip extends Ship
         this.particles.x = this.x + Math.cos(rot) * length;
         this.particles.y = this.y + Math.sin(rot) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
-        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
-
-        // this.shootTimer.update();
     }
 }

@@ -146,8 +146,15 @@ export default class Ship extends SpaceGameObject
      */
     public dead: boolean = false;
 
+    protected onKill?: Function;
+
     protected kill()
     {
         this.dead = true;
+
+        if(this.onKill !== undefined)
+        {
+            this.onKill();
+        }
     }
 }

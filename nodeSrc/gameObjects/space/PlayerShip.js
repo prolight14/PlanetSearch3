@@ -18,6 +18,7 @@ var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
+        _this.xp = 0;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -31,7 +32,9 @@ var PlayerShip = (function (_super) {
             shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            _this.bullets.add(_this.scene, _this.x, _this.y, _this.angle - 90);
+            var theta = 30 * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var length = 30;
+            _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -71,6 +74,10 @@ var PlayerShip = (function (_super) {
             this.keys[i].reset();
         }
     };
+    PlayerShip.prototype.collectXPStars = function (xpStar) {
+        this.xp += xpStar.amt;
+        console.log(this.xp);
+    };
     PlayerShip.prototype.setBullets = function (playerShipBullets) {
         this.bullets = playerShipBullets;
     };
@@ -81,7 +88,7 @@ var PlayerShip = (function (_super) {
         this.particles.x = this.x + Math.cos(rot) * length;
         this.particles.y = this.y + Math.sin(rot) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
-        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
     };
     return PlayerShip;

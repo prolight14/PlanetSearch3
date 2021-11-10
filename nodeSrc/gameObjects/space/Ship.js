@@ -104,6 +104,9 @@ var Ship = (function (_super) {
     };
     Ship.prototype.kill = function () {
         this.dead = true;
+        if (this.onKill !== undefined) {
+            this.onKill();
+        }
     };
     return Ship;
 }(SpaceGameObject_1.default));

@@ -7,6 +7,8 @@ import Nebula from "../../gameObjects/space/Nebula";
 import Asteroid from "../../gameObjects/space/Asteroid";
 import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
 import PlayerShipBullet from "../../gameObjects/space/PlayerShipBullet";
+import Shrapnel from "../../gameObjects/space/Shrapnel";
+import XPStar from "../../gameObjects/space/XPStar";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -17,59 +19,89 @@ export default class SpaceLogicScene extends Phaser.Scene
 
     private spaceScene: SpaceScene;
     public playerShip: PlayerShip;
-
+    
     public create()
     {
         
     }
-
+    
     public addObjectsToSpace()
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
-
+        
         var world: any = this.spaceScene.csp.world;
-
         
-        var nebulae = world.add.gameObjectArray(Nebula, "nebula");
-
-        var gridConfig = this.spaceScene.cspConfig.grid;
-        var placeWidth = gridConfig.cols * gridConfig.cellWidth;
-        var placeHeight = gridConfig.rows * gridConfig.cellHeight;
-                                                                
-        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
-        
-        var rng = new Phaser.Math.RandomDataGenerator("rand1");
-
         var random = function(min: number, max: number)
         {
-            return rng.frac() * (max - min) + min;
+            return Phaser.Math.RND.frac() * (max - min) + min;
         };
-
+        
+        var nebulae = world.add.gameObjectArray(Nebula, "nebula");
+        var gridConfig = this.spaceScene.cspConfig.grid;
+        var placeWidth = gridConfig.cols * gridConfig.cellWidth;
+        var placeHeight = gridConfig.rows * gridConfig.cellHeight;                                                
+        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
+        
         for(var i = 0; i < nebulaeAmt; i++)
         {
-            nebulae.add(this.spaceScene, placeWidth * rng.frac(), placeHeight * rng.frac(), "grayNebula");
+            nebulae.add(this.spaceScene, placeWidth * Phaser.Math.RND.frac(), placeHeight * Phaser.Math.RND.frac(), "grayNebula");
         }
         
         var planets = world.add.gameObjectArray(Planet, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
 
-        var asteroids = world.add.gameObjectArray(Asteroid, "asteroid");
+        world.add.gameObjectArray(XPStar, "xpStar");
+        
+        // var asteroids = world.add.gameObjectArray(Asteroid, "asteroid");
+        // asteroids.add(this.spaceScene, 69300, 61000);
+        
+        var shrapnels = world.add.gameObjectArray(Shrapnel, "shrapnel");
+        
+        var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
+        
+        for(var i = 0; i < shrapnelClustAmt; i++)
+        {  
+            var shrapnelClusterX = random(500, placeWidth - 500);
+            var shrapnelClusterY = random(500, placeHeight - 500);
 
-        asteroids.add(this.spaceScene, 69300, 61000);
-
+            for(var j = 0; j < random(4, 6); j++)
+            {
+                shrapnels.add(this.spaceScene, shrapnelClusterX + random(-200, 200), shrapnelClusterY + random(-200, 200), "shrapnel" + Math.floor(random(1, 5)));
+            }
+        }
+        
+        shrapnels.add(this.spaceScene, 69000, 62000, "shrapnel1");
+        shrapnels.add(this.spaceScene, 69000, 62200, "shrapnel2");
+        shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
+        shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
+        shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
+        
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet, "playerShipBullet");
-
         this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
-
+        
+        
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
-
         for(var i = 0; i < 100; i++)
         {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000) / 2, 61000 + random(-7000, 7000) / 2);
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
         }
+    }
+    
+    public addXPStar(x: number, y: number)
+    {
+        var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+
+        xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
+    }
+
+    public addSmallXPStar(x: number, y: number)
+    {
+        var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+
+        smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
     }
 
     public update()

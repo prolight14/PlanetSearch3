@@ -14,33 +14,34 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject_1 = require("./SpaceGameObject");
-var Bullet = (function (_super) {
-    __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture) {
+var XPStar = (function (_super) {
+    __extends(XPStar, _super);
+    function XPStar(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.life = 200;
-        _this.dead = false;
+        _this.amt = 1;
+        _this.setAngle(Phaser.Math.RND.between(0, 180));
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
+        if (texture === "xpStar") {
+            _this.amt = 2;
+        }
+        _this.setOnCollide(function (colData) {
+            if (colData.bodyA.gameObject && colData.bodyA.gameObject._arrayName === "playerShip") {
+                var playerShip = colData.bodyA.gameObject;
+                _this.onCollide(playerShip);
+            }
+        });
         return _this;
     }
-    Bullet.prototype.preUpdate = function (time, delta) {
+    XPStar.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var angle = this.shootAngle * Phaser.Math.DEG_TO_RAD;
-        this.x += Math.cos(angle) * this.speed;
-        this.y += Math.sin(angle) * this.speed;
-        this.life -= 3.5;
-        if (this.life <= 0) {
-            this.kill();
-        }
     };
-    Bullet.prototype.kill = function () {
-        this.dead = true;
+    XPStar.prototype.onCollide = function (playerShip) {
+        playerShip.collectXPStars(this);
         this.bodyConf.destroy();
         this.destroy();
     };
-    Bullet.prototype.getDamage = function () {
-        return this.damage;
-    };
-    return Bullet;
+    return XPStar;
 }(SpaceGameObject_1.default));
-exports.default = Bullet;
-//# sourceMappingURL=Bullet.js.map
+exports.default = XPStar;
+//# sourceMappingURL=XPStar.js.map

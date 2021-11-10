@@ -20,6 +20,10 @@ var EnemyShip = (function (_super) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.typeName = "enemyShip";
         _this.move = true;
+        _this.onKill = function () {
+            this.dropXP();
+        };
+        _this.xpDropAmt = 3;
         _this.turnDir = "";
         _this.controls = {
             turnLeft: function () {
@@ -39,6 +43,16 @@ var EnemyShip = (function (_super) {
     }
     EnemyShip.prototype.preUpdate = function () {
         Ship_1.default.prototype.preUpdate.apply(this, arguments);
+    };
+    EnemyShip.prototype.dropXP = function () {
+        for (var i = 0; i < this.xpDropAmt; i++) {
+            if (Phaser.Math.RND.frac() < 0.5) {
+                this.scene.scene.get("spaceLogic").addXPStar(this.x, this.y);
+            }
+            else {
+                this.scene.scene.get("spaceLogic").addSmallXPStar(this.x, this.y);
+            }
+        }
     };
     return EnemyShip;
 }(Ship_1.default));

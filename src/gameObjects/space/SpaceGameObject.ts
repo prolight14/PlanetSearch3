@@ -33,7 +33,7 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
     }
 
     public _id: number;
-    body: any;
+    body: MatterJS.BodyType;
     bodyConf: any;
     _arrayName: string;
     _name: string;

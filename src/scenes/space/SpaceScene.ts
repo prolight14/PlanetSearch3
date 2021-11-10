@@ -28,6 +28,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
+        this.load.image("helixShipLvl1Bullet", "./assets/Space/Bullets/helixShipLvl1Bullet.png");
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
@@ -36,6 +37,13 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
+        this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
+
+        this.load.image("shrapnel1", "./assets/Space/Shrapnel/shrapnel1.png");
+        this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
+        this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
+        this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
 
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
