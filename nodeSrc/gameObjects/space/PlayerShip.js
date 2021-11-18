@@ -13,12 +13,21 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var timer_1 = require("../Utils/timer");
 var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
         _this.xp = 0;
+        _this.crests = 0;
+        _this.maxSpeed = 5;
+        _this.speedAcl = 0.25;
+        _this.speedDeacl = 0.025;
+        _this.manualSpeedDeacl = 0.15;
+        _this.angleDeacl = 0.05;
+        _this.pointerDX = 0;
+        _this.pointerDY = 0;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -31,10 +40,33 @@ var PlayerShip = (function (_super) {
             shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
             shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+        var shots = 0;
+        _this.shootTimer = timer_1.default(false, 625, function () {
+            shots = 0;
+        });
         _this.scene.input.keyboard.on("keyup-Z", function () {
+            if (++shots === 15) {
+                _this.shootTimer.reset();
+            }
+            if (shots >= 15) {
+                return;
+            }
             var theta = 30 * Phaser.Math.DEG_TO_RAD + _this.rotation;
-            var length = 30;
-            _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
+            var length = 25;
+            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
+            bullet.setRotation(_this.rotation);
+            var theta = 150 * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var length = 25;
+            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
+            bullet.setRotation(_this.rotation);
+            var theta = (30 - 50) * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var length = 17;
+            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
+            bullet.setRotation(_this.rotation);
+            var theta = (150 + 50) * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var length = 17;
+            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
+            bullet.setRotation(_this.rotation);
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -65,8 +97,6 @@ var PlayerShip = (function (_super) {
                 return false;
             }
         };
-        _this.setScale(1, 1);
-        _this.speed = 6;
         return _this;
     }
     PlayerShip.prototype.resetKeys = function () {
@@ -74,15 +104,19 @@ var PlayerShip = (function (_super) {
             this.keys[i].reset();
         }
     };
+    PlayerShip.prototype.collectCrests = function (crest) {
+        this.crests += crest.amt;
+        console.log(this.crests);
+    };
     PlayerShip.prototype.collectXPStars = function (xpStar) {
         this.xp += xpStar.amt;
-        console.log(this.xp);
     };
     PlayerShip.prototype.setBullets = function (playerShipBullets) {
         this.bullets = playerShipBullets;
     };
-    PlayerShip.prototype.preUpdate = function () {
-        Ship_1.default.prototype.preUpdate.apply(this, arguments);
+    PlayerShip.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+        this.shootTimer.update();
         var rot = this.rotation + Math.PI / 2;
         var length = this.height * this.scaleX * 0.4;
         this.particles.x = this.x + Math.cos(rot) * length;

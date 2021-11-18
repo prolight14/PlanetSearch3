@@ -22,8 +22,10 @@ var EnemyShip = (function (_super) {
         _this.move = true;
         _this.onKill = function () {
             this.dropXP();
+            this.dropCrests();
         };
         _this.xpDropAmt = 3;
+        _this.crestDropAmt = Phaser.Math.RND.between(3, 6);
         _this.turnDir = "";
         _this.controls = {
             turnLeft: function () {
@@ -52,6 +54,11 @@ var EnemyShip = (function (_super) {
             else {
                 this.scene.scene.get("spaceLogic").addSmallXPStar(this.x, this.y);
             }
+        }
+    };
+    EnemyShip.prototype.dropCrests = function () {
+        for (var i = 0; i < this.crestDropAmt; i++) {
+            this.scene.scene.get("spaceLogic").addCrests(this.x, this.y);
         }
     };
     return EnemyShip;

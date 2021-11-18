@@ -23,6 +23,9 @@ var Ship = (function (_super) {
         _this.damage = 1;
         _this.isShip = true;
         _this.maxSpeed = 5;
+        _this.speedAcl = 0.5;
+        _this.speedDeacl = 0.05;
+        _this.manualSpeedDeacl = 0.35;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;
@@ -75,11 +78,11 @@ var Ship = (function (_super) {
             }
         }
         if (this.controls.goForward()) {
-            this.speed += 0.5;
+            this.speed += this.speedAcl;
         }
         else {
             if (this.speed > 0) {
-                this.speed -= 0.05;
+                this.speed -= this.speedDeacl;
             }
             else {
                 this.speed = 0;
@@ -87,7 +90,7 @@ var Ship = (function (_super) {
         }
         if (this.controls.slowDown()) {
             if (this.speed > 0) {
-                this.speed -= 0.35;
+                this.speed -= this.manualSpeedDeacl;
             }
             else {
                 this.speed = 0;

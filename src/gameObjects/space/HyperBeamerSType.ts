@@ -35,11 +35,11 @@ export default class HyperBeamerSType extends HyperBeamerShip
             "wander": {
                 start: function()
                 {
-                    this.changeDirTimer = timer(true, 500, (stopTurningTime?: number) =>
+                    this.changeDirTimer = timer(true, 1000, () =>
                     {
-                        this.turn(Math.random() < 0.5 ? "left" : "right", stopTurningTime || 500, () =>
+                        this.turn(Math.random() < 0.5 ? "left" : "right", Phaser.Math.RND.between(300, 800), () =>
                         {
-                            this.changeDirTimer.reset(Phaser.Math.Between(500, 1500), [Phaser.Math.Between(500, 1500)]);
+                            this.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000));
                         });
                     });
                 },

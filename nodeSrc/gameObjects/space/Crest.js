@@ -13,31 +13,32 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Bullet_1 = require("./Bullet");
-var PlayerShipBullet = (function (_super) {
-    __extends(PlayerShipBullet, _super);
-    function PlayerShipBullet(scene, x, y, shootAngle) {
-        var _this = _super.call(this, scene, x, y, "helixShipLvl1Bullet") || this;
-        _this.shootAngle = shootAngle;
-        _this.speed = 15;
-        _this.damage = 1;
-        _this.setCollisionGroup(1);
+var SpaceGameObject_1 = require("./SpaceGameObject");
+var Crest = (function (_super) {
+    __extends(Crest, _super);
+    function Crest(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.amt = 1;
+        _this.setAngle(Phaser.Math.RND.between(0, 180));
+        _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
-                _this.onCollide(colData.bodyA.gameObject);
+            if (colData.bodyA.gameObject && colData.bodyA.gameObject._arrayName === "playerShip") {
+                var playerShip = colData.bodyA.gameObject;
+                _this.onCollide(playerShip);
             }
         });
         return _this;
     }
-    PlayerShipBullet.prototype.preUpdate = function (time, delta) {
+    Crest.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
     };
-    PlayerShipBullet.prototype.onCollide = function (object) {
-        object.takeDamage(this);
-        this.kill();
+    Crest.prototype.onCollide = function (playerShip) {
+        playerShip.collectCrests(this);
+        this.bodyConf.destroy();
+        this.destroy();
     };
-    return PlayerShipBullet;
-}(Bullet_1.default));
-exports.default = PlayerShipBullet;
-//# sourceMappingURL=PlayerShipBullet.js.map
+    return Crest;
+}(SpaceGameObject_1.default));
+exports.default = Crest;
+//# sourceMappingURL=Crest.js.map

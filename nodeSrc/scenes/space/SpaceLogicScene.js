@@ -20,6 +20,7 @@ var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var PlayerShipBullet_1 = require("../../gameObjects/space/PlayerShipBullet");
 var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
 var XPStar_1 = require("../../gameObjects/space/XPStar");
+var Crest_1 = require("../../gameObjects/space/Crest");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -45,6 +46,7 @@ var SpaceLogicScene = (function (_super) {
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
         world.add.gameObjectArray(XPStar_1.default, "xpStar");
+        world.add.gameObjectArray(Crest_1.default, "crest");
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
         var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
         for (var i = 0; i < shrapnelClustAmt; i++) {
@@ -75,6 +77,10 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.addSmallXPStar = function (x, y) {
         var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
+    };
+    SpaceLogicScene.prototype.addCrests = function (x, y) {
+        var crests = this.spaceScene.csp.world.get.gameObjectArray("crest");
+        crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     };
     SpaceLogicScene.prototype.update = function () {
         this.updatePlanets();

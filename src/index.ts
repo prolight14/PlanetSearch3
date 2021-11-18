@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-
 // Title scene
 import TitleScene from "./scenes/TitleScene";
 
@@ -24,6 +23,7 @@ import PlanetEffectsScene from "./scenes/planet/PlanetEffectsScene";
 import PlanetUIScene from "./scenes/planet/PlanetUIScene";
 import PlanetBackScene from "./scenes/planet/PlanetBackScene";
 import PlanetLoaderScene from "./scenes/planet/PlanetLoaderScene";
+import SpaceUIScene from "./scenes/space/SpaceUIScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -57,7 +57,7 @@ let config: Phaser.Types.Core.GameConfig = {
         EntryScene,
 
         // Space scenes
-        SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
+        SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, SpaceUIScene,
         SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)

@@ -44,6 +44,7 @@ export default class EnemyShip extends Ship
     protected onKill?: Function = function()
     {
         this.dropXP();
+        this.dropCrests();
     }
 
     protected xpDropAmt: number = 3;
@@ -60,6 +61,16 @@ export default class EnemyShip extends Ship
             {
                 (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addSmallXPStar(this.x, this.y);
             }
+        }
+    }
+
+    protected crestDropAmt: number = Phaser.Math.RND.between(3, 6);
+
+    private dropCrests()
+    {
+        for(var i = 0; i < this.crestDropAmt; i++)
+        {
+            (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addCrests(this.x, this.y);
         }
     }
 }

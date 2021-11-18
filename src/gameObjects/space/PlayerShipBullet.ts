@@ -10,7 +10,7 @@ export default class PlayerShipBullet extends Bullet
 
         this.shootAngle = shootAngle;
         this.speed = 15;
-        this.damage = 2;
+        this.damage = 1;
 
         this.setCollisionGroup(1);
         this.setCollidesWith(0);

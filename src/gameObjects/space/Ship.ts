@@ -42,6 +42,9 @@ export default class Ship extends SpaceGameObject
     }
 
     protected maxSpeed: number = 5;
+    protected speedAcl: number = 0.5;
+    protected speedDeacl: number = 0.05;
+    protected manualSpeedDeacl: number = 0.35;
 
     protected angleVel: number;
     protected angleAcl: number = 0.4;
@@ -101,13 +104,13 @@ export default class Ship extends SpaceGameObject
 
         if(this.controls.goForward())
         {
-            this.speed += 0.5;
+            this.speed += this.speedAcl;
         }
         else 
         {
             if(this.speed > 0)
             {
-                this.speed -= 0.05;
+                this.speed -= this.speedDeacl;
             }  
             else
             {
@@ -119,7 +122,7 @@ export default class Ship extends SpaceGameObject
         {
             if(this.speed > 0)
             {
-                this.speed -= 0.35;
+                this.speed -= this.manualSpeedDeacl;
             }  
             else
             {

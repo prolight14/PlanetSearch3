@@ -39,9 +39,9 @@ var HyperBeamerSType = (function (_super) {
             "wander": {
                 start: function () {
                     var _this_1 = this;
-                    this.changeDirTimer = timer_1.default(true, 500, function (stopTurningTime) {
-                        _this_1.turn(Math.random() < 0.5 ? "left" : "right", stopTurningTime || 500, function () {
-                            _this_1.changeDirTimer.reset(Phaser.Math.Between(500, 1500), [Phaser.Math.Between(500, 1500)]);
+                    this.changeDirTimer = timer_1.default(true, 1000, function () {
+                        _this_1.turn(Math.random() < 0.5 ? "left" : "right", Phaser.Math.RND.between(300, 800), function () {
+                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000));
                         });
                     });
                 },

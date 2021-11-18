@@ -40,12 +40,14 @@ var SpaceScene = (function (_super) {
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
+        this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
         this.load.image("shrapnel1", "./assets/Space/Shrapnel/shrapnel1.png");
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
@@ -84,7 +86,9 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
+        this.scene.run("spaceUI");
         this.runDebugScenes();
+        this.scene.bringToTop("spaceUI");
         if (calledByEntryScene) {
             var playerShip = this.scene.get("spaceLogic").playerShip;
             playerShip.y += 500;
@@ -120,6 +124,7 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
+        this.scene.sleep("spaceUI");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
@@ -137,10 +142,10 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
-        this.csp.systems.displayList.add(playerShip.particles);
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
             _this.updateStatsGraphics();
+            _this.csp.systems.displayList.add(playerShip.particles);
             _this.sys.displayList.list.forEach(function (object) {
                 if (object.particles) {
                     csp.systems.displayList.add(object.particles);
@@ -161,13 +166,16 @@ var SpaceScene = (function (_super) {
         this.csp.systems.displayList.add(this.statsGraphics);
         var cam = this.cameras.main;
         this.statsGraphics.clear();
+        this.statsGraphics.setAngle(0);
         this.sys.displayList.list.forEach(function (object) {
             if (object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp()) {
                 var enemyShip = object;
+                var barX = enemyShip.x - enemyShip.width * 0.5;
+                var barY = enemyShip.y - enemyShip.width * 0.7;
                 _this.statsGraphics.fillStyle(0x0A297E);
-                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.width, 4);
+                _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
                 _this.statsGraphics.fillStyle(0x54B70E);
-                _this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
             }
         });
     };

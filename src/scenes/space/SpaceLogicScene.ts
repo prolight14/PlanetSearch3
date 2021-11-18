@@ -9,6 +9,7 @@ import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
 import PlayerShipBullet from "../../gameObjects/space/PlayerShipBullet";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
+import Crest from "../../gameObjects/space/Crest";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -52,6 +53,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
 
         world.add.gameObjectArray(XPStar, "xpStar");
+        world.add.gameObjectArray(Crest, "crest");
         
         // var asteroids = world.add.gameObjectArray(Asteroid, "asteroid");
         // asteroids.add(this.spaceScene, 69300, 61000);
@@ -102,6 +104,13 @@ export default class SpaceLogicScene extends Phaser.Scene
         var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
 
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
+    }
+
+    public addCrests(x: number, y: number)
+    {
+        var crests = this.spaceScene.csp.world.get.gameObjectArray("crest");
+
+        crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     }
 
     public update()

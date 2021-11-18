@@ -1,6 +1,4 @@
 import SpaceScene from "./SpaceScene";
-import PlayerShip from "../../gameObjects/space/PlayerShip";
-import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
 
 export default class SpaceUIDebugScene extends Phaser.Scene
 {

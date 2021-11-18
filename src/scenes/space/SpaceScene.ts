@@ -3,6 +3,7 @@ import PlayerShip from "../../gameObjects/space/PlayerShip";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
+import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -32,6 +33,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
         
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
@@ -39,6 +41,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
+        this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
 
         this.load.image("shrapnel1", "./assets/Space/Shrapnel/shrapnel1.png");
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
@@ -96,15 +99,18 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
+        this.scene.run("spaceUI");
 
         this.runDebugScenes();
 
+        this.scene.bringToTop("spaceUI");
         if(calledByEntryScene)
         {
             var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
             playerShip.y += 500;
             playerShip.resetKeys();
         }
+
 
     }
 
@@ -147,6 +153,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
         this.scene.sleep("starSceneController");
+        this.scene.sleep("spaceUI");
     }
 
     public switchToPlanetSceneGroup(levelInfo: object)
@@ -178,15 +185,13 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
-        this.csp.systems.displayList.add(playerShip.particles);
-
-        
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld((csp?: any) =>
         {
             this.updateStatsGraphics();
 
-
+            this.csp.systems.displayList.add(playerShip.particles);
+            
             this.sys.displayList.list.forEach((object: any) =>
             {   
                 if(object.particles)
@@ -215,16 +220,27 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         var cam = this.cameras.main;
 
         this.statsGraphics.clear();
+        this.statsGraphics.setAngle(0);
 
         this.sys.displayList.list.forEach((object: any) =>
         {
             if(object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp())
             {
                 var enemyShip = object as EnemyShip;
+                // var cameraRotation = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle() * Phaser.Math.DEG_TO_RAD;
+
+                var barX = enemyShip.x - enemyShip.width * 0.5;
+                var barY = enemyShip.y - enemyShip.width * 0.7;
+
+                // var rectShape = new Phaser.Geom.Rectangle(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+
+                // this.statsGraphics.fillRectShape(rectShape);
+
+                // this.statsGraphics.rotateCanvas(30 * Phaser.Math.DEG_TO_RAD);
                 this.statsGraphics.fillStyle(0x0A297E);
-                this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.width, 4);
+                this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
                 this.statsGraphics.fillStyle(0x54B70E);
-                this.statsGraphics.fillRect(enemyShip.x - enemyShip.width * 0.5, enemyShip.y - enemyShip.width * 0.7, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
             }
         });
     }
