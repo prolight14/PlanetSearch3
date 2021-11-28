@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var TitleScene_1 = require("./scenes/TitleScene");
 var EntryScene_1 = require("./scenes/EntryScene");
 var SpaceScene_1 = require("./scenes/space/SpaceScene");
 var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraControllerScene");
@@ -16,7 +17,7 @@ var PlanetBackScene_1 = require("./scenes/planet/PlanetBackScene");
 var PlanetLoaderScene_1 = require("./scenes/planet/PlanetLoaderScene");
 var SpaceUIScene_1 = require("./scenes/space/SpaceUIScene");
 var config = {
-    type: Phaser.WEBGL,
+    type: Phaser.CANVAS,
     width: 800,
     height: 450,
     pixelArt: true,
@@ -26,6 +27,7 @@ var config = {
     },
     disableContextMenu: true,
     scene: [
+        TitleScene_1.default,
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
