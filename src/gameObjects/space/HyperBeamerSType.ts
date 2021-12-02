@@ -10,8 +10,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
     {
         super(scene, x, y, "hyperBeamerSTypeGreen");
 
-        this.setCollisionGroup(1);
-        this.setCollidesWith(0);
+        // this.setCollisionGroup(1);
+        // this.setCollidesWith(0);
 
         this.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
 

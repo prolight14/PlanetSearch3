@@ -129,9 +129,9 @@ export default class SpaceStarScene extends Phaser.Scene
         );
         this.csStars.updateWorld();
 
-        // this.showGrid();
+        this.showGrid();
         this.sys.displayList.add(this.rt);
-        // this.sys.displayList.add(this.cellGraphics);
+        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
 
         this.frontCamera.zoom = cam.zoom;

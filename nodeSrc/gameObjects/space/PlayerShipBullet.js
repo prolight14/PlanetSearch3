@@ -21,13 +21,6 @@ var PlayerShipBullet = (function (_super) {
         _this.shootAngle = shootAngle;
         _this.speed = 15;
         _this.damage = 1;
-        _this.setCollisionGroup(1);
-        _this.setCollidesWith(0);
-        _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
-                _this.onCollide(colData.bodyA.gameObject);
-            }
-        });
         return _this;
     }
     PlayerShipBullet.prototype.preUpdate = function (time, delta) {

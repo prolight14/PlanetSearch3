@@ -17,14 +17,7 @@ var SpaceGameObject_1 = require("./SpaceGameObject");
 var Nebula = (function (_super) {
     __extends(Nebula, _super);
     function Nebula(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setStatic(true);
-        _this.body.collisionFilter = {
-            'group': -1,
-            'category': 2,
-            'mask': 0,
-        };
-        return _this;
+        return _super.call(this, scene, x, y, texture) || this;
     }
     return Nebula;
 }(SpaceGameObject_1.default));

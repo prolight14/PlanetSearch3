@@ -17,11 +17,7 @@ var SpaceGameObject_1 = require("./SpaceGameObject");
 var Shrapnel = (function (_super) {
     __extends(Shrapnel, _super);
     function Shrapnel(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setCollisionGroup(2);
-        _this.setCollidesWith(0);
-        _this.setFrictionAir(0.0001);
-        return _this;
+        return _super.call(this, scene, x, y, texture) || this;
     }
     return Shrapnel;
 }(SpaceGameObject_1.default));

@@ -21,7 +21,6 @@ var StarSceneControllerScene = (function (_super) {
     }
     StarSceneControllerScene.prototype.preload = function () {
         this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
-        this.load.image("starBackground2", "./assets/Space/Stars/starBackground2.png");
     };
     StarSceneControllerScene.prototype.create = function () {
         this.startStarScenes();
@@ -30,23 +29,6 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
-        this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starScroll: 0.7,
-            imageKey: "starBackground2",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 134,
-                    rows: 134,
-                    cellWidth: 1200,
-                    cellHeight: 1200,
-                }
-            }
-        });
-        this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starScroll: 0.65,
             imageKey: "starBackground",
@@ -56,10 +38,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 134,
-                    rows: 134,
-                    cellWidth: 1200,
-                    cellHeight: 1200,
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
                 }
             }
         });
@@ -69,36 +51,13 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.onSleep = function () {
         this.scene.sleep("spaceStar");
-        this.scene.sleep("spaceStar2");
-        this.scene.sleep("spaceStar3");
         this.starScenesSleeping = true;
     };
     StarSceneControllerScene.prototype.onWake = function () {
         this.scene.wake("spaceStar");
-        this.scene.wake("spaceStar2");
-        this.scene.wake("spaceStar3");
         this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.update = function () {
-        this.updateStarFade();
-    };
-    StarSceneControllerScene.prototype.updateStarFade = function () {
-        if (this.starScenesSleeping) {
-            return;
-        }
-        var mainCam = this.scene.get("space").cameras.main;
-        if (mainCam.zoom <= 0.5) {
-            this.scene.sleep("spaceStar3");
-        }
-        else {
-            this.scene.wake("spaceStar3");
-        }
-        if (mainCam.zoom <= 0.35) {
-            this.scene.sleep("spaceStar2");
-        }
-        else {
-            this.scene.wake("spaceStar2");
-        }
     };
     return StarSceneControllerScene;
 }(Phaser.Scene));

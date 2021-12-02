@@ -783,8 +783,6 @@ var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
-        _this_1.setCollisionGroup(1);
-        _this_1.setCollidesWith(0);
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
@@ -905,14 +903,7 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Nebula = (function (_super) {
     __extends(Nebula, _super);
     function Nebula(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setStatic(true);
-        _this.body.collisionFilter = {
-            'group': -1,
-            'category': 2,
-            'mask': 0,
-        };
-        return _this;
+        return _super.call(this, scene, x, y, texture) || this;
     }
     return Nebula;
 }(SpaceGameObject_1.default));
@@ -948,12 +939,6 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.setScale(3);
-        _this.setStatic(true);
-        _this.body.collisionFilter = {
-            'group': -1,
-            'category': 2,
-            'mask': 0,
-        };
         return _this;
     }
     Planet.prototype.preUpdate = function (time, delta) {
@@ -1007,8 +992,6 @@ var PlayerShip = (function (_super) {
         _this.angleDeacl = 0.05;
         _this.pointerDX = 0;
         _this.pointerDY = 0;
-        _this.setCollisionGroup(2);
-        _this.setCollidesWith(0);
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {
@@ -1140,13 +1123,6 @@ var PlayerShipBullet = (function (_super) {
         _this.shootAngle = shootAngle;
         _this.speed = 15;
         _this.damage = 1;
-        _this.setCollisionGroup(1);
-        _this.setCollidesWith(0);
-        _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
-                _this.onCollide(colData.bodyA.gameObject);
-            }
-        });
         return _this;
     }
     PlayerShipBullet.prototype.preUpdate = function (time, delta) {
@@ -1314,11 +1290,7 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Shrapnel = (function (_super) {
     __extends(Shrapnel, _super);
     function Shrapnel(scene, x, y, texture) {
-        var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.setCollisionGroup(2);
-        _this.setCollidesWith(0);
-        _this.setFrictionAir(0.0001);
-        return _this;
+        return _super.call(this, scene, x, y, texture) || this;
     }
     return Shrapnel;
 }(SpaceGameObject_1.default));
@@ -1351,7 +1323,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame, config) {
-        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame, config) || this;
+        var _this_1 = _super.call(this, scene, x, y, texture, frame) || this;
         _this_1.typeName = "gameObject";
         scene.add.existing(_this_1);
         var _this = _this_1;
@@ -1376,7 +1348,7 @@ var SpaceGameObject = (function (_super) {
     SpaceGameObject.prototype.onCollide = function (object) {
     };
     return SpaceGameObject;
-}(Phaser.Physics.Matter.Sprite));
+}(Phaser.GameObjects.Sprite));
 exports.default = SpaceGameObject;
 //# sourceMappingURL=SpaceGameObject.js.map
 
@@ -1512,55 +1484,6 @@ var EntryScene = (function (_super) {
 }(Phaser.Scene));
 exports.default = EntryScene;
 //# sourceMappingURL=EntryScene.js.map
-
-/***/ }),
-
-/***/ "./scenes/TitleScene.js":
-/*!******************************!*\
-  !*** ./scenes/TitleScene.js ***!
-  \******************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene = (function (_super) {
-    __extends(TitleScene, _super);
-    function TitleScene() {
-        return _super.call(this, "title") || this;
-    }
-    TitleScene.prototype.preload = function () {
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
-    };
-    TitleScene.prototype.create = function () {
-        var _this = this;
-        var gameWidth = this.game.canvas.width;
-        var gameHeight = this.game.canvas.height;
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
-        this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
-        this.input.keyboard.once("keydown", function () {
-            _this.cameras.main.fadeOut(500, 0, 0, 0);
-            _this.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.start("entry");
-            });
-        });
-    };
-    return TitleScene;
-}(Phaser.Scene));
-exports.default = TitleScene;
-//# sourceMappingURL=TitleScene.js.map
 
 /***/ }),
 
@@ -2555,19 +2478,8 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, {
             key: "space",
-            physics: {
-                default: "matter",
-                matter: {
-                    gravity: false,
-                    autoUpdate: false,
-                    positionIterations: 4,
-                    velocityIterations: 2,
-                    constraintIterations: 1
-                }
-            }
         }) || this;
         _this.loaded = false;
-        _this.stepMatter = true;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -2694,9 +2606,6 @@ var SpaceScene = (function (_super) {
                 }
             });
         });
-        if (this.stepMatter = !this.stepMatter) {
-            this.matter.step(33.333333);
-        }
     };
     SpaceScene.prototype.updateStatsGraphics = function () {
         var _this = this;
@@ -2806,7 +2715,9 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
+        this.showGrid();
         this.sys.displayList.add(this.rt);
+        this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
     };
@@ -2985,7 +2896,6 @@ var StarSceneControllerScene = (function (_super) {
     }
     StarSceneControllerScene.prototype.preload = function () {
         this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
-        this.load.image("starBackground2", "./assets/Space/Stars/starBackground2.png");
     };
     StarSceneControllerScene.prototype.create = function () {
         this.startStarScenes();
@@ -2994,23 +2904,6 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
-        this.scene.add("spaceStar2", SpaceStarScene_1.default, true, {
-            starScroll: 0.7,
-            imageKey: "starBackground2",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 134,
-                    rows: 134,
-                    cellWidth: 1200,
-                    cellHeight: 1200,
-                }
-            }
-        });
-        this.scene.sendToBack("spaceStar2");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
             starScroll: 0.65,
             imageKey: "starBackground",
@@ -3020,10 +2913,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 134,
-                    rows: 134,
-                    cellWidth: 1200,
-                    cellHeight: 1200,
+                    cols: 100,
+                    rows: 100,
+                    cellWidth: 1600,
+                    cellHeight: 1600,
                 }
             }
         });
@@ -3033,36 +2926,13 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.onSleep = function () {
         this.scene.sleep("spaceStar");
-        this.scene.sleep("spaceStar2");
-        this.scene.sleep("spaceStar3");
         this.starScenesSleeping = true;
     };
     StarSceneControllerScene.prototype.onWake = function () {
         this.scene.wake("spaceStar");
-        this.scene.wake("spaceStar2");
-        this.scene.wake("spaceStar3");
         this.starScenesSleeping = false;
     };
     StarSceneControllerScene.prototype.update = function () {
-        this.updateStarFade();
-    };
-    StarSceneControllerScene.prototype.updateStarFade = function () {
-        if (this.starScenesSleeping) {
-            return;
-        }
-        var mainCam = this.scene.get("space").cameras.main;
-        if (mainCam.zoom <= 0.5) {
-            this.scene.sleep("spaceStar3");
-        }
-        else {
-            this.scene.wake("spaceStar3");
-        }
-        if (mainCam.zoom <= 0.35) {
-            this.scene.sleep("spaceStar2");
-        }
-        else {
-            this.scene.wake("spaceStar2");
-        }
     };
     return StarSceneControllerScene;
 }(Phaser.Scene));
@@ -3106,7 +2976,6 @@ var exports = __webpack_exports__;
   \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene_1 = __webpack_require__(/*! ./scenes/TitleScene */ "./scenes/TitleScene.js");
 var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/EntryScene.js");
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
@@ -3123,7 +2992,7 @@ var PlanetBackScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetBackScene 
 var PlanetLoaderScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLoaderScene */ "./scenes/planet/PlanetLoaderScene.js");
 var SpaceUIScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIScene */ "./scenes/space/SpaceUIScene.js");
 var config = {
-    type: Phaser.CANVAS,
+    type: Phaser.WEBGL,
     width: 800,
     height: 450,
     pixelArt: true,
@@ -3133,7 +3002,6 @@ var config = {
     },
     disableContextMenu: true,
     scene: [
-        TitleScene_1.default,
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,

@@ -58,8 +58,8 @@ export default class PlayerShip extends Ship
     {
         super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });
 
-        this.setCollisionGroup(2);
-        this.setCollidesWith(0);
+        // this.setCollisionGroup(2);
+        // this.setCollidesWith(0);
 
         this.useAngleAcl = true;
         this.angleVel = 0;

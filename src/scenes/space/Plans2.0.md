@@ -19,7 +19,7 @@ Specific game design decisions
 
  - Each of these will inherit from the collectibles class
 
-- **Which means**: Power ups are now split into 2 categories; the temporary ones (Power ups) and the permenant ones (abilities)
+- **Which means**: Power ups are now split into 2 categories; the temporary ones (Power ups) and the permanent ones (abilities)
 (TODO: Elaborate more on this later)
 
 - Jumping and falling:

@@ -41,7 +41,7 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
 */
 
 let config: Phaser.Types.Core.GameConfig = {
-    type: Phaser.CANVAS,
+    type: Phaser.WEBGL,
     width: 800,
     height: 450,
     pixelArt: true,
@@ -51,7 +51,7 @@ let config: Phaser.Types.Core.GameConfig = {
     },
     disableContextMenu: true,
     scene: [
-        TitleScene,
+        // TitleScene,
  
         // Entry scene 
         EntryScene,

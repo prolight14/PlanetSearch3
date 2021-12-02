@@ -12,16 +12,16 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         super({
             key: "space",
-            physics: {
-                default: "matter",
-                matter: {
-                    gravity: false,
-                    autoUpdate: false, 
-                    positionIterations: 4,
-                    velocityIterations: 2,
-                    constraintIterations: 1
-                }
-            }
+            // physics: {
+            //     default: "matter",
+            //     matter: {
+            //         gravity: false,
+            //         autoUpdate: false, 
+            //         positionIterations: 4,
+            //         velocityIterations: 2,
+            //         constraintIterations: 1
+            //     }
+            // }
         });
     }
 
@@ -89,7 +89,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.statsGraphics = this.add.graphics().setDepth(4);
     }
 
-    private stepMatter: boolean = true;
+    // private stepMatter: number = 0;
 
     private playerShip: PlayerShip;
 
@@ -207,10 +207,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             });
         });
         
-        if(this.stepMatter = !this.stepMatter)
-        {
-            this.matter.step(33.333333);
-        }
+        // if(this.stepMatter++ >= 2)
+        // {
+        //     this.matter.step(33.33333);
+        //     this.stepMatter = 0;
+        // }
     }
 
     private updateStatsGraphics()
