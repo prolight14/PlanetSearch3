@@ -19,6 +19,12 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.setScale(3);
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
         return _this;
     }
     Planet.prototype.preUpdate = function (time, delta) {
@@ -27,6 +33,10 @@ var Planet = (function (_super) {
     };
     Planet.prototype.onCollide = function (object) {
         if (object._arrayName === "playerShip") {
+            this.scene.scene.get("spaceScene").switchToPlanetSceneGroup({
+                type: "planet",
+                from: this
+            });
         }
     };
     return Planet;

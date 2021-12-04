@@ -783,6 +783,8 @@ var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
+        _this_1.setCollisionGroup(1);
+        _this_1.setCollidesWith(0);
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
@@ -903,7 +905,14 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Nebula = (function (_super) {
     __extends(Nebula, _super);
     function Nebula(scene, x, y, texture) {
-        return _super.call(this, scene, x, y, texture) || this;
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
+        return _this;
     }
     return Nebula;
 }(SpaceGameObject_1.default));
@@ -939,6 +948,12 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.setScale(3);
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
         return _this;
     }
     Planet.prototype.preUpdate = function (time, delta) {
@@ -947,6 +962,10 @@ var Planet = (function (_super) {
     };
     Planet.prototype.onCollide = function (object) {
         if (object._arrayName === "playerShip") {
+            this.scene.scene.get("spaceScene").switchToPlanetSceneGroup({
+                type: "planet",
+                from: this
+            });
         }
     };
     return Planet;
@@ -992,6 +1011,8 @@ var PlayerShip = (function (_super) {
         _this.angleDeacl = 0.05;
         _this.pointerDX = 0;
         _this.pointerDY = 0;
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
         _this.useAngleAcl = true;
         _this.angleVel = 0;
         _this.keys = {
@@ -1123,6 +1144,13 @@ var PlayerShipBullet = (function (_super) {
         _this.shootAngle = shootAngle;
         _this.speed = 15;
         _this.damage = 1;
+        _this.setCollisionGroup(1);
+        _this.setCollidesWith(0);
+        _this.setOnCollide(function (colData) {
+            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
+                _this.onCollide(colData.bodyA.gameObject);
+            }
+        });
         return _this;
     }
     PlayerShipBullet.prototype.preUpdate = function (time, delta) {
@@ -1290,7 +1318,11 @@ var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObje
 var Shrapnel = (function (_super) {
     __extends(Shrapnel, _super);
     function Shrapnel(scene, x, y, texture) {
-        return _super.call(this, scene, x, y, texture) || this;
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.setCollisionGroup(2);
+        _this.setCollidesWith(0);
+        _this.setFrictionAir(0.0001);
+        return _this;
     }
     return Shrapnel;
 }(SpaceGameObject_1.default));
@@ -1323,7 +1355,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame, config) {
-        var _this_1 = _super.call(this, scene, x, y, texture, frame) || this;
+        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
         _this_1.typeName = "gameObject";
         scene.add.existing(_this_1);
         var _this = _this_1;
@@ -1348,7 +1380,7 @@ var SpaceGameObject = (function (_super) {
     SpaceGameObject.prototype.onCollide = function (object) {
     };
     return SpaceGameObject;
-}(Phaser.GameObjects.Sprite));
+}(Phaser.Physics.Matter.Sprite));
 exports.default = SpaceGameObject;
 //# sourceMappingURL=SpaceGameObject.js.map
 
@@ -2183,7 +2215,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.45), 4));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.35), 4));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
@@ -2478,8 +2510,19 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, {
             key: "space",
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    autoUpdate: false,
+                    positionIterations: 4,
+                    velocityIterations: 2,
+                    constraintIterations: 1
+                }
+            }
         }) || this;
         _this.loaded = false;
+        _this.stepMatter = 0;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -2493,6 +2536,7 @@ var SpaceScene = (function (_super) {
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
@@ -2606,6 +2650,10 @@ var SpaceScene = (function (_super) {
                 }
             });
         });
+        if (this.stepMatter++ >= 2) {
+            this.matter.step(33.33333);
+            this.stepMatter = 0;
+        }
     };
     SpaceScene.prototype.updateStatsGraphics = function () {
         var _this = this;
@@ -2931,8 +2979,6 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.onWake = function () {
         this.scene.wake("spaceStar");
         this.starScenesSleeping = false;
-    };
-    StarSceneControllerScene.prototype.update = function () {
     };
     return StarSceneControllerScene;
 }(Phaser.Scene));

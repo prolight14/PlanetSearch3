@@ -8,12 +8,12 @@ export default class Planet extends SpaceGameObject
         super(scene, x, y, texture);
 
         this.setScale(3);
-        // this.setStatic(true);
-        // this.body.collisionFilter = {
-        //     'group': -1,
-        //     'category': 2,
-        //     'mask': 0,
-        // };
+        this.setStatic(true);
+        this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
     }
 
     public preUpdate(time: number, delta: number)
@@ -26,10 +26,10 @@ export default class Planet extends SpaceGameObject
     {
         if(object._arrayName === "playerShip")
         {
-            // (this.scene.scene.get("spaceScene") as SpaceScene).switchToPlanetSceneGroup({
-            //     type: "planet",
-            //     from: this
-            // });
+            (this.scene.scene.get("spaceScene") as SpaceScene).switchToPlanetSceneGroup({
+                type: "planet",
+                from: this
+            });
         }
     }
 }

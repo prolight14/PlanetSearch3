@@ -12,16 +12,16 @@ export default class PlayerShipBullet extends Bullet
         this.speed = 15;
         this.damage = 1;
 
-        // this.setCollisionGroup(1);
-        // this.setCollidesWith(0);
+        this.setCollisionGroup(1);
+        this.setCollidesWith(0);
 
-        // this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-        // {
-        //     if(colData.bodyA.gameObject && colData.bodyA.gameObject.isShip)
-        //     {
-        //         this.onCollide(colData.bodyA.gameObject);
-        //     }
-        // });
+        this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        {
+            if(colData.bodyA.gameObject && colData.bodyA.gameObject.isShip)
+            {
+                this.onCollide(colData.bodyA.gameObject);
+            }
+        });
     }
 
     public preUpdate(time: number, delta: number)

@@ -57,8 +57,6 @@ var StarSceneControllerScene = (function (_super) {
         this.scene.wake("spaceStar");
         this.starScenesSleeping = false;
     };
-    StarSceneControllerScene.prototype.update = function () {
-    };
     return StarSceneControllerScene;
 }(Phaser.Scene));
 exports.default = StarSceneControllerScene;

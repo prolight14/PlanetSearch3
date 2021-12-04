@@ -18,8 +18,19 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, {
             key: "space",
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    autoUpdate: false,
+                    positionIterations: 4,
+                    velocityIterations: 2,
+                    constraintIterations: 1
+                }
+            }
         }) || this;
         _this.loaded = false;
+        _this.stepMatter = 0;
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -33,6 +44,7 @@ var SpaceScene = (function (_super) {
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
@@ -146,6 +158,10 @@ var SpaceScene = (function (_super) {
                 }
             });
         });
+        if (this.stepMatter++ >= 2) {
+            this.matter.step(33.33333);
+            this.stepMatter = 0;
+        }
     };
     SpaceScene.prototype.updateStatsGraphics = function () {
         var _this = this;

@@ -12,16 +12,16 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         super({
             key: "space",
-            // physics: {
-            //     default: "matter",
-            //     matter: {
-            //         gravity: false,
-            //         autoUpdate: false, 
-            //         positionIterations: 4,
-            //         velocityIterations: 2,
-            //         constraintIterations: 1
-            //     }
-            // }
+            physics: {
+                default: "matter",
+                matter: {
+                    gravity: false,
+                    autoUpdate: false, 
+                    positionIterations: 4,
+                    velocityIterations: 2,
+                    constraintIterations: 1
+                }
+            }
         });
     }
 
@@ -38,6 +38,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
@@ -89,7 +90,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.statsGraphics = this.add.graphics().setDepth(4);
     }
 
-    // private stepMatter: number = 0;
+    private stepMatter: number = 0;
 
     private playerShip: PlayerShip;
 
@@ -207,11 +208,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             });
         });
         
-        // if(this.stepMatter++ >= 2)
-        // {
-        //     this.matter.step(33.33333);
-        //     this.stepMatter = 0;
-        // }
+        if(this.stepMatter++ >= 2)
+        {
+            this.matter.step(33.33333);
+            this.stepMatter = 0;
+        }
     }
 
     private updateStatsGraphics()
