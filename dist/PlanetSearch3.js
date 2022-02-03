@@ -179,6 +179,33 @@ exports.default = timer;
 
 /***/ }),
 
+/***/ "./gameObjects/Utils/trig.js":
+/*!***********************************!*\
+  !*** ./gameObjects/Utils/trig.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var trig = (function () {
+    function trig() {
+    }
+    trig.cos = function (angle) {
+        return Math.cos(angle * Phaser.Math.DEG_TO_RAD);
+    };
+    trig.sin = function (angle) {
+        return Math.sin(angle * Phaser.Math.DEG_TO_RAD);
+    };
+    trig.tan = function (angle) {
+        return Math.sin(angle * Phaser.Math.DEG_TO_RAD);
+    };
+    return trig;
+}());
+exports.default = trig;
+//# sourceMappingURL=trig.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/planet/GameObject.js":
 /*!******************************************!*\
   !*** ./gameObjects/planet/GameObject.js ***!
@@ -779,6 +806,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var HyperBeamerShip_1 = __webpack_require__(/*! ./HyperBeamerShip */ "./gameObjects/space/HyperBeamerShip.js");
 var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObjects/Utils/StateMachine.js");
+var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -827,13 +855,12 @@ var HyperBeamerSType = (function (_super) {
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function () {
-        HyperBeamerShip_1.default.prototype.preUpdate.apply(this, arguments);
-        var rot = this.rotation + Math.PI / 2;
+        _super.prototype.preUpdate.call(this);
         var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + Math.cos(rot) * length;
-        this.particles.y = this.y + Math.sin(rot) * length;
+        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
-        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
     };
@@ -996,19 +1023,22 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
+var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
         var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
+        _this.hp = 10;
+        _this.maxHp = 10;
         _this.xp = 0;
+        _this.nextLevelXp = 100;
         _this.crests = 0;
         _this.maxSpeed = 5;
         _this.speedAcl = 0.25;
         _this.speedDeacl = 0.025;
         _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.05;
+        _this.angleDeacl = 0.12;
         _this.pointerDX = 0;
         _this.pointerDY = 0;
         _this.setCollisionGroup(2);
@@ -1023,33 +1053,23 @@ var PlayerShip = (function (_super) {
             shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
             shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
-        var shots = 0;
-        _this.shootTimer = timer_1.default(false, 625, function () {
-            shots = 0;
-        });
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            if (++shots === 15) {
-                _this.shootTimer.reset();
-            }
-            if (shots >= 15) {
-                return;
-            }
-            var theta = 30 * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var theta = 30 + _this.angle;
             var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
-            bullet.setRotation(_this.rotation);
-            var theta = 150 * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            bullet.setAngle(_this.angle);
+            var theta = 150 + _this.angle;
             var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
-            bullet.setRotation(_this.rotation);
-            var theta = (30 - 50) * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            bullet.setAngle(_this.angle);
+            var theta = (30 - 50) + _this.angle;
             var length = 17;
-            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
-            bullet.setRotation(_this.rotation);
-            var theta = (150 + 50) * Phaser.Math.DEG_TO_RAD + _this.rotation;
+            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            bullet.setAngle(_this.angle);
+            var theta = (150 + 50) + _this.angle;
             var length = 17;
-            var bullet = _this.bullets.add(_this.scene, _this.x + Math.cos(theta) * length, _this.y + Math.sin(theta) * length, _this.angle - 90);
-            bullet.setRotation(_this.rotation);
+            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            bullet.setAngle(_this.angle);
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -1087,9 +1107,14 @@ var PlayerShip = (function (_super) {
             this.keys[i].reset();
         }
     };
+    PlayerShip.prototype.getXp = function () {
+        return this.xp;
+    };
+    PlayerShip.prototype.getNextLevelXp = function () {
+        return this.nextLevelXp;
+    };
     PlayerShip.prototype.collectCrests = function (crest) {
         this.crests += crest.amt;
-        console.log(this.crests);
     };
     PlayerShip.prototype.collectXPStars = function (xpStar) {
         this.xp += xpStar.amt;
@@ -1099,11 +1124,9 @@ var PlayerShip = (function (_super) {
     };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        this.shootTimer.update();
-        var rot = this.rotation + Math.PI / 2;
         var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + Math.cos(rot) * length;
-        this.particles.y = this.y + Math.sin(rot) * length;
+        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
@@ -2437,7 +2460,7 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet_1.default, "playerShipBullet");
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000 + 1000);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
@@ -2804,63 +2827,6 @@ exports.default = SpaceStarScene;
 
 /***/ }),
 
-/***/ "./scenes/space/SpaceUIDebugScene.js":
-/*!*******************************************!*\
-  !*** ./scenes/space/SpaceUIDebugScene.js ***!
-  \*******************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceUIDebugScene = (function (_super) {
-    __extends(SpaceUIDebugScene, _super);
-    function SpaceUIDebugScene() {
-        return _super.call(this, "spaceUIDebug") || this;
-    }
-    SpaceUIDebugScene.prototype.create = function () {
-        this.cellCoorText = this.add.text(40, 260, "");
-        this.cellText = this.add.text(40, 274, "");
-        this.fpsText = this.add.text(40, 20, "");
-        this.shipPositionText = this.add.text(550, 20, "");
-        this.spaceScene = this.scene.get("space");
-    };
-    SpaceUIDebugScene.prototype.update = function (time, delta) {
-        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
-        var cameraTarget = this.spaceScene.getCameraTarget();
-        this.shipPositionText.setText("(" + cameraTarget.x.toFixed(2) + ", " + cameraTarget.y.toFixed(2) + ")");
-        this.peekCell();
-    };
-    SpaceUIDebugScene.prototype.peekCell = function () {
-        var cspWorld = this.spaceScene.csp.world;
-        var coordinates = cspWorld.cameraGrid.getCoordinates(cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x / this.spaceScene.cameras.main.zoom, cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y / this.spaceScene.cameras.main.zoom);
-        var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
-        this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
-        var txt = "";
-        for (var i in cell) {
-            txt += i + "\n";
-        }
-        this.cellText.setText(txt);
-    };
-    return SpaceUIDebugScene;
-}(Phaser.Scene));
-exports.default = SpaceUIDebugScene;
-//# sourceMappingURL=SpaceUIDebugScene.js.map
-
-/***/ }),
-
 /***/ "./scenes/space/SpaceUIScene.js":
 /*!**************************************!*\
   !*** ./scenes/space/SpaceUIScene.js ***!
@@ -2890,21 +2856,33 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
-        this.statsGraphics = this.add.graphics().setDepth(10);
-        this.testText = this.add.text(69000, 61000, "This is a test!");
-        var statsContainer = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 1).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpBar = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        this.statsHpMask = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        this.statsHpMask.setVisible(false);
-        statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, this.statsHpMask);
-        this.statsHpMask.y += 30;
+        var spaceLogicScene = this.scene.get("spaceLogic");
+        this.playerShip = spaceLogicScene.playerShip;
+        var statsY = this.game.config.height - 145;
+        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        statsHpMask.setVisible(false);
+        statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsHpMask);
+        this.setHpBar = function (hp, maxHp) {
+            statsHpBar.y = statsY + statsHpBar.displayHeight - (hp * statsHpBar.displayHeight / maxHp);
+        };
+        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        statsXpMask.setVisible(false);
+        statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
+        this.setXpBar = function (xp, maxXp) {
+            var xpBarLength = 93;
+            statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
+        };
     };
     SpaceUIScene.prototype.update = function (time, delta) {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
         cam.setRoundPixels(true);
-        cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
+        this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
+        this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
     };
     SpaceUIScene.prototype.updateShipStatsGraphics = function () {
     };
@@ -3026,7 +3004,6 @@ var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/Entr
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
-var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
 var StarSceneControllerScene_1 = __webpack_require__(/*! ./scenes/space/StarSceneControllerScene */ "./scenes/space/StarSceneControllerScene.js");
 var SpaceBackgroundScene_1 = __webpack_require__(/*! ./scenes/space/SpaceBackgroundScene */ "./scenes/space/SpaceBackgroundScene.js");
 var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
@@ -3050,7 +3027,7 @@ var config = {
     scene: [
         EntryScene_1.default,
         SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIScene_1.default,
-        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
+        StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
     seed: "explorationHelix1"

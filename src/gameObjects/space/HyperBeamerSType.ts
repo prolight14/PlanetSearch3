@@ -3,6 +3,7 @@ import HyperBeamerShip from "./HyperBeamerShip";
 import timer from "../Utils/timer";
 import StateMachine from "../Utils/StateMachine";
 import XPStar from "./XPStar";
+import trig from "../Utils/trig";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -74,14 +75,13 @@ export default class HyperBeamerSType extends HyperBeamerShip
  
     public preUpdate()
     {
-        HyperBeamerShip.prototype.preUpdate.apply(this, arguments);
+        super.preUpdate();
 
-        var rot = this.rotation + Math.PI / 2;
         var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + Math.cos(rot) * length;
-        this.particles.y = this.y + Math.sin(rot) * length;
+        this.particles.x = this.x + trig.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig.sin(this.angle + 90) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
-        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
 
         this.sm.emit("update", []);

@@ -80,7 +80,8 @@ export default class SpaceLogicScene extends Phaser.Scene
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet, "playerShipBullet");
-        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000);
+        // this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 56000, 70000 + 1000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000 + 1000);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         

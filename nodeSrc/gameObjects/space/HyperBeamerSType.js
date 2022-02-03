@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var HyperBeamerShip_1 = require("./HyperBeamerShip");
 var timer_1 = require("../Utils/timer");
 var StateMachine_1 = require("../Utils/StateMachine");
+var trig_1 = require("../Utils/trig");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -64,13 +65,12 @@ var HyperBeamerSType = (function (_super) {
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function () {
-        HyperBeamerShip_1.default.prototype.preUpdate.apply(this, arguments);
-        var rot = this.rotation + Math.PI / 2;
+        _super.prototype.preUpdate.call(this);
         var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + Math.cos(rot) * length;
-        this.particles.y = this.y + Math.sin(rot) * length;
+        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
-        this.pEmitter.setVisible(this.speed >= 0.005);
+        this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
     };

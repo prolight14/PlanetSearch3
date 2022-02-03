@@ -33,8 +33,6 @@ export default class SpaceUIDebugScene extends Phaser.Scene
         this.peekCell();
     }
 
-    mouseToWorldCoordinates: object;
-
     private peekCell()
     {
         var cspWorld: any = this.spaceScene.csp.world;

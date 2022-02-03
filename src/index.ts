@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 
 // Title scene
 import TitleScene from "./scenes/TitleScene";
@@ -38,6 +38,8 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
     6. Properly copyright this game
     7. Market this game correctly
     8. Remove all unneeded assets
+
+    Note: Do testing! LOTS of testing!
 */
 
 let config: Phaser.Types.Core.GameConfig = {
@@ -58,7 +60,7 @@ let config: Phaser.Types.Core.GameConfig = {
 
         // Space scenes
         SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, SpaceUIScene,
-        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
+        /*SpaceUIDebugScene,*/ StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)
         PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene

@@ -1,8 +1,10 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
+import trig from "../Utils/trig";
 import PlayerShipBullet from "./PlayerShipBullet";
 import Ship from "./Ship";
 import XPStar from "./XPStar";
+
 
 export default class PlayerShip extends Ship
 {
@@ -18,6 +20,9 @@ export default class PlayerShip extends Ship
         shootZ: Phaser.Input.Keyboard.Key;
     };
 
+    protected hp: number = 10;
+    protected maxHp: number = 10;
+
     public resetKeys()
     {
         for(var i in this.keys)
@@ -27,12 +32,22 @@ export default class PlayerShip extends Ship
     }
 
     private xp: number = 0;
+    private nextLevelXp: number = 100;
+
+    public getXp(): number
+    {
+        return this.xp;
+    }
+    public getNextLevelXp(): number
+    {
+        return this.nextLevelXp;
+    }
+    
     private crests: number = 0;
 
     public collectCrests(crest: any)
     {
         this.crests += crest.amt;
-        console.log(this.crests);
     }
 
     public collectXPStars(xpStar: XPStar)
@@ -45,7 +60,8 @@ export default class PlayerShip extends Ship
     protected speedDeacl: number = 0.025;
     protected manualSpeedDeacl: number = 0.15;
 
-    protected angleDeacl: number = 0.05;
+    protected angleDeacl: number = 0.12;
+
     private shootTimer: {
         update: () => void;
         reset: (newInterval?: number, _args?: Array<any>) => void;
@@ -86,46 +102,46 @@ export default class PlayerShip extends Ship
 
         //     // var theta = Math.atan2(-hDiff, wDiff);
 
-        //     // this.x += Math.sin(theta) * length;
-        //     // this.y += Math.cos(theta) * length;
+        //     // this.x += trig.sin(theta) * length;
+        //     // this.y += trig.cos(theta) * length;
         // });
 
-        var shots = 0;
+        // var shots = 0;
 
-        this.shootTimer = timer(false, 625, () =>
-        {
-            shots = 0;
-        });
+        // this.shootTimer = timer(false, 625, () =>
+        // {
+        //     shots = 0;
+        // });
 
         this.scene.input.keyboard.on("keyup-Z", () =>
         {
-            if(++shots === 15)
-            {
-                this.shootTimer.reset();
-            }
-            if(shots >= 15)
-            {
-                return;
-            }
-            var theta = 30 * Phaser.Math.DEG_TO_RAD + this.rotation;
+            // if(++shots === 15)
+            // {
+            //     this.shootTimer.reset();
+            // }
+            // if(shots >= 15)
+            // {
+            //     return;
+            // }
+            var theta = 30 + this.angle;
             var length = 25;
-            var bullet = this.bullets.add(this.scene, this.x + Math.cos(theta) * length, this.y + Math.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
-            bullet.setRotation(this.rotation);
+            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            bullet.setAngle(this.angle);
 
-            var theta = 150 * Phaser.Math.DEG_TO_RAD + this.rotation;
+            var theta = 150 + this.angle;
             var length = 25;
-            var bullet = this.bullets.add(this.scene, this.x + Math.cos(theta) * length, this.y + Math.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
-            bullet.setRotation(this.rotation);
+            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            bullet.setAngle(this.angle);
 
-            var theta = (30 - 50) * Phaser.Math.DEG_TO_RAD + this.rotation;
+            var theta = (30 - 50) + this.angle;
             var length = 17;
-            var bullet = this.bullets.add(this.scene, this.x + Math.cos(theta) * length, this.y + Math.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
-            bullet.setRotation(this.rotation);
+            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            bullet.setAngle(this.angle);
 
-            var theta = (150 + 50) * Phaser.Math.DEG_TO_RAD + this.rotation;
+            var theta = (150 + 50) + this.angle;
             var length = 17;
-            var bullet = this.bullets.add(this.scene, this.x + Math.cos(theta) * length, this.y + Math.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
-            bullet.setRotation(this.rotation);
+            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            bullet.setAngle(this.angle);
         });
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -183,14 +199,13 @@ export default class PlayerShip extends Ship
         // var dy = this.pointerDY;
         // this.x += Math.min(this.maxSpeed, dx * 0.05);
         // this.y += Math.min(this.maxSpeed, dy * 0.05);
-        // this.setRotation(Math.atan2(dy, dx) + Math.PI / 2);
+        // this.setAngle(Math.atan2(dy, dx) + Math.PI / 2);
 
-        this.shootTimer.update();
+        // this.shootTimer.update();
 
-        var rot = this.rotation + Math.PI / 2;
         var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + Math.cos(rot) * length;
-        this.particles.y = this.y + Math.sin(rot) * length;
+        this.particles.x = this.x + trig.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig.sin(this.angle + 90) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);

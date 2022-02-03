@@ -21,21 +21,33 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         this.spaceScene = this.scene.get("space");
         this.spaceCameraControllerScene = this.scene.get("spaceCameraController");
-        this.statsGraphics = this.add.graphics().setDepth(10);
-        this.testText = this.add.text(69000, 61000, "This is a test!");
-        var statsContainer = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 1).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpBar = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        this.statsHpMask = this.add.image(0, this.game.config.height - 116 * 1.25, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        this.statsHpMask.setVisible(false);
-        statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, this.statsHpMask);
-        this.statsHpMask.y += 30;
+        var spaceLogicScene = this.scene.get("spaceLogic");
+        this.playerShip = spaceLogicScene.playerShip;
+        var statsY = this.game.config.height - 145;
+        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        statsHpMask.setVisible(false);
+        statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsHpMask);
+        this.setHpBar = function (hp, maxHp) {
+            statsHpBar.y = statsY + statsHpBar.displayHeight - (hp * statsHpBar.displayHeight / maxHp);
+        };
+        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        statsXpMask.setVisible(false);
+        statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
+        this.setXpBar = function (xp, maxXp) {
+            var xpBarLength = 93;
+            statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
+        };
     };
     SpaceUIScene.prototype.update = function (time, delta) {
         var mainCam = this.spaceCameraControllerScene.cameras.main;
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
         cam.setRoundPixels(true);
-        cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
+        this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
+        this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
     };
     SpaceUIScene.prototype.updateShipStatsGraphics = function () {
     };
