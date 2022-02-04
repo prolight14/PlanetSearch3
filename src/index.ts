@@ -60,7 +60,7 @@ let config: Phaser.Types.Core.GameConfig = {
 
         // Space scenes
         SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, SpaceUIScene,
-        /*SpaceUIDebugScene,*/ StarSceneControllerScene, SpaceLogicScene, 
+        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
 
         // Planet scene(s)
         PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene

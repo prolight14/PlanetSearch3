@@ -20,10 +20,7 @@ var EnemyShip = (function (_super) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.typeName = "enemyShip";
         _this.move = true;
-        _this.onKill = function () {
-            this.dropXP();
-            this.dropCrests();
-        };
+        _this.isShooting = false;
         _this.xpDropAmt = 3;
         _this.crestDropAmt = Phaser.Math.RND.between(3, 6);
         _this.turnDir = "";
@@ -38,13 +35,19 @@ var EnemyShip = (function (_super) {
                 return _this.move;
             },
             slowDown: function () { return false; },
-            shoot: function () { return false; }
+            shoot: function () {
+                return _this.isShooting;
+            }
         };
         _this.angleVel = 3;
         return _this;
     }
-    EnemyShip.prototype.preUpdate = function () {
-        Ship_1.default.prototype.preUpdate.apply(this, arguments);
+    EnemyShip.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+    };
+    EnemyShip.prototype.onKill = function () {
+        this.dropXP();
+        this.dropCrests();
     };
     EnemyShip.prototype.dropXP = function () {
         for (var i = 0; i < this.xpDropAmt; i++) {

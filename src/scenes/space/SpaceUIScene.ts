@@ -17,11 +17,6 @@ export default class SpaceUIScene extends Phaser.Scene
     private spaceCameraControllerScene: SpaceCameraControllerScene;
     private playerShip: PlayerShip;
 
-    // private statsGraphics: Phaser.GameObjects.Graphics;
-    // private testText: Phaser.GameObjects.Text;
-    
-    // private statsHpMask: Phaser.GameObjects.Image;
-
     private setHpBar: (hp: number, maxHp: number) => void;
     private setXpBar: (xp: number, maxXp: number) => void;
 
@@ -32,12 +27,6 @@ export default class SpaceUIScene extends Phaser.Scene
         this.spaceCameraControllerScene = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene);
         const spaceLogicScene = (this.scene.get("spaceLogic") as SpaceLogicScene);
         this.playerShip = spaceLogicScene.playerShip;
-
-        // var mainCam = spaceCameraControllerScene.cameras.main;
-        // this.cameras.main.startFollow(mainCam);
-        
-        // this.statsGraphics = this.add.graphics().setDepth(10);
-        // this.testText = this.add.text(69000, 61000, "This is a test!");
 
         const statsY = (this.game.config.height as number) - 145;
 
@@ -62,13 +51,6 @@ export default class SpaceUIScene extends Phaser.Scene
             const xpBarLength = 93;
             statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
         };
-
-        // this.statsHpMask = this.add.image(0, (this.game.config.height as number) - 116*1.25, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        // this.statsHpMask.setVisible(false);
-
-        // statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, this.statsHpMask);
-
-        // this.statsHpMask.y += 30;
     }
 
     public update(time: number, delta: number)
@@ -77,20 +59,11 @@ export default class SpaceUIScene extends Phaser.Scene
 
         var cam = this.cameras.main;
         cam.setScroll(scrollX, scrollY);
-        // cam.setZoom(mainCam.zoom);
         cam.setRoundPixels(true);
-        // cam.setAngle(this.spaceCameraControllerScene.getCameraAngle());
 
      
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
-
-        /*
-        this.updateShipStatsGraphics();
-
-        this.sys.displayList.add(this.statsGraphics);
-        this.sys.displayList.add(this.testText);
-        */
     }
 
     public updateShipStatsGraphics()

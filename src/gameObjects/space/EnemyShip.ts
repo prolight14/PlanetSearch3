@@ -28,20 +28,24 @@ export default class EnemyShip extends Ship
                 return this.move;
             },
             slowDown: () => false,
-            shoot: () => false         
+            shoot: () => 
+            {
+                return this.isShooting;
+            }         
         };
 
         this.angleVel = 3;
     }
 
     protected move: boolean = true;
+    protected isShooting: boolean = false;
 
-    public preUpdate()
+    public preUpdate(time: number, delta: number)
     {
-        Ship.prototype.preUpdate.apply(this, arguments);
+        super.preUpdate(time, delta);
     }
 
-    protected onKill?: Function = function()
+    protected onKill()
     {
         this.dropXP();
         this.dropCrests();

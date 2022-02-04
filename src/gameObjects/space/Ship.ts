@@ -1,3 +1,4 @@
+import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 
@@ -132,9 +133,9 @@ export default class Ship extends SpaceGameObject
 
         this.speed = Math.min(this.speed, this.maxSpeed);
 
-        let angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-        this.x += Math.cos(angle) * this.speed;
-        this.y += Math.sin(angle) * this.speed;
+        let angle = this.angle - 90;
+        this.x += trig.cos(angle) * this.speed;
+        this.y += trig.sin(angle) * this.speed;
 
         this.bodyConf.update();
 
@@ -149,15 +150,15 @@ export default class Ship extends SpaceGameObject
      */
     public dead: boolean = false;
 
-    protected onKill?: Function;
+    protected onKill()
+    {
+
+    }
 
     protected kill()
     {
         this.dead = true;
 
-        if(this.onKill !== undefined)
-        {
-            this.onKill();
-        }
+        this.onKill();
     }
 }

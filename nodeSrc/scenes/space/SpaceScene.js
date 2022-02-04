@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var CameraTargetTracker_1 = require("./CameraTargetTracker");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -31,6 +32,7 @@ var SpaceScene = (function (_super) {
         }) || this;
         _this.loaded = false;
         _this.stepMatter = 0;
+        _this.cameraTargetTracker = new CameraTargetTracker_1.default();
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -78,6 +80,15 @@ var SpaceScene = (function (_super) {
         this.runScenes(false);
         this.loaded = true;
         this.prepareStatsGraphics();
+        this.cameras.main.startFollow(this.cameraTargetTracker);
+    };
+    SpaceScene.prototype.handleGameOver = function () {
+        this.reloadSpace();
+    };
+    SpaceScene.prototype.reloadSpace = function () {
+        this.csp.initWorld(this.cspConfig);
+        this.scene.get("spaceLogic").addObjectsToSpace();
+        this.csp.syncWithGrid();
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -90,16 +101,22 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceUI");
         this.runDebugScenes();
         this.scene.bringToTop("spaceUI");
+        var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
-            var playerShip = this.scene.get("spaceLogic").playerShip;
             playerShip.y += 500;
             playerShip.resetKeys();
         }
     };
+    SpaceScene.prototype.setCameraTarget = function (object) {
+        this.cameraTargetTracker.setTrackedObject(object);
+    };
+    SpaceScene.prototype.getCameraTarget = function () {
+        return this.cameraTargetTracker;
+    };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
         this.scene.run("spaceDebug");
-        this.scene.run("spaceUIDebug");
+        this.scene.sleep("spaceUIDebug");
         this.scene.sleep("spaceDebug");
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {
@@ -133,16 +150,10 @@ var SpaceScene = (function (_super) {
             nextScene.receiveInfo(levelInfo);
         });
     };
-    SpaceScene.prototype.setCameraTarget = function (cameraTarget) {
-        this.cameraTarget = cameraTarget;
-        this.cameras.main.startFollow(this.cameraTarget);
-    };
-    SpaceScene.prototype.getCameraTarget = function () {
-        return this.cameraTarget;
-    };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
+        this.cameraTargetTracker.update();
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
             _this.updateStatsGraphics();

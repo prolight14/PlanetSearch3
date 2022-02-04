@@ -133,15 +133,20 @@ export default class PlayerShip extends Ship
             var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
             bullet.setAngle(this.angle);
 
-            var theta = (30 - 50) + this.angle;
+            var theta = this.angle - 20;
             var length = 17;
             var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
             bullet.setAngle(this.angle);
 
-            var theta = (150 + 50) + this.angle;
+            var theta = 200 + this.angle;
             var length = 17;
             var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
             bullet.setAngle(this.angle);
+        });
+
+        this.scene.input.keyboard.on("keydown-M", () =>
+        {
+            this.hp = 0;
         });
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -209,5 +214,10 @@ export default class PlayerShip extends Ship
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
+    }
+
+    protected onKill()
+    {
+        (this.scene as SpaceScene).handleGameOver();
     }
 }

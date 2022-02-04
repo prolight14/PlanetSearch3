@@ -10,6 +10,8 @@ import PlayerShipBullet from "../../gameObjects/space/PlayerShipBullet";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
+import EnemyShipBullet from "../../gameObjects/space/EnemyShipBullet";
+import HyperBeamerSTypeBullet from "../../gameObjects/space/HyperBeamerSTypeBullet";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -85,11 +87,13 @@ export default class SpaceLogicScene extends Phaser.Scene
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         
-        
+        var hyperBeamerSTypeBullets = world.add.gameObjectArray(HyperBeamerSTypeBullet, "hyperBeamerSTypeBullet");
+
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         for(var i = 0; i < 100; i++)
         {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+            var ship = hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
+            ship.setBullets(hyperBeamerSTypeBullets);
         }
     }
     

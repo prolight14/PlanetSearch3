@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Ship = (function (_super) {
     __extends(Ship, _super);
@@ -97,19 +98,19 @@ var Ship = (function (_super) {
             }
         }
         this.speed = Math.min(this.speed, this.maxSpeed);
-        var angle = Phaser.Math.DEG_TO_RAD * (this.angle - 90);
-        this.x += Math.cos(angle) * this.speed;
-        this.y += Math.sin(angle) * this.speed;
+        var angle = this.angle - 90;
+        this.x += trig_1.default.cos(angle) * this.speed;
+        this.y += trig_1.default.sin(angle) * this.speed;
         this.bodyConf.update();
         if (this.hp <= 0) {
             this.kill();
         }
     };
+    Ship.prototype.onKill = function () {
+    };
     Ship.prototype.kill = function () {
         this.dead = true;
-        if (this.onKill !== undefined) {
-            this.onKill();
-        }
+        this.onKill();
     };
     return Ship;
 }(SpaceGameObject_1.default));

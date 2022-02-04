@@ -52,14 +52,17 @@ var PlayerShip = (function (_super) {
             var length = 25;
             var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
             bullet.setAngle(_this.angle);
-            var theta = (30 - 50) + _this.angle;
+            var theta = _this.angle - 20;
             var length = 17;
             var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
             bullet.setAngle(_this.angle);
-            var theta = (150 + 50) + _this.angle;
+            var theta = 200 + _this.angle;
             var length = 17;
             var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
             bullet.setAngle(_this.angle);
+        });
+        _this.scene.input.keyboard.on("keydown-M", function () {
+            _this.hp = 0;
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -120,6 +123,9 @@ var PlayerShip = (function (_super) {
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
+    };
+    PlayerShip.prototype.onKill = function () {
+        this.scene.handleGameOver();
     };
     return PlayerShip;
 }(Ship_1.default));
