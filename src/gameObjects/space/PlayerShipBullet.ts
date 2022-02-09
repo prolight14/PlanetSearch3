@@ -1,5 +1,4 @@
 import Bullet from "./Bullet";
-import EnemyShip from "./EnemyShip";
 import Ship from "./Ship";
 
 export default class PlayerShipBullet extends Bullet

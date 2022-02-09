@@ -6,8 +6,6 @@ export default class EnemyShip extends Ship
 {
     protected turnDir: string;
     
-    protected typeName: string = "enemyShip";
-
     constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
@@ -37,6 +35,8 @@ export default class EnemyShip extends Ship
         this.angleVel = 3;
     }
 
+    public showHpBar: boolean = true;
+
     protected move: boolean = true;
     protected isShooting: boolean = false;
 
@@ -55,15 +55,17 @@ export default class EnemyShip extends Ship
 
     private dropXP()
     {
+        const spaceLogicScene = (this.scene.scene.get("spaceLogic") as SpaceLogicScene);
+
         for(var i = 0; i < this.xpDropAmt; i++)
         {
             if(Phaser.Math.RND.frac() < 0.5)
             {
-                (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addXPStar(this.x, this.y);
+                spaceLogicScene.addXPStar(this.x, this.y);
             }
             else
             {
-                (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addSmallXPStar(this.x, this.y);
+                spaceLogicScene.addSmallXPStar(this.x, this.y);
             }
         }
     }
@@ -72,9 +74,11 @@ export default class EnemyShip extends Ship
 
     private dropCrests()
     {
+        const spaceLogicScene = (this.scene.scene.get("spaceLogic") as SpaceLogicScene);
+
         for(var i = 0; i < this.crestDropAmt; i++)
         {
-            (this.scene.scene.get("spaceLogic") as SpaceLogicScene).addCrests(this.x, this.y);
+            spaceLogicScene.addCrests(this.x, this.y);
         }
     }
 }

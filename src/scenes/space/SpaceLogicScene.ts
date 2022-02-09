@@ -83,18 +83,18 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet, "playerShipBullet");
         // this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 56000, 70000 + 1000);
-        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000 + 1000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000 + 500);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
         
-        var hyperBeamerSTypeBullets = world.add.gameObjectArray(HyperBeamerSTypeBullet, "hyperBeamerSTypeBullet");
+        // var hyperBeamerSTypeBullets = world.add.gameObjectArray(HyperBeamerSTypeBullet, "hyperBeamerSTypeBullet");
 
-        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
-        for(var i = 0; i < 100; i++)
-        {
-            var ship = hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
-            ship.setBullets(hyperBeamerSTypeBullets);
-        }
+        // var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
+        // for(var i = 0; i < 100; i++)
+        // {
+        //     var ship = hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
+        //     ship.setBullets(hyperBeamerSTypeBullets);
+        // }
     }
     
     public addXPStar(x: number, y: number)

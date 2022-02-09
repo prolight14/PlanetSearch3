@@ -17,14 +17,17 @@ var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame, config) {
         var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
-        _this_1.typeName = "gameObject";
+        _this_1.dead = false;
+        _this_1.destroyOnKill = true;
+        _this_1.destroyQueued = false;
         scene.add.existing(_this_1);
         var _this = _this_1;
         _this_1.bodyConf = {
             moves: true,
             boundingBox: {},
             update: function () { },
-            destroy: function () { }
+            destroy: function () { },
+            updateBoundingBox: function () { },
         };
         _this_1.bodyConf.updateBoundingBox = function () {
             this.boundingBox.minX = _this.x - _this.displayWidth / 2;
@@ -35,10 +38,23 @@ var SpaceGameObject = (function (_super) {
         _this_1.bodyConf.updateBoundingBox();
         return _this_1;
     }
-    SpaceGameObject.prototype.getTypeName = function () {
-        return this.typeName;
+    SpaceGameObject.prototype.preUpdate = function (time, delta) {
+        this.bodyConf.update();
+        _super.prototype.preUpdate.call(this, time, delta);
     };
     SpaceGameObject.prototype.onCollide = function (object) {
+    };
+    SpaceGameObject.prototype.onKill = function () {
+    };
+    SpaceGameObject.prototype.kill = function () {
+        if (this.dead) {
+            return;
+        }
+        this.dead = true;
+        this.bodyConf.update();
+        this.bodyConf.updateBoundingBox();
+        this.onKill();
+        this.destroyQueued = this.destroyOnKill;
     };
     return SpaceGameObject;
 }(Phaser.Physics.Matter.Sprite));

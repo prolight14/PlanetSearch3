@@ -70,6 +70,8 @@ export default class PlayerShip extends Ship
     private pointerDX: number = 0;
     private pointerDY: number = 0;
 
+    protected destroyOnKill: boolean = false;
+
     constructor (scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });

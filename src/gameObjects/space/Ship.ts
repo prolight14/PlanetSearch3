@@ -137,28 +137,9 @@ export default class Ship extends SpaceGameObject
         this.x += trig.cos(angle) * this.speed;
         this.y += trig.sin(angle) * this.speed;
 
-        this.bodyConf.update();
-
-        if(this.hp <= 0)
+        if(this.hp <= 0 && !this.dead)
         {
             this.kill();
         }
-    }
-
-    /**
-     * Is the ship dead?
-     */
-    public dead: boolean = false;
-
-    protected onKill()
-    {
-
-    }
-
-    protected kill()
-    {
-        this.dead = true;
-
-        this.onKill();
     }
 }

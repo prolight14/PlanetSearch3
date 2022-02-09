@@ -42,6 +42,27 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
     Note: Do testing! LOTS of testing!
 */
 
+/*
+    Bugs to fix:
+    1. Xp and crests spawn a ton sometimes when an enemy ship is shotdown (fixed?)
+    
+    2. Enemy ship's thruster particle effect sometimes disappears and reappears (fixed?)
+
+    3. Pressing 'u' doesn't open the debug info (fixed)
+
+    4. If your ship dies in the game I can't really figure out how to reload space correctly (not really a bug more like an unimplemented feature)
+        maybe I have to edit the cartesian system's code
+
+    5. Game lags when lots of object are made even if they are outside the cells that are touching the game canvas
+        probably because of matter js bodies not being confined to the cartesian system
+
+    6. Game will crash if objects are destroyed (might be fixed)
+
+    7. Bullets cell references stay even after the bullets are gone
+
+    8. The ui debug scene's cell reference debug tool isn't accurate when space is zoomed out (fixed)
+*/
+
 let config: Phaser.Types.Core.GameConfig = {
     type: Phaser.WEBGL,
     width: 800,

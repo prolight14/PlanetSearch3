@@ -32,7 +32,6 @@ var Ship = (function (_super) {
         _this.maxAngleVel = 3;
         _this.useAngleAcl = false;
         _this.speed = 0;
-        _this.dead = false;
         return _this;
     }
     Ship.prototype.takeDamage = function (object) {
@@ -101,16 +100,9 @@ var Ship = (function (_super) {
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;
-        this.bodyConf.update();
-        if (this.hp <= 0) {
+        if (this.hp <= 0 && !this.dead) {
             this.kill();
         }
-    };
-    Ship.prototype.onKill = function () {
-    };
-    Ship.prototype.kill = function () {
-        this.dead = true;
-        this.onKill();
     };
     return Ship;
 }(SpaceGameObject_1.default));

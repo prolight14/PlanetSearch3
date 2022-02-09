@@ -1,3 +1,4 @@
+import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
 import SpaceScene from "./SpaceScene";
 
 export default class SpaceUIDebugScene extends Phaser.Scene
@@ -15,8 +16,8 @@ export default class SpaceUIDebugScene extends Phaser.Scene
 
     public create()
     {
-        this.cellCoorText = this.add.text(40, 260, "");
-        this.cellText = this.add.text(40, 274, "");
+        this.cellCoorText = this.add.text(40, 136, "");
+        this.cellText = this.add.text(40, 150, "").setFontSize(12);
         this.fpsText = this.add.text(40, 20, "");
         this.shipPositionText = this.add.text(550, 20, "");
 
@@ -36,10 +37,11 @@ export default class SpaceUIDebugScene extends Phaser.Scene
     private peekCell()
     {
         var cspWorld: any = this.spaceScene.csp.world;
+        this.input.activePointer.updateWorldPoint(this.scene.get("spaceCameraController").cameras.main);
 
         var coordinates: { col: number, row: number } = cspWorld.cameraGrid.getCoordinates(
-            cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x / this.spaceScene.cameras.main.zoom, 
-            cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y / this.spaceScene.cameras.main.zoom
+            this.input.activePointer.worldX,
+            this.input.activePointer.worldY
         );
 
         var cell: any = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];

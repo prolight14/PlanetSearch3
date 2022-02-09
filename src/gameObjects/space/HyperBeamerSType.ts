@@ -129,6 +129,13 @@ export default class HyperBeamerSType extends HyperBeamerShip
         bullet.setAngle(this.angle);
     }
 
+    protected onKill()
+    {
+        super.onKill();
+
+        this.particles.destroy();
+    }
+
     // private shootTimer: {
     //     update: () => void;
     //     reset: (newInterval?: number, _args?: Array<any>) => void;

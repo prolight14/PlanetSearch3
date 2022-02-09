@@ -1,3 +1,4 @@
+import trig from "../Utils/trig";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject
@@ -10,15 +11,21 @@ export default class Bullet extends SpaceGameObject
     protected shootAngle: number;
     protected speed: number;
     protected damage: number;
-    protected life: number = 200;
+    protected life: number = 100;
+
+    protected onKill()
+    {
+
+    }
+
+    protected destroyOnKill: boolean = true;
 
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
 
-        var angle = this.shootAngle * Phaser.Math.DEG_TO_RAD;
-        this.x += Math.cos(angle) * this.speed;
-        this.y += Math.sin(angle) * this.speed;
+        this.x += trig.cos(this.shootAngle) * this.speed;
+        this.y += trig.sin(this.shootAngle) * this.speed;
 
         this.life -= 3.5;
 
@@ -28,14 +35,14 @@ export default class Bullet extends SpaceGameObject
         }
     }
 
-    protected dead: boolean = false;
+    // protected dead: boolean = false;
 
-    protected kill()
-    {
-        this.dead = true;
-        this.bodyConf.destroy();
-        this.destroy();
-    }
+    // protected kill()
+    // {
+    //     this.dead = true;
+    //     this.bodyConf.destroy();
+    //     this.destroy();
+    // }
 
     public getDamage()
     {

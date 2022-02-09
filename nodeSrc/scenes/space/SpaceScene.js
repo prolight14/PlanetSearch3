@@ -99,8 +99,8 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.runDebugScenes();
         this.scene.bringToTop("spaceUI");
+        this.runDebugScenes();
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;
@@ -116,11 +116,12 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
         this.scene.run("spaceDebug");
-        this.scene.sleep("spaceUIDebug");
-        this.scene.sleep("spaceDebug");
+        this.scene.run("spaceUIDebug");
+        this.scene.bringToTop("spaceUIDebug");
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {
                 _this.scene.wake("spaceUIDebug");
+                _this.scene.bringToTop("spaceUIDebug");
             }
             else {
                 _this.scene.sleep("spaceUIDebug");
@@ -154,18 +155,28 @@ var SpaceScene = (function (_super) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
         this.cameraTargetTracker.update();
+        this.updateStatsGraphics();
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
-            _this.updateStatsGraphics();
             _this.csp.systems.displayList.add(playerShip.particles);
-            _this.sys.displayList.list.forEach(function (object) {
-                if (object.particles) {
-                    csp.systems.displayList.add(object.particles);
+            _this.sys.displayList.list.forEach(function (gameObject) {
+                if (gameObject.particles !== undefined) {
+                    csp.systems.displayList.add(gameObject.particles);
                 }
-                if (object.dead) {
-                    object.bodyConf.destroy();
-                    object.destroy();
-                    csp.systems.displayList.remove(object);
+                if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.update();
+                    gameObject.bodyConf.updateBoundingBox();
+                    gameObject.bodyConf.destroy();
+                    _this.sys.displayList.remove(gameObject);
+                    gameObject.destroy();
+                    gameObject.destroyQueued = false;
+                }
+            });
+            _this.csp.systems.displayList.add(_this.statsGraphics);
+            _this.sys.updateList.getActive().forEach(function (gameObject) {
+                if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.destroy();
+                    gameObject.destroy();
                 }
             });
         });
@@ -176,12 +187,11 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.updateStatsGraphics = function () {
         var _this = this;
-        this.csp.systems.displayList.add(this.statsGraphics);
         var cam = this.cameras.main;
         this.statsGraphics.clear();
         this.statsGraphics.setAngle(0);
         this.sys.displayList.list.forEach(function (object) {
-            if (object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp()) {
+            if (object.showHpBar && object.getHp() < object.getMaxHp()) {
                 var enemyShip = object;
                 var barX = enemyShip.x - enemyShip.width * 0.5;
                 var barY = enemyShip.y - enemyShip.width * 0.7;

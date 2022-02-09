@@ -31,6 +31,7 @@ var PlayerShip = (function (_super) {
         _this.angleDeacl = 0.12;
         _this.pointerDX = 0;
         _this.pointerDY = 0;
+        _this.destroyOnKill = false;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;

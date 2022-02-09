@@ -1,5 +1,6 @@
 import EnemyShip from "../../gameObjects/space/EnemyShip";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
+import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
@@ -122,10 +123,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
+        this.scene.bringToTop("spaceUI");
 
         this.runDebugScenes();
 
-        this.scene.bringToTop("spaceUI");
 
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
@@ -149,15 +150,18 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     private runDebugScenes()
     {
         this.scene.run("spaceDebug");
-        this.scene.sleep("spaceUIDebug");
+        // this.scene.sleep("spaceDebug");
         
-        this.scene.sleep("spaceDebug");
- 
+        this.scene.run("spaceUIDebug");
+        // this.scene.sleep("spaceUIDebug");
+        this.scene.bringToTop("spaceUIDebug");
+
         this.input.keyboard.on("keydown-U", () =>
         {
             if(this.scene.isSleeping("spaceUIDebug"))
             {
                 this.scene.wake("spaceUIDebug");
+                this.scene.bringToTop("spaceUIDebug");
             }
             else
             {
@@ -206,24 +210,45 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
         this.cameraTargetTracker.update();
 
+        this.updateStatsGraphics();
+
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld((csp?: any) =>
         {
-            this.updateStatsGraphics();
-
             this.csp.systems.displayList.add(playerShip.particles);
             
-            this.sys.displayList.list.forEach((object: any) =>
+            this.sys.displayList.list.forEach((gameObject: any) =>
             {   
-                if(object.particles)
+                if(gameObject.particles !== undefined)
                 {
-                    csp.systems.displayList.add(object.particles);
+                    csp.systems.displayList.add(gameObject.particles);
                 }
-                if(object.dead)
+                if(gameObject.destroyQueued)
                 {
-                    object.bodyConf.destroy();
-                    object.destroy();
-                    csp.systems.displayList.remove(object);
+                    gameObject.bodyConf.update();
+                    gameObject.bodyConf.updateBoundingBox();
+
+                    // if((gameObject.body as any))
+                    // {
+                    //     (gameObject.body as any).destroy();
+                    // }
+                    gameObject.bodyConf.destroy();
+                    this.sys.displayList.remove(gameObject);
+
+                    gameObject.destroy();
+
+                    gameObject.destroyQueued = false;
+                }
+            });
+
+            this.csp.systems.displayList.add(this.statsGraphics);
+
+            this.sys.updateList.getActive().forEach((gameObject: SpaceGameObject) =>
+            {
+                if(gameObject.destroyQueued)
+                {
+                    gameObject.bodyConf.destroy();
+                    gameObject.destroy();
                 }
             });
         });
@@ -237,8 +262,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     private updateStatsGraphics()
     {
-        this.csp.systems.displayList.add(this.statsGraphics);
-
         var cam = this.cameras.main;
 
         this.statsGraphics.clear();
@@ -246,7 +269,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
         this.sys.displayList.list.forEach((object: any) =>
         {
-            if(object.getTypeName !== undefined && object.getTypeName() === "enemyShip" && object.getHp() < object.getMaxHp())
+            // Might need to change this
+            if((object as EnemyShip).showHpBar && object.getHp() < object.getMaxHp())
             {
                 var enemyShip = object as EnemyShip;
                 // var cameraRotation = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle() * Phaser.Math.DEG_TO_RAD;

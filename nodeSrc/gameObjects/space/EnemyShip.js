@@ -18,7 +18,7 @@ var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.typeName = "enemyShip";
+        _this.showHpBar = true;
         _this.move = true;
         _this.isShooting = false;
         _this.xpDropAmt = 3;
@@ -50,18 +50,20 @@ var EnemyShip = (function (_super) {
         this.dropCrests();
     };
     EnemyShip.prototype.dropXP = function () {
+        var spaceLogicScene = this.scene.scene.get("spaceLogic");
         for (var i = 0; i < this.xpDropAmt; i++) {
             if (Phaser.Math.RND.frac() < 0.5) {
-                this.scene.scene.get("spaceLogic").addXPStar(this.x, this.y);
+                spaceLogicScene.addXPStar(this.x, this.y);
             }
             else {
-                this.scene.scene.get("spaceLogic").addSmallXPStar(this.x, this.y);
+                spaceLogicScene.addSmallXPStar(this.x, this.y);
             }
         }
     };
     EnemyShip.prototype.dropCrests = function () {
+        var spaceLogicScene = this.scene.scene.get("spaceLogic");
         for (var i = 0; i < this.crestDropAmt; i++) {
-            this.scene.scene.get("spaceLogic").addCrests(this.x, this.y);
+            spaceLogicScene.addCrests(this.x, this.y);
         }
     };
     return EnemyShip;

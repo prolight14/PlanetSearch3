@@ -19,8 +19,8 @@ var SpaceUIDebugScene = (function (_super) {
         return _super.call(this, "spaceUIDebug") || this;
     }
     SpaceUIDebugScene.prototype.create = function () {
-        this.cellCoorText = this.add.text(40, 260, "");
-        this.cellText = this.add.text(40, 274, "");
+        this.cellCoorText = this.add.text(40, 136, "");
+        this.cellText = this.add.text(40, 150, "").setFontSize(12);
         this.fpsText = this.add.text(40, 20, "");
         this.shipPositionText = this.add.text(550, 20, "");
         this.spaceScene = this.scene.get("space");
@@ -33,7 +33,8 @@ var SpaceUIDebugScene = (function (_super) {
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
         var cspWorld = this.spaceScene.csp.world;
-        var coordinates = cspWorld.cameraGrid.getCoordinates(cspWorld.camera.scrollX - cspWorld.camera.halfWidth + this.input.activePointer.x / this.spaceScene.cameras.main.zoom, cspWorld.camera.scrollY - cspWorld.camera.halfHeight + this.input.activePointer.y / this.spaceScene.cameras.main.zoom);
+        this.input.activePointer.updateWorldPoint(this.scene.get("spaceCameraController").cameras.main);
+        var coordinates = cspWorld.cameraGrid.getCoordinates(this.input.activePointer.worldX, this.input.activePointer.worldY);
         var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
         this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
         var txt = "";

@@ -92,6 +92,10 @@ var HyperBeamerSType = (function (_super) {
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, this.angle - 90);
         bullet.setAngle(this.angle);
     };
+    HyperBeamerSType.prototype.onKill = function () {
+        _super.prototype.onKill.call(this);
+        this.particles.destroy();
+    };
     return HyperBeamerSType;
 }(HyperBeamerShip_1.default));
 exports.default = HyperBeamerSType;

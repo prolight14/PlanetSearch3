@@ -16,12 +16,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
 var Nebula_1 = require("../../gameObjects/space/Nebula");
-var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var PlayerShipBullet_1 = require("../../gameObjects/space/PlayerShipBullet");
 var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
 var XPStar_1 = require("../../gameObjects/space/XPStar");
 var Crest_1 = require("../../gameObjects/space/Crest");
-var HyperBeamerSTypeBullet_1 = require("../../gameObjects/space/HyperBeamerSTypeBullet");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -63,15 +61,9 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet_1.default, "playerShipBullet");
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000 + 1000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000 + 500);
         this.spaceScene.setCameraTarget(this.playerShip);
         this.playerShip.setBullets(playerShipBullets);
-        var hyperBeamerSTypeBullets = world.add.gameObjectArray(HyperBeamerSTypeBullet_1.default, "hyperBeamerSTypeBullet");
-        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        for (var i = 0; i < 100; i++) {
-            var ship = hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
-            ship.setBullets(hyperBeamerSTypeBullets);
-        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
