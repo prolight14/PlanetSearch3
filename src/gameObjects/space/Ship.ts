@@ -1,12 +1,12 @@
+import SpaceScene from "../../scenes/space/SpaceScene";
 import trig from "../Utils/trig";
-import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Ship extends SpaceGameObject
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: number | string, config?: any)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string, frame?: number | string)
     {
-        super(scene, x, y, texture, frame, config);
+        super(scene, x, y, texture, frame);
     }
 
     protected maxHp: number = 10;
@@ -14,7 +14,7 @@ export default class Ship extends SpaceGameObject
     protected damage: number = 1;
     public isShip: boolean = true;
 
-    public takeDamage(object: Bullet)
+    public takeDamage(object: any)
     {
         this.hp -= object.getDamage();
     }

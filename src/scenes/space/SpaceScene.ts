@@ -5,7 +5,6 @@ import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
 import CameraTargetTracker from "./CameraTargetTracker";
-import SpaceCameraControllerScene from "./SpaceCameraControllerScene";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -96,11 +95,9 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public reloadSpace()
     {
-        // this.csp.world.
-
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        this.csp.syncWithGrid();
+        // this.csp.syncWithGrid();
 
     }
 
@@ -225,16 +222,17 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
                 if(gameObject.destroyQueued)
                 {
-                    gameObject.bodyConf.update();
-                    gameObject.bodyConf.updateBoundingBox();
+                    // gameObject.bodyConf.update();
+                    // gameObject.bodyConf.updateBoundingBox();
 
-                    // if((gameObject.body as any))
-                    // {
-                    //     (gameObject.body as any).destroy();
-                    // }
+                    // // if((gameObject.body as any))
+                    // // {
+                    // //     (gameObject.body as any).destroy();
+                    // // }
+                    // gameObject.bodyConf.destroy();
+                    // this.sys.displayList.remove(gameObject);
+
                     gameObject.bodyConf.destroy();
-                    this.sys.displayList.remove(gameObject);
-
                     gameObject.destroy();
 
                     gameObject.destroyQueued = false;

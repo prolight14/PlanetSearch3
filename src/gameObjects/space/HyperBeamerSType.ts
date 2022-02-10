@@ -4,7 +4,6 @@ import timer from "../Utils/timer";
 import StateMachine from "../Utils/StateMachine";
 import XPStar from "./XPStar";
 import trig from "../Utils/trig";
-import HyperBeamerSTypeBullet from "./HyperBeamerSTypeBullet";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -70,35 +69,11 @@ export default class HyperBeamerSType extends HyperBeamerShip
         });
 
         this.sm.start("wander");
-
-        // this.shootTimer = timer(false, 750, () =>
-        // {
-        //     var theta = this.angle;
-        //     var length = 25;
-        //     var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as HyperBeamerSTypeBullet;
-        //     bullet.setAngle(this.angle);
-
-        //     this.shootTimer.reset();
-        // });
     }
     private sm: StateMachine;
 
     private particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
     private pEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
-
-    private bullets: any;
-
-    public setBullets(bullets: any)
-    {
-        this.bullets = bullets;
-    }
-
-    private millis(): number
-    {
-        return performance.now();
-    }
-
-    private lastShootTime: number = this.millis();
 
     public preUpdate(time: number, delta: number)
     {
@@ -112,21 +87,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
         this.pEmitter.setSpeed(this.speed * 30);
 
         this.sm.emit("update", []);
-
-        if(this.controls.shoot() && this.millis() - this.lastShootTime > 500)
-        {
-            this.shoot();
-
-            this.lastShootTime = this.millis();
-        }
-    }
-
-    private shoot()
-    {
-        var theta = this.angle;
-        var length = 25;
-        var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as HyperBeamerSTypeBullet;
-        bullet.setAngle(this.angle);
     }
 
     protected onKill()
@@ -135,14 +95,4 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.particles.destroy();
     }
-
-    // private shootTimer: {
-    //     update: () => void;
-    //     reset: (newInterval?: number, _args?: Array<any>) => void;
-    // };
-
-    // public shoot()
-    // {
-    //     this.shootTimer.update();
-    // }
 }

@@ -21,7 +21,6 @@ var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
-        _this_1.lastShootTime = _this_1.millis();
         _this_1.setCollisionGroup(1);
         _this_1.setCollidesWith(0);
         _this_1.isShooting = true;
@@ -66,12 +65,6 @@ var HyperBeamerSType = (function (_super) {
         _this_1.sm.start("wander");
         return _this_1;
     }
-    HyperBeamerSType.prototype.setBullets = function (bullets) {
-        this.bullets = bullets;
-    };
-    HyperBeamerSType.prototype.millis = function () {
-        return performance.now();
-    };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var length = this.height * this.scaleX * 0.4;
@@ -81,16 +74,6 @@ var HyperBeamerSType = (function (_super) {
         this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
-        if (this.controls.shoot() && this.millis() - this.lastShootTime > 500) {
-            this.shoot();
-            this.lastShootTime = this.millis();
-        }
-    };
-    HyperBeamerSType.prototype.shoot = function () {
-        var theta = this.angle;
-        var length = 25;
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, this.angle - 90);
-        bullet.setAngle(this.angle);
     };
     HyperBeamerSType.prototype.onKill = function () {
         _super.prototype.onKill.call(this);

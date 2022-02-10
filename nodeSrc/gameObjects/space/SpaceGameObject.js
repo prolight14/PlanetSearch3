@@ -15,28 +15,14 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
-    function SpaceGameObject(scene, x, y, texture, frame, config) {
-        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
-        _this_1.dead = false;
-        _this_1.destroyOnKill = true;
-        _this_1.destroyQueued = false;
-        scene.add.existing(_this_1);
-        var _this = _this_1;
-        _this_1.bodyConf = {
-            moves: true,
-            boundingBox: {},
-            update: function () { },
-            destroy: function () { },
-            updateBoundingBox: function () { },
-        };
-        _this_1.bodyConf.updateBoundingBox = function () {
-            this.boundingBox.minX = _this.x - _this.displayWidth / 2;
-            this.boundingBox.minY = _this.y - _this.displayHeight / 2;
-            this.boundingBox.maxX = _this.x + _this.displayWidth / 2;
-            this.boundingBox.maxY = _this.y + _this.displayHeight / 2;
-        };
-        _this_1.bodyConf.updateBoundingBox();
-        return _this_1;
+    function SpaceGameObject(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
+        _this.dead = false;
+        _this.destroyOnKill = true;
+        _this.destroyQueued = false;
+        scene.add.existing(_this);
+        scene.csp.initGameObject(_this);
+        return _this;
     }
     SpaceGameObject.prototype.preUpdate = function (time, delta) {
         this.bodyConf.update();
@@ -51,8 +37,6 @@ var SpaceGameObject = (function (_super) {
             return;
         }
         this.dead = true;
-        this.bodyConf.update();
-        this.bodyConf.updateBoundingBox();
         this.onKill();
         this.destroyQueued = this.destroyOnKill;
     };

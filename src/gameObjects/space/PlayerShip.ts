@@ -1,10 +1,8 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import timer from "../Utils/timer";
 import trig from "../Utils/trig";
-import PlayerShipBullet from "./PlayerShipBullet";
+import Bullet from "./Bullet";
 import Ship from "./Ship";
 import XPStar from "./XPStar";
-
 
 export default class PlayerShip extends Ship
 {
@@ -74,7 +72,7 @@ export default class PlayerShip extends Ship
 
     constructor (scene: SpaceScene, x: number, y: number)
     {
-        super(scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip });
+        super(scene, x, y, "helixShip", undefined/*, { shape: scene.cache.json.get("helixShipShape").helixShip }*/);
 
         this.setCollisionGroup(2);
         this.setCollidesWith(0);
@@ -90,6 +88,8 @@ export default class PlayerShip extends Ship
             shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
             shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+
+        this.bullets = scene.csp.world.add.gameObjectArray(Bullet, "playerShipBullet");
 
         // scene.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) =>
         // {
@@ -127,22 +127,22 @@ export default class PlayerShip extends Ship
             // }
             var theta = 30 + this.angle;
             var length = 25;
-            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
             bullet.setAngle(this.angle);
 
-            var theta = 150 + this.angle;
-            var length = 25;
-            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            theta = 150 + this.angle;
+            length = 25;
+            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
             bullet.setAngle(this.angle);
 
-            var theta = this.angle - 20;
-            var length = 17;
-            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            theta = this.angle - 20;
+            length = 17;
+            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
             bullet.setAngle(this.angle);
 
-            var theta = 200 + this.angle;
-            var length = 17;
-            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, this.angle - 90) as PlayerShipBullet;
+            theta = 200 + this.angle;
+            length = 17;
+            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
             bullet.setAngle(this.angle);
         });
 
@@ -191,13 +191,8 @@ export default class PlayerShip extends Ship
         };
     }
 
-    public setBullets(playerShipBullets: any)
-    {
-        this.bullets = playerShipBullets;
-    }
+    private bullets: any; 
 
-    private bullets: any;
-    
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);

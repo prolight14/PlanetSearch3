@@ -88,7 +88,6 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.reloadSpace = function () {
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.csp.syncWithGrid();
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -164,10 +163,7 @@ var SpaceScene = (function (_super) {
                     csp.systems.displayList.add(gameObject.particles);
                 }
                 if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.update();
-                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.bodyConf.destroy();
-                    _this.sys.displayList.remove(gameObject);
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }

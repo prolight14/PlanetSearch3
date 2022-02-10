@@ -1,29 +1,13 @@
+import SpaceScene from "../../scenes/space/SpaceScene";
+
 export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite   
 {
-    constructor (scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number, config?: any)
+    constructor (scene: SpaceScene, x: number, y: number, texture: string, frame?: string | number)
     {
         super(scene.matter.world, x, y, texture, frame);
 
         scene.add.existing(this);
-
-        let _this: this = this;
-
-        this.bodyConf = {
-            moves: true,
-            boundingBox: {},
-            update: function() {},
-            destroy: function() {},
-            updateBoundingBox: function() {},
-        };
-        this.bodyConf.updateBoundingBox = function()
-        {
-            this.boundingBox.minX = _this.x - _this.displayWidth / 2;
-            this.boundingBox.minY = _this.y - _this.displayHeight / 2;
-            this.boundingBox.maxX = _this.x + _this.displayWidth / 2;
-            this.boundingBox.maxY = _this.y + _this.displayHeight / 2;
-        };
-
-        this.bodyConf.updateBoundingBox();
+        scene.csp.initGameObject(this);
     }
 
     protected preUpdate(time: number, delta: number)
@@ -69,14 +53,12 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
 
         this.dead = true;
 
-        this.bodyConf.update();
-        this.bodyConf.updateBoundingBox();
+        // this.bodyConf.update();
+        // this.bodyConf.updateBoundingBox();
 
         this.onKill();
 
         this.destroyQueued = this.destroyOnKill;
-
-    
 
         // if(this.destroyOnKill)
         // {

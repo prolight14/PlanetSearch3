@@ -2,17 +2,11 @@ import SpaceScene from "./SpaceScene";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
-import EnemyShip from "../../gameObjects/space/EnemyShip";
 import Nebula from "../../gameObjects/space/Nebula";
-import Asteroid from "../../gameObjects/space/Asteroid";
 import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
-import PlayerShipBullet from "../../gameObjects/space/PlayerShipBullet";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
-import EnemyShipBullet from "../../gameObjects/space/EnemyShipBullet";
-import HyperBeamerSTypeBullet from "../../gameObjects/space/HyperBeamerSTypeBullet";
-
 export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
@@ -81,19 +75,15 @@ export default class SpaceLogicScene extends Phaser.Scene
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         
-        var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet, "playerShipBullet");
         // this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 56000, 70000 + 1000);
         this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 61000 + 500);
         this.spaceScene.setCameraTarget(this.playerShip);
-        this.playerShip.setBullets(playerShipBullets);
         
-        // var hyperBeamerSTypeBullets = world.add.gameObjectArray(HyperBeamerSTypeBullet, "hyperBeamerSTypeBullet");
-
-        // var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
+        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
+        hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
         // for(var i = 0; i < 100; i++)
         // {
-        //     var ship = hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
-        //     ship.setBullets(hyperBeamerSTypeBullets);
+        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
         // }
     }
     

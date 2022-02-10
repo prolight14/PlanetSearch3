@@ -75,6 +75,110 @@ exports.default = InfoBar;
 
 /***/ }),
 
+/***/ "./gameObjects/Utils/StateMachine.js":
+/*!*******************************************!*\
+  !*** ./gameObjects/Utils/StateMachine.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StateMachine = (function () {
+    function StateMachine(states) {
+        var func = function (name) {
+            if (!state[name]) {
+                state[name] = function () { };
+            }
+        };
+        for (var i in states) {
+            var state = states[i];
+            ["start", "update", "stop"].forEach(func);
+        }
+        this.states = states;
+    }
+    StateMachine.prototype.start = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = this;
+        Array.prototype.slice.call(arguments).forEach(function (stateName) {
+            var state = _this.states[stateName];
+            state.on = true;
+            state.start(this);
+        });
+    };
+    StateMachine.prototype.emit = function (name, args) {
+        for (var i in this.states) {
+            var state = this.states[i];
+            if (state.on) {
+                state[name].apply(state, args);
+            }
+        }
+    };
+    StateMachine.prototype.emitState = function (stateName, name, args) {
+        var state = this.states[stateName];
+        if (state.on) {
+            state[name].apply(state, args);
+        }
+    };
+    StateMachine.prototype.stop = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = this;
+        Array.prototype.slice.call(arguments).forEach(function (stateName) {
+            var state = _this.states[stateName];
+            state.on = false;
+            state.stop(this);
+        });
+    };
+    ;
+    return StateMachine;
+}());
+exports.default = StateMachine;
+//# sourceMappingURL=StateMachine.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/Utils/timer.js":
+/*!************************************!*\
+  !*** ./gameObjects/Utils/timer.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer = function (start, interval, func, scope, args) {
+    var startTime = performance.now();
+    var called = !start;
+    var update = function () {
+        if (!called && performance.now() - startTime > interval) {
+            called = true;
+            return func.apply(scope, args);
+        }
+    };
+    var reset = function (newInterval, _args) {
+        if (newInterval !== undefined) {
+            interval = newInterval;
+        }
+        if (_args !== undefined) {
+            args = _args;
+        }
+        startTime = performance.now();
+        called = false;
+    };
+    return {
+        update: update,
+        reset: reset
+    };
+};
+exports.default = timer;
+//# sourceMappingURL=timer.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/Utils/trig.js":
 /*!***********************************!*\
   !*** ./gameObjects/Utils/trig.js ***!
@@ -515,29 +619,20 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
     function Bullet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.life = 100;
-        _this.destroyOnKill = true;
+        _this.killTimer = timer_1.default(true, 1600, function () {
+            _this.kill();
+        });
         return _this;
     }
-    Bullet.prototype.onKill = function () {
-    };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        this.x += trig_1.default.cos(this.shootAngle) * this.speed;
-        this.y += trig_1.default.sin(this.shootAngle) * this.speed;
-        this.life -= 3.5;
-        if (this.life <= 0) {
-            this.kill();
-        }
-    };
-    Bullet.prototype.getDamage = function () {
-        return this.damage;
+        this.killTimer.update();
     };
     return Bullet;
 }(SpaceGameObject_1.default));
@@ -596,6 +691,217 @@ var Crest = (function (_super) {
 }(SpaceGameObject_1.default));
 exports.default = Crest;
 //# sourceMappingURL=Crest.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/space/EnemyShip.js":
+/*!****************************************!*\
+  !*** ./gameObjects/space/EnemyShip.js ***!
+  \****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
+var EnemyShip = (function (_super) {
+    __extends(EnemyShip, _super);
+    function EnemyShip(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.showHpBar = true;
+        _this.move = true;
+        _this.isShooting = false;
+        _this.xpDropAmt = 3;
+        _this.crestDropAmt = Phaser.Math.RND.between(3, 6);
+        _this.turnDir = "";
+        _this.controls = {
+            turnLeft: function () {
+                return _this.turnDir === "left";
+            },
+            turnRight: function () {
+                return _this.turnDir === "right";
+            },
+            goForward: function () {
+                return _this.move;
+            },
+            slowDown: function () { return false; },
+            shoot: function () {
+                return _this.isShooting;
+            }
+        };
+        _this.angleVel = 3;
+        return _this;
+    }
+    EnemyShip.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+    };
+    EnemyShip.prototype.onKill = function () {
+        this.dropXP();
+        this.dropCrests();
+    };
+    EnemyShip.prototype.dropXP = function () {
+        var spaceLogicScene = this.scene.scene.get("spaceLogic");
+        for (var i = 0; i < this.xpDropAmt; i++) {
+            if (Phaser.Math.RND.frac() < 0.5) {
+                spaceLogicScene.addXPStar(this.x, this.y);
+            }
+            else {
+                spaceLogicScene.addSmallXPStar(this.x, this.y);
+            }
+        }
+    };
+    EnemyShip.prototype.dropCrests = function () {
+        var spaceLogicScene = this.scene.scene.get("spaceLogic");
+        for (var i = 0; i < this.crestDropAmt; i++) {
+            spaceLogicScene.addCrests(this.x, this.y);
+        }
+    };
+    return EnemyShip;
+}(Ship_1.default));
+exports.default = EnemyShip;
+//# sourceMappingURL=EnemyShip.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/space/HyperBeamerSType.js":
+/*!***********************************************!*\
+  !*** ./gameObjects/space/HyperBeamerSType.js ***!
+  \***********************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var HyperBeamerShip_1 = __webpack_require__(/*! ./HyperBeamerShip */ "./gameObjects/space/HyperBeamerShip.js");
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
+var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObjects/Utils/StateMachine.js");
+var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
+var HyperBeamerSType = (function (_super) {
+    __extends(HyperBeamerSType, _super);
+    function HyperBeamerSType(scene, x, y) {
+        var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
+        _this_1.setCollisionGroup(1);
+        _this_1.setCollidesWith(0);
+        _this_1.isShooting = true;
+        _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
+        _this_1.pEmitter = _this_1.particles.createEmitter({
+            lifespan: 500,
+            scale: 1.5,
+            rotate: 0,
+            x: 0,
+            y: 0,
+            quantity: 1
+        });
+        _this_1.pEmitter.setAlpha(function (p, k, t) {
+            return 1 - t;
+        });
+        var _this = _this_1;
+        _this_1.sm = new StateMachine_1.default({
+            "wander": {
+                start: function () {
+                    var _this_1 = this;
+                    this.changeDirTimer = timer_1.default(true, 1000, function () {
+                        _this_1.turn(Math.random() < 0.5 ? "left" : "right", Phaser.Math.RND.between(300, 800), function () {
+                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000));
+                        });
+                    });
+                },
+                turn: function (turnDir, time, callback) {
+                    _this.turnDir = turnDir;
+                    this.redirectTimer = timer_1.default(true, time, function () {
+                        _this.turnDir = "";
+                        callback();
+                    });
+                },
+                update: function () {
+                    this.changeDirTimer.update();
+                    if (this.redirectTimer !== undefined) {
+                        this.redirectTimer.update();
+                    }
+                }
+            }
+        });
+        _this_1.sm.start("wander");
+        return _this_1;
+    }
+    HyperBeamerSType.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+        var length = this.height * this.scaleX * 0.4;
+        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
+        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setVisible(this.speed > 0.005);
+        this.pEmitter.setSpeed(this.speed * 30);
+        this.sm.emit("update", []);
+    };
+    HyperBeamerSType.prototype.onKill = function () {
+        _super.prototype.onKill.call(this);
+        this.particles.destroy();
+    };
+    return HyperBeamerSType;
+}(HyperBeamerShip_1.default));
+exports.default = HyperBeamerSType;
+//# sourceMappingURL=HyperBeamerSType.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/space/HyperBeamerShip.js":
+/*!**********************************************!*\
+  !*** ./gameObjects/space/HyperBeamerShip.js ***!
+  \**********************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var EnemyShip_1 = __webpack_require__(/*! ./EnemyShip */ "./gameObjects/space/EnemyShip.js");
+var HyperBeamerShip = (function (_super) {
+    __extends(HyperBeamerShip, _super);
+    function HyperBeamerShip(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.maxSpeed = 3.75;
+        return _this;
+    }
+    return HyperBeamerShip;
+}(EnemyShip_1.default));
+exports.default = HyperBeamerShip;
+//# sourceMappingURL=HyperBeamerShip.js.map
 
 /***/ }),
 
@@ -716,11 +1022,12 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
+var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
 var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
     function PlayerShip(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "helixShip", undefined, { shape: scene.cache.json.get("helixShipShape").helixShip }) || this;
+        var _this = _super.call(this, scene, x, y, "helixShip", undefined) || this;
         _this.hp = 10;
         _this.maxHp = 10;
         _this.xp = 0;
@@ -746,22 +1053,23 @@ var PlayerShip = (function (_super) {
             shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
             shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
+        _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
         _this.scene.input.keyboard.on("keyup-Z", function () {
             var theta = 30 + _this.angle;
             var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
             bullet.setAngle(_this.angle);
-            var theta = 150 + _this.angle;
-            var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            theta = 150 + _this.angle;
+            length = 25;
+            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
             bullet.setAngle(_this.angle);
-            var theta = _this.angle - 20;
-            var length = 17;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            theta = _this.angle - 20;
+            length = 17;
+            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
             bullet.setAngle(_this.angle);
-            var theta = 200 + _this.angle;
-            var length = 17;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, _this.angle - 90);
+            theta = 200 + _this.angle;
+            length = 17;
+            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
             bullet.setAngle(_this.angle);
         });
         _this.scene.input.keyboard.on("keydown-M", function () {
@@ -815,9 +1123,6 @@ var PlayerShip = (function (_super) {
     PlayerShip.prototype.collectXPStars = function (xpStar) {
         this.xp += xpStar.amt;
     };
-    PlayerShip.prototype.setBullets = function (playerShipBullets) {
-        this.bullets = playerShipBullets;
-    };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         var length = this.height * this.scaleX * 0.4;
@@ -834,58 +1139,6 @@ var PlayerShip = (function (_super) {
 }(Ship_1.default));
 exports.default = PlayerShip;
 //# sourceMappingURL=PlayerShip.js.map
-
-/***/ }),
-
-/***/ "./gameObjects/space/PlayerShipBullet.js":
-/*!***********************************************!*\
-  !*** ./gameObjects/space/PlayerShipBullet.js ***!
-  \***********************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
-var PlayerShipBullet = (function (_super) {
-    __extends(PlayerShipBullet, _super);
-    function PlayerShipBullet(scene, x, y, shootAngle) {
-        var _this = _super.call(this, scene, x, y, "helixShipLvl1Bullet") || this;
-        _this.shootAngle = shootAngle;
-        _this.speed = 15;
-        _this.damage = 1;
-        _this.setCollisionGroup(1);
-        _this.setCollidesWith(0);
-        _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject && colData.bodyA.gameObject.isShip) {
-                _this.onCollide(colData.bodyA.gameObject);
-            }
-        });
-        return _this;
-    }
-    PlayerShipBullet.prototype.preUpdate = function (time, delta) {
-        _super.prototype.preUpdate.call(this, time, delta);
-    };
-    PlayerShipBullet.prototype.onCollide = function (object) {
-        object.takeDamage(this);
-        this.kill();
-    };
-    return PlayerShipBullet;
-}(Bullet_1.default));
-exports.default = PlayerShipBullet;
-//# sourceMappingURL=PlayerShipBullet.js.map
 
 /***/ }),
 
@@ -914,8 +1167,8 @@ var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Ship = (function (_super) {
     __extends(Ship, _super);
-    function Ship(scene, x, y, texture, frame, config) {
-        var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
+    function Ship(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
         _this.maxHp = 10;
         _this.hp = 10;
         _this.damage = 1;
@@ -1069,28 +1322,14 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
-    function SpaceGameObject(scene, x, y, texture, frame, config) {
-        var _this_1 = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
-        _this_1.dead = false;
-        _this_1.destroyOnKill = true;
-        _this_1.destroyQueued = false;
-        scene.add.existing(_this_1);
-        var _this = _this_1;
-        _this_1.bodyConf = {
-            moves: true,
-            boundingBox: {},
-            update: function () { },
-            destroy: function () { },
-            updateBoundingBox: function () { },
-        };
-        _this_1.bodyConf.updateBoundingBox = function () {
-            this.boundingBox.minX = _this.x - _this.displayWidth / 2;
-            this.boundingBox.minY = _this.y - _this.displayHeight / 2;
-            this.boundingBox.maxX = _this.x + _this.displayWidth / 2;
-            this.boundingBox.maxY = _this.y + _this.displayHeight / 2;
-        };
-        _this_1.bodyConf.updateBoundingBox();
-        return _this_1;
+    function SpaceGameObject(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
+        _this.dead = false;
+        _this.destroyOnKill = true;
+        _this.destroyQueued = false;
+        scene.add.existing(_this);
+        scene.csp.initGameObject(_this);
+        return _this;
     }
     SpaceGameObject.prototype.preUpdate = function (time, delta) {
         this.bodyConf.update();
@@ -1105,8 +1344,6 @@ var SpaceGameObject = (function (_super) {
             return;
         }
         this.dead = true;
-        this.bodyConf.update();
-        this.bodyConf.updateBoundingBox();
         this.onKill();
         this.destroyQueued = this.destroyOnKill;
     };
@@ -2156,7 +2393,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var PlayerShip_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShip */ "./gameObjects/space/PlayerShip.js");
 var Planet_1 = __webpack_require__(/*! ../../gameObjects/space/Planet */ "./gameObjects/space/Planet.js");
 var Nebula_1 = __webpack_require__(/*! ../../gameObjects/space/Nebula */ "./gameObjects/space/Nebula.js");
-var PlayerShipBullet_1 = __webpack_require__(/*! ../../gameObjects/space/PlayerShipBullet */ "./gameObjects/space/PlayerShipBullet.js");
+var HyperBeamerSType_1 = __webpack_require__(/*! ../../gameObjects/space/HyperBeamerSType */ "./gameObjects/space/HyperBeamerSType.js");
 var Shrapnel_1 = __webpack_require__(/*! ../../gameObjects/space/Shrapnel */ "./gameObjects/space/Shrapnel.js");
 var XPStar_1 = __webpack_require__(/*! ../../gameObjects/space/XPStar */ "./gameObjects/space/XPStar.js");
 var Crest_1 = __webpack_require__(/*! ../../gameObjects/space/Crest */ "./gameObjects/space/Crest.js");
@@ -2200,10 +2437,10 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
-        var playerShipBullets = world.add.gameObjectArray(PlayerShipBullet_1.default, "playerShipBullet");
         this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000 + 500);
         this.spaceScene.setCameraTarget(this.playerShip);
-        this.playerShip.setBullets(playerShipBullets);
+        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
+        hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
@@ -2340,7 +2577,6 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.reloadSpace = function () {
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.csp.syncWithGrid();
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -2416,10 +2652,7 @@ var SpaceScene = (function (_super) {
                     csp.systems.displayList.add(gameObject.particles);
                 }
                 if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.update();
-                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.bodyConf.destroy();
-                    _this.sys.displayList.remove(gameObject);
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }

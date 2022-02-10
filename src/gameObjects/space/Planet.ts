@@ -3,7 +3,7 @@ import SpaceGameObject from "./SpaceGameObject";
 
 export default class Planet extends SpaceGameObject
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
 

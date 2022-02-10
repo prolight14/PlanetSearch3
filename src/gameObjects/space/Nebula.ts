@@ -1,8 +1,9 @@
+import SpaceScene from "../../scenes/space/SpaceScene";
 import SpaceImg from "./SpaceGameObject";
 
 export default class Nebula extends SpaceImg
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
 

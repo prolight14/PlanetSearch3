@@ -17,8 +17,8 @@ var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Ship = (function (_super) {
     __extends(Ship, _super);
-    function Ship(scene, x, y, texture, frame, config) {
-        var _this = _super.call(this, scene, x, y, texture, frame, config) || this;
+    function Ship(scene, x, y, texture, frame) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
         _this.maxHp = 10;
         _this.hp = 10;
         _this.damage = 1;

@@ -100,6 +100,53 @@ CartesianSystemPlugin.prototype = {
         world.resetProcessList();
     },
 
+    initGameObject: function(gameObject)
+    {
+        var world = this.world;
+
+        gameObject.bodyConf = {
+            moves: true,
+            boundingBox: {},
+            update: function() {},
+            destroy: function() {},
+            updateBoundingBox: function() {},
+        };
+        gameObject.bodyConf.updateBoundingBox = function()
+        {
+            this.boundingBox.minX = gameObject.x - gameObject.displayWidth / 2;
+            this.boundingBox.minY = gameObject.y - gameObject.displayHeight / 2;
+            this.boundingBox.maxX = gameObject.x + gameObject.displayWidth / 2;
+            this.boundingBox.maxY = gameObject.y + gameObject.displayHeight / 2;
+        };
+
+        gameObject.bodyConf.updateBoundingBox();
+
+        // update     
+        gameObject.bodyConf.update = function()
+        {
+            gameObject.bodyConf.updateBoundingBox();
+            world.cameraGrid.removeReference(gameObject);
+            world.cameraGrid.addReference(gameObject);
+        };
+
+        // destroy
+        gameObject.bodyConf.destroy = function()
+        {
+            world.cameraGrid.removeReference(gameObject);
+        };
+
+        // Hack for automating removing the reference of the `gameObject` from the `world` `cameraGrid`
+        if(!gameObject.body)
+        {
+            gameObject.body = {};
+        }
+
+        gameObject.on("destroy", function()
+        {
+            gameObject.bodyConf.destroy();
+        });
+    },
+
     syncWithGrid: function()
     {
         var world = this.world;
@@ -128,12 +175,26 @@ CartesianSystemPlugin.prototype = {
                     gameObject.body = {};
                 }
 
-                var _destroy = gameObject.body.destroy;
-                gameObject.body.destroy = function()
+                // var _destroy = gameObject.body.destroy;
+                // gameObject.body.destroy = function()
+                // {
+                //     gameObject.bodyConf.destroy();
+                //     return _destroy.apply(this, arguments);
+                // };
+
+                gameObject.on("destroy", function()
                 {
                     gameObject.bodyConf.destroy();
-                    return _destroy.apply(this, arguments);
-                };
+                });
+
+                // gameObject.preDestroy = function()
+                // {
+                //     this.anims.destroy();
+
+                //     this.anims = undefined;
+
+                //     gameObject.bodyConf.destroy();
+                // };
             });
         });
     },

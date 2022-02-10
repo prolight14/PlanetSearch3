@@ -83,7 +83,6 @@ export default class SpaceUIScene extends Phaser.Scene
                 var barX = enemyShip.x - enemyShip.width * 0.5;
                 var barY = enemyShip.y - enemyShip.width * 0.7;
 
-                // debugger;
 
                 this.statsGraphics.fillStyle(0x0A297E);
                 this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);

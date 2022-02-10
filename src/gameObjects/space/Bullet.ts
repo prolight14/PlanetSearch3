@@ -1,51 +1,27 @@
-import trig from "../Utils/trig";
+import SpaceScene from "../../scenes/space/SpaceScene";
+import timer from "../Utils/timer";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
+
+        this.killTimer = timer(true, 1600, () =>
+        {
+            this.kill();
+        });
     }
 
-    protected shootAngle: number;
-    protected speed: number;
-    protected damage: number;
-    protected life: number = 100;
+    private killTimer: {
+        update: () => void;
+    };
 
-    protected onKill()
-    {
-
-    }
-
-    protected destroyOnKill: boolean = true;
-
-    public preUpdate(time: number, delta: number)
+    protected preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
 
-        this.x += trig.cos(this.shootAngle) * this.speed;
-        this.y += trig.sin(this.shootAngle) * this.speed;
-
-        this.life -= 3.5;
-
-        if(this.life <= 0)
-        {
-            this.kill();
-        }
-    }
-
-    // protected dead: boolean = false;
-
-    // protected kill()
-    // {
-    //     this.dead = true;
-    //     this.bodyConf.destroy();
-    //     this.destroy();
-    // }
-
-    public getDamage()
-    {
-        return this.damage;
+        this.killTimer.update();
     }
 }

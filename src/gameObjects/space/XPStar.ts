@@ -1,9 +1,10 @@
+import SpaceScene from "../../scenes/space/SpaceScene";
 import PlayerShip from "./PlayerShip";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class XPStar extends SpaceGameObject
 {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
         super(scene, x, y, texture);
 
