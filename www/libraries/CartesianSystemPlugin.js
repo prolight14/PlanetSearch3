@@ -146,58 +146,6 @@ CartesianSystemPlugin.prototype = {
             gameObject.bodyConf.destroy();
         });
     },
-
-    syncWithGrid: function()
-    {
-        var world = this.world;
-
-        world.gameObjectHandler.forEach(function(gameObjectArray)
-        {
-            gameObjectArray.forEach(function(gameObject)
-            {
-                // update      
-                gameObject.bodyConf.update = function()
-                {
-                    gameObject.bodyConf.updateBoundingBox();
-                    world.cameraGrid.removeReference(gameObject);
-                    world.cameraGrid.addReference(gameObject);
-                };
-    
-                // destroy
-                gameObject.bodyConf.destroy = function()
-                {
-                    world.cameraGrid.removeReference(gameObject);
-                };
-
-                // Hack for automating removing the reference of the `gameObject` from the `world` `cameraGrid`
-                if(!gameObject.body)
-                {
-                    gameObject.body = {};
-                }
-
-                // var _destroy = gameObject.body.destroy;
-                // gameObject.body.destroy = function()
-                // {
-                //     gameObject.bodyConf.destroy();
-                //     return _destroy.apply(this, arguments);
-                // };
-
-                gameObject.on("destroy", function()
-                {
-                    gameObject.bodyConf.destroy();
-                });
-
-                // gameObject.preDestroy = function()
-                // {
-                //     this.anims.destroy();
-
-                //     this.anims = undefined;
-
-                //     gameObject.bodyConf.destroy();
-                // };
-            });
-        });
-    },
    
     shutdown: function()
     {

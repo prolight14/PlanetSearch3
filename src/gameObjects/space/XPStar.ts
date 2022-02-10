@@ -40,7 +40,6 @@ export default class XPStar extends SpaceGameObject
     {
         playerShip.collectXPStars(this);
 
-        this.bodyConf.destroy();
         this.destroy();
     }
 }

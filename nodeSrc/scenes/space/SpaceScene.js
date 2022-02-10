@@ -76,7 +76,6 @@ var SpaceScene = (function (_super) {
         };
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
         this.prepareStatsGraphics();
@@ -163,7 +162,6 @@ var SpaceScene = (function (_super) {
                     csp.systems.displayList.add(gameObject.particles);
                 }
                 if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.destroy();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -171,8 +169,8 @@ var SpaceScene = (function (_super) {
             _this.csp.systems.displayList.add(_this.statsGraphics);
             _this.sys.updateList.getActive().forEach(function (gameObject) {
                 if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.destroy();
                     gameObject.destroy();
+                    gameObject.destroyQueued = false;
                 }
             });
         });

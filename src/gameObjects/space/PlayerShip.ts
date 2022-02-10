@@ -57,17 +57,8 @@ export default class PlayerShip extends Ship
     protected speedAcl: number = 0.25;
     protected speedDeacl: number = 0.025;
     protected manualSpeedDeacl: number = 0.15;
-
     protected angleDeacl: number = 0.12;
-
-    private shootTimer: {
-        update: () => void;
-        reset: (newInterval?: number, _args?: Array<any>) => void;
-    };
-
-    private pointerDX: number = 0;
-    private pointerDY: number = 0;
-
+    
     protected destroyOnKill: boolean = false;
 
     constructor (scene: SpaceScene, x: number, y: number)
@@ -91,40 +82,8 @@ export default class PlayerShip extends Ship
 
         this.bullets = scene.csp.world.add.gameObjectArray(Bullet, "playerShipBullet");
 
-        // scene.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) =>
-        // {
-        //     this.pointerDX = (pointer.x - (this.scene.game.config.width as number) / 2); 
-        //     this.pointerDY = (pointer.y - (this.scene.game.config.height as number) / 2); 
-
-
-        //     // var wDiff = (pointer.x - (this.scene.game.config.width as number) / 2) * 0.005;
-        //     // var hDiff = (pointer.y - (this.scene.game.config.height as number) / 2) * 0.005;
-
-        //     // var length = Math.min(this.maxSpeed, Math.sqrt(wDiff * wDiff + hDiff * hDiff));
-
-        //     // var theta = Math.atan2(-hDiff, wDiff);
-
-        //     // this.x += trig.sin(theta) * length;
-        //     // this.y += trig.cos(theta) * length;
-        // });
-
-        // var shots = 0;
-
-        // this.shootTimer = timer(false, 625, () =>
-        // {
-        //     shots = 0;
-        // });
-
         this.scene.input.keyboard.on("keyup-Z", () =>
         {
-            // if(++shots === 15)
-            // {
-            //     this.shootTimer.reset();
-            // }
-            // if(shots >= 15)
-            // {
-            //     return;
-            // }
             var theta = 30 + this.angle;
             var length = 25;
             var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
@@ -144,11 +103,6 @@ export default class PlayerShip extends Ship
             length = 17;
             bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
             bullet.setAngle(this.angle);
-        });
-
-        this.scene.input.keyboard.on("keydown-M", () =>
-        {
-            this.hp = 0;
         });
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -196,14 +150,6 @@ export default class PlayerShip extends Ship
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
-
-        // var dx = this.pointerDX;
-        // var dy = this.pointerDY;
-        // this.x += Math.min(this.maxSpeed, dx * 0.05);
-        // this.y += Math.min(this.maxSpeed, dy * 0.05);
-        // this.setAngle(Math.atan2(dy, dx) + Math.PI / 2);
-
-        // this.shootTimer.update();
 
         var length = this.height * this.scaleX * 0.4;
         this.particles.x = this.x + trig.cos(this.angle + 90) * length;

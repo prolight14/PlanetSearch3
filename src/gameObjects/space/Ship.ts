@@ -137,7 +137,7 @@ export default class Ship extends SpaceGameObject
         this.x += trig.cos(angle) * this.speed;
         this.y += trig.sin(angle) * this.speed;
 
-        if(this.hp <= 0 && !this.dead)
+        if(this.hp <= 0)
         {
             this.kill();
         }

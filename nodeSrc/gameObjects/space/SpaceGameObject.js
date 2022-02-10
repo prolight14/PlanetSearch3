@@ -17,7 +17,7 @@ var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame) {
         var _this = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
-        _this.dead = false;
+        _this.killed = false;
         _this.destroyOnKill = true;
         _this.destroyQueued = false;
         scene.add.existing(_this);
@@ -33,10 +33,10 @@ var SpaceGameObject = (function (_super) {
     SpaceGameObject.prototype.onKill = function () {
     };
     SpaceGameObject.prototype.kill = function () {
-        if (this.dead) {
+        if (this.killed) {
             return;
         }
-        this.dead = true;
+        this.killed = true;
         this.onKill();
         this.destroyQueued = this.destroyOnKill;
     };

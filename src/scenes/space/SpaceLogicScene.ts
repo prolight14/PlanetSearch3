@@ -81,10 +81,10 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
-        // for(var i = 0; i < 100; i++)
-        // {
-        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
-        // }
+        for(var i = 0; i < 100; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
+        }
     }
     
     public addXPStar(x: number, y: number)

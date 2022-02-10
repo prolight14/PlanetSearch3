@@ -79,7 +79,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        this.csp.syncWithGrid();
         this.runScenes(false);
         this.loaded = true;
 
@@ -97,8 +96,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        // this.csp.syncWithGrid();
-
     }
 
     private statsGraphics: Phaser.GameObjects.Graphics;
@@ -222,19 +219,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
                 if(gameObject.destroyQueued)
                 {
-                    // gameObject.bodyConf.update();
-                    // gameObject.bodyConf.updateBoundingBox();
-
-                    // // if((gameObject.body as any))
-                    // // {
-                    // //     (gameObject.body as any).destroy();
-                    // // }
-                    // gameObject.bodyConf.destroy();
-                    // this.sys.displayList.remove(gameObject);
-
-                    gameObject.bodyConf.destroy();
                     gameObject.destroy();
-
                     gameObject.destroyQueued = false;
                 }
             });
@@ -245,8 +230,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             {
                 if(gameObject.destroyQueued)
                 {
-                    gameObject.bodyConf.destroy();
                     gameObject.destroy();
+                    gameObject.destroyQueued = false;
                 }
             });
         });

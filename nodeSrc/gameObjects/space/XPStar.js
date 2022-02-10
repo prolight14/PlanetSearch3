@@ -38,7 +38,6 @@ var XPStar = (function (_super) {
     };
     XPStar.prototype.onCollide = function (playerShip) {
         playerShip.collectXPStars(this);
-        this.bodyConf.destroy();
         this.destroy();
     };
     return XPStar;

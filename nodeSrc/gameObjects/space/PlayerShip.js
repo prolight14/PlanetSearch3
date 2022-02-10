@@ -30,8 +30,6 @@ var PlayerShip = (function (_super) {
         _this.speedDeacl = 0.025;
         _this.manualSpeedDeacl = 0.15;
         _this.angleDeacl = 0.12;
-        _this.pointerDX = 0;
-        _this.pointerDY = 0;
         _this.destroyOnKill = false;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
@@ -63,9 +61,6 @@ var PlayerShip = (function (_super) {
             length = 17;
             bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
             bullet.setAngle(_this.angle);
-        });
-        _this.scene.input.keyboard.on("keydown-M", function () {
-            _this.hp = 0;
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({

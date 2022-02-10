@@ -2,7 +2,6 @@ import SpaceScene from "../../scenes/space/SpaceScene";
 import HyperBeamerShip from "./HyperBeamerShip";
 import timer from "../Utils/timer";
 import StateMachine from "../Utils/StateMachine";
-import XPStar from "./XPStar";
 import trig from "../Utils/trig";
 
 export default class HyperBeamerSType extends HyperBeamerShip

@@ -100,7 +100,7 @@ var Ship = (function (_super) {
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;
-        if (this.hp <= 0 && !this.dead) {
+        if (this.hp <= 0) {
             this.kill();
         }
     };

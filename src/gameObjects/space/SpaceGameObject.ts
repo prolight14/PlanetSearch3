@@ -18,23 +18,23 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
     }
 
     public _id: number;
-    body: MatterJS.BodyType;
-    bodyConf: {
+    public body: MatterJS.BodyType;
+    public bodyConf: {
         moves: boolean;
         boundingBox: any;
         update: () => void;
         destroy: () => void;
         updateBoundingBox: () => void;
     };
-    _arrayName: string;
-    _name: string;
+    public _arrayName: string;
+    public _name: string;
 
     protected onCollide(object: SpaceGameObject)
     {
 
     }
 
-    protected dead: boolean = false;
+    private killed: boolean = false;
 
     protected destroyOnKill: boolean = true;
     public destroyQueued: boolean = false;
@@ -46,29 +46,15 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
 
     protected kill()
     {
-        if(this.dead)
+        if(this.killed)
         {
             return;
         }
 
-        this.dead = true;
-
-        // this.bodyConf.update();
-        // this.bodyConf.updateBoundingBox();
+        this.killed = true;
 
         this.onKill();
 
         this.destroyQueued = this.destroyOnKill;
-
-        // if(this.destroyOnKill)
-        // {
-        //     // Might not need
-        //     this.bodyConf.destroy();
-        //     (this.body as any).destroy();
-        //     this.scene.sys.displayList.remove(this);
-
-        //     // Definitely need
-        //     this.destroy();
-        // }
     }
 }

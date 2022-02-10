@@ -64,6 +64,9 @@ var SpaceLogicScene = (function (_super) {
         this.spaceScene.setCameraTarget(this.playerShip);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
+        for (var i = 0; i < 100; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
