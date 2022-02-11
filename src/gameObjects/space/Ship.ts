@@ -14,9 +14,12 @@ export default class Ship extends SpaceGameObject
     protected damage: number = 1;
     public isShip: boolean = true;
 
-    public takeDamage(object: any)
+    public takeDamage(object: any): boolean
     {
         this.hp -= object.getDamage();
+
+        // Did it hit?
+        return true;
     }
 
     public getMaxHp()
@@ -127,7 +130,7 @@ export default class Ship extends SpaceGameObject
             }  
             else
             {
-                this.speed = 0;
+                this.speed = 0; 
             } 
         }
 

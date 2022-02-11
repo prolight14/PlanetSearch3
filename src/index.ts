@@ -44,9 +44,9 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
 
 /*
     Bugs to fix:
-    1. Xp and crests spawn a ton sometimes when an enemy ship is shotdown (fixed?)
+    1. Xp and crests spawn a ton sometimes when an enemy ship is shotdown (Fixed?)
     
-    2. Enemy ship's thruster particle effect sometimes disappears and reappears (fixed?)
+    2. Enemy ship's thruster particle effect sometimes disappears and reappears (Fixed)
 
     3. Pressing 'u' doesn't open the debug info (fixed)
 
@@ -56,11 +56,11 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
     5. Game lags when lots of object are made even if they are outside the cells that are touching the game canvas
         probably because of matter js bodies not being confined to the cartesian system
 
-    6. Game will crash if objects are destroyed (might be fixed)
+    6. Game will crash if objects are destroyed (Fixed)
 
-    7. Bullets cell references stay even after the bullets are gone
+    7. Bullets cell references stay even after the bullets are gone (Fixed!)
 
-    8. The ui debug scene's cell reference debug tool isn't accurate when space is zoomed out (fixed)
+    8. The ui debug scene's cell reference debug tool isn't accurate when space is zoomed out (Fixed)
 */
 
 let config: Phaser.Types.Core.GameConfig = {

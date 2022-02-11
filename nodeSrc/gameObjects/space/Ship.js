@@ -36,6 +36,7 @@ var Ship = (function (_super) {
     }
     Ship.prototype.takeDamage = function (object) {
         this.hp -= object.getDamage();
+        return true;
     };
     Ship.prototype.getMaxHp = function () {
         return this.maxHp;

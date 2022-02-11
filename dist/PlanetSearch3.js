@@ -620,19 +620,32 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
+var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture) {
+    function Bullet(scene, x, y, texture, shootAngle, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.shootAngle = shootAngle;
+        _this.speed = 12;
         _this.killTimer = timer_1.default(true, 1600, function () {
             _this.kill();
+        });
+        _this.setOnCollide(function (colData) {
+            if (colData.bodyA.gameObject) {
+                var hit = onCollide.call(onCollideContext, colData.bodyA.gameObject);
+                if (hit) {
+                    _this.kill();
+                }
+            }
         });
         return _this;
     }
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.killTimer.update();
+        this.x += trig_1.default.cos(this.shootAngle) * this.speed;
+        this.y += trig_1.default.sin(this.shootAngle) * this.speed;
     };
     return Bullet;
 }(SpaceGameObject_1.default));
@@ -1053,22 +1066,7 @@ var PlayerShip = (function (_super) {
         };
         _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            var theta = 30 + _this.angle;
-            var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = 150 + _this.angle;
-            length = 25;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = _this.angle - 20;
-            length = 17;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = 200 + _this.angle;
-            length = 17;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
+            _this.shoot();
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -1117,6 +1115,24 @@ var PlayerShip = (function (_super) {
     };
     PlayerShip.prototype.collectXPStars = function (xpStar) {
         this.xp += xpStar.amt;
+    };
+    PlayerShip.prototype.shoot = function () {
+        this.initBullet(this.angle + 30, 25);
+        this.initBullet(this.angle + 150, 25);
+        this.initBullet(this.angle - 20, 17);
+        this.initBullet(this.angle + 200, 17);
+    };
+    PlayerShip.prototype.initBullet = function (theta, length) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, this.bulletOnCollide, this);
+        bullet.setAngle(this.angle);
+        bullet.setCollisionGroup(1);
+        bullet.setCollidesWith(0);
+    };
+    PlayerShip.prototype.bulletOnCollide = function (gameObject) {
+        if (gameObject._arrayName === "hyperBeamerSType") {
+            return gameObject.takeDamage(this);
+        }
+        return false;
     };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
@@ -1181,6 +1197,7 @@ var Ship = (function (_super) {
     }
     Ship.prototype.takeDamage = function (object) {
         this.hp -= object.getDamage();
+        return true;
     };
     Ship.prototype.getMaxHp = function () {
         return this.maxHp;

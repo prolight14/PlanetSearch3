@@ -45,22 +45,7 @@ var PlayerShip = (function (_super) {
         };
         _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            var theta = 30 + _this.angle;
-            var length = 25;
-            var bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = 150 + _this.angle;
-            length = 25;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = _this.angle - 20;
-            length = 17;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
-            theta = 200 + _this.angle;
-            length = 17;
-            bullet = _this.bullets.add(_this.scene, _this.x + trig_1.default.cos(theta) * length, _this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet");
-            bullet.setAngle(_this.angle);
+            _this.shoot();
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -109,6 +94,24 @@ var PlayerShip = (function (_super) {
     };
     PlayerShip.prototype.collectXPStars = function (xpStar) {
         this.xp += xpStar.amt;
+    };
+    PlayerShip.prototype.shoot = function () {
+        this.initBullet(this.angle + 30, 25);
+        this.initBullet(this.angle + 150, 25);
+        this.initBullet(this.angle - 20, 17);
+        this.initBullet(this.angle + 200, 17);
+    };
+    PlayerShip.prototype.initBullet = function (theta, length) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, this.bulletOnCollide, this);
+        bullet.setAngle(this.angle);
+        bullet.setCollisionGroup(1);
+        bullet.setCollidesWith(0);
+    };
+    PlayerShip.prototype.bulletOnCollide = function (gameObject) {
+        if (gameObject._arrayName === "hyperBeamerSType") {
+            return gameObject.takeDamage(this);
+        }
+        return false;
     };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);

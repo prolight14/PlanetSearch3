@@ -1,7 +1,9 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
+import HyperBeamerSType from "./HyperBeamerSType";
 import Ship from "./Ship";
+import SpaceGameObject from "./SpaceGameObject";
 import XPStar from "./XPStar";
 
 export default class PlayerShip extends Ship
@@ -58,7 +60,7 @@ export default class PlayerShip extends Ship
     protected speedDeacl: number = 0.025;
     protected manualSpeedDeacl: number = 0.15;
     protected angleDeacl: number = 0.12;
-    
+
     protected destroyOnKill: boolean = false;
 
     constructor (scene: SpaceScene, x: number, y: number)
@@ -84,25 +86,7 @@ export default class PlayerShip extends Ship
 
         this.scene.input.keyboard.on("keyup-Z", () =>
         {
-            var theta = 30 + this.angle;
-            var length = 25;
-            var bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
-            bullet.setAngle(this.angle);
-
-            theta = 150 + this.angle;
-            length = 25;
-            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
-            bullet.setAngle(this.angle);
-
-            theta = this.angle - 20;
-            length = 17;
-            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
-            bullet.setAngle(this.angle);
-
-            theta = 200 + this.angle;
-            length = 17;
-            bullet = this.bullets.add(this.scene, this.x + trig.cos(theta) * length, this.y + trig.sin(theta) * length, "helixShipLvl1Bullet") as Bullet;
-            bullet.setAngle(this.angle);
+            this.shoot();
         });
 
         this.particles = scene.add.particles("helixShipParticle");
@@ -143,6 +127,42 @@ export default class PlayerShip extends Ship
                 return false;
             }         
         };
+    }
+
+    private shoot()
+    {
+        this.initBullet(this.angle + 30, 25);
+        this.initBullet(this.angle + 150, 25);
+        this.initBullet(this.angle - 20, 17);
+        this.initBullet(this.angle + 200, 17);
+    }
+
+    private initBullet(theta: number, length: number)
+    {
+        var bullet = this.bullets.add(
+            this.scene, 
+            this.x + trig.cos(theta) * length, 
+            this.y + trig.sin(theta) * length, 
+            "helixShipLvl1Bullet", 
+            this.angle - 90,
+            this.bulletOnCollide,
+            this,
+        ) as Bullet;
+        bullet.setAngle(this.angle);
+        bullet.setCollisionGroup(1);
+        bullet.setCollidesWith(0);
+    }
+
+    private bulletOnCollide(gameObject: SpaceGameObject): boolean
+    {
+        if(gameObject._arrayName === "hyperBeamerSType")
+        {
+            // It may have hit according to the takeDamage method
+            return (gameObject as HyperBeamerSType).takeDamage(this);
+        }
+
+        // Didn't hit since there were no relevant gameObjects
+        return false;
     }
 
     private bullets: any; 
