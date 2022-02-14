@@ -114,7 +114,9 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
         this.scene.run("spaceDebug");
+        this.scene.sleep("spaceDebug");
         this.scene.run("spaceUIDebug");
+        this.scene.sleep("spaceUIDebug");
         this.scene.bringToTop("spaceUIDebug");
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {

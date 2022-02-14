@@ -144,10 +144,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     private runDebugScenes()
     {
         this.scene.run("spaceDebug");
-        // this.scene.sleep("spaceDebug");
+        this.scene.sleep("spaceDebug");
         
         this.scene.run("spaceUIDebug");
-        // this.scene.sleep("spaceUIDebug");
+        this.scene.sleep("spaceUIDebug");
         this.scene.bringToTop("spaceUIDebug");
 
         this.input.keyboard.on("keydown-U", () =>
