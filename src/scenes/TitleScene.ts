@@ -7,7 +7,7 @@ export default class TitleScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png")
+        this.load.image("planetSearch", "./assets/Title/PlanetSearch.png")
     }
 
     public create()
@@ -15,7 +15,7 @@ export default class TitleScene extends Phaser.Scene
         const gameWidth = this.game.canvas.width;
         const gameHeight = this.game.canvas.height;
 
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
+        this.add.image(0, 0, "planetSearch").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
 
         this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
 
