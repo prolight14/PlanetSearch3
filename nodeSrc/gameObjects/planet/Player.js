@@ -135,53 +135,33 @@ var Player = (function (_super) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
-            this.anims.play("left", true);
-            this.playingLeft = true;
+            this.looking = "left";
         }
         if (this.controls.right()) {
-            this.anims.play("right", true);
+            this.looking = "right";
         }
-        if (this.body.deltaX() < 0.01) {
-            this.playingLeft = false;
+        switch (this.looking) {
+            case "left":
+                this.anims.play("left", true);
+                break;
+            case "right":
+                this.anims.play("right", true);
+                break;
         }
-        if (this.playingLeft) {
-            this.anims.play("left", true);
+        if (this.body.blocked.left && this.looking === "left") {
+            this.anims.pause(this.anims.currentAnim.frames[0]);
         }
-        if (!this.controls.left() && !this.controls.right()) {
-            if (this.body.velocity.x < 0) {
-                this.looking = "left";
-            }
-            else if (this.body.velocity.x > 0) {
-                this.looking = "right";
-            }
-        }
-        else {
-            this.looking = "";
-        }
-        if (this.looking === "left") {
-            this.setFrame(4);
-            if (!onGround) {
-                this.setFrame(5);
-            }
-        }
-        else if (this.looking === "right") {
-            this.setFrame(0);
-            if (!onGround) {
-                this.setFrame(1);
-            }
-        }
-        if (this.body.blocked.left && this.body.velocity.x < 0 && this.controls.left() && onGround) {
-            this.setFrame(4);
-        }
-        if (this.body.blocked.right && this.body.velocity.x > 0 && this.controls.right() && onGround) {
-            this.setFrame(0);
+        if (this.body.blocked.right && this.looking === "right") {
+            this.anims.pause(this.anims.currentAnim.frames[0]);
         }
         if (!onGround) {
-            if (this.controls.left()) {
-                this.anims.pause(this.anims.currentAnim.frames[1]);
-            }
-            else if (this.controls.right()) {
-                this.anims.pause(this.anims.currentAnim.frames[1]);
+            switch (this.looking) {
+                case "left":
+                    this.anims.pause(this.anims.currentAnim.frames[1]);
+                    break;
+                case "right":
+                    this.anims.pause(this.anims.currentAnim.frames[1]);
+                    break;
             }
         }
     };

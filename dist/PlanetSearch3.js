@@ -531,53 +531,33 @@ var Player = (function (_super) {
         _super.prototype.preUpdate.call(this, time, delta);
         var onGround = this.body.blocked.down || this.isOnSlope;
         if (this.controls.left()) {
-            this.anims.play("left", true);
-            this.playingLeft = true;
+            this.looking = "left";
         }
         if (this.controls.right()) {
-            this.anims.play("right", true);
+            this.looking = "right";
         }
-        if (this.body.deltaX() < 0.01) {
-            this.playingLeft = false;
+        switch (this.looking) {
+            case "left":
+                this.anims.play("left", true);
+                break;
+            case "right":
+                this.anims.play("right", true);
+                break;
         }
-        if (this.playingLeft) {
-            this.anims.play("left", true);
+        if (this.body.blocked.left && this.looking === "left") {
+            this.anims.pause(this.anims.currentAnim.frames[0]);
         }
-        if (!this.controls.left() && !this.controls.right()) {
-            if (this.body.velocity.x < 0) {
-                this.looking = "left";
-            }
-            else if (this.body.velocity.x > 0) {
-                this.looking = "right";
-            }
-        }
-        else {
-            this.looking = "";
-        }
-        if (this.looking === "left") {
-            this.setFrame(4);
-            if (!onGround) {
-                this.setFrame(5);
-            }
-        }
-        else if (this.looking === "right") {
-            this.setFrame(0);
-            if (!onGround) {
-                this.setFrame(1);
-            }
-        }
-        if (this.body.blocked.left && this.body.velocity.x < 0 && this.controls.left() && onGround) {
-            this.setFrame(4);
-        }
-        if (this.body.blocked.right && this.body.velocity.x > 0 && this.controls.right() && onGround) {
-            this.setFrame(0);
+        if (this.body.blocked.right && this.looking === "right") {
+            this.anims.pause(this.anims.currentAnim.frames[0]);
         }
         if (!onGround) {
-            if (this.controls.left()) {
-                this.anims.pause(this.anims.currentAnim.frames[1]);
-            }
-            else if (this.controls.right()) {
-                this.anims.pause(this.anims.currentAnim.frames[1]);
+            switch (this.looking) {
+                case "left":
+                    this.anims.pause(this.anims.currentAnim.frames[1]);
+                    break;
+                case "right":
+                    this.anims.pause(this.anims.currentAnim.frames[1]);
+                    break;
             }
         }
     };
@@ -1525,13 +1505,21 @@ var TitleScene = (function (_super) {
         return _super.call(this, "title") || this;
     }
     TitleScene.prototype.preload = function () {
+<<<<<<< HEAD
         this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
+=======
+        this.load.image("planetSearch", "./assets/Title/PlanetSearch.png");
+>>>>>>> space
     };
     TitleScene.prototype.create = function () {
         var _this = this;
         var gameWidth = this.game.canvas.width;
         var gameHeight = this.game.canvas.height;
+<<<<<<< HEAD
         this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
+=======
+        this.add.image(0, 0, "planetSearch").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
+>>>>>>> space
         this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
         this.input.keyboard.once("keydown", function () {
             _this.cameras.main.fadeOut(500, 0, 0, 0);
