@@ -20,6 +20,7 @@ var TitleScene = (function (_super) {
     }
     TitleScene.prototype.preload = function () {
         this.load.image("planetSearch", "./assets/Title/PlanetSearch.png");
+        this.load.bitmapFont("PixelFont", "./assets/Fonts/PixelFont.png", "./assets/Fonts/PixelFont.xml");
     };
     TitleScene.prototype.create = function () {
         var _this = this;
@@ -33,6 +34,11 @@ var TitleScene = (function (_super) {
                 _this.scene.start("entry");
             });
         });
+        this.add.bitmapText(400, 260, "PixelFont", "ABC|D|E").setScale(4);
+    };
+    TitleScene.prototype.loadBitmapText = function () {
+    };
+    TitleScene.prototype.drawBitmapText = function () {
     };
     return TitleScene;
 }(Phaser.Scene));

@@ -37,7 +37,8 @@ import SpaceUIScene from "./scenes/space/SpaceUIScene";
     5. Make sure I can play this only with resources from the www folder
     6. Properly copyright this game
     7. Market this game correctly
-    8. Remove all unneeded assets
+    8. Remove all unneeded asse
+    9. Use bitmap text
 
     Note: Do testing! LOTS of testing!
 */

@@ -7,7 +7,9 @@ export default class TitleScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.image("planetSearch", "./assets/Title/PlanetSearch.png")
+        this.load.image("planetSearch", "./assets/Title/PlanetSearch.png");
+
+        this.load.bitmapFont("PixelFont", "./assets/Fonts/PixelFont.png", "./assets/Fonts/PixelFont.xml");
     }
 
     public create()
@@ -28,5 +30,17 @@ export default class TitleScene extends Phaser.Scene
                 this.scene.start("entry");
             });
         });
+
+        this.add.bitmapText(400, 260, "PixelFont", "ABC|D|E").setScale(4);
+    }
+
+    private loadBitmapText()
+    {
+
+    }
+
+    private drawBitmapText()
+    {
+
     }
 }

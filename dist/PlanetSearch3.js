@@ -1505,21 +1505,14 @@ var TitleScene = (function (_super) {
         return _super.call(this, "title") || this;
     }
     TitleScene.prototype.preload = function () {
-<<<<<<< HEAD
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
-=======
         this.load.image("planetSearch", "./assets/Title/PlanetSearch.png");
->>>>>>> space
+        this.load.bitmapFont("PixelFont", "./assets/Fonts/PixelFont.png", "./assets/Fonts/PixelFont.xml");
     };
     TitleScene.prototype.create = function () {
         var _this = this;
         var gameWidth = this.game.canvas.width;
         var gameHeight = this.game.canvas.height;
-<<<<<<< HEAD
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
-=======
         this.add.image(0, 0, "planetSearch").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
->>>>>>> space
         this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
         this.input.keyboard.once("keydown", function () {
             _this.cameras.main.fadeOut(500, 0, 0, 0);
@@ -1527,6 +1520,11 @@ var TitleScene = (function (_super) {
                 _this.scene.start("entry");
             });
         });
+        this.add.bitmapText(400, 260, "PixelFont", "ABC|D|E").setScale(4);
+    };
+    TitleScene.prototype.loadBitmapText = function () {
+    };
+    TitleScene.prototype.drawBitmapText = function () {
     };
     return TitleScene;
 }(Phaser.Scene));
@@ -2265,7 +2263,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.35), 4));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.2), 4));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
