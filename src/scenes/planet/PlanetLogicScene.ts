@@ -82,6 +82,10 @@ export default class PlanetLogicScene extends Phaser.Scene
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+
+        foregroundLayer.setVisible(false);
+        groundLayer.setVisible(false);
+        backgroundLayer.setVisible(false);
     }
 
     public getPlayerStats()

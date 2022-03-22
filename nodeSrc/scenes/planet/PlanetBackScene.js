@@ -16,10 +16,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlanetBackScene = (function (_super) {
     __extends(PlanetBackScene, _super);
     function PlanetBackScene() {
-        return _super.call(this, "planetBack") || this;
+        var _this = _super.call(this, "planetBack") || this;
+        _this.ignoreLayersAmt = 2;
+        return _this;
     }
     PlanetBackScene.prototype.preload = function () {
-        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/CavePlanet/Cave.png", {
+        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/GrassPlanet/GrassPlanet.png", {
             frameWidth: 400,
             frameHeight: 225
         });
@@ -30,12 +32,15 @@ var PlanetBackScene = (function (_super) {
         backgraphics.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height);
         backgraphics.setDepth(-2);
         this.layerSpeeds = [
-            3,
+            -1,
+            -1,
+            0.75,
+            0.6,
+            0.4
         ];
-        var layerAmt = 1;
         this.layers = [];
         this.nextLayers = [];
-        for (var i = 0; i < layerAmt; i++) {
+        for (var i = 0; i < this.layerSpeeds.length; i++) {
             var layer = this.add.image(0, 0, "scrollBackground", i);
             layer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.layers.push(layer);
@@ -49,15 +54,14 @@ var PlanetBackScene = (function (_super) {
         var cam = planetLogicScene.cameras.main;
         var width = this.game.config.width;
         var diff = width - cam.scrollX;
-        for (var i = 0; i < this.layers.length; i++) {
-            if (this.layerSpeeds[i] === -1) {
-                continue;
-            }
+        for (var i = this.ignoreLayersAmt; i < this.layers.length; i++) {
             var layer = this.layers[i];
             var speed = diff / this.layerSpeeds[i];
             var index = -Math.floor((speed + width) / layer.displayWidth);
             layer.x = layer.displayWidth * index + speed;
             this.nextLayers[i].x = layer.displayWidth * (index + 1) + speed;
+            layer.y = 100;
+            this.nextLayers[i].y = 100;
         }
     };
     return PlanetBackScene;

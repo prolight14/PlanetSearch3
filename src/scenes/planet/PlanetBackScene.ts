@@ -9,7 +9,7 @@ export default class PlanetBackScene extends Phaser.Scene
 
     public preload()
     {
-        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/CavePlanet/Cave.png", 
+        this.load.spritesheet("scrollBackground", "./assets/Planet/Backgrounds/GrassPlanet/GrassPlanet.png", 
         {
             frameWidth: 400,
             frameHeight: 225
@@ -28,7 +28,17 @@ export default class PlanetBackScene extends Phaser.Scene
         backgraphics.setDepth(-2);
 
         this.layerSpeeds = [
-            3, 
+            -1, 
+            -1,
+            0.75,
+            0.6,
+            0.4
+
+            // 0.25,
+            // 0.5,
+            // 0.75,
+
+
             // 2.3,
             // 1.6,
             // 0.8,
@@ -36,11 +46,10 @@ export default class PlanetBackScene extends Phaser.Scene
             // 0.5
         ];
 
-        const layerAmt = 1;
         this.layers = [];
         this.nextLayers = [];
  
-        for(var i = 0; i < layerAmt; i++)
+        for(var i = 0; i < this.layerSpeeds.length; i++)
         {
             var layer = this.add.image(0, 0, "scrollBackground", i);
             layer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
@@ -50,7 +59,10 @@ export default class PlanetBackScene extends Phaser.Scene
             nextLayer.setScrollFactor(0, 0).setDisplayOrigin(0, 0).setScale(2, 2);
             this.nextLayers.push(nextLayer);
         }
+        
     }
+
+    private ignoreLayersAmt: number = 2; 
 
     public update()
     {
@@ -59,18 +71,21 @@ export default class PlanetBackScene extends Phaser.Scene
         const width = (this.game.config.width as number);
         const diff = width - cam.scrollX;
 
-        for(var i = 0; i < this.layers.length; i++)
+        for(var i = this.ignoreLayersAmt; i < this.layers.length; i++)
         {   
-            if(this.layerSpeeds[i] === -1)
-            {
-                continue;
-            }
+            // if(this.layerSpeeds[i] === -1)
+            // {
+            //     continue;
+            // }
 
             var layer = this.layers[i];
             var speed = diff / this.layerSpeeds[i];
             var index = -Math.floor((speed + width) / layer.displayWidth);
             layer.x = layer.displayWidth * index + speed;
             this.nextLayers[i].x = layer.displayWidth * (index + 1) + speed;
+
+            layer.y = 100;
+            this.nextLayers[i].y = 100;
         }        
     }
 }
