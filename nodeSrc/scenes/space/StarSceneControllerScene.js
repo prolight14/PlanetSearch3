@@ -30,7 +30,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starScroll: 0.65,
+            starScroll: 1.0,
             imageKey: "starBackground",
             cspConfig: {
                 window: {
@@ -38,10 +38,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 1024,
+                    cellHeight: 1024,
                 }
             }
         });

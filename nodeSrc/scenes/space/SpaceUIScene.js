@@ -19,7 +19,6 @@ var SpaceUIScene = (function (_super) {
         return _super.call(this, "spaceUI") || this;
     }
     SpaceUIScene.prototype.create = function () {
-        this.spaceScene = this.scene.get("space");
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
         var statsY = this.game.config.height - 145;
@@ -42,7 +41,6 @@ var SpaceUIScene = (function (_super) {
     };
     SpaceUIScene.prototype.update = function (time, delta) {
         var cam = this.cameras.main;
-        cam.setScroll(scrollX, scrollY);
         cam.setRoundPixels(true);
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());

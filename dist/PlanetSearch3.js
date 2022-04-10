@@ -578,6 +578,90 @@ exports.default = Player;
 
 /***/ }),
 
+/***/ "./gameObjects/planet/StaticGameObject.js":
+/*!************************************************!*\
+  !*** ./gameObjects/planet/StaticGameObject.js ***!
+  \************************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject = (function (_super) {
+    __extends(StaticGameObject, _super);
+    function StaticGameObject(scene, x, y, texture, frame, solid) {
+        var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        scene.add.existing(_this);
+        return _this;
+    }
+    StaticGameObject.prototype.onCollide = function (object) {
+    };
+    StaticGameObject.prototype.onOverlap = function (object) {
+    };
+    StaticGameObject.prototype.processCollision = function (object) {
+    };
+    return StaticGameObject;
+}(Phaser.Physics.Arcade.Image));
+exports.default = StaticGameObject;
+//# sourceMappingURL=StaticGameObject.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/planet/Water.js":
+/*!*************************************!*\
+  !*** ./gameObjects/planet/Water.js ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StaticGameObject_1 = __webpack_require__(/*! ./StaticGameObject */ "./gameObjects/planet/StaticGameObject.js");
+var Water = (function (_super) {
+    __extends(Water, _super);
+    function Water(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "water") || this;
+        scene.physics.add.existing(_this);
+        _this.setMaxVelocity(0, 0);
+        _this.setOrigin(0, 0);
+        _this.setSize(_this.displayWidth, _this.displayHeight);
+        _this.setVisible(false);
+        return _this;
+    }
+    Water.prototype.onCollide = function (object) {
+        object.inLiquid = true;
+    };
+    return Water;
+}(StaticGameObject_1.default));
+exports.default = Water;
+//# sourceMappingURL=Water.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/space/Bullet.js":
 /*!*************************************!*\
   !*** ./gameObjects/space/Bullet.js ***!
@@ -1014,6 +1098,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
 var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
@@ -1028,10 +1113,11 @@ var PlayerShip = (function (_super) {
         _this.crests = 0;
         _this.maxSpeed = 5;
         _this.speedAcl = 0.25;
-        _this.speedDeacl = 0.025;
+        _this.speedDeacl = 0.075;
         _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.12;
+        _this.angleDeacl = 0.2;
         _this.destroyOnKill = false;
+        _this.canShoot = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -1041,12 +1127,24 @@ var PlayerShip = (function (_super) {
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
             slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
         _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            _this.shoot();
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-SPACE", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        var shootInterval = 200;
+        _this.shootLimiterTimer = timer_1.default(true, shootInterval, function () {
+            _this.canShoot = true;
+            _this.shootLimiterTimer.reset();
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -1122,6 +1220,7 @@ var PlayerShip = (function (_super) {
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
+        this.shootLimiterTimer.update();
     };
     PlayerShip.prototype.onKill = function () {
         this.scene.handleGameOver();
@@ -1427,7 +1526,7 @@ exports.default = logger;
 /*!******************************!*\
   !*** ./scenes/EntryScene.js ***!
   \******************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -1444,16 +1543,78 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../gameObjects/Utils/timer */ "./gameObjects/Utils/timer.js");
 var EntryScene = (function (_super) {
     __extends(EntryScene, _super);
     function EntryScene() {
-        return _super.call(this, "entry") || this;
+        var _this = _super.call(this, "entry") || this;
+        _this.effectRunning = false;
+        return _this;
     }
     EntryScene.prototype.preload = function () {
-        this.currentSceneGroup = "planet";
+        this.currentSceneGroup = "space";
+        this.load.spritesheet("transitionTile", "./assets/Loading/TransitionTile.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+    };
+    EntryScene.prototype.createEffect = function () {
+        var _this = this;
+        var cam = this.cameras.main;
+        this.effect = this.add.tileSprite(cam.x, cam.y, cam.width * 2, cam.height * 2, "transitionTile");
+        this.effectFrame = 0;
+        this.effectDirection = 1;
+        this.effectDelay = 5;
+        var first = false;
+        this.effectTimer = timer_1.default(true, this.effectDelay, function () {
+            if (!first) {
+                first = true;
+                return;
+            }
+            if (_this.effectFrame < 0) {
+                _this.effectRunning = false;
+                return;
+            }
+            else if (_this.effectFrame > 27) {
+                _this.effectDirection = -_this.effectDirection;
+                _this.effectCallback.apply(_this.effectCallbackScope);
+            }
+            _this.effectFrame += _this.effectDirection;
+            _this.effect.setFrame(_this.effectFrame);
+            _this.effectTimer.reset();
+        });
+    };
+    EntryScene.prototype.startEffect = function (callback, scope) {
+        if (scope === undefined) {
+            scope = this;
+        }
+        this.effectFrame = 0;
+        this.effectDirection = 1;
+        this.effectDelay = 50;
+        this.effectRunning = true;
+        this.effect.setVisible(true);
+        this.effectCallback = callback;
+        this.effectCallbackScope = scope;
+    };
+    EntryScene.prototype.updateEffect = function () {
+        if (this.effectRunning) {
+            this.effectTimer.update();
+        }
+        this.effect.setVisible(this.effectRunning);
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
+        this.scene.bringToTop();
+        this.createEffect();
+    };
+    EntryScene.prototype.update = function (time, delta) {
+        this.updateEffect();
+    };
+    EntryScene.prototype.newSwitchSceneGroup = function (sceneGroup, callback, callbackScope) {
+        var _this = this;
+        this.startEffect(function () {
+            _this.switchSceneGroup(sceneGroup, callback, callbackScope);
+        });
     };
     EntryScene.prototype.switchSceneGroup = function (sceneGroup, callback, callbackScope) {
         if (sceneGroup === this.currentSceneGroup) {
@@ -1505,6 +1666,10 @@ exports.default = {
         SLOPE_RIGHT_UP: 15,
         GREEN_BEAKER: 21,
         CHECKPOINT: 22
+    },
+    GRASS_PLANET: {
+        WATER: 59,
+        WATER_2: 60
     }
 };
 //# sourceMappingURL=BlockIndexes.js.map
@@ -1930,6 +2095,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
+var Water_1 = __webpack_require__(/*! ../../gameObjects/planet/Water */ "./gameObjects/planet/Water.js");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -1950,9 +2116,9 @@ var PlanetLogicScene = (function (_super) {
             return;
         }
         this.loadData = {
-            currentWorld: "CavePLanet",
-            currentTileset: "CaveTileset-extruded",
-            currentLevel: "Cave"
+            currentWorld: "GrassPlanet",
+            currentTileset: "GrassPlanet",
+            currentLevel: "Level1"
         };
         this.presetData = {
             currentLevel: this.loadData.currentLevel
@@ -1969,22 +2135,33 @@ var PlanetLogicScene = (function (_super) {
         this.load.tilemapTiledJSON(currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + currentLevel + ".json");
     };
     PlanetLogicScene.prototype.create = function (inputData) {
+        var _this = this;
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
-        var foregroundLayer = tilemap.createLayer("Foreground", tileset, 0, 0);
-        var groundLayer = tilemap.createLayer("Ground", tileset, 0, 0).setCollisionByProperty({ collides: true });
         var backgroundLayer = tilemap.createLayer("Background", tileset, 0, 0);
+        var groundLayer = tilemap.createLayer("Ground", tileset, 0, 0).setCollisionByProperty({ collides: true });
+        var foregroundLayer = tilemap.createLayer("Foreground", tileset, 0, 0);
         this.player = new Player_1.default(this, 200, 100);
         this.physics.add.collider(this.player, groundLayer);
+        backgroundLayer.setDepth(0);
+        groundLayer.setDepth(1);
+        foregroundLayer.setDepth(10);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        foregroundLayer.setVisible(false);
-        groundLayer.setVisible(false);
-        backgroundLayer.setVisible(false);
+        var water = this.add.group();
+        this.physics.add.collider(this.player, water, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+        });
+        groundLayer.forEachTile(function (tile) {
+            if (tile.index > 82 && tile.index < 99) {
+                tile.alpha = 0.8;
+                water.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+            }
+        });
     };
     PlanetLogicScene.prototype.getPlayerStats = function () {
         return this.player.getStats();
@@ -2032,6 +2209,9 @@ var PlanetScene = (function (_super) {
         this.runScenes();
         this.loaded = true;
     };
+    PlanetScene.prototype.getEffectsScene = function () {
+        return this.scene.get("planetEffects");
+    };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {
             this.switchToSpaceSceneGroup();
@@ -2048,11 +2228,12 @@ var PlanetScene = (function (_super) {
         this.scene.run("planetLogic");
         this.scene.run("planetUI");
         this.scene.run("planetEffects");
+        this.scene.bringToTop("planetEffects");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
         this.spaceBar.reset();
-        entryScene.switchSceneGroup("space");
+        entryScene.newSwitchSceneGroup("space");
     };
     return PlanetScene;
 }(Phaser.Scene));
@@ -2215,7 +2396,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.2), 4));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.4), 2.5));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
@@ -2224,7 +2405,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
-        this.updateZoom(1);
+        this.updateZoom(0.9);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;
@@ -2367,6 +2548,45 @@ exports.default = SpaceDebugScene;
 
 /***/ }),
 
+/***/ "./scenes/space/SpaceEffectsScene.js":
+/*!*******************************************!*\
+  !*** ./scenes/space/SpaceEffectsScene.js ***!
+  \*******************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceEffectsScene = (function (_super) {
+    __extends(SpaceEffectsScene, _super);
+    function SpaceEffectsScene() {
+        return _super.call(this, "spaceEffects") || this;
+    }
+    SpaceEffectsScene.prototype.preload = function () {
+    };
+    SpaceEffectsScene.prototype.create = function () {
+    };
+    SpaceEffectsScene.prototype.update = function (time, delta) {
+    };
+    return SpaceEffectsScene;
+}(Phaser.Scene));
+exports.default = SpaceEffectsScene;
+//# sourceMappingURL=SpaceEffectsScene.js.map
+
+/***/ }),
+
 /***/ "./scenes/space/SpaceLogicScene.js":
 /*!*****************************************!*\
   !*** ./scenes/space/SpaceLogicScene.js ***!
@@ -2435,7 +2655,7 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 61000);
+        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 60500);
         this.spaceScene.setCameraTarget(this.playerShip);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
@@ -2514,9 +2734,6 @@ var SpaceScene = (function (_super) {
                 matter: {
                     gravity: false,
                     autoUpdate: false,
-                    positionIterations: 4,
-                    velocityIterations: 2,
-                    constraintIterations: 1
                 }
             }
         }) || this;
@@ -2552,16 +2769,20 @@ var SpaceScene = (function (_super) {
         });
     };
     SpaceScene.prototype.create = function () {
+        var worldWidth = 204800;
+        var worldHeight = 204800;
+        var cellWidth = 512;
+        var cellHeight = 512;
         this.cspConfig = {
             window: {
                 width: this.game.config.width,
                 height: this.game.config.height
             },
             grid: {
-                cols: 200,
-                rows: 200,
-                cellWidth: 800,
-                cellHeight: 800
+                cols: worldWidth / cellWidth,
+                rows: worldHeight / cellHeight,
+                cellWidth: cellWidth,
+                cellHeight: cellHeight
             }
         };
         this.csp.initWorld(this.cspConfig);
@@ -2581,25 +2802,24 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
     };
+    SpaceScene.prototype.setCameraTarget = function (object) {
+        this.cameraTargetTracker.setTrackedObject(object);
+    };
+    SpaceScene.prototype.getCameraTarget = function () {
+        return this.cameraTargetTracker;
+    };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.scene.bringToTop("spaceUI");
-        this.runDebugScenes();
+        this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;
             playerShip.resetKeys();
         }
-    };
-    SpaceScene.prototype.setCameraTarget = function (object) {
-        this.cameraTargetTracker.setTrackedObject(object);
-    };
-    SpaceScene.prototype.getCameraTarget = function () {
-        return this.cameraTargetTracker;
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -2625,21 +2845,28 @@ var SpaceScene = (function (_super) {
                 _this.scene.sleep("spaceDebug");
             }
         });
+        this.scene.bringToTop("spaceEffects");
     };
-    SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
-        this.scene.sleep("spaceBackground");
-        this.scene.sleep("spaceLogic");
-        this.scene.sleep("spaceCameraController");
+    SpaceScene.prototype.sleepDebugScenes = function () {
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
-        this.scene.sleep("starSceneController");
+    };
+    SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
+        this.scene.moveBelow("spaceUI", "spaceEffects");
         this.scene.sleep("spaceUI");
+        this.scene.sleep("starSceneController");
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceLogic");
+        this.scene.sleep("spaceBackground");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
+        entryScene.newSwitchSceneGroup("planet", function (fromScene, nextScene) {
             nextScene.receiveInfo(levelInfo);
         });
+    };
+    SpaceScene.prototype.getEffectsScene = function () {
+        return this.scene.get("spaceEffects");
     };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
@@ -2667,7 +2894,7 @@ var SpaceScene = (function (_super) {
             });
         });
         if (this.stepMatter++ >= 2) {
-            this.matter.step(33.33333);
+            this.matter.step(1000 / 30, 0);
             this.stepMatter = 0;
         }
     };
@@ -2754,8 +2981,8 @@ var SpaceStarScene = (function (_super) {
         var cellHeight = this.csStars.world.cameraGrid.cellHeight;
         var cellImageRT = this.add.renderTexture(0, 0, cellWidth, cellHeight);
         cellImageRT.beginDraw();
-        for (var x = 0; x < cellWidth; x += this.starImage.displayWidth) {
-            for (var y = 0; y < cellHeight; y += this.starImage.displayHeight) {
+        for (var x = 0; x <= cellWidth; x += this.starImage.displayWidth) {
+            for (var y = 0; y <= cellHeight; y += this.starImage.displayHeight) {
                 cellImageRT.batchDraw(this.starImage, x, y);
             }
         }
@@ -2778,7 +3005,6 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.showGrid();
         this.sys.displayList.add(this.rt);
         this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
@@ -2793,7 +3019,7 @@ var SpaceStarScene = (function (_super) {
         this.rt.camera.x = -this.frontCamera.scrollX * this.frontCamera.zoom;
         this.rt.camera.y = -this.frontCamera.scrollY * this.frontCamera.zoom;
         this.rt.camera.zoom = this.frontCamera.zoom;
-        this.rt.camera.setAngle(this.scene.get("spaceCameraController").getCameraAngle());
+        this.rt.camera.setAngle(this.spaceCameraControllerScene.getCameraAngle());
         this.rt.clear();
         this.rt.beginDraw();
         world.loopThroughVisibleCells(function (cell, col, row) {
@@ -2904,7 +3130,6 @@ var SpaceUIScene = (function (_super) {
         return _super.call(this, "spaceUI") || this;
     }
     SpaceUIScene.prototype.create = function () {
-        this.spaceScene = this.scene.get("space");
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
         var statsY = this.game.config.height - 145;
@@ -2927,7 +3152,6 @@ var SpaceUIScene = (function (_super) {
     };
     SpaceUIScene.prototype.update = function (time, delta) {
         var cam = this.cameras.main;
-        cam.setScroll(scrollX, scrollY);
         cam.setRoundPixels(true);
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
@@ -2977,7 +3201,7 @@ var StarSceneControllerScene = (function (_super) {
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
         this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starScroll: 0.65,
+            starScroll: 1.0,
             imageKey: "starBackground",
             cspConfig: {
                 window: {
@@ -2985,10 +3209,10 @@ var StarSceneControllerScene = (function (_super) {
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 1024,
+                    cellHeight: 1024,
                 }
             }
         });
@@ -3061,20 +3285,23 @@ var PlanetUIScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetUIScene */ "
 var PlanetBackScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetBackScene */ "./scenes/planet/PlanetBackScene.js");
 var PlanetLoaderScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLoaderScene */ "./scenes/planet/PlanetLoaderScene.js");
 var SpaceUIScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIScene */ "./scenes/space/SpaceUIScene.js");
+var SpaceEffectsScene_1 = __webpack_require__(/*! ./scenes/space/SpaceEffectsScene */ "./scenes/space/SpaceEffectsScene.js");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
     height: 450,
-    pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    pixelArt: true,
     disableContextMenu: true,
+    antialiasGL: false,
+    batchSize: 32,
     scene: [
         EntryScene_1.default,
-        SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default, SpaceUIScene_1.default,
-        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default,
+        SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
     seed: "explorationHelix1"

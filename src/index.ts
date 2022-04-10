@@ -24,6 +24,7 @@ import PlanetUIScene from "./scenes/planet/PlanetUIScene";
 import PlanetBackScene from "./scenes/planet/PlanetBackScene";
 import PlanetLoaderScene from "./scenes/planet/PlanetLoaderScene";
 import SpaceUIScene from "./scenes/space/SpaceUIScene";
+import SpaceEffectsScene from "./scenes/space/SpaceEffectsScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -68,12 +69,14 @@ let config: Phaser.Types.Core.GameConfig = {
     type: Phaser.WEBGL,
     width: 800,
     height: 450,
-    pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    pixelArt: true,
     disableContextMenu: true,
+    antialiasGL: false,
+    batchSize: 32,
     scene: [
         // TitleScene,
  
@@ -81,8 +84,8 @@ let config: Phaser.Types.Core.GameConfig = {
         EntryScene,
 
         // Space scenes
-        SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, SpaceUIScene,
-        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, 
+        SpaceBackgroundScene, SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
+        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, SpaceUIScene, SpaceEffectsScene,
 
         // Planet scene(s)
         PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene

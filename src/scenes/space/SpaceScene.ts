@@ -18,16 +18,17 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 matter: {
                     gravity: false,
                     autoUpdate: false, 
-                    positionIterations: 4,
-                    velocityIterations: 2,
-                    constraintIterations: 1
+                    // positionIterations: 4,
+                    // velocityIterations: 2,
+                    // constraintIterations: 1
                 }
             }
         });
 
         this.cameraTargetTracker = new CameraTargetTracker();
-    }
 
+    }
+    
     public preload()
     {
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
@@ -51,7 +52,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
-
+        
         this.load.scenePlugin({
             key: "CartesianSystemPlugin",
             url: "./libraries/CartesianSystemPlugin.js",
@@ -64,16 +65,37 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public create()
     {
+        const worldWidth = 204800;
+        const worldHeight = 204800;
+
+        /*
+            Changing this will affect performance. 
+            Higher values mean:
+                Shorter load times (because there are less cells to generate)
+                More lag if you turn it too high (because there would be too many objects in the same cell)
+                Warning: Turn this too high and you will get insane lag!
+
+            Lower values mean:
+                Longer load times (because there are more cells to generate)
+                More lag if you turn it too low (because there would be too many cells to loop through)
+                Warning: Turn this too low and you will run out of memory!
+
+            The default for both is 512 
+            it's also probably best to keep this to a power of 2
+        */
+        const cellWidth = 512;
+        const cellHeight = 512;
+
         this.cspConfig = {
             window: {
                 width: this.game.config.width,
                 height: this.game.config.height
             },
             grid: {
-                cols: 200,
-                rows: 200,
-                cellWidth: 800,
-                cellHeight: 800
+                cols: worldWidth / cellWidth,
+                rows: worldHeight / cellHeight,
+                cellWidth: cellWidth,
+                cellHeight: cellHeight
             }
         };
         
@@ -81,10 +103,21 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.runScenes(false);
         this.loaded = true;
-
+        
+        // this.matter.world.engine.enableSleeping = true;
         this.prepareStatsGraphics();
         
         this.cameras.main.startFollow(this.cameraTargetTracker);
+
+        // this.matter.grid.create({
+        //     bucketWidth: 65536,
+        //     bucketHeight: 65536
+        // });
+
+        // this.matter.grid.create({
+        //     bucketWidth: this.cspConfig.cellWidth * 0.5,
+        //     bucketHeight: this.cspConfig.cellWidth * 0.5
+        // })
     }
 
     public handleGameOver()
@@ -104,32 +137,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         this.statsGraphics = this.add.graphics().setDepth(4);
     }
-
+    
     private stepMatter: number = 0;
-
+    
     private playerShip: PlayerShip;
     private cameraTargetTracker: CameraTargetTracker;
-
-    public runScenes(calledByEntryScene?: boolean)
-    { 
-        this.scene.run("spaceBackground");
-        this.scene.run("spaceLogic");
-        this.scene.run("spaceCameraController");
-        this.scene.run("starSceneController");
-        this.scene.run("spaceUI");
-        this.scene.bringToTop("spaceUI");
-
-        this.runDebugScenes();
-
-
-        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
-
-        if(calledByEntryScene)
-        {
-            playerShip.y += 500;
-            playerShip.resetKeys();
-        }
-    }
 
     public setCameraTarget(object: any)
     {
@@ -139,6 +151,29 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     public getCameraTarget()
     {
         return this.cameraTargetTracker;
+    }
+
+    public runScenes(calledByEntryScene?: boolean)
+    { 
+        this.scene.run("spaceBackground");
+        this.scene.run("spaceLogic");
+        this.scene.run("spaceCameraController");
+        this.scene.run("starSceneController");
+        this.scene.run("spaceUI");
+        // this.scene.bringToTop("spaceUI");
+        
+        // // this.runDebugScenes();
+        
+        // this.scene.run("spaceEffects");
+        this.scene.bringToTop("spaceEffects");
+
+        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
+
+        if(calledByEntryScene)
+        {
+            playerShip.y += 500;
+            playerShip.resetKeys();
+        }
     }
 
     private runDebugScenes()
@@ -173,27 +208,49 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 this.scene.sleep("spaceDebug");
             }
         });
+
+        this.scene.bringToTop("spaceEffects");
+    }
+
+    private sleepDebugScenes()
+    {
+        this.scene.sleep("spaceDebug");
+        this.scene.sleep("spaceUIDebug");
     }
 
     public sleepScenes(calledByEntryScene?: boolean)
     {
-        this.scene.sleep("spaceBackground");
-        this.scene.sleep("spaceLogic");
-        this.scene.sleep("spaceCameraController");
-        this.scene.sleep("spaceDebug");
-        this.scene.sleep("spaceUIDebug");
-        this.scene.sleep("starSceneController");
+
+        this.scene.moveBelow("spaceUI", "spaceEffects");
         this.scene.sleep("spaceUI");
+        this.scene.sleep("starSceneController");
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceLogic");
+        this.scene.sleep("spaceBackground");
+
+        // this.scene.sleep("spaceBackground");
+        // this.scene.sleep("spaceLogic");
+        // this.scene.sleep("spaceCameraController");
+        // this.scene.sleep("spaceDebug");
+        // this.scene.sleep("spaceUIDebug");
+        // this.scene.sleep("starSceneController");
+        // this.scene.sleep("spaceUI");
+        // // this.scene.sleep("spaceEffects");
     }
 
     public switchToPlanetSceneGroup(levelInfo: object)
     {
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
 
-        entryScene.switchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
+        entryScene.newSwitchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
         {
             nextScene.receiveInfo(levelInfo);
         });
+    }
+
+    public getEffectsScene()
+    {
+        return this.scene.get("spaceEffects");
     }
 
     public csp: any;
@@ -238,13 +295,16 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         
         if(this.stepMatter++ >= 2)
         {
-            this.matter.step(33.33333);
+            // this.matter.grid.clear(this.matter.grid);
+            // this.matter.grid.update(this.matter.grid, this.sys.updateList.getActive().map(obj => obj.body) as MatterJS.BodyType[], this.matter.world.engine, true);
+            this.matter.step(1000 / 30, 0);
+            // this.matter.step();
             this.stepMatter = 0;
         }
     }
 
     private updateStatsGraphics()
-    {
+    { 
         var cam = this.cameras.main;
 
         this.statsGraphics.clear();

@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Player_1 = require("../../gameObjects/planet/Player");
+var Water_1 = require("../../gameObjects/planet/Water");
 var PlanetLogicScene = (function (_super) {
     __extends(PlanetLogicScene, _super);
     function PlanetLogicScene() {
@@ -34,9 +35,9 @@ var PlanetLogicScene = (function (_super) {
             return;
         }
         this.loadData = {
-            currentWorld: "CavePLanet",
-            currentTileset: "CaveTileset-extruded",
-            currentLevel: "Cave"
+            currentWorld: "GrassPlanet",
+            currentTileset: "GrassPlanet",
+            currentLevel: "Level1"
         };
         this.presetData = {
             currentLevel: this.loadData.currentLevel
@@ -53,22 +54,33 @@ var PlanetLogicScene = (function (_super) {
         this.load.tilemapTiledJSON(currentLevel, "./assets/Planet/levels/" + currentWorld + "/tilemaps/" + currentLevel + ".json");
     };
     PlanetLogicScene.prototype.create = function (inputData) {
+        var _this = this;
         var tilemap = this.make.tilemap({ key: this.loadData.currentLevel, tileWidth: 16, tileHeight: 16 });
         var tileset = tilemap.addTilesetImage(this.loadData.currentTileset);
-        var foregroundLayer = tilemap.createLayer("Foreground", tileset, 0, 0);
-        var groundLayer = tilemap.createLayer("Ground", tileset, 0, 0).setCollisionByProperty({ collides: true });
         var backgroundLayer = tilemap.createLayer("Background", tileset, 0, 0);
+        var groundLayer = tilemap.createLayer("Ground", tileset, 0, 0).setCollisionByProperty({ collides: true });
+        var foregroundLayer = tilemap.createLayer("Foreground", tileset, 0, 0);
         this.player = new Player_1.default(this, 200, 100);
         this.physics.add.collider(this.player, groundLayer);
+        backgroundLayer.setDepth(0);
+        groundLayer.setDepth(1);
+        foregroundLayer.setDepth(10);
         this.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         this.physics.world.setBoundsCollision(true, true, true, false);
         var cam = this.cameras.main;
         cam.startFollow(this.player);
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-        foregroundLayer.setVisible(false);
-        groundLayer.setVisible(false);
-        backgroundLayer.setVisible(false);
+        var water = this.add.group();
+        this.physics.add.collider(this.player, water, function (objectA, objectB) {
+            objectB.onCollide(objectA);
+        });
+        groundLayer.forEachTile(function (tile) {
+            if (tile.index > 82 && tile.index < 99) {
+                tile.alpha = 0.8;
+                water.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
+            }
+        });
     };
     PlanetLogicScene.prototype.getPlayerStats = function () {
         return this.player.getStats();

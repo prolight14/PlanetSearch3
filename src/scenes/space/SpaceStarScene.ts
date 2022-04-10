@@ -63,6 +63,8 @@ export default class SpaceStarScene extends Phaser.Scene
         this.frontCamera.ignore(this.rt);
         this.frontCamera.startFollow(this.cameras.main);
 
+        // Why do I need this?
+        // Removing this removes the star background for some reason
         this.cameras.add();
 
         this.tileStarImage();
@@ -79,9 +81,9 @@ export default class SpaceStarScene extends Phaser.Scene
 
         cellImageRT.beginDraw();
 
-        for(var x = 0; x < cellWidth; x += this.starImage.displayWidth)
+        for(var x = 0; x <= cellWidth; x += this.starImage.displayWidth)
         {
-            for(var y = 0; y < cellHeight; y += this.starImage.displayHeight)
+            for(var y = 0; y <= cellHeight; y += this.starImage.displayHeight)
             {
                 cellImageRT.batchDraw(this.starImage, x, y);
             }
@@ -129,7 +131,7 @@ export default class SpaceStarScene extends Phaser.Scene
         );
         this.csStars.updateWorld();
 
-        this.showGrid();
+        // this.showGrid();
         this.sys.displayList.add(this.rt);
         this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
@@ -148,7 +150,7 @@ export default class SpaceStarScene extends Phaser.Scene
         this.rt.camera.x = -this.frontCamera.scrollX * this.frontCamera.zoom;
         this.rt.camera.y = -this.frontCamera.scrollY * this.frontCamera.zoom;
         this.rt.camera.zoom = this.frontCamera.zoom;
-        this.rt.camera.setAngle((this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle());
+        this.rt.camera.setAngle(this.spaceCameraControllerScene.getCameraAngle());
 
         this.rt.clear();
         this.rt.beginDraw();

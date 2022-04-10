@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var timer_1 = require("../Utils/timer");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
 var Ship_1 = require("./Ship");
@@ -27,10 +28,11 @@ var PlayerShip = (function (_super) {
         _this.crests = 0;
         _this.maxSpeed = 5;
         _this.speedAcl = 0.25;
-        _this.speedDeacl = 0.025;
+        _this.speedDeacl = 0.075;
         _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.12;
+        _this.angleDeacl = 0.2;
         _this.destroyOnKill = false;
+        _this.canShoot = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -40,12 +42,24 @@ var PlayerShip = (function (_super) {
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
             slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
         _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
         _this.scene.input.keyboard.on("keyup-Z", function () {
-            _this.shoot();
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-SPACE", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        var shootInterval = 200;
+        _this.shootLimiterTimer = timer_1.default(true, shootInterval, function () {
+            _this.canShoot = true;
+            _this.shootLimiterTimer.reset();
         });
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
@@ -121,6 +135,7 @@ var PlayerShip = (function (_super) {
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
+        this.shootLimiterTimer.update();
     };
     PlayerShip.prototype.onKill = function () {
         this.scene.handleGameOver();

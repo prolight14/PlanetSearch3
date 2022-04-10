@@ -1,4 +1,5 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
+import timer from "../Utils/timer";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import HyperBeamerSType from "./HyperBeamerSType";
@@ -16,8 +17,8 @@ export default class PlayerShip extends Ship
         turnRight: Phaser.Input.Keyboard.Key;
         goForward: Phaser.Input.Keyboard.Key;
         slowDown: Phaser.Input.Keyboard.Key;
-        shoot: Phaser.Input.Keyboard.Key;
-        shootZ: Phaser.Input.Keyboard.Key;
+        // shoot: Phaser.Input.Keyboard.Key;
+        // shootZ: Phaser.Input.Keyboard.Key;
     };
 
     protected hp: number = 10;
@@ -57,16 +58,23 @@ export default class PlayerShip extends Ship
 
     protected maxSpeed: number = 5;
     protected speedAcl: number = 0.25;
-    protected speedDeacl: number = 0.025;
+    protected speedDeacl: number = 0.075;
     protected manualSpeedDeacl: number = 0.15;
-    protected angleDeacl: number = 0.12;
+    // protected angleDeacl: number = 0.12;
+    protected angleDeacl: number = 0.2;
 
     protected destroyOnKill: boolean = false;
+
+    private shootLimiterTimer: {
+        update: () => any;
+        reset: (newInterval?: number, _args?: Array<any>) => any;
+    };
+    private canShoot: boolean = true;
 
     constructor (scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "helixShip", undefined/*, { shape: scene.cache.json.get("helixShipShape").helixShip }*/);
-
+        
         this.setCollisionGroup(2);
         this.setCollidesWith(0);
 
@@ -78,16 +86,37 @@ export default class PlayerShip extends Ship
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
             slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-            shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-            shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
+            // shoot: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+            // shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
 
         this.bullets = scene.csp.world.add.gameObjectArray(Bullet, "playerShipBullet");
 
         this.scene.input.keyboard.on("keyup-Z", () =>
         {
-            this.shoot();
+            if(this.canShoot)
+            {
+                this.shoot();
+                this.canShoot = false;
+            }
         });
+        this.scene.input.keyboard.on("keyup-SPACE", () =>
+        {
+            if(this.canShoot)
+            {
+                this.shoot();
+                this.canShoot = false;
+            }
+        });
+
+        const shootInterval = 200;
+
+        this.shootLimiterTimer = timer(true, shootInterval, () =>
+        {
+            this.canShoot = true;
+            this.shootLimiterTimer.reset();
+        });
+
 
         this.particles = scene.add.particles("helixShipParticle");
 
@@ -177,6 +206,8 @@ export default class PlayerShip extends Ship
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
+
+        this.shootLimiterTimer.update();
     }
 
     protected onKill()

@@ -51,8 +51,8 @@ var SpaceStarScene = (function (_super) {
         var cellHeight = this.csStars.world.cameraGrid.cellHeight;
         var cellImageRT = this.add.renderTexture(0, 0, cellWidth, cellHeight);
         cellImageRT.beginDraw();
-        for (var x = 0; x < cellWidth; x += this.starImage.displayWidth) {
-            for (var y = 0; y < cellHeight; y += this.starImage.displayHeight) {
+        for (var x = 0; x <= cellWidth; x += this.starImage.displayWidth) {
+            for (var y = 0; y <= cellHeight; y += this.starImage.displayHeight) {
                 cellImageRT.batchDraw(this.starImage, x, y);
             }
         }
@@ -75,7 +75,6 @@ var SpaceStarScene = (function (_super) {
         var follow = this.spaceScene.getCameraTarget();
         this.csStars.setFollow(follow.x * this.starScroll - this.subScrollX, follow.y * this.starScroll - this.subScrollY);
         this.csStars.updateWorld();
-        this.showGrid();
         this.sys.displayList.add(this.rt);
         this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
@@ -90,7 +89,7 @@ var SpaceStarScene = (function (_super) {
         this.rt.camera.x = -this.frontCamera.scrollX * this.frontCamera.zoom;
         this.rt.camera.y = -this.frontCamera.scrollY * this.frontCamera.zoom;
         this.rt.camera.zoom = this.frontCamera.zoom;
-        this.rt.camera.setAngle(this.scene.get("spaceCameraController").getCameraAngle());
+        this.rt.camera.setAngle(this.spaceCameraControllerScene.getCameraAngle());
         this.rt.clear();
         this.rt.beginDraw();
         world.loopThroughVisibleCells(function (cell, col, row) {

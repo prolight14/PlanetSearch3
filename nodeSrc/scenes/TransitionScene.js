@@ -13,20 +13,18 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var StaticGameObject = (function (_super) {
-    __extends(StaticGameObject, _super);
-    function StaticGameObject(scene, x, y, texture, frame, solid) {
-        var _this = _super.call(this, scene, x, y, texture, frame) || this;
-        scene.add.existing(_this);
-        return _this;
+var TransitionScene = (function (_super) {
+    __extends(TransitionScene, _super);
+    function TransitionScene() {
+        return _super.call(this, "transition") || this;
     }
-    StaticGameObject.prototype.onCollide = function (object) {
+    TransitionScene.prototype.preload = function () {
     };
-    StaticGameObject.prototype.onOverlap = function (object) {
+    TransitionScene.prototype.create = function () {
     };
-    StaticGameObject.prototype.processCollision = function (object) {
+    TransitionScene.prototype.update = function (time, delta) {
     };
-    return StaticGameObject;
-}(Phaser.Physics.Arcade.Image));
-exports.default = StaticGameObject;
-//# sourceMappingURL=StaticGameObject.js.map
+    return TransitionScene;
+}(Phaser.Scene));
+exports.default = TransitionScene;
+//# sourceMappingURL=TransitionScene.js.map

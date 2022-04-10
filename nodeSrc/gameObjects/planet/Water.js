@@ -21,7 +21,7 @@ var Water = (function (_super) {
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
-        _this.setScale(16 / _this.displayWidth, 16 / _this.displayHeight);
+        _this.setSize(_this.displayWidth, _this.displayHeight);
         _this.setVisible(false);
         return _this;
     }

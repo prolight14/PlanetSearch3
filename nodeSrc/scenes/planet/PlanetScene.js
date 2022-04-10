@@ -28,6 +28,9 @@ var PlanetScene = (function (_super) {
         this.runScenes();
         this.loaded = true;
     };
+    PlanetScene.prototype.getEffectsScene = function () {
+        return this.scene.get("planetEffects");
+    };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {
             this.switchToSpaceSceneGroup();
@@ -44,11 +47,12 @@ var PlanetScene = (function (_super) {
         this.scene.run("planetLogic");
         this.scene.run("planetUI");
         this.scene.run("planetEffects");
+        this.scene.bringToTop("planetEffects");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
         this.spaceBar.reset();
-        entryScene.switchSceneGroup("space");
+        entryScene.newSwitchSceneGroup("space");
     };
     return PlanetScene;
 }(Phaser.Scene));

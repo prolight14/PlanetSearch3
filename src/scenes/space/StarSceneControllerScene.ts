@@ -28,7 +28,8 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
         this.scene.add("spaceStar", SpaceStarScene, true,
         {
-            starScroll: 0.65,
+            // starScroll: 0.65,
+            starScroll: 1.0,
 
             imageKey: "starBackground",
             cspConfig: {
@@ -37,10 +38,10 @@ export default class StarSceneControllerScene extends Phaser.Scene
                     height: spaceScene.cspConfig.height
                 },
                 grid: {
-                    cols: 100,
-                    rows: 100,
-                    cellWidth: 1600,
-                    cellHeight: 1600,
+                    cols: 200,
+                    rows: 200,
+                    cellWidth: 1024,
+                    cellHeight: 1024,
                 }
             }
         });
