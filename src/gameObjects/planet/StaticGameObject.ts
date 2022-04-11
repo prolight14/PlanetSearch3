@@ -1,6 +1,6 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
 
-export default class GameObject extends Phaser.Physics.Arcade.Image
+export default class StaticGameObject extends Phaser.Physics.Arcade.Image
 {
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string | Phaser.Textures.Texture, frame?: string | integer, solid?: boolean)
     {
@@ -15,17 +15,17 @@ export default class GameObject extends Phaser.Physics.Arcade.Image
         // }
     }
 
-    public onCollide(object: GameObject) 
+    public onCollide(object: StaticGameObject) 
     {
 
     }
 
-    public onOverlap(object: GameObject) 
+    public onOverlap(object: StaticGameObject) 
     {
 
     }
 
-    public processCollision(object: GameObject)
+    public processCollision(object: StaticGameObject)
     {
         
     }

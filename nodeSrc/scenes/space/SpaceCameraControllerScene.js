@@ -24,7 +24,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.2), 4));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.4), 2.5));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
@@ -33,7 +33,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
-        this.updateZoom(1);
+        this.updateZoom(0.9);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;

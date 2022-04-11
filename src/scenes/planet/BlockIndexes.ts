@@ -18,5 +18,9 @@ export default {
         ////////////////////
         GREEN_BEAKER: 21,
         CHECKPOINT: 22
+    },
+    GRASS_PLANET: {
+        WATER: 59,
+        WATER_2: 60
     }
 };

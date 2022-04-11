@@ -27,7 +27,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         { 
             var cam = this.cameras.main;
 
-            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.2), 4));
+            this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.4), 2.5));
 
         });
 
@@ -40,7 +40,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         this.camAngle = 0;
         this.angleSpeed = 2;
 
-        this.updateZoom(1);
+        this.updateZoom(0.9);
     }
    
     public getCameraAngle(): number

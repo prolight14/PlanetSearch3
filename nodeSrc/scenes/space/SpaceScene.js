@@ -24,9 +24,6 @@ var SpaceScene = (function (_super) {
                 matter: {
                     gravity: false,
                     autoUpdate: false,
-                    positionIterations: 4,
-                    velocityIterations: 2,
-                    constraintIterations: 1
                 }
             }
         }) || this;
@@ -62,16 +59,20 @@ var SpaceScene = (function (_super) {
         });
     };
     SpaceScene.prototype.create = function () {
+        var worldWidth = 204800;
+        var worldHeight = 204800;
+        var cellWidth = 512;
+        var cellHeight = 512;
         this.cspConfig = {
             window: {
                 width: this.game.config.width,
                 height: this.game.config.height
             },
             grid: {
-                cols: 200,
-                rows: 200,
-                cellWidth: 800,
-                cellHeight: 800
+                cols: worldWidth / cellWidth,
+                rows: worldHeight / cellHeight,
+                cellWidth: cellWidth,
+                cellHeight: cellHeight
             }
         };
         this.csp.initWorld(this.cspConfig);
@@ -91,25 +92,24 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
     };
+    SpaceScene.prototype.setCameraTarget = function (object) {
+        this.cameraTargetTracker.setTrackedObject(object);
+    };
+    SpaceScene.prototype.getCameraTarget = function () {
+        return this.cameraTargetTracker;
+    };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.scene.bringToTop("spaceUI");
-        this.runDebugScenes();
+        this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;
             playerShip.resetKeys();
         }
-    };
-    SpaceScene.prototype.setCameraTarget = function (object) {
-        this.cameraTargetTracker.setTrackedObject(object);
-    };
-    SpaceScene.prototype.getCameraTarget = function () {
-        return this.cameraTargetTracker;
     };
     SpaceScene.prototype.runDebugScenes = function () {
         var _this = this;
@@ -135,21 +135,28 @@ var SpaceScene = (function (_super) {
                 _this.scene.sleep("spaceDebug");
             }
         });
+        this.scene.bringToTop("spaceEffects");
     };
-    SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
-        this.scene.sleep("spaceBackground");
-        this.scene.sleep("spaceLogic");
-        this.scene.sleep("spaceCameraController");
+    SpaceScene.prototype.sleepDebugScenes = function () {
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
-        this.scene.sleep("starSceneController");
+    };
+    SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
+        this.scene.moveBelow("spaceUI", "spaceEffects");
         this.scene.sleep("spaceUI");
+        this.scene.sleep("starSceneController");
+        this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceLogic");
+        this.scene.sleep("spaceBackground");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
+        entryScene.newSwitchSceneGroup("planet", function (fromScene, nextScene) {
             nextScene.receiveInfo(levelInfo);
         });
+    };
+    SpaceScene.prototype.getEffectsScene = function () {
+        return this.scene.get("spaceEffects");
     };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
@@ -177,7 +184,7 @@ var SpaceScene = (function (_super) {
             });
         });
         if (this.stepMatter++ >= 2) {
-            this.matter.step(33.33333);
+            this.matter.step(1000 / 30, 0);
             this.stepMatter = 0;
         }
     };
