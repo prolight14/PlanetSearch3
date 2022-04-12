@@ -137,6 +137,9 @@ export default class SpaceStarScene extends Phaser.Scene
         this.renderStars();
 
         this.frontCamera.zoom = cam.zoom;
+
+        this.cameras.main.disableCull = true;
+        this.cameras.main.setRoundPixels(true);
     }
 
     private renderStars()

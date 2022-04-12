@@ -1526,7 +1526,7 @@ exports.default = logger;
 /*!******************************!*\
   !*** ./scenes/EntryScene.js ***!
   \******************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -1543,78 +1543,16 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var timer_1 = __webpack_require__(/*! ../gameObjects/Utils/timer */ "./gameObjects/Utils/timer.js");
 var EntryScene = (function (_super) {
     __extends(EntryScene, _super);
     function EntryScene() {
-        var _this = _super.call(this, "entry") || this;
-        _this.effectRunning = false;
-        return _this;
+        return _super.call(this, "entry") || this;
     }
     EntryScene.prototype.preload = function () {
         this.currentSceneGroup = "space";
-        this.load.spritesheet("transitionTile", "./assets/Loading/TransitionTile.png", {
-            frameWidth: 64,
-            frameHeight: 64
-        });
-    };
-    EntryScene.prototype.createEffect = function () {
-        var _this = this;
-        var cam = this.cameras.main;
-        this.effect = this.add.tileSprite(cam.x, cam.y, cam.width * 2, cam.height * 2, "transitionTile");
-        this.effectFrame = 0;
-        this.effectDirection = 1;
-        this.effectDelay = 5;
-        var first = false;
-        this.effectTimer = timer_1.default(true, this.effectDelay, function () {
-            if (!first) {
-                first = true;
-                return;
-            }
-            if (_this.effectFrame < 0) {
-                _this.effectRunning = false;
-                return;
-            }
-            else if (_this.effectFrame > 27) {
-                _this.effectDirection = -_this.effectDirection;
-                _this.effectCallback.apply(_this.effectCallbackScope);
-            }
-            _this.effectFrame += _this.effectDirection;
-            _this.effect.setFrame(_this.effectFrame);
-            _this.effectTimer.reset();
-        });
-    };
-    EntryScene.prototype.startEffect = function (callback, scope) {
-        if (scope === undefined) {
-            scope = this;
-        }
-        this.effectFrame = 0;
-        this.effectDirection = 1;
-        this.effectDelay = 50;
-        this.effectRunning = true;
-        this.effect.setVisible(true);
-        this.effectCallback = callback;
-        this.effectCallbackScope = scope;
-    };
-    EntryScene.prototype.updateEffect = function () {
-        if (this.effectRunning) {
-            this.effectTimer.update();
-        }
-        this.effect.setVisible(this.effectRunning);
     };
     EntryScene.prototype.create = function () {
         this.scene.run(this.currentSceneGroup);
-        this.scene.bringToTop();
-        this.createEffect();
-    };
-    EntryScene.prototype.update = function (time, delta) {
-        this.updateEffect();
-    };
-    EntryScene.prototype.newSwitchSceneGroup = function (sceneGroup, callback, callbackScope) {
-        var _this = this;
-        this.startEffect(function () {
-            _this.switchSceneGroup(sceneGroup, callback, callbackScope);
-        });
     };
     EntryScene.prototype.switchSceneGroup = function (sceneGroup, callback, callbackScope) {
         if (sceneGroup === this.currentSceneGroup) {
@@ -1639,58 +1577,6 @@ exports.default = EntryScene;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ "./scenes/TitleScene.js":
-/*!******************************!*\
-  !*** ./scenes/TitleScene.js ***!
-  \******************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene = (function (_super) {
-    __extends(TitleScene, _super);
-    function TitleScene() {
-        return _super.call(this, "title") || this;
-    }
-    TitleScene.prototype.preload = function () {
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
-    };
-    TitleScene.prototype.create = function () {
-        var _this = this;
-        var gameWidth = this.game.canvas.width;
-        var gameHeight = this.game.canvas.height;
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
-        this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
-        this.input.keyboard.once("keydown", function () {
-            _this.cameras.main.fadeOut(500, 0, 0, 0);
-            _this.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.start("entry");
-            });
-        });
-    };
-    return TitleScene;
-}(Phaser.Scene));
-exports.default = TitleScene;
-//# sourceMappingURL=TitleScene.js.map
-
-/***/ }),
-
-=======
->>>>>>> planet3
 /***/ "./scenes/planet/BlockIndexes.js":
 /*!***************************************!*\
   !*** ./scenes/planet/BlockIndexes.js ***!
@@ -2285,7 +2171,7 @@ var PlanetScene = (function (_super) {
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
         this.spaceBar.reset();
-        entryScene.newSwitchSceneGroup("space");
+        entryScene.switchSceneGroup("space");
     };
     return PlanetScene;
 }(Phaser.Scene));
@@ -2371,48 +2257,6 @@ var CameraTargetTracker = (function () {
 }());
 exports.default = CameraTargetTracker;
 //# sourceMappingURL=CameraTargetTracker.js.map
-
-/***/ }),
-
-/***/ "./scenes/space/SpaceBackgroundScene.js":
-/*!**********************************************!*\
-  !*** ./scenes/space/SpaceBackgroundScene.js ***!
-  \**********************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var SpaceBackgroundScene = (function (_super) {
-    __extends(SpaceBackgroundScene, _super);
-    function SpaceBackgroundScene() {
-        return _super.call(this, "spaceBackground") || this;
-    }
-    SpaceBackgroundScene.prototype.preload = function () {
-    };
-    SpaceBackgroundScene.prototype.create = function () {
-        this.background = this.add.graphics();
-        var screenWidth = this.game.config.width;
-        var screenHeight = this.game.config.height;
-        this.background.fillStyle(0x000022);
-        this.background.fillRect(0, 0, screenWidth, screenHeight);
-    };
-    return SpaceBackgroundScene;
-}(Phaser.Scene));
-exports.default = SpaceBackgroundScene;
-//# sourceMappingURL=SpaceBackgroundScene.js.map
 
 /***/ }),
 
@@ -2684,9 +2528,9 @@ var SpaceLogicScene = (function (_super) {
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
-        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
-        for (var i = 0; i < nebulaeAmt; i++) {
-            nebulae.add(this.spaceScene, placeWidth * Phaser.Math.RND.frac(), placeHeight * Phaser.Math.RND.frac(), "grayNebula");
+        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 10000000);
+        for (var i = 0; i < 300; i++) {
+            nebulae.add(this.spaceScene, 69000 + 13000 * Phaser.Math.RND.frac(), 60500 + 13000 * Phaser.Math.RND.frac(), "purpleNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
@@ -2807,6 +2651,7 @@ var SpaceScene = (function (_super) {
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
         this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
@@ -2861,11 +2706,11 @@ var SpaceScene = (function (_super) {
         return this.cameraTargetTracker;
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
-        this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
+        this.runDebugScenes();
         this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
@@ -2909,11 +2754,10 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
-        this.scene.sleep("spaceBackground");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
-        entryScene.newSwitchSceneGroup("planet", function (fromScene, nextScene) {
+        entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
             nextScene.receiveInfo(levelInfo);
         });
     };
@@ -3061,6 +2905,8 @@ var SpaceStarScene = (function (_super) {
         this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
+        this.cameras.main.disableCull = true;
+        this.cameras.main.setRoundPixels(true);
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;
@@ -3243,42 +3089,55 @@ var StarSceneControllerScene = (function (_super) {
         return _super.call(this, "starSceneController") || this;
     }
     StarSceneControllerScene.prototype.preload = function () {
-        this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
+        this.load.image("starBackground1", "./assets/Space/Stars/Old/starBackground.png");
+        this.load.image("starBackground2", "./assets/Space/Stars/Old/starBackground2.png");
+        this.load.image("starBackground3", "./assets/Space/Stars/Old/starBackground3.png");
     };
     StarSceneControllerScene.prototype.create = function () {
-        this.startStarScenes();
-        this.events.on("sleep", this.onSleep, this);
-        this.events.on("wake", this.onWake, this);
+        var cam = this.cameras.main;
+        this.tileSprites = [];
+        this.scrollValues = [0.65, 0.78, 1];
+        var layerAmt = this.scrollValues.length;
+        for (var i = 1; i <= layerAmt; i++) {
+            this.tileSprites.push(this.add.tileSprite(0, 0, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt));
+        }
+        this.scene.sendToBack("starSceneController");
+    };
+    StarSceneControllerScene.prototype.update = function (time, delta) {
+        var cam = this.scene.get("space").cameras.main;
+        for (var i = 0; i < this.tileSprites.length; i++) {
+            var tileSprite = this.tileSprites[i];
+            tileSprite.tilePositionX = cam.scrollX * this.scrollValues[i];
+            tileSprite.tilePositionY = cam.scrollY * this.scrollValues[i];
+            tileSprite.tileScaleX = cam.zoomX;
+            tileSprite.tileScaleY = cam.zoomY;
+        }
     };
     StarSceneControllerScene.prototype.startStarScenes = function () {
         var spaceScene = this.scene.get("space");
-        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starScroll: 1.0,
-            imageKey: "starBackground",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 200,
-                    rows: 200,
-                    cellWidth: 1024,
-                    cellHeight: 1024,
+        var cellWidth = 2048;
+        var cellHeight = 2048;
+        for (var i = 1; i <= 3; i++) {
+            this.scene.add("spaceStar" + i, SpaceStarScene_1.default, true, {
+                starScroll: 0.7,
+                imageKey: "starBackground" + i,
+                cspConfig: {
+                    window: {
+                        width: spaceScene.cspConfig.width,
+                        height: spaceScene.cspConfig.height
+                    },
+                    grid: {
+                        cols: 204800 / cellWidth,
+                        rows: 204800 / cellHeight,
+                        cellWidth: cellWidth,
+                        cellHeight: cellHeight,
+                    }
                 }
-            }
-        });
-        this.scene.sendToBack("spaceStar");
-        this.scene.sendToBack("spaceBackground");
-        this.starScenesSleeping = false;
-    };
-    StarSceneControllerScene.prototype.onSleep = function () {
-        this.scene.sleep("spaceStar");
-        this.starScenesSleeping = true;
-    };
-    StarSceneControllerScene.prototype.onWake = function () {
-        this.scene.wake("spaceStar");
-        this.starScenesSleeping = false;
+            });
+        }
+        this.scene.sendToBack("spaceStar3");
+        this.scene.sendToBack("spaceStar2");
+        this.scene.sendToBack("spaceStar1");
     };
     return StarSceneControllerScene;
 }(Phaser.Scene));
@@ -3328,7 +3187,6 @@ var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceC
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
 var StarSceneControllerScene_1 = __webpack_require__(/*! ./scenes/space/StarSceneControllerScene */ "./scenes/space/StarSceneControllerScene.js");
-var SpaceBackgroundScene_1 = __webpack_require__(/*! ./scenes/space/SpaceBackgroundScene */ "./scenes/space/SpaceBackgroundScene.js");
 var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var SpaceLogicScene_1 = __webpack_require__(/*! ./scenes/space/SpaceLogicScene */ "./scenes/space/SpaceLogicScene.js");
 var PlanetLogicScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLogicScene */ "./scenes/planet/PlanetLogicScene.js");
@@ -3349,10 +3207,10 @@ var config = {
     pixelArt: true,
     disableContextMenu: true,
     antialiasGL: false,
-    batchSize: 32,
+    batchSize: 128,
     scene: [
         EntryScene_1.default,
-        SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
+        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],

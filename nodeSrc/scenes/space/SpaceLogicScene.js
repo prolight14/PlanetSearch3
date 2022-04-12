@@ -37,9 +37,9 @@ var SpaceLogicScene = (function (_super) {
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
-        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 12000000);
-        for (var i = 0; i < nebulaeAmt; i++) {
-            nebulae.add(this.spaceScene, placeWidth * Phaser.Math.RND.frac(), placeHeight * Phaser.Math.RND.frac(), "grayNebula");
+        var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 10000000);
+        for (var i = 0; i < 300; i++) {
+            nebulae.add(this.spaceScene, 69000 + 13000 * Phaser.Math.RND.frac(), 60500 + 13000 * Phaser.Math.RND.frac(), "purpleNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
