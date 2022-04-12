@@ -6,7 +6,6 @@ var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraController
 var SpaceDebugScene_1 = require("./scenes/space/SpaceDebugScene");
 var SpaceUIDebugScene_1 = require("./scenes/space/SpaceUIDebugScene");
 var StarSceneControllerScene_1 = require("./scenes/space/StarSceneControllerScene");
-var SpaceBackgroundScene_1 = require("./scenes/space/SpaceBackgroundScene");
 var PlanetScene_1 = require("./scenes/planet/PlanetScene");
 var SpaceLogicScene_1 = require("./scenes/space/SpaceLogicScene");
 var PlanetLogicScene_1 = require("./scenes/planet/PlanetLogicScene");
@@ -27,10 +26,10 @@ var config = {
     pixelArt: true,
     disableContextMenu: true,
     antialiasGL: false,
-    batchSize: 32,
+    batchSize: 128,
     scene: [
         EntryScene_1.default,
-        SpaceBackgroundScene_1.default, SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
+        SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],

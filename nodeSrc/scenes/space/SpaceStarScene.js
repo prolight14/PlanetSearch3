@@ -79,6 +79,8 @@ var SpaceStarScene = (function (_super) {
         this.sys.displayList.add(this.cellGraphics);
         this.renderStars();
         this.frontCamera.zoom = cam.zoom;
+        this.cameras.main.disableCull = true;
+        this.cameras.main.setRoundPixels(true);
     };
     SpaceStarScene.prototype.renderStars = function () {
         var _this = this;

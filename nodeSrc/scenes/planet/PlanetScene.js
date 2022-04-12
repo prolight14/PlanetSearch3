@@ -52,7 +52,7 @@ var PlanetScene = (function (_super) {
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
         this.spaceBar.reset();
-        entryScene.newSwitchSceneGroup("space");
+        entryScene.switchSceneGroup("space");
     };
     return PlanetScene;
 }(Phaser.Scene));

@@ -13,49 +13,37 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceStarScene_1 = require("./SpaceStarScene");
 var StarSceneControllerScene = (function (_super) {
     __extends(StarSceneControllerScene, _super);
     function StarSceneControllerScene() {
         return _super.call(this, "starSceneController") || this;
     }
     StarSceneControllerScene.prototype.preload = function () {
-        this.load.image("starBackground", "./assets/Space/Stars/starBackground.png");
+        this.load.image("starBackground1", "./assets/Space/Stars/starBackground1.png");
+        this.load.image("starBackground2", "./assets/Space/Stars/starBackground2.png");
+        this.load.image("starBackground3", "./assets/Space/Stars/starBackground3.png");
     };
     StarSceneControllerScene.prototype.create = function () {
-        this.startStarScenes();
-        this.events.on("sleep", this.onSleep, this);
-        this.events.on("wake", this.onWake, this);
+        var cam = this.cameras.main;
+        this.tileSprites = [];
+        this.scrollValues = [0.65, 0.9, 1];
+        var layerAmt = this.scrollValues.length;
+        for (var i = 1; i <= layerAmt; i++) {
+            var tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
+            this.tileSprites.push(tileSprite);
+        }
+        this.scene.sendToBack("starSceneController");
     };
-    StarSceneControllerScene.prototype.startStarScenes = function () {
-        var spaceScene = this.scene.get("space");
-        this.scene.add("spaceStar", SpaceStarScene_1.default, true, {
-            starScroll: 1.0,
-            imageKey: "starBackground",
-            cspConfig: {
-                window: {
-                    width: spaceScene.cspConfig.width,
-                    height: spaceScene.cspConfig.height
-                },
-                grid: {
-                    cols: 200,
-                    rows: 200,
-                    cellWidth: 1024,
-                    cellHeight: 1024,
-                }
-            }
-        });
-        this.scene.sendToBack("spaceStar");
-        this.scene.sendToBack("spaceBackground");
-        this.starScenesSleeping = false;
-    };
-    StarSceneControllerScene.prototype.onSleep = function () {
-        this.scene.sleep("spaceStar");
-        this.starScenesSleeping = true;
-    };
-    StarSceneControllerScene.prototype.onWake = function () {
-        this.scene.wake("spaceStar");
-        this.starScenesSleeping = false;
+    StarSceneControllerScene.prototype.update = function (time, delta) {
+        var cam = this.scene.get("space").cameras.main;
+        var scrollX = cam.scrollX, scrollY = cam.scrollY, zoom = cam.zoom;
+        var rf = (1 - 1 / zoom);
+        for (var i = 0; i < this.tileSprites.length; i++) {
+            var tileSprite = this.tileSprites[i];
+            tileSprite.setTileScale(zoom);
+            tileSprite.setOrigin(0.5);
+            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i], rf * cam.height + scrollY * this.scrollValues[i]);
+        }
     };
     return StarSceneControllerScene;
 }(Phaser.Scene));

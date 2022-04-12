@@ -44,6 +44,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
         this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
         this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
         this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
@@ -155,14 +156,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public runScenes(calledByEntryScene?: boolean)
     { 
-        this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
+        
         this.scene.run("spaceUI");
         // this.scene.bringToTop("spaceUI");
         
-        // // this.runDebugScenes();
+        this.runDebugScenes();
         
         // this.scene.run("spaceEffects");
         this.scene.bringToTop("spaceEffects");
@@ -226,9 +227,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
-        this.scene.sleep("spaceBackground");
 
-        // this.scene.sleep("spaceBackground");
         // this.scene.sleep("spaceLogic");
         // this.scene.sleep("spaceCameraController");
         // this.scene.sleep("spaceDebug");
@@ -242,7 +241,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
 
-        entryScene.newSwitchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
+        entryScene.switchSceneGroup("planet", (fromScene: SpaceScene, nextScene: PlanetScene) =>
         {
             nextScene.receiveInfo(levelInfo);
         });

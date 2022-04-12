@@ -60,6 +60,6 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
 
         this.spaceBar.reset();
-        entryScene.newSwitchSceneGroup("space");
+        entryScene.switchSceneGroup("space");
     }
 }
