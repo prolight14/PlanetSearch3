@@ -156,7 +156,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public runScenes(calledByEntryScene?: boolean)
     { 
-        // this.scene.run("spaceBackground");
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
@@ -228,9 +227,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
-        // this.scene.sleep("spaceBackground");
 
-        // // this.scene.sleep("spaceBackground");
         // this.scene.sleep("spaceLogic");
         // this.scene.sleep("spaceCameraController");
         // this.scene.sleep("spaceDebug");

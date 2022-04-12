@@ -13,7 +13,6 @@ import SpaceCameraControllerScene from "./scenes/space/SpaceCameraControllerScen
 import SpaceDebugScene from "./scenes/space/SpaceDebugScene";
 import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
 import StarSceneControllerScene from "./scenes/space/StarSceneControllerScene";
-// import SpaceBackgroundScene from "./scenes/space/SpaceBackgroundScene";
 
 // Planet scene(s)
 import PlanetScene from "./scenes/planet/PlanetScene";
@@ -84,7 +83,7 @@ let config: Phaser.Types.Core.GameConfig = {
         EntryScene,
 
         // Space scenes
-        /*SpaceBackgroundScene,*/ SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
+        SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
         SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, SpaceUIScene, SpaceEffectsScene,
 
         // Planet scene(s)
