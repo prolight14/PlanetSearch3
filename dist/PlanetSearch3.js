@@ -3,32 +3,6 @@ var PlanetSearch3;
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./Saver/Traveler.js":
-/*!***************************!*\
-  !*** ./Saver/Traveler.js ***!
-  \***************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Traveler = (function () {
-    function Traveler() {
-        this.containsInfo = false;
-    }
-    Traveler.prototype.setInfo = function (data) {
-        this.info = data;
-        this.containsInfo = true;
-    };
-    Traveler.prototype.getInfo = function () {
-        return this.info;
-    };
-    return Traveler;
-}());
-exports.default = Traveler;
-//# sourceMappingURL=Traveler.js.map
-
-/***/ }),
-
 /***/ "./UI/planet/InfoBar.js":
 /*!******************************!*\
   !*** ./UI/planet/InfoBar.js ***!
@@ -567,10 +541,7 @@ var Player = (function (_super) {
             }
         }
     };
-    Player.prototype.onCheckpoint = function (checkpoint) {
-        this.checkpointGoto = checkpoint.goto;
-    };
-    Player.prototype.kill = function (reason) {
+    Player.prototype.kill = function () {
         this.dead = true;
         this.setImmovable(true);
         this.setVisible(false);
@@ -1961,13 +1932,10 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Player_1 = __webpack_require__(/*! ../../gameObjects/planet/Player */ "./gameObjects/planet/Player.js");
 var logger_1 = __webpack_require__(/*! ../../logger */ "./logger.js");
-var Traveler_1 = __webpack_require__(/*! ../../Saver/Traveler */ "./Saver/Traveler.js");
 var PlanetLoaderScene = (function (_super) {
     __extends(PlanetLoaderScene, _super);
     function PlanetLoaderScene() {
-        var _this = _super.call(this, "planetLoader") || this;
-        _this.traveler = new Traveler_1.default();
-        return _this;
+        return _super.call(this, "planetLoader") || this;
     }
     PlanetLoaderScene.prototype.setTravelerSaveInfo = function (info) {
         if (info !== undefined) {
@@ -2113,7 +2081,6 @@ var PlanetLoaderScene = (function (_super) {
     PlanetLoaderScene.prototype.update = function () {
     };
     PlanetLoaderScene.prototype.restart = function (inputData) {
-        var _this = this;
         if (this.loading) {
             return;
         }
@@ -2124,24 +2091,20 @@ var PlanetLoaderScene = (function (_super) {
                 player: this.player.getCurrentState()
             });
         }
-        var effectsScene = this.scene.get("planetEffects");
-        effectsScene.fadeOut(500, 0, 0, 0);
-        effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-            _this.scene.run("planetLogic");
-            var planetLogicScene = _this.scene.get("planetLogic");
-            var loadData = planetLogicScene.loadData;
-            if (inputData.loadType === "door") {
-                loadData.currentLevel = inputData.doorGoto.level;
-            }
-            else if (inputData.loadType === "checkpoint") {
-                loadData.currentLevel = inputData.checkpointGoto.level;
-            }
-            else if (inputData.loadType === "start") {
-                loadData.currentLevel = inputData.startGoto.level;
-            }
-            planetLogicScene.scene.restart(inputData);
-            _this.loading = false;
-        });
+        this.scene.run("planetLogic");
+        var planetLogicScene = this.scene.get("planetLogic");
+        var loadData = planetLogicScene.loadData;
+        if (inputData.loadType === "door") {
+            loadData.currentLevel = inputData.doorGoto.level;
+        }
+        else if (inputData.loadType === "checkpoint") {
+            loadData.currentLevel = inputData.checkpointGoto.level;
+        }
+        else if (inputData.loadType === "start") {
+            loadData.currentLevel = inputData.startGoto.level;
+        }
+        planetLogicScene.scene.restart(inputData);
+        this.loading = false;
     };
     return PlanetLoaderScene;
 }(Phaser.Scene));
@@ -2286,9 +2249,6 @@ var PlanetScene = (function (_super) {
         this.runScenes();
         this.loaded = true;
     };
-    PlanetScene.prototype.getEffectsScene = function () {
-        return this.scene.get("planetEffects");
-    };
     PlanetScene.prototype.update = function () {
         if (this.spaceBar.isDown) {
             this.switchToSpaceSceneGroup();
@@ -2296,16 +2256,11 @@ var PlanetScene = (function (_super) {
     };
     PlanetScene.prototype.sleepScenes = function (calledByEntryScene) {
         this.scene.sleep("planetLogic");
-        this.scene.sleep("planetEffects");
         this.scene.sleep("planetBack");
-        this.scene.sleep("planetUI");
     };
     PlanetScene.prototype.runScenes = function (calledByEntryScene) {
         this.scene.run("planetBack");
         this.scene.run("planetLogic");
-        this.scene.run("planetUI");
-        this.scene.run("planetEffects");
-        this.scene.bringToTop("planetEffects");
     };
     PlanetScene.prototype.switchToSpaceSceneGroup = function () {
         var entryScene = this.scene.get("entry");
@@ -3204,8 +3159,8 @@ var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceC
 var SpaceDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceDebugScene */ "./scenes/space/SpaceDebugScene.js");
 var SpaceUIDebugScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIDebugScene */ "./scenes/space/SpaceUIDebugScene.js");
 var StarSceneControllerScene_1 = __webpack_require__(/*! ./scenes/space/StarSceneControllerScene */ "./scenes/space/StarSceneControllerScene.js");
-var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var SpaceLogicScene_1 = __webpack_require__(/*! ./scenes/space/SpaceLogicScene */ "./scenes/space/SpaceLogicScene.js");
+var PlanetScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetScene */ "./scenes/planet/PlanetScene.js");
 var PlanetLogicScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLogicScene */ "./scenes/planet/PlanetLogicScene.js");
 var PlanetEffectsScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetEffectsScene */ "./scenes/planet/PlanetEffectsScene.js");
 var PlanetUIScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetUIScene */ "./scenes/planet/PlanetUIScene.js");

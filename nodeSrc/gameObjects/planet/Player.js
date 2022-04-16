@@ -165,10 +165,7 @@ var Player = (function (_super) {
             }
         }
     };
-    Player.prototype.onCheckpoint = function (checkpoint) {
-        this.checkpointGoto = checkpoint.goto;
-    };
-    Player.prototype.kill = function (reason) {
+    Player.prototype.kill = function () {
         this.dead = true;
         this.setImmovable(true);
         this.setVisible(false);

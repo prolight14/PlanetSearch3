@@ -13,10 +13,10 @@ import SpaceCameraControllerScene from "./scenes/space/SpaceCameraControllerScen
 import SpaceDebugScene from "./scenes/space/SpaceDebugScene";
 import SpaceUIDebugScene from "./scenes/space/SpaceUIDebugScene";
 import StarSceneControllerScene from "./scenes/space/StarSceneControllerScene";
+import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
 
 // Planet scene(s)
 import PlanetScene from "./scenes/planet/PlanetScene";
-import SpaceLogicScene from "./scenes/space/SpaceLogicScene";
 import PlanetLogicScene from "./scenes/planet/PlanetLogicScene";
 import PlanetEffectsScene from "./scenes/planet/PlanetEffectsScene";
 import PlanetUIScene from "./scenes/planet/PlanetUIScene";

@@ -33,17 +33,6 @@ export default class PlanetBackScene extends Phaser.Scene
             0.75,
             0.6,
             0.4
-
-            // 0.25,
-            // 0.5,
-            // 0.75,
-
-
-            // 2.3,
-            // 1.6,
-            // 0.8,
-            // 0.67,
-            // 0.5
         ];
 
         this.layers = [];
@@ -73,11 +62,6 @@ export default class PlanetBackScene extends Phaser.Scene
 
         for(var i = this.ignoreLayersAmt; i < this.layers.length; i++)
         {   
-            // if(this.layerSpeeds[i] === -1)
-            // {
-            //     continue;
-            // }
-
             var layer = this.layers[i];
             var speed = diff / this.layerSpeeds[i];
             var index = -Math.floor((speed + width) / layer.displayWidth);

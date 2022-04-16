@@ -1,5 +1,3 @@
-import timer from "../gameObjects/Utils/timer";
-import trig from "../gameObjects/Utils/trig";
 import PlanetScene from "./planet/PlanetScene";
 import SpaceScene from "./space/SpaceScene";
 

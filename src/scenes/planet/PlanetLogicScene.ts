@@ -1,7 +1,6 @@
 import GameObject from "../../gameObjects/planet/GameObject";
 import Player from "../../gameObjects/planet/Player";
 import Water from "../../gameObjects/planet/Water";
-import BlockIndexes from "./BlockIndexes";
 
 export default class PlanetLogicScene extends Phaser.Scene
 {

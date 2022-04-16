@@ -23,11 +23,6 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
         this.runScenes();
         this.loaded = true;
     }
-    
-    public getEffectsScene()
-    {
-        return this.scene.get("planetEffects");
-    }
 
     spaceBar: Phaser.Input.Keyboard.Key;
 
@@ -42,17 +37,12 @@ export default class PlanetScene extends Phaser.Scene implements ISceneGroupHead
     public sleepScenes(calledByEntryScene?: boolean) 
     {
         this.scene.sleep("planetLogic");
-        this.scene.sleep("planetEffects");
         this.scene.sleep("planetBack");
-        this.scene.sleep("planetUI");
     }
     public runScenes(calledByEntryScene?: boolean) 
     {
         this.scene.run("planetBack");
         this.scene.run("planetLogic");
-        this.scene.run("planetUI");
-        this.scene.run("planetEffects");
-        this.scene.bringToTop("planetEffects");
     }
 
     public switchToSpaceSceneGroup()

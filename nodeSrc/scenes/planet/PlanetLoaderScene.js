@@ -15,13 +15,10 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Player_1 = require("../../gameObjects/planet/Player");
 var logger_1 = require("../../logger");
-var Traveler_1 = require("../../Saver/Traveler");
 var PlanetLoaderScene = (function (_super) {
     __extends(PlanetLoaderScene, _super);
     function PlanetLoaderScene() {
-        var _this = _super.call(this, "planetLoader") || this;
-        _this.traveler = new Traveler_1.default();
-        return _this;
+        return _super.call(this, "planetLoader") || this;
     }
     PlanetLoaderScene.prototype.setTravelerSaveInfo = function (info) {
         if (info !== undefined) {
@@ -167,7 +164,6 @@ var PlanetLoaderScene = (function (_super) {
     PlanetLoaderScene.prototype.update = function () {
     };
     PlanetLoaderScene.prototype.restart = function (inputData) {
-        var _this = this;
         if (this.loading) {
             return;
         }
@@ -178,24 +174,20 @@ var PlanetLoaderScene = (function (_super) {
                 player: this.player.getCurrentState()
             });
         }
-        var effectsScene = this.scene.get("planetEffects");
-        effectsScene.fadeOut(500, 0, 0, 0);
-        effectsScene.cameras.main.once("camerafadeoutcomplete", function () {
-            _this.scene.run("planetLogic");
-            var planetLogicScene = _this.scene.get("planetLogic");
-            var loadData = planetLogicScene.loadData;
-            if (inputData.loadType === "door") {
-                loadData.currentLevel = inputData.doorGoto.level;
-            }
-            else if (inputData.loadType === "checkpoint") {
-                loadData.currentLevel = inputData.checkpointGoto.level;
-            }
-            else if (inputData.loadType === "start") {
-                loadData.currentLevel = inputData.startGoto.level;
-            }
-            planetLogicScene.scene.restart(inputData);
-            _this.loading = false;
-        });
+        this.scene.run("planetLogic");
+        var planetLogicScene = this.scene.get("planetLogic");
+        var loadData = planetLogicScene.loadData;
+        if (inputData.loadType === "door") {
+            loadData.currentLevel = inputData.doorGoto.level;
+        }
+        else if (inputData.loadType === "checkpoint") {
+            loadData.currentLevel = inputData.checkpointGoto.level;
+        }
+        else if (inputData.loadType === "start") {
+            loadData.currentLevel = inputData.startGoto.level;
+        }
+        planetLogicScene.scene.restart(inputData);
+        this.loading = false;
     };
     return PlanetLoaderScene;
 }(Phaser.Scene));
