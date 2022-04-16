@@ -76,8 +76,6 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
     {
         var cam = this.cameras.main;
 
-        var cameraTarget: { x: number, y: number } = this.spaceScene.getCameraTarget();
-
         var spaceCam = this.spaceScene.cameras.main;
         cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
@@ -109,16 +107,6 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
         var c_width = cspConfig.window.width;
         var c_height = cspConfig.window.height;
-
-        // if(cam.zoom > 1)
-        // {
-        //     return world.camera.setWindow(
-        //         0,
-        //         0,
-        //         c_width,
-        //         c_height
-        //     );
-        // }
 
         var x = Math.abs(c_width - c_width / cam.zoom) / -2;
         var y = Math.abs(c_height - c_height / cam.zoom) / -2;

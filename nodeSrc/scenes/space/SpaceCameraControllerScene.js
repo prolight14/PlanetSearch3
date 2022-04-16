@@ -55,7 +55,6 @@ var SpaceCameraControllerScene = (function (_super) {
     };
     SpaceCameraControllerScene.prototype.update = function () {
         var cam = this.cameras.main;
-        var cameraTarget = this.spaceScene.getCameraTarget();
         var spaceCam = this.spaceScene.cameras.main;
         cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);

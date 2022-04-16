@@ -18,7 +18,6 @@ export default class SpaceUIScene extends Phaser.Scene
         const spaceLogicScene = (this.scene.get("spaceLogic") as SpaceLogicScene);
         this.playerShip = spaceLogicScene.playerShip;
 
-        this.cameras.main.setRoundPixels(true);
         const statsY = Math.floor(this.cameras.main.height - 114);
 
         const statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
@@ -46,9 +45,6 @@ export default class SpaceUIScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
-        var cam = this.cameras.main;
-        cam.setRoundPixels(true);
-      
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
     }

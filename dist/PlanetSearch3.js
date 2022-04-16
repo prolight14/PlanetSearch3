@@ -2320,40 +2320,6 @@ exports.default = PlanetUIScene;
 
 /***/ }),
 
-/***/ "./scenes/space/CameraTargetTracker.js":
-/*!*********************************************!*\
-  !*** ./scenes/space/CameraTargetTracker.js ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var CameraTargetTracker = (function () {
-    function CameraTargetTracker(object) {
-        if (object) {
-            this.trackedObject = object;
-            this.x = object.x;
-            this.y = object.y;
-        }
-    }
-    CameraTargetTracker.prototype.setTrackedObject = function (object) {
-        this.trackedObject = object;
-        this.x = object.x;
-        this.y = object.y;
-    };
-    CameraTargetTracker.prototype.update = function () {
-        if (this.trackedObject && this.trackedObject.body && this.trackedObject.body.position) {
-            this.x = this.trackedObject.x;
-            this.y = this.trackedObject.y;
-        }
-    };
-    return CameraTargetTracker;
-}());
-exports.default = CameraTargetTracker;
-//# sourceMappingURL=CameraTargetTracker.js.map
-
-/***/ }),
-
 /***/ "./scenes/space/SpaceCameraControllerScene.js":
 /*!****************************************************!*\
   !*** ./scenes/space/SpaceCameraControllerScene.js ***!
@@ -2417,7 +2383,6 @@ var SpaceCameraControllerScene = (function (_super) {
     };
     SpaceCameraControllerScene.prototype.update = function () {
         var cam = this.cameras.main;
-        var cameraTarget = this.spaceScene.getCameraTarget();
         var spaceCam = this.spaceScene.cameras.main;
         cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.spaceDebugScene.cameras.main.setScroll(cam.scrollX, cam.scrollY);
@@ -2645,7 +2610,6 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 60500);
-        this.spaceScene.setCameraTarget(this.playerShip);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
         for (var i = 0; i < 100; i++) {
@@ -2698,7 +2662,7 @@ exports.default = SpaceLogicScene;
 /*!************************************!*\
   !*** ./scenes/space/SpaceScene.js ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -2715,7 +2679,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var CameraTargetTracker_1 = __webpack_require__(/*! ./CameraTargetTracker */ "./scenes/space/CameraTargetTracker.js");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -2731,7 +2694,6 @@ var SpaceScene = (function (_super) {
         }) || this;
         _this.loaded = false;
         _this.stepMatter = 0;
-        _this.cameraTargetTracker = new CameraTargetTracker_1.default();
         return _this;
     }
     SpaceScene.prototype.preload = function () {
@@ -2781,9 +2743,9 @@ var SpaceScene = (function (_super) {
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
         this.runScenes(false);
-        this.loaded = true;
         this.prepareStatsGraphics();
-        this.cameras.main.startFollow(this.cameraTargetTracker);
+        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
+        this.loaded = true;
     };
     SpaceScene.prototype.handleGameOver = function () {
         this.reloadSpace();
@@ -2807,19 +2769,12 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
     };
-    SpaceScene.prototype.setCameraTarget = function (object) {
-        this.cameraTargetTracker.setTrackedObject(object);
-    };
-    SpaceScene.prototype.getCameraTarget = function () {
-        return this.cameraTargetTracker;
-    };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
         this.runDebugScenes();
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;
@@ -2850,14 +2805,13 @@ var SpaceScene = (function (_super) {
                 _this.scene.sleep("spaceDebug");
             }
         });
-        this.scene.bringToTop("spaceEffects");
     };
     SpaceScene.prototype.sleepDebugScenes = function () {
         this.scene.sleep("spaceDebug");
         this.scene.sleep("spaceUIDebug");
     };
     SpaceScene.prototype.sleepScenes = function (calledByEntryScene) {
-        this.scene.moveBelow("spaceUI", "spaceEffects");
+        this.scene.moveBelow("spaceUI");
         this.scene.sleep("spaceUI");
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
@@ -2866,7 +2820,6 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.stopScenes = function () {
         this.scene.stop("spaceUIDebug");
         this.scene.stop("spaceDebug");
-        this.scene.stop("spaceEffects");
         this.scene.stop("spaceUI");
         this.scene.stop("starSceneController");
         this.scene.stop("spaceCameraController");
@@ -2878,13 +2831,9 @@ var SpaceScene = (function (_super) {
             nextScene.receiveInfo(levelInfo);
         });
     };
-    SpaceScene.prototype.getEffectsScene = function () {
-        return this.scene.get("spaceEffects");
-    };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var playerShip = this.scene.get("spaceLogic").playerShip;
-        this.cameraTargetTracker.update();
         this.updateStatsGraphics();
         this.csp.setFollow(playerShip.x, playerShip.y);
         this.csp.updateWorld(function (csp) {
@@ -2915,7 +2864,6 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.updateStatsGraphics = function () {
         var _this = this;
-        var cam = this.cameras.main;
         this.statsGraphics.clear();
         this.statsGraphics.setAngle(0);
         this.sys.displayList.list.forEach(function (object) {
@@ -2974,8 +2922,8 @@ var SpaceUIDebugScene = (function (_super) {
     };
     SpaceUIDebugScene.prototype.update = function (time, delta) {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
-        var cameraTarget = this.spaceScene.getCameraTarget();
-        this.shipPositionText.setText("(" + cameraTarget.x.toFixed(2) + ", " + cameraTarget.y.toFixed(2) + ")");
+        var cam = this.spaceScene.cameras.main;
+        this.shipPositionText.setText("(" + cam.scrollX.toFixed(2) + ", " + cam.scrollY.toFixed(2) + ")");
         this.peekCell();
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
@@ -3026,7 +2974,6 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
-        this.cameras.main.setRoundPixels(true);
         var statsY = Math.floor(this.cameras.main.height - 114);
         var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
@@ -3046,8 +2993,6 @@ var SpaceUIScene = (function (_super) {
         };
     };
     SpaceUIScene.prototype.update = function (time, delta) {
-        var cam = this.cameras.main;
-        cam.setRoundPixels(true);
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
     };

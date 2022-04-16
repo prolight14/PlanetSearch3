@@ -7,8 +7,8 @@ import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
-import Bullet from "../../gameObjects/space/Bullet";
 import trig from "../../gameObjects/Utils/trig";
+
 export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
@@ -80,7 +80,6 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         // this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 56000, 70000 + 1000);
         this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 60500);
-        this.spaceScene.setCameraTarget(this.playerShip);
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);

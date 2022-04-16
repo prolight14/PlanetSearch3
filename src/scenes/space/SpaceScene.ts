@@ -1,10 +1,8 @@
 import EnemyShip from "../../gameObjects/space/EnemyShip";
-import PlayerShip from "../../gameObjects/space/PlayerShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
-import CameraTargetTracker from "./CameraTargetTracker";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -24,9 +22,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
             }
         });
-
-        this.cameraTargetTracker = new CameraTargetTracker();
-
     }
     
     public preload()
@@ -103,22 +98,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.runScenes(false);
-        this.loaded = true;
-        
-        // this.matter.world.engine.enableSleeping = true;
         this.prepareStatsGraphics();
-        
-        this.cameras.main.startFollow(this.cameraTargetTracker);
 
-        // this.matter.grid.create({
-        //     bucketWidth: 65536,
-        //     bucketHeight: 65536
-        // });
+        this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
 
-        // this.matter.grid.create({
-        //     bucketWidth: this.cspConfig.cellWidth * 0.5,
-        //     bucketHeight: this.cspConfig.cellWidth * 0.5
-        // })
+        this.loaded = true;
     }
 
     public handleGameOver()
@@ -131,8 +115,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.stopScenes();
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
         playerShip.ignoreDestroy = true;
-        // this.csp.removeAllGameObjects((gameObject: Phaser.GameObjects.GameObject) =>
-        // {
         this.matter.world.destroy();
         this.matter.world = new Phaser.Physics.Matter.World(this,
         {
@@ -142,7 +124,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             // velocityIterations: 2,
             // constraintIterations: 1
         });
-        // });
         Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
@@ -159,18 +140,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     }
     
     private stepMatter: number = 0;
-    
-    private cameraTargetTracker: CameraTargetTracker;
-
-    public setCameraTarget(object: any)
-    {
-        this.cameraTargetTracker.setTrackedObject(object);
-    }
-
-    public getCameraTarget()
-    {
-        return this.cameraTargetTracker;
-    }
 
     public runScenes(calledByEntryScene?: boolean)
     { 
@@ -182,9 +151,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         
         this.scene.run("spaceUI");
         // this.scene.bringToTop("spaceUI");
-        
-        // this.scene.run("spaceEffects");
-        this.scene.bringToTop("spaceEffects");
 
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
@@ -227,8 +193,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 this.scene.sleep("spaceDebug");
             }
         });
-
-        this.scene.bringToTop("spaceEffects");
     }
 
     private sleepDebugScenes()
@@ -239,27 +203,17 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public sleepScenes(calledByEntryScene?: boolean)
     {
-
-        this.scene.moveBelow("spaceUI", "spaceEffects");
+        this.scene.moveBelow("spaceUI");
         this.scene.sleep("spaceUI");
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
-
-        // this.scene.sleep("spaceLogic");
-        // this.scene.sleep("spaceCameraController");
-        // this.scene.sleep("spaceDebug");
-        // this.scene.sleep("spaceUIDebug");
-        // this.scene.sleep("starSceneController");
-        // this.scene.sleep("spaceUI");
-        // // this.scene.sleep("spaceEffects");
     }
 
     public stopScenes()
     {
         this.scene.stop("spaceUIDebug");
         this.scene.stop("spaceDebug");
-        this.scene.stop("spaceEffects");
         this.scene.stop("spaceUI");
         this.scene.stop("starSceneController");
         this.scene.stop("spaceCameraController");
@@ -276,18 +230,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         });
     }
 
-    public getEffectsScene()
-    {
-        return this.scene.get("spaceEffects");
-    }
-
     public csp: any;
 
     public update(time: number, delta: number)
     {
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
-
-        this.cameraTargetTracker.update();
 
         this.updateStatsGraphics();
 
@@ -325,18 +272,13 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         
         if(this.stepMatter++ >= 2)
         {
-            // this.matter.grid.clear(this.matter.grid);
-            // this.matter.grid.update(this.matter.grid, this.sys.updateList.getActive().map(obj => obj.body) as MatterJS.BodyType[], this.matter.world.engine, true);
             this.matter.step(1000 / 30, 0);
-            // this.matter.step();
             this.stepMatter = 0;
         }
     }
 
     private updateStatsGraphics()
     { 
-        var cam = this.cameras.main;
-
         this.statsGraphics.clear();
         this.statsGraphics.setAngle(0);
 

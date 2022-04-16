@@ -21,7 +21,6 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
-        this.cameras.main.setRoundPixels(true);
         var statsY = Math.floor(this.cameras.main.height - 114);
         var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
@@ -41,8 +40,6 @@ var SpaceUIScene = (function (_super) {
         };
     };
     SpaceUIScene.prototype.update = function (time, delta) {
-        var cam = this.cameras.main;
-        cam.setRoundPixels(true);
         this.setHpBar(this.playerShip.getHp(), this.playerShip.getMaxHp());
         this.setXpBar(this.playerShip.getXp(), this.playerShip.getNextLevelXp());
     };
