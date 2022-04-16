@@ -132,6 +132,7 @@ CartesianSystemPlugin.prototype = {
         // destroy
         gameObject.bodyConf.destroy = function()
         {
+            gameObject.bodyConf.updateBoundingBox();
             world.cameraGrid.removeReference(gameObject);
         };
 
@@ -146,7 +147,40 @@ CartesianSystemPlugin.prototype = {
             gameObject.bodyConf.destroy();
         });
     },
+
+    removeGameObject: function(gameObject)
+    {
+        gameObject.bodyConf.updateBoundingBox();
+        this.world.cameraGrid.removeReference(gameObject);
+        gameObject.bodyConf.updateBoundingBox();
+        gameObject.destroy();
+    },
    
+    removeAllGameObjects: function(callback)
+    {
+        if(callback === undefined) { callback = function() {}; }
+
+        var world = this.world;
+
+        var gameObjectArrays = world.get.allGameObjects();
+
+        for(var arrayName in gameObjectArrays)
+        {
+            var gameObjects = gameObjectArrays[arrayName];
+
+            for(var objName in gameObjects)
+            {
+                var object = gameObjects[objName];
+
+                if(object.ignoreDestroy)
+                {
+                    this.removeGameObject(object);
+                    callback(object);
+                }
+            }
+        }
+    },
+
     shutdown: function()
     {
         this.world = undefined;

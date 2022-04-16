@@ -18,11 +18,13 @@ var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture, shootAngle, onCollide, onCollideContext) {
+    function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.amtTraveled = 0;
+        _this.range = 500;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
-        _this.killTimer = timer_1.default(true, 1600, function () {
+        _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
         _this.setOnCollide(function (colData) {
@@ -35,11 +37,18 @@ var Bullet = (function (_super) {
         });
         return _this;
     }
+    Bullet.prototype.onKill = function () {
+        this.scene.csp.world.cameraGrid.removeReference(this);
+    };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.killTimer.update();
         this.x += trig_1.default.cos(this.shootAngle) * this.speed;
         this.y += trig_1.default.sin(this.shootAngle) * this.speed;
+        this.amtTraveled += this.speed;
+        if (this.amtTraveled > this.range) {
+            this.kill();
+        }
     };
     return Bullet;
 }(SpaceGameObject_1.default));

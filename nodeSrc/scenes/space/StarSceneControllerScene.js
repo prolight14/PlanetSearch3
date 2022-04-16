@@ -42,7 +42,7 @@ var StarSceneControllerScene = (function (_super) {
             var tileSprite = this.tileSprites[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setOrigin(0.5);
-            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i], rf * cam.height + scrollY * this.scrollValues[i]);
+            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
         }
     };
     return StarSceneControllerScene;

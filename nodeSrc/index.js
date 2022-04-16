@@ -20,12 +20,14 @@ var config = {
     width: 800,
     height: 450,
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.ScaleModes.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        autoRound: true
     },
     pixelArt: true,
     disableContextMenu: true,
     antialiasGL: false,
+    antialias: false,
     batchSize: 128,
     scene: [
         EntryScene_1.default,

@@ -24,6 +24,15 @@ export default class PlayerShip extends Ship
     protected hp: number = 10;
     protected maxHp: number = 10;
 
+    private xp: number = 0;
+    private nextLevelXp: number = 100;
+
+    public resetStats()
+    {
+        this.resetKeys();
+        this.hp = this.maxHp;
+    }
+ 
     public resetKeys()
     {
         for(var i in this.keys)
@@ -31,9 +40,6 @@ export default class PlayerShip extends Ship
             (this.keys as any)[i].reset();
         }
     }
-
-    private xp: number = 0;
-    private nextLevelXp: number = 100;
 
     public getXp(): number
     {
@@ -56,7 +62,7 @@ export default class PlayerShip extends Ship
         this.xp += xpStar.amt;
     }
 
-    protected maxSpeed: number = 5;
+    protected maxSpeed: number = 7.5;
     protected speedAcl: number = 0.25;
     protected speedDeacl: number = 0.075;
     protected manualSpeedDeacl: number = 0.15;
@@ -74,7 +80,9 @@ export default class PlayerShip extends Ship
     constructor (scene: SpaceScene, x: number, y: number)
     {
         super(scene, x, y, "helixShip", undefined/*, { shape: scene.cache.json.get("helixShipShape").helixShip }*/);
-        
+
+        // this.ignoreDestroy = true;
+
         this.setCollisionGroup(2);
         this.setCollidesWith(0);
 
@@ -166,7 +174,7 @@ export default class PlayerShip extends Ship
         this.initBullet(this.angle + 200, 17);
     }
 
-    private initBullet(theta: number, length: number)
+    private initBullet(theta: number, length: number, life?: number)
     {
         var bullet = this.bullets.add(
             this.scene, 
@@ -174,6 +182,7 @@ export default class PlayerShip extends Ship
             this.y + trig.sin(theta) * length, 
             "helixShipLvl1Bullet", 
             this.angle - 90,
+            life || 2000,
             this.bulletOnCollide,
             this,
         ) as Bullet;
@@ -203,7 +212,7 @@ export default class PlayerShip extends Ship
         var length = this.height * this.scaleX * 0.4;
         this.particles.x = this.x + trig.cos(this.angle + 90) * length;
         this.particles.y = this.y + trig.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
 
@@ -212,6 +221,7 @@ export default class PlayerShip extends Ship
 
     protected onKill()
     {
+        super.onKill();
         (this.scene as SpaceScene).handleGameOver();
     }
 }

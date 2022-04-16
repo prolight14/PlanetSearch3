@@ -1,5 +1,4 @@
 import SpaceScene from "./SpaceScene";
-import SpaceStarScene from "./SpaceStarScene";
 
 export default class StarSceneControllerScene extends Phaser.Scene
 {
@@ -25,7 +24,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
         for(var i = 1; i <= layerAmt; i++)
         {
-            const tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt)
+            const tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
             this.tileSprites.push(tileSprite);
         }
 
@@ -47,7 +46,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
             tileSprite.setTileScale(zoom);
             tileSprite.setOrigin(0.5);
-            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i], rf * cam.height + scrollY * this.scrollValues[i]);
+            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
         }
     }
 }

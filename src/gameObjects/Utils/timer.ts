@@ -5,7 +5,7 @@ var timer = function(start: boolean, interval: number, func: Function, scope?: o
     var called = !start;
 
     var update = function()
-    {
+    {   
         // When time is up is call the method
         if(!called && performance.now() - startTime > interval)
         {

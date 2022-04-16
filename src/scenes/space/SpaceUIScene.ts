@@ -18,11 +18,12 @@ export default class SpaceUIScene extends Phaser.Scene
         const spaceLogicScene = (this.scene.get("spaceLogic") as SpaceLogicScene);
         this.playerShip = spaceLogicScene.playerShip;
 
-        const statsY = (this.game.config.height as number) - 145;
+        this.cameras.main.setRoundPixels(true);
+        const statsY = Math.floor(this.cameras.main.height - 114);
 
-        const statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        const statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        const statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        const statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        const statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        const statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsHpMask.setVisible(false);
         statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsHpMask);
 
@@ -31,8 +32,8 @@ export default class SpaceUIScene extends Phaser.Scene
             statsHpBar.y = statsY + statsHpBar.displayHeight - (hp * statsHpBar.displayHeight / maxHp);
         };
 
-        const statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        const statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        const statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        const statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsXpMask.setVisible(false);
         statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
 

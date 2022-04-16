@@ -12,6 +12,12 @@ var trig = (function () {
     trig.tan = function (angle) {
         return Math.sin(angle * Phaser.Math.DEG_TO_RAD);
     };
+    trig.atan2 = function (y, x) {
+        return Math.atan2(x, y) * Phaser.Math.RAD_TO_DEG;
+    };
+    trig.random = function (min, max) {
+        return Phaser.Math.RND.frac() * (max - min) + min;
+    };
     return trig;
 }());
 exports.default = trig;

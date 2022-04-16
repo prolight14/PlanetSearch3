@@ -26,7 +26,7 @@ var PlayerShip = (function (_super) {
         _this.xp = 0;
         _this.nextLevelXp = 100;
         _this.crests = 0;
-        _this.maxSpeed = 5;
+        _this.maxSpeed = 7.5;
         _this.speedAcl = 0.25;
         _this.speedDeacl = 0.075;
         _this.manualSpeedDeacl = 0.15;
@@ -92,6 +92,10 @@ var PlayerShip = (function (_super) {
         };
         return _this;
     }
+    PlayerShip.prototype.resetStats = function () {
+        this.resetKeys();
+        this.hp = this.maxHp;
+    };
     PlayerShip.prototype.resetKeys = function () {
         for (var i in this.keys) {
             this.keys[i].reset();
@@ -115,8 +119,8 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle - 20, 17);
         this.initBullet(this.angle + 200, 17);
     };
-    PlayerShip.prototype.initBullet = function (theta, length) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, this.bulletOnCollide, this);
+    PlayerShip.prototype.initBullet = function (theta, length, life) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(1);
         bullet.setCollidesWith(0);
@@ -132,12 +136,13 @@ var PlayerShip = (function (_super) {
         var length = this.height * this.scaleX * 0.4;
         this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
         this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
         this.shootLimiterTimer.update();
     };
     PlayerShip.prototype.onKill = function () {
+        _super.prototype.onKill.call(this);
         this.scene.handleGameOver();
     };
     return PlayerShip;

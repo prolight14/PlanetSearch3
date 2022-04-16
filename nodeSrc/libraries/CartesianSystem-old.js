@@ -197,7 +197,7 @@
                             return item;
                         },
                         getObject: function (name) {
-                            return this[this.references[name]] || (delete this.references[name], undefined);
+                            return this[this.references[name]] || delete this.references[name];
                         },
                         removeObject: function (name) {
                             var toRemove = this.references[name];
@@ -266,7 +266,7 @@
                 module.exports = CreateAA;
             }),
             "./GameObjectHandler.js": (function (module, __unused_webpack_exports, __webpack_require__) {
-                var CreateAA = __webpack_require__("./CreateAA.js");
+                var createAA = __webpack_require__("./CreateAA.js");
                 function GameObjectHandler() {
                     var gameObjects = createAA([], undefined, "gameObjects");
                     var usedFL = {};
@@ -282,9 +282,6 @@
                     };
                     this.removeArray = function (name) {
                         return gameObjects.removeObject(name);
-                    };
-                    this.getReferences = function () {
-                        return gameObjects.references;
                     };
                     this.resetProcessList = function () {
                         usedFL = {};
@@ -422,27 +419,16 @@
                         this.get.gameObject = function (arrayName, id) {
                             return _this.gameObjectHandler.getArray(arrayName)[id];
                         };
-                        this.get.allGameObjects = function () {
-                            var refs = _this.gameObjectHandler.getReferences();
-                            var arrays = [];
-                            for (var arrayName in refs) {
-                                arrays[arrayName] = _this.gameObjectHandler.getArray(arrayName);
-                            }
-                            return arrays;
-                        };
                         this.remove = {};
                         this.remove.gameObjectArray = function (arrayName) {
-                            var array = _this.gameObjectHandler.getArray(arrayName);
-                            for (var index in array) {
-                                _this.cameraGrid.removeReference(array[index]);
-                            }
-                            _this.gameObjectHandler.removeArray(arrayName);
+                            _this.cameraGrid.removeAll(arrayName);
+                            gameObjectHandler.removeArray(arrayName);
                             return this;
                         };
                         this.remove.gameObject = function (arrayName, id) {
                             var gameObjectArray = _this.gameObjectHandler.getArray(arrayName);
                             _this.cameraGrid.removeReference(gameObjectArray[id]);
-                            _this.gameObjectArray.remove(id);
+                            gameObjectArray.remove(id);
                             return this;
                         };
                         this.bounds = {
@@ -519,4 +505,4 @@
         return __webpack_exports__;
     })();
 });
-//# sourceMappingURL=CartesianSystem.js.map
+//# sourceMappingURL=CartesianSystem-old.js.map

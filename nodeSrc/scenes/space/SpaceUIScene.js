@@ -21,17 +21,18 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
-        var statsY = this.game.config.height - 145;
-        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        this.cameras.main.setRoundPixels(true);
+        var statsY = Math.floor(this.cameras.main.height - 114);
+        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsHpMask.setVisible(false);
         statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsHpMask);
         this.setHpBar = function (hp, maxHp) {
             statsHpBar.y = statsY + statsHpBar.displayHeight - (hp * statsHpBar.displayHeight / maxHp);
         };
-        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsXpMask.setVisible(false);
         statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
         this.setXpBar = function (xp, maxXp) {

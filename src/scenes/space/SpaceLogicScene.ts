@@ -7,6 +7,8 @@ import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
+import Bullet from "../../gameObjects/space/Bullet";
+import trig from "../../gameObjects/Utils/trig";
 export default class SpaceLogicScene extends Phaser.Scene
 {
     constructor()
@@ -28,10 +30,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var world: any = this.spaceScene.csp.world;
         
-        var random = function(min: number, max: number)
-        {
-            return Phaser.Math.RND.frac() * (max - min) + min;
-        };
+        var random = trig.random;
         
         var nebulae = world.add.gameObjectArray(Nebula, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
@@ -84,10 +83,15 @@ export default class SpaceLogicScene extends Phaser.Scene
         this.spaceScene.setCameraTarget(this.playerShip);
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
+        hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
         for(var i = 0; i < 100; i++)
         {
             hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000)) as HyperBeamerSType;
+        }
+
+        for(var i = 0; i < 23; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-700, 700), 60600 + random(-700, 700)) as HyperBeamerSType;
         }
     }
     

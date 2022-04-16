@@ -126,10 +126,29 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.reloadSpace();
     }
 
-    public reloadSpace()
+    private reloadSpace()
     {
+        this.stopScenes();
+        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
+        playerShip.ignoreDestroy = true;
+        // this.csp.removeAllGameObjects((gameObject: Phaser.GameObjects.GameObject) =>
+        // {
+        this.matter.world.destroy();
+        this.matter.world = new Phaser.Physics.Matter.World(this,
+        {
+            gravity: false,
+            autoUpdate: false, 
+            // positionIterations: 4,
+            // velocityIterations: 2,
+            // constraintIterations: 1
+        });
+        // });
+        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
         this.csp.initWorld(this.cspConfig);
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
+        playerShip.resetStats();
+        this.runScenes(false);
+        this.prepareStatsGraphics();
     }
 
     private statsGraphics: Phaser.GameObjects.Graphics;
@@ -141,7 +160,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     
     private stepMatter: number = 0;
     
-    private playerShip: PlayerShip;
     private cameraTargetTracker: CameraTargetTracker;
 
     public setCameraTarget(object: any)
@@ -156,14 +174,14 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public runScenes(calledByEntryScene?: boolean)
     { 
+        this.runDebugScenes();
+
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         
         this.scene.run("spaceUI");
         // this.scene.bringToTop("spaceUI");
-        
-        this.runDebugScenes();
         
         // this.scene.run("spaceEffects");
         this.scene.bringToTop("spaceEffects");
@@ -237,6 +255,17 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         // // this.scene.sleep("spaceEffects");
     }
 
+    public stopScenes()
+    {
+        this.scene.stop("spaceUIDebug");
+        this.scene.stop("spaceDebug");
+        this.scene.stop("spaceEffects");
+        this.scene.stop("spaceUI");
+        this.scene.stop("starSceneController");
+        this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceLogic");
+    }
+
     public switchToPlanetSceneGroup(levelInfo: object)
     {
         var entryScene: EntryScene = this.scene.get("entry") as EntryScene;
@@ -275,6 +304,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
                 if(gameObject.destroyQueued)
                 {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -286,6 +316,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             {
                 if(gameObject.destroyQueued)
                 {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -312,23 +343,29 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.sys.displayList.list.forEach((object: any) =>
         {
             // Might need to change this
-            if((object as EnemyShip).showHpBar && object.getHp() < object.getMaxHp())
+            if((object as EnemyShip).showHpBar)
             {
                 var enemyShip = object as EnemyShip;
-                // var cameraRotation = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle() * Phaser.Math.DEG_TO_RAD;
 
-                var barX = enemyShip.x - enemyShip.width * 0.5;
-                var barY = enemyShip.y - enemyShip.width * 0.7;
+                if(enemyShip.getHp() < enemyShip.getMaxHp())
+                {
+                    // var cameraRotation = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle() * Phaser.Math.DEG_TO_RAD;
+    
+                    var barX = enemyShip.x - enemyShip.width * 0.5;
+                    var barY = enemyShip.y - enemyShip.width * 0.7;
+    
+                    // var rectShape = new Phaser.Geom.Rectangle(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+    
+                    // this.statsGraphics.fillRectShape(rectShape);
+    
+                    // this.statsGraphics.rotateCanvas(30 * Phaser.Math.DEG_TO_RAD);
+                    this.statsGraphics.fillStyle(0x0A297E);
+                    this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
+                    this.statsGraphics.fillStyle(0x54B70E);
+                    this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                }
 
-                // var rectShape = new Phaser.Geom.Rectangle(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
-
-                // this.statsGraphics.fillRectShape(rectShape);
-
-                // this.statsGraphics.rotateCanvas(30 * Phaser.Math.DEG_TO_RAD);
-                this.statsGraphics.fillStyle(0x0A297E);
-                this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
-                this.statsGraphics.fillStyle(0x54B70E);
-                this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                // enemyShip.debugFov(this.statsGraphics);
             }
         });
     }

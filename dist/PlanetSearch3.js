@@ -199,6 +199,12 @@ var trig = (function () {
     trig.tan = function (angle) {
         return Math.sin(angle * Phaser.Math.DEG_TO_RAD);
     };
+    trig.atan2 = function (y, x) {
+        return Math.atan2(x, y) * Phaser.Math.RAD_TO_DEG;
+    };
+    trig.random = function (min, max) {
+        return Phaser.Math.RND.frac() * (max - min) + min;
+    };
     return trig;
 }());
 exports.default = trig;
@@ -688,11 +694,13 @@ var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture, shootAngle, onCollide, onCollideContext) {
+    function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.amtTraveled = 0;
+        _this.range = 500;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
-        _this.killTimer = timer_1.default(true, 1600, function () {
+        _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
         _this.setOnCollide(function (colData) {
@@ -705,11 +713,18 @@ var Bullet = (function (_super) {
         });
         return _this;
     }
+    Bullet.prototype.onKill = function () {
+        this.scene.csp.world.cameraGrid.removeReference(this);
+    };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.killTimer.update();
         this.x += trig_1.default.cos(this.shootAngle) * this.speed;
         this.y += trig_1.default.sin(this.shootAngle) * this.speed;
+        this.amtTraveled += this.speed;
+        if (this.amtTraveled > this.range) {
+            this.kill();
+        }
     };
     return Bullet;
 }(SpaceGameObject_1.default));
@@ -792,6 +807,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var Ship_1 = __webpack_require__(/*! ./Ship */ "./gameObjects/space/Ship.js");
 var EnemyShip = (function (_super) {
     __extends(EnemyShip, _super);
@@ -800,6 +816,10 @@ var EnemyShip = (function (_super) {
         _this.showHpBar = true;
         _this.move = true;
         _this.isShooting = false;
+        _this.fovRadius = 400;
+        _this.fovAngle = 60;
+        _this.visibleObjects = [];
+        _this.canSeeSomething = false;
         _this.xpDropAmt = 3;
         _this.crestDropAmt = Phaser.Math.RND.between(3, 6);
         _this.turnDir = "";
@@ -819,10 +839,74 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
+        _this.lookTimer = timer_1.default(true, 70, function () {
+            _this.fovLook();
+            _this.lookTimer.reset();
+        });
+        _this.fovSetup();
         return _this;
     }
+    EnemyShip.prototype.isEnemyShip = function () { return true; };
+    ;
+    EnemyShip.prototype.fovSetup = function () {
+        this.halfFovAngle = this.fovAngle / 2;
+        this.fovRadiusSquared = this.fovRadius * this.fovRadius;
+    };
+    EnemyShip.prototype.fovLook = function () {
+        var objectsInCells = [];
+        var world = this.scene.csp.world;
+        var minCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x - this.fovRadius), Math.floor(this.y - this.fovRadius));
+        var maxCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x + this.fovRadius), Math.floor(this.y + this.fovRadius));
+        world.cameraGrid.loopThroughCells(minCoor.col, minCoor.row, maxCoor.col, maxCoor.row, function (cell, col, row) {
+            for (var i in cell) {
+                var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
+                if (object !== undefined) {
+                    objectsInCells.push(object);
+                }
+            }
+        });
+        this.visibleObjects.length = 0;
+        this.canSeeSomething = false;
+        var minAngle = this.angle - this.halfFovAngle;
+        var maxAngle = this.angle + this.halfFovAngle;
+        if (minAngle < 0) {
+            minAngle = minAngle + 360;
+        }
+        if (maxAngle < 0) {
+            maxAngle = maxAngle + 360;
+        }
+        for (var i = 0; i < objectsInCells.length; i++) {
+            var object = objectsInCells[i];
+            if (Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared) {
+                continue;
+            }
+            var angleBetween = Phaser.Math.Angle.BetweenPoints(object, this) * Phaser.Math.RAD_TO_DEG;
+            angleBetween = angleBetween - 90;
+            if (angleBetween < 0) {
+                angleBetween = angleBetween + 360;
+            }
+            if (angleBetween > minAngle && angleBetween < maxAngle) {
+                this.canSeeSomething = true;
+                this.visibleObjects.push({
+                    gameObject: object,
+                    angleBetween: angleBetween
+                });
+            }
+        }
+    };
+    EnemyShip.prototype.debugFov = function (graphics) {
+        graphics.lineStyle(10, 0x0FAB23);
+        graphics.fillStyle(0xBB0012, 0.4);
+        graphics.beginPath();
+        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD);
+        graphics.strokePath();
+        if (this.canSeeSomething) {
+            graphics.fillPath();
+        }
+    };
     EnemyShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
+        this.lookTimer.update();
     };
     EnemyShip.prototype.onKill = function () {
         this.dropXP();
@@ -897,40 +981,89 @@ var HyperBeamerSType = (function (_super) {
             return 1 - t;
         });
         var _this = _this_1;
+        var world = scene.csp.world;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
                 start: function () {
                     var _this_1 = this;
+                    _this.isShooting = false;
+                    this.cancelTurnTimers = false;
                     this.changeDirTimer = timer_1.default(true, 1000, function () {
-                        _this_1.turn(Math.random() < 0.5 ? "left" : "right", Phaser.Math.RND.between(300, 800), function () {
-                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000));
+                        _this_1.turn(Phaser.Math.RND.frac() < 0.5 ? "left" : "right", "", Phaser.Math.RND.between(150, 350), undefined, function () {
+                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000) * 2);
                         });
                     });
                 },
-                turn: function (turnDir, time, callback) {
+                turn: function (turnDir, oldTurn, time, maxTurnAmt, callback) {
+                    if (callback === undefined) {
+                        callback = function () { };
+                    }
                     _this.turnDir = turnDir;
                     this.redirectTimer = timer_1.default(true, time, function () {
-                        _this.turnDir = "";
+                        _this.turnDir = oldTurn || "";
                         callback();
                     });
                 },
                 update: function () {
+                    var _this_1 = this;
                     this.changeDirTimer.update();
                     if (this.redirectTimer !== undefined) {
                         this.redirectTimer.update();
                     }
+                    _this.visibleObjects.forEach(function (object) {
+                        var gameObject = object.gameObject;
+                        switch (gameObject._arrayName) {
+                            case "playerShip":
+                                _this.sm.stop("wander");
+                                _this.sm.start("follow");
+                                break;
+                            case _this._arrayName:
+                                _this_1.turn(object.angleBetween - _this.angle > 0 ? "left" : "right", "", 200, undefined, function () { });
+                                break;
+                        }
+                    });
                 }
-            }
+            },
+            "follow": {
+                start: function () {
+                    _this.isShooting = true;
+                    _this.turnDir = "";
+                },
+                update: function () {
+                    _this.shootTimer.update();
+                }
+            },
         });
+        _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
+        _this_1.shootTimer = timer_1.default(true, 500, function () {
+            if (_this_1.isShooting) {
+                _this_1.shoot();
+            }
+            _this_1.shootTimer.reset();
+        });
         return _this_1;
     }
+    HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        bullet.setAngle(this.angle);
+        bullet.setCollisionGroup(2);
+        bullet.setCollidesWith(0);
+    };
+    HyperBeamerSType.prototype.bulletOnCollide = function (gameObject) {
+        if (gameObject._arrayName === "playerShip") {
+            return gameObject.takeDamage(this);
+        }
+        return false;
+    };
+    HyperBeamerSType.prototype.shoot = function () {
+    };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var length = this.height * this.scaleX * 0.4;
+        var length = this.displayHeight * 0.4;
         this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
         this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
@@ -939,6 +1072,7 @@ var HyperBeamerSType = (function (_super) {
         _super.prototype.onKill.call(this);
         this.particles.destroy();
     };
+    HyperBeamerSType.indexId = 0;
     return HyperBeamerSType;
 }(HyperBeamerShip_1.default));
 exports.default = HyperBeamerSType;
@@ -1111,7 +1245,7 @@ var PlayerShip = (function (_super) {
         _this.xp = 0;
         _this.nextLevelXp = 100;
         _this.crests = 0;
-        _this.maxSpeed = 5;
+        _this.maxSpeed = 7.5;
         _this.speedAcl = 0.25;
         _this.speedDeacl = 0.075;
         _this.manualSpeedDeacl = 0.15;
@@ -1177,6 +1311,10 @@ var PlayerShip = (function (_super) {
         };
         return _this;
     }
+    PlayerShip.prototype.resetStats = function () {
+        this.resetKeys();
+        this.hp = this.maxHp;
+    };
     PlayerShip.prototype.resetKeys = function () {
         for (var i in this.keys) {
             this.keys[i].reset();
@@ -1200,8 +1338,8 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle - 20, 17);
         this.initBullet(this.angle + 200, 17);
     };
-    PlayerShip.prototype.initBullet = function (theta, length) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, this.bulletOnCollide, this);
+    PlayerShip.prototype.initBullet = function (theta, length, life) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(1);
         bullet.setCollidesWith(0);
@@ -1217,12 +1355,13 @@ var PlayerShip = (function (_super) {
         var length = this.height * this.scaleX * 0.4;
         this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
         this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
         this.shootLimiterTimer.update();
     };
     PlayerShip.prototype.onKill = function () {
+        _super.prototype.onKill.call(this);
         this.scene.handleGameOver();
     };
     return PlayerShip;
@@ -1674,7 +1813,7 @@ var PlanetBackScene = (function (_super) {
     PlanetBackScene.prototype.update = function () {
         var planetLogicScene = this.scene.get("planetLogic");
         var cam = planetLogicScene.cameras.main;
-        var width = this.game.config.width;
+        var width = cam.width;
         var diff = width - cam.scrollX;
         for (var i = this.ignoreLayersAmt; i < this.layers.length; i++) {
             var layer = this.layers[i];
@@ -2511,6 +2650,7 @@ var HyperBeamerSType_1 = __webpack_require__(/*! ../../gameObjects/space/HyperBe
 var Shrapnel_1 = __webpack_require__(/*! ../../gameObjects/space/Shrapnel */ "./gameObjects/space/Shrapnel.js");
 var XPStar_1 = __webpack_require__(/*! ../../gameObjects/space/XPStar */ "./gameObjects/space/XPStar.js");
 var Crest_1 = __webpack_require__(/*! ../../gameObjects/space/Crest */ "./gameObjects/space/Crest.js");
+var trig_1 = __webpack_require__(/*! ../../gameObjects/Utils/trig */ "./gameObjects/Utils/trig.js");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
@@ -2521,9 +2661,7 @@ var SpaceLogicScene = (function (_super) {
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var world = this.spaceScene.csp.world;
-        var random = function (min, max) {
-            return Phaser.Math.RND.frac() * (max - min) + min;
-        };
+        var random = trig_1.default.random;
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
@@ -2554,9 +2692,12 @@ var SpaceLogicScene = (function (_super) {
         this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 60500);
         this.spaceScene.setCameraTarget(this.playerShip);
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69000, 61000 + 500);
+        hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
         for (var i = 0; i < 100; i++) {
             hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
+        }
+        for (var i = 0; i < 23; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-700, 700), 60600 + random(-700, 700));
         }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
@@ -2693,8 +2834,20 @@ var SpaceScene = (function (_super) {
         this.reloadSpace();
     };
     SpaceScene.prototype.reloadSpace = function () {
+        this.stopScenes();
+        var playerShip = this.scene.get("spaceLogic").playerShip;
+        playerShip.ignoreDestroy = true;
+        this.matter.world.destroy();
+        this.matter.world = new Phaser.Physics.Matter.World(this, {
+            gravity: false,
+            autoUpdate: false,
+        });
+        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
+        playerShip.resetStats();
+        this.runScenes(false);
+        this.prepareStatsGraphics();
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -2706,11 +2859,11 @@ var SpaceScene = (function (_super) {
         return this.cameraTargetTracker;
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
+        this.runDebugScenes();
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.runDebugScenes();
         this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
@@ -2755,6 +2908,15 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
     };
+    SpaceScene.prototype.stopScenes = function () {
+        this.scene.stop("spaceUIDebug");
+        this.scene.stop("spaceDebug");
+        this.scene.stop("spaceEffects");
+        this.scene.stop("spaceUI");
+        this.scene.stop("starSceneController");
+        this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceLogic");
+    };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
         entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
@@ -2777,6 +2939,7 @@ var SpaceScene = (function (_super) {
                     csp.systems.displayList.add(gameObject.particles);
                 }
                 if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -2784,6 +2947,7 @@ var SpaceScene = (function (_super) {
             _this.csp.systems.displayList.add(_this.statsGraphics);
             _this.sys.updateList.getActive().forEach(function (gameObject) {
                 if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -2800,14 +2964,16 @@ var SpaceScene = (function (_super) {
         this.statsGraphics.clear();
         this.statsGraphics.setAngle(0);
         this.sys.displayList.list.forEach(function (object) {
-            if (object.showHpBar && object.getHp() < object.getMaxHp()) {
+            if (object.showHpBar) {
                 var enemyShip = object;
-                var barX = enemyShip.x - enemyShip.width * 0.5;
-                var barY = enemyShip.y - enemyShip.width * 0.7;
-                _this.statsGraphics.fillStyle(0x0A297E);
-                _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
-                _this.statsGraphics.fillStyle(0x54B70E);
-                _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                if (enemyShip.getHp() < enemyShip.getMaxHp()) {
+                    var barX = enemyShip.x - enemyShip.width * 0.5;
+                    var barY = enemyShip.y - enemyShip.width * 0.7;
+                    _this.statsGraphics.fillStyle(0x0A297E);
+                    _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
+                    _this.statsGraphics.fillStyle(0x54B70E);
+                    _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                }
             }
         });
     };
@@ -2905,17 +3071,18 @@ var SpaceUIScene = (function (_super) {
     SpaceUIScene.prototype.create = function () {
         var spaceLogicScene = this.scene.get("spaceLogic");
         this.playerShip = spaceLogicScene.playerShip;
-        var statsY = this.game.config.height - 145;
-        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        this.cameras.main.setRoundPixels(true);
+        var statsY = Math.floor(this.cameras.main.height - 114);
+        var statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsHpMask.setVisible(false);
         statsHpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsHpMask);
         this.setHpBar = function (hp, maxHp) {
             statsHpBar.y = statsY + statsHpBar.displayHeight - (hp * statsHpBar.displayHeight / maxHp);
         };
-        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
-        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2.5).setOrigin(0).setFlipX(true);
+        var statsXpBar = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+        var statsXpMask = this.add.image(0, statsY, "shipHealthBar", 3).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsXpMask.setVisible(false);
         statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
         this.setXpBar = function (xp, maxXp) {
@@ -2986,7 +3153,7 @@ var StarSceneControllerScene = (function (_super) {
             var tileSprite = this.tileSprites[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setOrigin(0.5);
-            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i], rf * cam.height + scrollY * this.scrollValues[i]);
+            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
         }
     };
     return StarSceneControllerScene;
@@ -3051,12 +3218,14 @@ var config = {
     width: 800,
     height: 450,
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.ScaleModes.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        autoRound: true
     },
     pixelArt: true,
     disableContextMenu: true,
     antialiasGL: false,
+    antialias: false,
     batchSize: 128,
     scene: [
         EntryScene_1.default,

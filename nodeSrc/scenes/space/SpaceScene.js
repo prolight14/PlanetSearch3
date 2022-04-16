@@ -87,8 +87,20 @@ var SpaceScene = (function (_super) {
         this.reloadSpace();
     };
     SpaceScene.prototype.reloadSpace = function () {
+        this.stopScenes();
+        var playerShip = this.scene.get("spaceLogic").playerShip;
+        playerShip.ignoreDestroy = true;
+        this.matter.world.destroy();
+        this.matter.world = new Phaser.Physics.Matter.World(this, {
+            gravity: false,
+            autoUpdate: false,
+        });
+        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
         this.csp.initWorld(this.cspConfig);
         this.scene.get("spaceLogic").addObjectsToSpace();
+        playerShip.resetStats();
+        this.runScenes(false);
+        this.prepareStatsGraphics();
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -100,11 +112,11 @@ var SpaceScene = (function (_super) {
         return this.cameraTargetTracker;
     };
     SpaceScene.prototype.runScenes = function (calledByEntryScene) {
+        this.runDebugScenes();
         this.scene.run("spaceLogic");
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
-        this.runDebugScenes();
         this.scene.bringToTop("spaceEffects");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
@@ -149,6 +161,15 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
     };
+    SpaceScene.prototype.stopScenes = function () {
+        this.scene.stop("spaceUIDebug");
+        this.scene.stop("spaceDebug");
+        this.scene.stop("spaceEffects");
+        this.scene.stop("spaceUI");
+        this.scene.stop("starSceneController");
+        this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceLogic");
+    };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");
         entryScene.switchSceneGroup("planet", function (fromScene, nextScene) {
@@ -171,6 +192,7 @@ var SpaceScene = (function (_super) {
                     csp.systems.displayList.add(gameObject.particles);
                 }
                 if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -178,6 +200,7 @@ var SpaceScene = (function (_super) {
             _this.csp.systems.displayList.add(_this.statsGraphics);
             _this.sys.updateList.getActive().forEach(function (gameObject) {
                 if (gameObject.destroyQueued) {
+                    gameObject.bodyConf.updateBoundingBox();
                     gameObject.destroy();
                     gameObject.destroyQueued = false;
                 }
@@ -194,14 +217,16 @@ var SpaceScene = (function (_super) {
         this.statsGraphics.clear();
         this.statsGraphics.setAngle(0);
         this.sys.displayList.list.forEach(function (object) {
-            if (object.showHpBar && object.getHp() < object.getMaxHp()) {
+            if (object.showHpBar) {
                 var enemyShip = object;
-                var barX = enemyShip.x - enemyShip.width * 0.5;
-                var barY = enemyShip.y - enemyShip.width * 0.7;
-                _this.statsGraphics.fillStyle(0x0A297E);
-                _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
-                _this.statsGraphics.fillStyle(0x54B70E);
-                _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                if (enemyShip.getHp() < enemyShip.getMaxHp()) {
+                    var barX = enemyShip.x - enemyShip.width * 0.5;
+                    var barY = enemyShip.y - enemyShip.width * 0.7;
+                    _this.statsGraphics.fillStyle(0x0A297E);
+                    _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
+                    _this.statsGraphics.fillStyle(0x54B70E);
+                    _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                }
             }
         });
     };

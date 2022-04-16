@@ -37,40 +37,89 @@ var HyperBeamerSType = (function (_super) {
             return 1 - t;
         });
         var _this = _this_1;
+        var world = scene.csp.world;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
                 start: function () {
                     var _this_1 = this;
+                    _this.isShooting = false;
+                    this.cancelTurnTimers = false;
                     this.changeDirTimer = timer_1.default(true, 1000, function () {
-                        _this_1.turn(Math.random() < 0.5 ? "left" : "right", Phaser.Math.RND.between(300, 800), function () {
-                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000));
+                        _this_1.turn(Phaser.Math.RND.frac() < 0.5 ? "left" : "right", "", Phaser.Math.RND.between(150, 350), undefined, function () {
+                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000) * 2);
                         });
                     });
                 },
-                turn: function (turnDir, time, callback) {
+                turn: function (turnDir, oldTurn, time, maxTurnAmt, callback) {
+                    if (callback === undefined) {
+                        callback = function () { };
+                    }
                     _this.turnDir = turnDir;
                     this.redirectTimer = timer_1.default(true, time, function () {
-                        _this.turnDir = "";
+                        _this.turnDir = oldTurn || "";
                         callback();
                     });
                 },
                 update: function () {
+                    var _this_1 = this;
                     this.changeDirTimer.update();
                     if (this.redirectTimer !== undefined) {
                         this.redirectTimer.update();
                     }
+                    _this.visibleObjects.forEach(function (object) {
+                        var gameObject = object.gameObject;
+                        switch (gameObject._arrayName) {
+                            case "playerShip":
+                                _this.sm.stop("wander");
+                                _this.sm.start("follow");
+                                break;
+                            case _this._arrayName:
+                                _this_1.turn(object.angleBetween - _this.angle > 0 ? "left" : "right", "", 200, undefined, function () { });
+                                break;
+                        }
+                    });
                 }
-            }
+            },
+            "follow": {
+                start: function () {
+                    _this.isShooting = true;
+                    _this.turnDir = "";
+                },
+                update: function () {
+                    _this.shootTimer.update();
+                }
+            },
         });
+        _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
+        _this_1.shootTimer = timer_1.default(true, 500, function () {
+            if (_this_1.isShooting) {
+                _this_1.shoot();
+            }
+            _this_1.shootTimer.reset();
+        });
         return _this_1;
     }
+    HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        bullet.setAngle(this.angle);
+        bullet.setCollisionGroup(2);
+        bullet.setCollidesWith(0);
+    };
+    HyperBeamerSType.prototype.bulletOnCollide = function (gameObject) {
+        if (gameObject._arrayName === "playerShip") {
+            return gameObject.takeDamage(this);
+        }
+        return false;
+    };
+    HyperBeamerSType.prototype.shoot = function () {
+    };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var length = this.height * this.scaleX * 0.4;
+        var length = this.displayHeight * 0.4;
         this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
         this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Math.random());
+        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.005);
         this.pEmitter.setSpeed(this.speed * 30);
         this.sm.emit("update", []);
@@ -79,6 +128,7 @@ var HyperBeamerSType = (function (_super) {
         _super.prototype.onKill.call(this);
         this.particles.destroy();
     };
+    HyperBeamerSType.indexId = 0;
     return HyperBeamerSType;
 }(HyperBeamerShip_1.default));
 exports.default = HyperBeamerSType;

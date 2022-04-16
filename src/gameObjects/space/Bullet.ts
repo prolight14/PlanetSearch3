@@ -5,13 +5,13 @@ import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject
 {
-    constructor(scene: SpaceScene, x: number, y: number, texture: string, shootAngle: number, onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string, shootAngle: number, life: number, onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
     {
         super(scene, x, y, texture);
         this.shootAngle = shootAngle;
         this.speed = 12;
 
-        this.killTimer = timer(true, 1600, () =>
+        this.killTimer = timer(true, life, () =>
         {
             this.kill();
         });
@@ -28,6 +28,7 @@ export default class Bullet extends SpaceGameObject
                 }
             }
         });
+
     }
 
     private shootAngle: number;
@@ -37,6 +38,15 @@ export default class Bullet extends SpaceGameObject
         update: () => void;
     };
 
+    private amtTraveled: number = 0;
+    private range: number = 500;
+
+    protected onKill()
+    {
+        // this.bodyConf.updateBoundingBox();
+        (this.scene as SpaceScene).csp.world.cameraGrid.removeReference(this);
+    }
+
     protected preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
@@ -45,5 +55,12 @@ export default class Bullet extends SpaceGameObject
 
         this.x += trig.cos(this.shootAngle) * this.speed;
         this.y += trig.sin(this.shootAngle) * this.speed;
+
+        this.amtTraveled += this.speed;
+
+        if(this.amtTraveled > this.range)
+        {
+            this.kill();
+        }
     }
 }

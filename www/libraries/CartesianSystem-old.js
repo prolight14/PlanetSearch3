@@ -17,7 +17,6 @@ return /******/ (() => { // webpackBootstrap
   \*******************/
 /***/ ((module) => {
 
-
 function Camera(x, y, width, height)
 {
     this.x = x;
@@ -233,7 +232,6 @@ module.exports = CameraGrid;
   \*********************/
 /***/ ((module) => {
 
-
 /**
  * @function `createAA` Creates a key value pair system or associative array with methods
  * 
@@ -426,11 +424,11 @@ module.exports = CreateAA;
   \******************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var CreateAA = __webpack_require__(/*! ./CreateAA.js */ "./CreateAA.js");
+var createAA = __webpack_require__(/*! ./CreateAA.js */ "./CreateAA.js");
 
 function GameObjectHandler()
 {
-    var gameObjects = CreateAA([], undefined, "gameObjects");
+    var gameObjects = createAA([], undefined, "gameObjects");
 
     // Process list used for loop (mainly so we don't use an object again)
     var usedFL = {};
