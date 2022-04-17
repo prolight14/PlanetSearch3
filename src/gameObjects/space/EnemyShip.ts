@@ -70,32 +70,39 @@ export default class EnemyShip extends Ship
     private fovLook()
     {
         var objectsInCells: Array<SpaceGameObject> = [];
-        const world = this.scene.csp.world;
+        const world = this.scene.world;
 
-        const minCoor = this.scene.csp.world.cameraGrid.getCoordinates(
-            Math.floor(this.x - this.fovRadius),
-            Math.floor(this.y - this.fovRadius)
-        ); 
-        const maxCoor = this.scene.csp.world.cameraGrid.getCoordinates(
-            Math.floor(this.x + this.fovRadius),
-            Math.floor(this.y + this.fovRadius)
-        );
+        objectsInCells = this.scene.world.getObjectsInBox(
+            this.x - this.fovRadius,
+            this.y - this.fovRadius,
+            this.x + this.fovRadius,
+            this.y + this.fovRadius
+        ) as Array<SpaceGameObject>;
 
-        world.cameraGrid.loopThroughCells(
-            minCoor.col, minCoor.row,
-            maxCoor.col, maxCoor.row,
-            function(cell: Array<any>, col: number, row: number)
-            {
-                for(var i in cell)
-                {
-                    var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
-                    if(object !== undefined)
-                    {
-                        objectsInCells.push(object);
-                    }
-                }
-            }
-        );
+        // const minCoor = this.scene.world.cameraGrid.getCoordinates(
+        //     Math.floor(this.x - this.fovRadius),
+        //     Math.floor(this.y - this.fovRadius)
+        // ); 
+        // const maxCoor = this.scene.world.cameraGrid.getCoordinates(
+        //     Math.floor(this.x + this.fovRadius),
+        //     Math.floor(this.y + this.fovRadius)
+        // );
+
+        // world.cameraGrid.loopThroughCells(
+        //     minCoor.col, minCoor.row,
+        //     maxCoor.col, maxCoor.row,
+        //     function(cell: Array<any>, col: number, row: number)
+        //     {
+        //         for(var i in cell)
+        //         {
+        //             var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
+        //             if(object !== undefined)
+        //             {
+        //                 objectsInCells.push(object);
+        //             }
+        //         }
+        //     }
+        // );
 
         this.visibleObjects.length = 0;
 

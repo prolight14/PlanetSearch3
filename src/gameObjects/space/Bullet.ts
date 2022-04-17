@@ -44,7 +44,7 @@ export default class Bullet extends SpaceGameObject
     protected onKill()
     {
         // this.bodyConf.updateBoundingBox();
-        (this.scene as SpaceScene).csp.world.cameraGrid.removeReference(this);
+        // (this.scene as SpaceScene).world.cameraGrid.removeReference(this);
     }
 
     protected preUpdate(time: number, delta: number)

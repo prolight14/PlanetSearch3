@@ -101,7 +101,7 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
 
     private resizeCSPCameraWindow ()
     {
-        const world: any = this.spaceScene.csp.world;
+        const world: any = this.spaceScene.world;
         const cspConfig = this.spaceScene.cspConfig;
         const cam = this.cameras.main;
 

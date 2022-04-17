@@ -38,7 +38,6 @@ var Bullet = (function (_super) {
         return _this;
     }
     Bullet.prototype.onKill = function () {
-        this.scene.csp.world.cameraGrid.removeReference(this);
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);

@@ -30,7 +30,7 @@ var SpaceLogicScene = (function (_super) {
     };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
-        var world = this.spaceScene.csp.world;
+        var world = this.spaceScene.world;
         var random = trig_1.default.random;
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
@@ -59,7 +59,15 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 60500);
+        if (!world.get.gameObjectArray("playerShip")) {
+            var playerShips = world.add.gameObjectArray(PlayerShip_1.default, "playerShip");
+            playerShips.define("ignoreDestroy", true);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60500);
+        }
+        else {
+            this.playerShip.resetStats();
+            this.playerShip.bodyConf.update();
+        }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
         for (var i = 0; i < 100; i++) {
@@ -70,15 +78,15 @@ var SpaceLogicScene = (function (_super) {
         }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
-        var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
         xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
     };
     SpaceLogicScene.prototype.addSmallXPStar = function (x, y) {
-        var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var smallXPStars = this.spaceScene.world.get.gameObjectArray("xpStar");
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
     };
     SpaceLogicScene.prototype.addCrests = function (x, y) {
-        var crests = this.spaceScene.csp.world.get.gameObjectArray("crest");
+        var crests = this.spaceScene.world.get.gameObjectArray("crest");
         crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     };
     SpaceLogicScene.prototype.update = function () {

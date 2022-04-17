@@ -17,6 +17,7 @@ var HyperBeamerShip_1 = require("./HyperBeamerShip");
 var timer_1 = require("../Utils/timer");
 var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
+var Bullet_1 = require("./Bullet");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -25,6 +26,10 @@ var HyperBeamerSType = (function (_super) {
         _this_1.setCollidesWith(0);
         _this_1.isShooting = true;
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
+        _this_1.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
+        if (!_this_1.bullets) {
+            _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
+        }
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
@@ -37,7 +42,7 @@ var HyperBeamerSType = (function (_super) {
             return 1 - t;
         });
         var _this = _this_1;
-        var world = scene.csp.world;
+        var world = scene.world;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
                 start: function () {
@@ -92,7 +97,7 @@ var HyperBeamerSType = (function (_super) {
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
-        _this_1.shootTimer = timer_1.default(true, 500, function () {
+        _this_1.shootTimer = timer_1.default(true, 200, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
@@ -113,6 +118,7 @@ var HyperBeamerSType = (function (_super) {
         return false;
     };
     HyperBeamerSType.prototype.shoot = function () {
+        this.shootBullet(0, 20);
     };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);

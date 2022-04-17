@@ -35,24 +35,14 @@ export default class SpaceUIDebugScene extends Phaser.Scene
 
     private peekCell()
     {
-        var cspWorld: any = this.spaceScene.csp.world;
-        this.input.activePointer.updateWorldPoint(this.scene.get("spaceCameraController").cameras.main);
+        this.input.activePointer.updateWorldPoint(this.spaceScene.cameras.main);
 
-        var coordinates: { col: number, row: number } = cspWorld.cameraGrid.getCoordinates(
+        const { cellCoordinateText, cellText } = this.spaceScene.world.getCellInfoText(
             this.input.activePointer.worldX,
             this.input.activePointer.worldY
         );
 
-        var cell: any = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
-
-        this.cellCoorText.setText(`(${coordinates.col}, ${coordinates.row})`);
-
-        var txt: string = "";
-        for(var i in cell)
-        {
-            txt += i + "\n";
-        }
-
-        this.cellText.setText(txt);
+        this.cellCoorText.setText(cellCoordinateText);
+        this.cellText.setText(cellText);
     }
 }

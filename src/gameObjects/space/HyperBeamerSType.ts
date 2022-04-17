@@ -22,12 +22,12 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
 
-        // this.bullets = scene.csp.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
+        this.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
 
-        // if(!this.bullets)
-        // {
-        //     this.bullets = scene.csp.world.add.gameObjectArray(Bullet, "hyperBeamerSTypeGreenBullet");
-        // }
+        if(!this.bullets)
+        {
+            this.bullets = scene.world.add.gameObjectArray(Bullet, "hyperBeamerSTypeGreenBullet");
+        }
 
         this.pEmitter = this.particles.createEmitter({
             lifespan: 500,
@@ -44,7 +44,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
         });
 
         var _this = this;
-        const world = scene.csp.world;
+        const world = scene.world;
 
         this.sm = new StateMachine({
             "wander": {
@@ -117,7 +117,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.sm.start("wander");
 
-        this.shootTimer = timer(true, 500, () =>
+        this.shootTimer = timer(true, 200, () =>
         {
             if(this.isShooting)
             {
@@ -165,7 +165,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
     private shoot()
     {
-        // this.shootBullet(0, 20);
+        this.shootBullet(0, 20);
     }
 
     private sm: StateMachine;

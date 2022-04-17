@@ -33,6 +33,7 @@ var PlayerShip = (function (_super) {
         _this.angleDeacl = 0.2;
         _this.destroyOnKill = false;
         _this.canShoot = true;
+        _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -43,7 +44,10 @@ var PlayerShip = (function (_super) {
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
             slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
         };
-        _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
+        if (!(_this.bullets = scene.world.get.gameObjectArray("playerShipBullet"))) {
+            _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
+            _this.bullets.define("ignoreDestroy", true);
+        }
         _this.scene.input.keyboard.on("keyup-Z", function () {
             if (_this.canShoot) {
                 _this.shoot();
@@ -94,6 +98,7 @@ var PlayerShip = (function (_super) {
     }
     PlayerShip.prototype.resetStats = function () {
         this.resetKeys();
+        this.killed = false;
         this.hp = this.maxHp;
     };
     PlayerShip.prototype.resetKeys = function () {

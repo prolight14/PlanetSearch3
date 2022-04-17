@@ -25,15 +25,10 @@ var SpaceDebugScene = (function (_super) {
         this.showGrid();
     };
     SpaceDebugScene.prototype.showGrid = function () {
-        var _this = this;
         var spaceScene = this.scene.get("space");
         this.cellGraphics.clear();
         this.cellGraphics.lineStyle(2, 0x549431, 1.0);
-        var cellWidth = spaceScene.csp.world.cameraGrid.cellWidth;
-        var cellHeight = spaceScene.csp.world.cameraGrid.cellHeight;
-        spaceScene.csp.world.loopThroughVisibleCells(function (cell, col, row) {
-            _this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
-        });
+        spaceScene.world.UIDebugGrid(this.cellGraphics);
     };
     return SpaceDebugScene;
 }(Phaser.Scene));

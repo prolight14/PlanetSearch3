@@ -73,7 +73,7 @@ var SpaceCameraControllerScene = (function (_super) {
         }
     };
     SpaceCameraControllerScene.prototype.resizeCSPCameraWindow = function () {
-        var world = this.spaceScene.csp.world;
+        var world = this.spaceScene.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
         var c_width = cspConfig.window.width;

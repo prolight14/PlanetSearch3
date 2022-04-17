@@ -7,11 +7,14 @@ export default class SpaceImg extends Phaser.GameObjects.Image
         super(scene, x, y, texture);
 
         scene.add.existing(this);
-        scene.csp.initGameObject(this);
+        // Todo: move to SpaceGrid
+        scene.world.initGameObject(this);
     }
 
     public body: any;
     public bodyConf: any;
+    public _id: number;
     public _arrayName: string;
     public _name: string;
+    public destroyQueued: boolean = false;
 }

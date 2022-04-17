@@ -685,7 +685,6 @@ var Bullet = (function (_super) {
         return _this;
     }
     Bullet.prototype.onKill = function () {
-        this.scene.csp.world.cameraGrid.removeReference(this);
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
@@ -825,17 +824,8 @@ var EnemyShip = (function (_super) {
     };
     EnemyShip.prototype.fovLook = function () {
         var objectsInCells = [];
-        var world = this.scene.csp.world;
-        var minCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x - this.fovRadius), Math.floor(this.y - this.fovRadius));
-        var maxCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x + this.fovRadius), Math.floor(this.y + this.fovRadius));
-        world.cameraGrid.loopThroughCells(minCoor.col, minCoor.row, maxCoor.col, maxCoor.row, function (cell, col, row) {
-            for (var i in cell) {
-                var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
-                if (object !== undefined) {
-                    objectsInCells.push(object);
-                }
-            }
-        });
+        var world = this.scene.world;
+        objectsInCells = this.scene.world.getObjectsInBox(this.x - this.fovRadius, this.y - this.fovRadius, this.x + this.fovRadius, this.y + this.fovRadius);
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
         var minAngle = this.angle - this.halfFovAngle;
@@ -932,6 +922,7 @@ var HyperBeamerShip_1 = __webpack_require__(/*! ./HyperBeamerShip */ "./gameObje
 var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObjects/Utils/StateMachine.js");
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
+var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -940,6 +931,10 @@ var HyperBeamerSType = (function (_super) {
         _this_1.setCollidesWith(0);
         _this_1.isShooting = true;
         _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
+        _this_1.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
+        if (!_this_1.bullets) {
+            _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
+        }
         _this_1.pEmitter = _this_1.particles.createEmitter({
             lifespan: 500,
             scale: 1.5,
@@ -952,7 +947,7 @@ var HyperBeamerSType = (function (_super) {
             return 1 - t;
         });
         var _this = _this_1;
-        var world = scene.csp.world;
+        var world = scene.world;
         _this_1.sm = new StateMachine_1.default({
             "wander": {
                 start: function () {
@@ -1007,7 +1002,7 @@ var HyperBeamerSType = (function (_super) {
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
-        _this_1.shootTimer = timer_1.default(true, 500, function () {
+        _this_1.shootTimer = timer_1.default(true, 200, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
@@ -1028,6 +1023,7 @@ var HyperBeamerSType = (function (_super) {
         return false;
     };
     HyperBeamerSType.prototype.shoot = function () {
+        this.shootBullet(0, 20);
     };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
@@ -1223,6 +1219,7 @@ var PlayerShip = (function (_super) {
         _this.angleDeacl = 0.2;
         _this.destroyOnKill = false;
         _this.canShoot = true;
+        _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
         _this.useAngleAcl = true;
@@ -1233,7 +1230,10 @@ var PlayerShip = (function (_super) {
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
             slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
         };
-        _this.bullets = scene.csp.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
+        if (!(_this.bullets = scene.world.get.gameObjectArray("playerShipBullet"))) {
+            _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
+            _this.bullets.define("ignoreDestroy", true);
+        }
         _this.scene.input.keyboard.on("keyup-Z", function () {
             if (_this.canShoot) {
                 _this.shoot();
@@ -1284,6 +1284,7 @@ var PlayerShip = (function (_super) {
     }
     PlayerShip.prototype.resetStats = function () {
         this.resetKeys();
+        this.killed = false;
         this.hp = this.maxHp;
     };
     PlayerShip.prototype.resetKeys = function () {
@@ -1529,7 +1530,7 @@ var SpaceGameObject = (function (_super) {
         _this.destroyOnKill = true;
         _this.destroyQueued = false;
         scene.add.existing(_this);
-        scene.csp.initGameObject(_this);
+        scene.world.initGameObject(_this);
         return _this;
     }
     SpaceGameObject.prototype.preUpdate = function (time, delta) {
@@ -2401,7 +2402,7 @@ var SpaceCameraControllerScene = (function (_super) {
         }
     };
     SpaceCameraControllerScene.prototype.resizeCSPCameraWindow = function () {
-        var world = this.spaceScene.csp.world;
+        var world = this.spaceScene.world;
         var cspConfig = this.spaceScene.cspConfig;
         var cam = this.cameras.main;
         var c_width = cspConfig.window.width;
@@ -2486,15 +2487,10 @@ var SpaceDebugScene = (function (_super) {
         this.showGrid();
     };
     SpaceDebugScene.prototype.showGrid = function () {
-        var _this = this;
         var spaceScene = this.scene.get("space");
         this.cellGraphics.clear();
         this.cellGraphics.lineStyle(2, 0x549431, 1.0);
-        var cellWidth = spaceScene.csp.world.cameraGrid.cellWidth;
-        var cellHeight = spaceScene.csp.world.cameraGrid.cellHeight;
-        spaceScene.csp.world.loopThroughVisibleCells(function (cell, col, row) {
-            _this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
-        });
+        spaceScene.world.UIDebugGrid(this.cellGraphics);
     };
     return SpaceDebugScene;
 }(Phaser.Scene));
@@ -2542,6 +2538,186 @@ exports.default = SpaceEffectsScene;
 
 /***/ }),
 
+/***/ "./scenes/space/SpaceGrid.js":
+/*!***********************************!*\
+  !*** ./scenes/space/SpaceGrid.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGrid = (function () {
+    function SpaceGrid(systems, config) {
+        this.scrollX = 0;
+        this.scrollY = 0;
+        this.systems = systems;
+        this.config = config;
+        this.seed = config.seed;
+        this.world = new CartesianSystem.World(this.config);
+    }
+    SpaceGrid.prototype.buildSpace = function (newConfig) {
+        if (newConfig !== undefined) {
+            this.config = newConfig;
+        }
+        var world = this.world;
+        var bounds = this.world.bounds;
+        this.systems.cameras.main.setBounds(bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
+        this.add = {
+            gameObjectArray: function (object, arrayName) {
+                return world.add.array(object, arrayName);
+            }
+        };
+        this.get = {
+            gameObjectArray: function (arrayName) {
+                return world.get.array(arrayName);
+            },
+            gameObject: function (arrayName, id) {
+                return world.get.array(arrayName)[id];
+            }
+        };
+        this.remove = {
+            gameObjectArray: function (arrayName) {
+                return world.remove.array(arrayName);
+            }
+        };
+        this.camera = {
+            setWindow: function (x, y, width, height) {
+                world.camera.setWindow(x, y, width, height);
+            }
+        };
+    };
+    SpaceGrid.prototype.updateScroll = function (x, y) {
+        this.scrollX = x;
+        this.scrollY = y;
+    };
+    SpaceGrid.prototype.updateSpace = function () {
+        var world = this.world;
+        world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
+        world.resetProcessList();
+        world.updateProcessList();
+        this.integrate(this.systems);
+    };
+    SpaceGrid.prototype.integrate = function (sys) {
+        sys.displayList.removeAll();
+        sys.updateList.removeAll();
+        this.world.loopProcessList(function (object) {
+            sys.displayList.add(object);
+            sys.updateList.add(object);
+        });
+        var checkDestroy = function (gameObject) {
+            if (gameObject.destroyQueued) {
+                gameObject.destroy();
+                gameObject.destroyQueued = false;
+            }
+        };
+        sys.displayList.getChildren().forEach(checkDestroy);
+        sys.updateList.getActive().forEach(checkDestroy);
+        sys.displayList.queueDepthSort();
+    };
+    SpaceGrid.prototype.initGameObject = function (gameObject) {
+        var world = this.world;
+        var worldGameObjects = world.gameObjectHandler.gameObjects;
+        gameObject.bodyConf = {
+            moves: true,
+            boundingBox: {},
+            update: function () { },
+            destroy: function () { },
+            updateBoundingBox: function () { },
+        };
+        gameObject.bodyConf.updateBoundingBox = function () {
+            this.boundingBox.minX = gameObject.x - gameObject.displayWidth / 2;
+            this.boundingBox.minY = gameObject.y - gameObject.displayHeight / 2;
+            this.boundingBox.maxX = gameObject.x + gameObject.displayWidth / 2;
+            this.boundingBox.maxY = gameObject.y + gameObject.displayHeight / 2;
+        };
+        gameObject.bodyConf.updateBoundingBox();
+        gameObject.bodyConf.update = function () {
+            gameObject.bodyConf.updateBoundingBox();
+            world.cameraGrid.removeReference(gameObject);
+            world.cameraGrid.addReference(gameObject);
+        };
+        gameObject.bodyConf.destroy = function () {
+            gameObject.bodyConf.updateBoundingBox();
+            world.cameraGrid.removeReference(gameObject);
+        };
+        if (!gameObject.body) {
+            gameObject.body = {};
+        }
+        gameObject.on("destroy", function () {
+            gameObject.bodyConf.destroy();
+            worldGameObjects[worldGameObjects.references[this._arrayName]].remove(this._id);
+        });
+    };
+    SpaceGrid.prototype.clearSpace = function () {
+        var world = this.world;
+        world.cameraGrid.reset();
+        var gameObjects = world.gameObjectHandler.gameObjects;
+        for (var i in gameObjects) {
+            for (var j in gameObjects[i]) {
+                if (gameObjects[i][j].ignoreDestroy) {
+                    gameObjects[i][j].destroyQueued = false;
+                    continue;
+                }
+                gameObjects[i][j].destroy();
+            }
+            if (!gameObjects[i].ignoreDestroy) {
+                gameObjects.removeObject(gameObjects[i]._name);
+            }
+        }
+        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.seed);
+    };
+    SpaceGrid.prototype.resetSpace = function () {
+        this.clearSpace();
+        this.buildSpace();
+    };
+    SpaceGrid.prototype.getObjectsInBox = function (minX, minY, maxX, maxY) {
+        var world = this.world;
+        var cameraGrid = world.cameraGrid;
+        var gameObjects = world.gameObjectHandler.gameObjects;
+        var minCoordinate = cameraGrid.getCoordinates(minX | 0, minY | 0);
+        var maxCoordinate = cameraGrid.getCoordinates(maxX | 0, maxY | 0);
+        var objectsInCells = [];
+        cameraGrid.loopThroughCells(minCoordinate.col, minCoordinate.row, maxCoordinate.col, maxCoordinate.row, function (cell, col, row) {
+            var i, object;
+            for (i in cell) {
+                object = gameObjects[gameObjects.references[cell[i].arrayName]][cell[i].id];
+                if (object !== undefined) {
+                    objectsInCells.push(object);
+                }
+            }
+        });
+        return objectsInCells;
+    };
+    SpaceGrid.prototype.logWorld = function () {
+        console.log(this.world.gameObjectHandler);
+    };
+    SpaceGrid.prototype.UIDebugGrid = function (graphics) {
+        var cellWidth = this.world.cameraGrid.cellWidth;
+        var cellHeight = this.world.cameraGrid.cellHeight;
+        this.world.loopThroughVisibleCells(function (cell, col, row) {
+            graphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        });
+    };
+    SpaceGrid.prototype.getCellInfoText = function (x, y) {
+        var world = this.world;
+        var coordinates = world.cameraGrid.getCoordinates(x, y);
+        var cell = world.cameraGrid.grid[coordinates.col][coordinates.row];
+        var cellText = "";
+        for (var i in cell) {
+            cellText += i + "\n";
+        }
+        return {
+            cellText: cellText,
+            cellCoordinateText: "(" + coordinates.col + ", " + coordinates.row + ")"
+        };
+    };
+    return SpaceGrid;
+}());
+exports.default = SpaceGrid;
+//# sourceMappingURL=SpaceGrid.js.map
+
+/***/ }),
+
 /***/ "./scenes/space/SpaceLogicScene.js":
 /*!*****************************************!*\
   !*** ./scenes/space/SpaceLogicScene.js ***!
@@ -2580,7 +2756,7 @@ var SpaceLogicScene = (function (_super) {
     };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
-        var world = this.spaceScene.csp.world;
+        var world = this.spaceScene.world;
         var random = trig_1.default.random;
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
@@ -2609,7 +2785,15 @@ var SpaceLogicScene = (function (_super) {
         shrapnels.add(this.spaceScene, 69130, 62200, "shrapnel3");
         shrapnels.add(this.spaceScene, 69170, 62100, "shrapnel4");
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
-        this.playerShip = world.add.gameObjectArray(PlayerShip_1.default, "playerShip").add(this.spaceScene, 69000, 60500);
+        if (!world.get.gameObjectArray("playerShip")) {
+            var playerShips = world.add.gameObjectArray(PlayerShip_1.default, "playerShip");
+            playerShips.define("ignoreDestroy", true);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60500);
+        }
+        else {
+            this.playerShip.resetStats();
+            this.playerShip.bodyConf.update();
+        }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
         for (var i = 0; i < 100; i++) {
@@ -2620,15 +2804,15 @@ var SpaceLogicScene = (function (_super) {
         }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
-        var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
         xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
     };
     SpaceLogicScene.prototype.addSmallXPStar = function (x, y) {
-        var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var smallXPStars = this.spaceScene.world.get.gameObjectArray("xpStar");
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
     };
     SpaceLogicScene.prototype.addCrests = function (x, y) {
-        var crests = this.spaceScene.csp.world.get.gameObjectArray("crest");
+        var crests = this.spaceScene.world.get.gameObjectArray("crest");
         crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     };
     SpaceLogicScene.prototype.update = function () {
@@ -2662,7 +2846,7 @@ exports.default = SpaceLogicScene;
 /*!************************************!*\
   !*** ./scenes/space/SpaceScene.js ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -2679,6 +2863,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGrid_1 = __webpack_require__(/*! ./SpaceGrid */ "./scenes/space/SpaceGrid.js");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -2717,11 +2902,6 @@ var SpaceScene = (function (_super) {
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
-        this.load.scenePlugin({
-            key: "CartesianSystemPlugin",
-            url: "./libraries/CartesianSystemPlugin.js",
-            sceneKey: 'csp'
-        });
     };
     SpaceScene.prototype.create = function () {
         var worldWidth = 204800;
@@ -2738,33 +2918,25 @@ var SpaceScene = (function (_super) {
                 rows: worldHeight / cellHeight,
                 cellWidth: cellWidth,
                 cellHeight: cellHeight
-            }
+            },
+            seed: this.game.config.seed
         };
-        this.csp.initWorld(this.cspConfig);
+        this.world = new SpaceGrid_1.default(this.sys, this.cspConfig);
+        this.world.buildSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+        this.world.logWorld();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
+        this.prepareStatsGraphics();
+        this.runScenes(false);
         this.loaded = true;
     };
     SpaceScene.prototype.handleGameOver = function () {
         this.reloadSpace();
     };
     SpaceScene.prototype.reloadSpace = function () {
-        this.stopScenes();
-        var playerShip = this.scene.get("spaceLogic").playerShip;
-        playerShip.ignoreDestroy = true;
-        this.matter.world.destroy();
-        this.matter.world = new Phaser.Physics.Matter.World(this, {
-            gravity: false,
-            autoUpdate: false,
-        });
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
-        this.csp.initWorld(this.cspConfig);
+        this.world.resetSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        playerShip.resetStats();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -2833,30 +3005,15 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
-        var playerShip = this.scene.get("spaceLogic").playerShip;
-        this.updateStatsGraphics();
-        this.csp.setFollow(playerShip.x, playerShip.y);
-        this.csp.updateWorld(function (csp) {
-            _this.csp.systems.displayList.add(playerShip.particles);
-            _this.sys.displayList.list.forEach(function (gameObject) {
-                if (gameObject.particles !== undefined) {
-                    csp.systems.displayList.add(gameObject.particles);
-                }
-                if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
-            _this.csp.systems.displayList.add(_this.statsGraphics);
-            _this.sys.updateList.getActive().forEach(function (gameObject) {
-                if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
+        var cam = this.cameras.main;
+        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateSpace();
+        this.sys.displayList.list.forEach(function (gameObject) {
+            if (gameObject.particles !== undefined) {
+                _this.sys.displayList.add(gameObject.particles);
+            }
         });
+        this.updateStatsGraphics();
         if (this.stepMatter++ >= 2) {
             this.matter.step(1000 / 30, 0);
             this.stepMatter = 0;
@@ -2879,6 +3036,7 @@ var SpaceScene = (function (_super) {
                 }
             }
         });
+        this.sys.displayList.add(this.statsGraphics);
     };
     return SpaceScene;
 }(Phaser.Scene));
@@ -2927,16 +3085,10 @@ var SpaceUIDebugScene = (function (_super) {
         this.peekCell();
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
-        var cspWorld = this.spaceScene.csp.world;
-        this.input.activePointer.updateWorldPoint(this.scene.get("spaceCameraController").cameras.main);
-        var coordinates = cspWorld.cameraGrid.getCoordinates(this.input.activePointer.worldX, this.input.activePointer.worldY);
-        var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
-        this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
-        var txt = "";
-        for (var i in cell) {
-            txt += i + "\n";
-        }
-        this.cellText.setText(txt);
+        this.input.activePointer.updateWorldPoint(this.spaceScene.cameras.main);
+        var _a = this.spaceScene.world.getCellInfoText(this.input.activePointer.worldX, this.input.activePointer.worldY), cellCoordinateText = _a.cellCoordinateText, cellText = _a.cellText;
+        this.cellCoorText.setText(cellCoordinateText);
+        this.cellText.setText(cellText);
     };
     return SpaceUIDebugScene;
 }(Phaser.Scene));

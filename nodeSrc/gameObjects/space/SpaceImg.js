@@ -17,8 +17,9 @@ var SpaceImg = (function (_super) {
     __extends(SpaceImg, _super);
     function SpaceImg(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.destroyQueued = false;
         scene.add.existing(_this);
-        scene.csp.initGameObject(_this);
+        scene.world.initGameObject(_this);
         return _this;
     }
     return SpaceImg;

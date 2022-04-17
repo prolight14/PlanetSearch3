@@ -3,6 +3,7 @@ import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
+import SpaceGrid from "./SpaceGrid";
 import SpaceLogicScene from "./SpaceLogicScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
@@ -49,21 +50,22 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
         
-        this.load.scenePlugin({
-            key: "CartesianSystemPlugin",
-            url: "./libraries/CartesianSystemPlugin.js",
-            sceneKey: 'csp'
-        });
+        // this.load.scenePlugin({
+        //     key: "CartesianSystemPlugin",
+        //     url: "./libraries/CartesianSystemPlugin.js",
+        //     sceneKey: 'csp'
+        // });
     }
 
     public cspConfig: any;
     public loaded: boolean = false;
-
+    
     public create()
     {
         const worldWidth = 204800;
         const worldHeight = 204800;
 
+        
         /*
             Changing this will affect performance. 
             Higher values mean:
@@ -72,16 +74,16 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 Warning: Turn this too high and you will get insane lag!
 
             Lower values mean:
-                Longer load times (because there are more cells to generate)
-                More lag if you turn it too low (because there would be too many cells to loop through)
+            Longer load times (because there are more cells to generate)
+            More lag if you turn it too low (because there would be too many cells to loop through)
                 Warning: Turn this too low and you will run out of memory!
-
+                
             The default for both is 512 
             it's also probably best to keep this to a power of 2
         */
-        const cellWidth = 512;
+       const cellWidth = 512;
         const cellHeight = 512;
-
+        
         this.cspConfig = {
             window: {
                 width: this.game.config.width,
@@ -92,45 +94,69 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 rows: worldHeight / cellHeight,
                 cellWidth: cellWidth,
                 cellHeight: cellHeight
-            }
+            },
+            seed: this.game.config.seed
         };
         
-        this.csp.initWorld(this.cspConfig);
+        ///////////////////////////////
+        // This is what we're doing now
+        this.world = new SpaceGrid(this.sys, this.cspConfig);
+        this.world.buildSpace();
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+
+        this.world.logWorld();
 
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
-
+        this.prepareStatsGraphics();
+        this.runScenes(false);
         this.loaded = true;
+        ///////////////////////////////
+
+        // this.csp.initWorld(this.cspConfig);
+        // (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
+        // this.runScenes(false);
+        // this.prepareStatsGraphics();
+
+        // this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
+
+        // this.loaded = true;
     }
+
+    public world: SpaceGrid;
 
     public handleGameOver()
     {
         this.reloadSpace();
     }
-
+    
     private reloadSpace()
     {
-        this.stopScenes();
-        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
-        playerShip.ignoreDestroy = true;
-        this.matter.world.destroy();
-        this.matter.world = new Phaser.Physics.Matter.World(this,
-        {
-            gravity: false,
-            autoUpdate: false, 
-            // positionIterations: 4,
-            // velocityIterations: 2,
-            // constraintIterations: 1
-        });
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
-        this.csp.initWorld(this.cspConfig);
+        this.world.resetSpace();
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        playerShip.resetStats();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+        this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
     }
+
+    // private reloadSpace()
+    // {
+    //     this.stopScenes();
+    //     var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
+    //     playerShip.ignoreDestroy = true;
+    //     this.matter.world.destroy();
+    //     this.matter.world = new Phaser.Physics.Matter.World(this,
+    //     {
+    //         gravity: false,
+    //         autoUpdate: false, 
+    //         // positionIterations: 4,
+    //         // velocityIterations: 2,
+    //         // constraintIterations: 1
+    //     });
+    //     Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
+    //     this.csp.initWorld(this.cspConfig);
+    //     (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
+    //     playerShip.resetStats();
+    //     this.runScenes(false);
+    //     this.prepareStatsGraphics();
+    // }
 
     private statsGraphics: Phaser.GameObjects.Graphics;
 
@@ -230,10 +256,25 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         });
     }
 
-    public csp: any;
+    // public csp: any;
 
     public update(time: number, delta: number)
     {
+        var cam = this.cameras.main;
+        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateSpace();
+
+        this.sys.displayList.list.forEach((gameObject: any) =>
+        {   
+            if(gameObject.particles !== undefined)
+            {
+                this.sys.displayList.add(gameObject.particles);
+            }
+        });
+
+        this.updateStatsGraphics();
+
+        /*
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
         this.updateStatsGraphics();
@@ -269,7 +310,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 }
             });
         });
-        
+        */
         if(this.stepMatter++ >= 2)
         {
             this.matter.step(1000 / 30, 0);
@@ -310,5 +351,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                 // enemyShip.debugFov(this.statsGraphics);
             }
         });
+
+        this.sys.displayList.add(this.statsGraphics);
     }
 }

@@ -8,6 +8,7 @@ import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
 import trig from "../../gameObjects/Utils/trig";
+import SpaceGrid from "./SpaceGrid";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -23,12 +24,12 @@ export default class SpaceLogicScene extends Phaser.Scene
     {
         
     }
-    
+
     public addObjectsToSpace()
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
         
-        var world: any = this.spaceScene.csp.world;
+        var world: SpaceGrid = this.spaceScene.world;
         
         var random = trig.random;
         
@@ -79,7 +80,17 @@ export default class SpaceLogicScene extends Phaser.Scene
         shrapnels.add(this.spaceScene, 69190, 62000, "shrapnel3");
         
         // this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 56000, 70000 + 1000);
-        this.playerShip = world.add.gameObjectArray(PlayerShip, "playerShip").add(this.spaceScene, 69000, 60500);
+        if(!world.get.gameObjectArray("playerShip"))
+        {
+            var playerShips = world.add.gameObjectArray(PlayerShip, "playerShip");
+            playerShips.define("ignoreDestroy", true);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60500);
+        }
+        else
+        {
+            this.playerShip.resetStats();
+            this.playerShip.bodyConf.update();
+        }
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
@@ -96,21 +107,21 @@ export default class SpaceLogicScene extends Phaser.Scene
     
     public addXPStar(x: number, y: number)
     {
-        var xpStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
         xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
     }
 
     public addSmallXPStar(x: number, y: number)
     {
-        var smallXPStars = this.spaceScene.csp.world.get.gameObjectArray("xpStar");
+        var smallXPStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
     }
 
     public addCrests(x: number, y: number)
     {
-        var crests = this.spaceScene.csp.world.get.gameObjectArray("crest");
+        var crests = this.spaceScene.world.get.gameObjectArray("crest");
 
         crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     }

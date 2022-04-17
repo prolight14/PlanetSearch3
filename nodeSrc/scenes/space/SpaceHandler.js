@@ -1,12 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpaceHandler = (function () {
-    function SpaceHandler(config) {
+var CartesianSystem;
+var SpaceGrid = (function () {
+    function SpaceGrid(config) {
         this.seed = config.seed;
+        this.config = config;
     }
-    SpaceHandler.prototype.buildSpace = function () {
+    SpaceGrid.prototype.buildSpace = function () {
     };
-    return SpaceHandler;
+    SpaceGrid.prototype.clearSpace = function () {
+    };
+    SpaceGrid.prototype.resetSpace = function () {
+    };
+    return SpaceGrid;
 }());
-exports.default = SpaceHandler;
+exports.default = SpaceGrid;
 //# sourceMappingURL=SpaceHandler.js.map

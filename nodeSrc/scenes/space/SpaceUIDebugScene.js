@@ -32,16 +32,10 @@ var SpaceUIDebugScene = (function (_super) {
         this.peekCell();
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
-        var cspWorld = this.spaceScene.csp.world;
-        this.input.activePointer.updateWorldPoint(this.scene.get("spaceCameraController").cameras.main);
-        var coordinates = cspWorld.cameraGrid.getCoordinates(this.input.activePointer.worldX, this.input.activePointer.worldY);
-        var cell = cspWorld.cameraGrid.grid[coordinates.col][coordinates.row];
-        this.cellCoorText.setText("(" + coordinates.col + ", " + coordinates.row + ")");
-        var txt = "";
-        for (var i in cell) {
-            txt += i + "\n";
-        }
-        this.cellText.setText(txt);
+        this.input.activePointer.updateWorldPoint(this.spaceScene.cameras.main);
+        var _a = this.spaceScene.world.getCellInfoText(this.input.activePointer.worldX, this.input.activePointer.worldY), cellCoordinateText = _a.cellCoordinateText, cellText = _a.cellText;
+        this.cellCoorText.setText(cellCoordinateText);
+        this.cellText.setText(cellText);
     };
     return SpaceUIDebugScene;
 }(Phaser.Scene));

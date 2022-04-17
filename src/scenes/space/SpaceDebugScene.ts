@@ -24,14 +24,8 @@ export default class SpaceDebugScene extends Phaser.Scene
         var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
 
         this.cellGraphics.clear();
-
         this.cellGraphics.lineStyle(2, 0x549431, 1.0);
-        let cellWidth: number = spaceScene.csp.world.cameraGrid.cellWidth;
-        let cellHeight: number = spaceScene.csp.world.cameraGrid.cellHeight;
 
-        spaceScene.csp.world.loopThroughVisibleCells((cell: object, col: number, row: number) =>
-        {
-            this.cellGraphics.strokeRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
-        });
+        spaceScene.world.UIDebugGrid(this.cellGraphics);
     }
 }

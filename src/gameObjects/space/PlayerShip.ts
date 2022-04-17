@@ -30,6 +30,7 @@ export default class PlayerShip extends Ship
     public resetStats()
     {
         this.resetKeys();
+        this.killed = false;
         this.hp = this.maxHp;
     }
  
@@ -81,7 +82,7 @@ export default class PlayerShip extends Ship
     {
         super(scene, x, y, "helixShip", undefined/*, { shape: scene.cache.json.get("helixShipShape").helixShip }*/);
 
-        // this.ignoreDestroy = true;
+        this.ignoreDestroy = true;
 
         this.setCollisionGroup(2);
         this.setCollidesWith(0);
@@ -98,7 +99,11 @@ export default class PlayerShip extends Ship
             // shootZ: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
         };
 
-        this.bullets = scene.csp.world.add.gameObjectArray(Bullet, "playerShipBullet");
+        if(!(this.bullets = scene.world.get.gameObjectArray("playerShipBullet")))
+        {
+            this.bullets = scene.world.add.gameObjectArray(Bullet, "playerShipBullet");
+            this.bullets.define("ignoreDestroy", true);
+        }
 
         this.scene.input.keyboard.on("keyup-Z", () =>
         {

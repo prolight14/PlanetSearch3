@@ -60,17 +60,8 @@ var EnemyShip = (function (_super) {
     };
     EnemyShip.prototype.fovLook = function () {
         var objectsInCells = [];
-        var world = this.scene.csp.world;
-        var minCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x - this.fovRadius), Math.floor(this.y - this.fovRadius));
-        var maxCoor = this.scene.csp.world.cameraGrid.getCoordinates(Math.floor(this.x + this.fovRadius), Math.floor(this.y + this.fovRadius));
-        world.cameraGrid.loopThroughCells(minCoor.col, minCoor.row, maxCoor.col, maxCoor.row, function (cell, col, row) {
-            for (var i in cell) {
-                var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
-                if (object !== undefined) {
-                    objectsInCells.push(object);
-                }
-            }
-        });
+        var world = this.scene.world;
+        objectsInCells = this.scene.world.getObjectsInBox(this.x - this.fovRadius, this.y - this.fovRadius, this.x + this.fovRadius, this.y + this.fovRadius);
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
         var minAngle = this.angle - this.halfFovAngle;

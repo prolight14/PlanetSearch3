@@ -7,7 +7,8 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
         super(scene.matter.world, x, y, texture, frame);
 
         scene.add.existing(this);
-        scene.csp.initGameObject(this);
+        // Todo: move to SpaceGrid
+        scene.world.initGameObject(this);
     }
 
     protected preUpdate(time: number, delta: number)
@@ -34,7 +35,7 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
 
     }
 
-    private killed: boolean = false;
+    protected killed: boolean = false;
 
     protected destroyOnKill: boolean = true;
     public destroyQueued: boolean = false;
@@ -54,7 +55,6 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
         this.killed = true;
 
         this.onKill();
-
         this.destroyQueued = this.destroyOnKill;
     }
 }

@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var SpaceGrid_1 = require("./SpaceGrid");
 var SpaceScene = (function (_super) {
     __extends(SpaceScene, _super);
     function SpaceScene() {
@@ -51,11 +52,6 @@ var SpaceScene = (function (_super) {
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
-        this.load.scenePlugin({
-            key: "CartesianSystemPlugin",
-            url: "./libraries/CartesianSystemPlugin.js",
-            sceneKey: 'csp'
-        });
     };
     SpaceScene.prototype.create = function () {
         var worldWidth = 204800;
@@ -72,33 +68,25 @@ var SpaceScene = (function (_super) {
                 rows: worldHeight / cellHeight,
                 cellWidth: cellWidth,
                 cellHeight: cellHeight
-            }
+            },
+            seed: this.game.config.seed
         };
-        this.csp.initWorld(this.cspConfig);
+        this.world = new SpaceGrid_1.default(this.sys, this.cspConfig);
+        this.world.buildSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+        this.world.logWorld();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
+        this.prepareStatsGraphics();
+        this.runScenes(false);
         this.loaded = true;
     };
     SpaceScene.prototype.handleGameOver = function () {
         this.reloadSpace();
     };
     SpaceScene.prototype.reloadSpace = function () {
-        this.stopScenes();
-        var playerShip = this.scene.get("spaceLogic").playerShip;
-        playerShip.ignoreDestroy = true;
-        this.matter.world.destroy();
-        this.matter.world = new Phaser.Physics.Matter.World(this, {
-            gravity: false,
-            autoUpdate: false,
-        });
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
-        this.csp.initWorld(this.cspConfig);
+        this.world.resetSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        playerShip.resetStats();
-        this.runScenes(false);
-        this.prepareStatsGraphics();
+        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
     };
     SpaceScene.prototype.prepareStatsGraphics = function () {
         this.statsGraphics = this.add.graphics().setDepth(4);
@@ -167,30 +155,15 @@ var SpaceScene = (function (_super) {
     };
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
-        var playerShip = this.scene.get("spaceLogic").playerShip;
-        this.updateStatsGraphics();
-        this.csp.setFollow(playerShip.x, playerShip.y);
-        this.csp.updateWorld(function (csp) {
-            _this.csp.systems.displayList.add(playerShip.particles);
-            _this.sys.displayList.list.forEach(function (gameObject) {
-                if (gameObject.particles !== undefined) {
-                    csp.systems.displayList.add(gameObject.particles);
-                }
-                if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
-            _this.csp.systems.displayList.add(_this.statsGraphics);
-            _this.sys.updateList.getActive().forEach(function (gameObject) {
-                if (gameObject.destroyQueued) {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
+        var cam = this.cameras.main;
+        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateSpace();
+        this.sys.displayList.list.forEach(function (gameObject) {
+            if (gameObject.particles !== undefined) {
+                _this.sys.displayList.add(gameObject.particles);
+            }
         });
+        this.updateStatsGraphics();
         if (this.stepMatter++ >= 2) {
             this.matter.step(1000 / 30, 0);
             this.stepMatter = 0;
@@ -213,6 +186,7 @@ var SpaceScene = (function (_super) {
                 }
             }
         });
+        this.sys.displayList.add(this.statsGraphics);
     };
     return SpaceScene;
 }(Phaser.Scene));
