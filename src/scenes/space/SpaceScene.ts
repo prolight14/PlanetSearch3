@@ -104,11 +104,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.world.buildSpace();
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
 
-        this.world.logWorld();
+        this.runScenes(false);
+        this.prepareStatsGraphics();
 
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
-        this.prepareStatsGraphics();
-        this.runScenes(false);
         this.loaded = true;
         ///////////////////////////////
 
@@ -234,6 +233,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
+        this.sleepDebugScenes();
     }
 
     public stopScenes()
@@ -274,43 +274,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
         this.updateStatsGraphics();
 
-        /*
-        var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
-
-        this.updateStatsGraphics();
-
-        this.csp.setFollow(playerShip.x, playerShip.y);
-        this.csp.updateWorld((csp?: any) =>
-        {
-            this.csp.systems.displayList.add(playerShip.particles);
-            
-            this.sys.displayList.list.forEach((gameObject: any) =>
-            {   
-                if(gameObject.particles !== undefined)
-                {
-                    csp.systems.displayList.add(gameObject.particles);
-                }
-                if(gameObject.destroyQueued)
-                {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
-
-            this.csp.systems.displayList.add(this.statsGraphics);
-
-            this.sys.updateList.getActive().forEach((gameObject: SpaceGameObject) =>
-            {
-                if(gameObject.destroyQueued)
-                {
-                    gameObject.bodyConf.updateBoundingBox();
-                    gameObject.destroy();
-                    gameObject.destroyQueued = false;
-                }
-            });
-        });
-        */
         if(this.stepMatter++ >= 2)
         {
             this.matter.step(1000 / 30, 0);

@@ -2353,7 +2353,7 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene = this.scene.get("spaceDebug");
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.05), 2.5));
+            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
@@ -2489,7 +2489,7 @@ var SpaceDebugScene = (function (_super) {
     SpaceDebugScene.prototype.showGrid = function () {
         var spaceScene = this.scene.get("space");
         this.cellGraphics.clear();
-        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        this.cellGraphics.lineStyle(6, 0x549431, 1.0);
         spaceScene.world.UIDebugGrid(this.cellGraphics);
     };
     return SpaceDebugScene;
@@ -2548,8 +2548,12 @@ exports.default = SpaceEffectsScene;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var SpaceGrid = (function () {
     function SpaceGrid(systems, config) {
-        this.scrollX = 0;
-        this.scrollY = 0;
+        this.scrollX = -1;
+        this.scrollY = -1;
+        this.lastScrollX = -1;
+        this.lastScrollY = -1;
+        this.sleeping = false;
+        this.sleepingEnabled = true;
         this.systems = systems;
         this.config = config;
         this.seed = config.seed;
@@ -2593,6 +2597,14 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.updateSpace = function () {
         var world = this.world;
         world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
+        if (this.sleepingEnabled) {
+            this.sleeping = (this.lastScrollX === world.camera.scrollX && this.lastScrollY === world.camera.scrollY);
+            this.lastScrollX = world.camera.scrollX;
+            this.lastScrollY = world.camera.scrollY;
+            if (this.sleeping) {
+                return;
+            }
+        }
         world.resetProcessList();
         world.updateProcessList();
         this.integrate(this.systems);
@@ -2600,6 +2612,7 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.integrate = function (sys) {
         sys.displayList.removeAll();
         sys.updateList.removeAll();
+        sys.updateList.update();
         this.world.loopProcessList(function (object) {
             sys.displayList.add(object);
             sys.updateList.add(object);
@@ -2610,7 +2623,7 @@ var SpaceGrid = (function () {
                 gameObject.destroyQueued = false;
             }
         };
-        sys.displayList.getChildren().forEach(checkDestroy);
+        sys.displayList.list.forEach(checkDestroy);
         sys.updateList.getActive().forEach(checkDestroy);
         sys.displayList.queueDepthSort();
     };
@@ -2792,6 +2805,8 @@ var SpaceLogicScene = (function (_super) {
         }
         else {
             this.playerShip.resetStats();
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
@@ -2924,10 +2939,9 @@ var SpaceScene = (function (_super) {
         this.world = new SpaceGrid_1.default(this.sys, this.cspConfig);
         this.world.buildSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.world.logWorld();
-        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
-        this.prepareStatsGraphics();
         this.runScenes(false);
+        this.prepareStatsGraphics();
+        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
         this.loaded = true;
     };
     SpaceScene.prototype.handleGameOver = function () {
@@ -2988,6 +3002,7 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
+        this.sleepDebugScenes();
     };
     SpaceScene.prototype.stopScenes = function () {
         this.scene.stop("spaceUIDebug");

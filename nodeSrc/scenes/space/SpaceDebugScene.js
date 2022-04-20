@@ -27,7 +27,7 @@ var SpaceDebugScene = (function (_super) {
     SpaceDebugScene.prototype.showGrid = function () {
         var spaceScene = this.scene.get("space");
         this.cellGraphics.clear();
-        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        this.cellGraphics.lineStyle(6, 0x549431, 1.0);
         spaceScene.world.UIDebugGrid(this.cellGraphics);
     };
     return SpaceDebugScene;

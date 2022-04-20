@@ -113,8 +113,12 @@ export default class SpaceGrid
     }
 
 
-    private scrollX: number = 0;
-    private scrollY: number = 0;
+    private scrollX: number = -1;
+    private scrollY: number = -1;
+    private lastScrollX: number = -1;
+    private lastScrollY: number = -1;
+    private sleeping: boolean = false;
+    private sleepingEnabled: boolean = true;
 
     // Note: Make it so that if the cameras is not moving,
     // don't update the cartesian system
@@ -130,6 +134,19 @@ export default class SpaceGrid
         const world = this.world;
 
         world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
+
+        if(this.sleepingEnabled)
+        {
+            this.sleeping = (this.lastScrollX === world.camera.scrollX && this.lastScrollY === world.camera.scrollY);
+
+            this.lastScrollX = world.camera.scrollX;
+            this.lastScrollY = world.camera.scrollY;
+
+            if(this.sleeping)
+            {
+                return;
+            }
+        }
         
         world.resetProcessList();
         world.updateProcessList();
@@ -141,6 +158,8 @@ export default class SpaceGrid
     {
         sys.displayList.removeAll();
         sys.updateList.removeAll();
+
+        sys.updateList.update();
 
         this.world.loopProcessList(function(object: Phaser.GameObjects.GameObject)
         {
@@ -157,7 +176,7 @@ export default class SpaceGrid
             }
         };
         
-        sys.displayList.getChildren().forEach(checkDestroy);
+        sys.displayList.list.forEach(checkDestroy);
         sys.updateList.getActive().forEach(checkDestroy);
 
         sys.displayList.queueDepthSort();
@@ -217,8 +236,6 @@ export default class SpaceGrid
 
     public clearSpace()
     {
-        // this.world.clear();
-
         const world = this.world;
 
         world.cameraGrid.reset();

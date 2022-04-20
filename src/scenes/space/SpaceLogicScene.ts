@@ -89,6 +89,8 @@ export default class SpaceLogicScene extends Phaser.Scene
         else
         {
             this.playerShip.resetStats();
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
         }
         

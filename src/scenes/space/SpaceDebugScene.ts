@@ -24,7 +24,7 @@ export default class SpaceDebugScene extends Phaser.Scene
         var spaceScene: SpaceScene = this.scene.get("space") as SpaceScene;
 
         this.cellGraphics.clear();
-        this.cellGraphics.lineStyle(2, 0x549431, 1.0);
+        this.cellGraphics.lineStyle(6, 0x549431, 1.0);
 
         spaceScene.world.UIDebugGrid(this.cellGraphics);
     }

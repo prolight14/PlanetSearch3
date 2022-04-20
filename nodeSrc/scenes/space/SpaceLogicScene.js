@@ -66,6 +66,8 @@ var SpaceLogicScene = (function (_super) {
         }
         else {
             this.playerShip.resetStats();
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");

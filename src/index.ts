@@ -34,10 +34,10 @@ import SpaceEffectsScene from "./scenes/space/SpaceEffectsScene";
     2. Final playtest
     3. Build in production mode
     4. Move ./dist/PlanetSearch3.min.js to ./www/js
-    5. Make sure I can play this only with resources from the www folder
+    5. Make sure I can play this only with resources from the www folder 
     6. Properly copyright this game
     7. Market this game correctly
-    8. Remove all unneeded asse
+    8. Remove all unneeded asset
     9. Use bitmap text
 
     Note: Do testing! LOTS of testing!

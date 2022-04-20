@@ -74,10 +74,9 @@ var SpaceScene = (function (_super) {
         this.world = new SpaceGrid_1.default(this.sys, this.cspConfig);
         this.world.buildSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
-        this.world.logWorld();
-        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
-        this.prepareStatsGraphics();
         this.runScenes(false);
+        this.prepareStatsGraphics();
+        this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
         this.loaded = true;
     };
     SpaceScene.prototype.handleGameOver = function () {
@@ -138,6 +137,7 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceLogic");
+        this.sleepDebugScenes();
     };
     SpaceScene.prototype.stopScenes = function () {
         this.scene.stop("spaceUIDebug");

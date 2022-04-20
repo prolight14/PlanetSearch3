@@ -2,8 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGrid = (function () {
     function SpaceGrid(systems, config) {
-        this.scrollX = 0;
-        this.scrollY = 0;
+        this.scrollX = -1;
+        this.scrollY = -1;
+        this.lastScrollX = -1;
+        this.lastScrollY = -1;
+        this.sleeping = false;
+        this.sleepingEnabled = true;
         this.systems = systems;
         this.config = config;
         this.seed = config.seed;
@@ -47,6 +51,14 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.updateSpace = function () {
         var world = this.world;
         world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
+        if (this.sleepingEnabled) {
+            this.sleeping = (this.lastScrollX === world.camera.scrollX && this.lastScrollY === world.camera.scrollY);
+            this.lastScrollX = world.camera.scrollX;
+            this.lastScrollY = world.camera.scrollY;
+            if (this.sleeping) {
+                return;
+            }
+        }
         world.resetProcessList();
         world.updateProcessList();
         this.integrate(this.systems);
@@ -54,6 +66,7 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.integrate = function (sys) {
         sys.displayList.removeAll();
         sys.updateList.removeAll();
+        sys.updateList.update();
         this.world.loopProcessList(function (object) {
             sys.displayList.add(object);
             sys.updateList.add(object);
@@ -64,7 +77,7 @@ var SpaceGrid = (function () {
                 gameObject.destroyQueued = false;
             }
         };
-        sys.displayList.getChildren().forEach(checkDestroy);
+        sys.displayList.list.forEach(checkDestroy);
         sys.updateList.getActive().forEach(checkDestroy);
         sys.displayList.queueDepthSort();
     };
