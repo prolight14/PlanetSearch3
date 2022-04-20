@@ -96,4 +96,6 @@ let config: Phaser.Types.Core.GameConfig = {
 var game: Phaser.Game = new Phaser.Game(config);
 
 window.game = game;
- 
+
+
+document.body.style.overflow = 'hidden';

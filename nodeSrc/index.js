@@ -39,4 +39,5 @@ var config = {
 };
 var game = new Phaser.Game(config);
 window.game = game;
+document.body.style.overflow = 'hidden';
 //# sourceMappingURL=index.js.map
