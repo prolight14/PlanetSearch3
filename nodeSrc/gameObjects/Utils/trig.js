@@ -15,9 +15,6 @@ var trig = (function () {
     trig.atan2 = function (y, x) {
         return Math.atan2(x, y) * Phaser.Math.RAD_TO_DEG;
     };
-    trig.random = function (min, max) {
-        return Phaser.Math.RND.frac() * (max - min) + min;
-    };
     return trig;
 }());
 exports.default = trig;

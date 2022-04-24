@@ -176,9 +176,6 @@ var trig = (function () {
     trig.atan2 = function (y, x) {
         return Math.atan2(x, y) * Phaser.Math.RAD_TO_DEG;
     };
-    trig.random = function (min, max) {
-        return Phaser.Math.RND.frac() * (max - min) + min;
-    };
     return trig;
 }());
 exports.default = trig;
@@ -671,6 +668,8 @@ var Bullet = (function (_super) {
         _this.range = 500;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
+        _this.setDepth(0);
+        _this.setScale(2);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
@@ -809,15 +808,21 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.lookTimer = timer_1.default(true, 70, function () {
+        _this.fovLookDelay = 50;
+        _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
-            _this.lookTimer.reset();
+            _this.lookTimer.reset(_this.fovLookDelay);
         });
         _this.fovSetup();
         return _this;
     }
     EnemyShip.prototype.isEnemyShip = function () { return true; };
     ;
+    EnemyShip.prototype.setFovStats = function (fovRadius, fovAngle) {
+        this.fovRadius = fovRadius;
+        this.fovAngle = fovAngle;
+        this.fovSetup();
+    };
     EnemyShip.prototype.fovSetup = function () {
         this.halfFovAngle = this.fovAngle / 2;
         this.fovRadiusSquared = this.fovRadius * this.fovRadius;
@@ -926,7 +931,7 @@ var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.j
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
-        var _this_1 = _super.call(this, scene, x, y, "hyperBeamerSTypeGreen") || this;
+        var _this_1 = _super.call(this, scene, x, y, "greenShip") || this;
         _this_1.setCollisionGroup(1);
         _this_1.setCollidesWith(0);
         _this_1.isShooting = true;
@@ -935,82 +940,105 @@ var HyperBeamerSType = (function (_super) {
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
-        _this_1.pEmitter = _this_1.particles.createEmitter({
-            lifespan: 500,
-            scale: 1.5,
-            rotate: 0,
-            x: 0,
-            y: 0,
-            quantity: 1
-        });
-        _this_1.pEmitter.setAlpha(function (p, k, t) {
-            return 1 - t;
-        });
+        _this_1.setDepth(1).setScale(2);
         var _this = _this_1;
         var world = scene.world;
+        _this_1.AIType = "hostile";
+        _this_1.turnManager = {
+            turning: false,
+            targetAngle: _this.angle,
+            turnStep: 0,
+            callback: function () { },
+            start: function (targetAngle, turnStep, callback) {
+                if (callback === undefined) {
+                    callback = function () { };
+                }
+                this.targetAngle = Phaser.Math.Wrap(targetAngle, -180, 180);
+                this.turning = true;
+                this.callback = callback;
+                this.turnStep = turnStep;
+            },
+            update: function () {
+                if (!this.turning) {
+                    return;
+                }
+                var angleDiff = Phaser.Math.Wrap(this.targetAngle - _this.angle, 0, 360);
+                if (Math.abs(angleDiff) <= this.turnStep || _this.angle === this.targetAngle) {
+                    _this.angle = this.targetAngle;
+                    this.callback();
+                    this.turning = false;
+                    return;
+                }
+                if (angleDiff > 180) {
+                    _this.angle -= this.turnStep;
+                }
+                else {
+                    _this.angle += this.turnStep;
+                }
+            }
+        };
         _this_1.sm = new StateMachine_1.default({
             "wander": {
+                turnSpeed: 3,
+                turnInterval: function () {
+                    return Phaser.Math.RND.between(750, 2100);
+                },
                 start: function () {
                     var _this_1 = this;
                     _this.isShooting = false;
-                    this.cancelTurnTimers = false;
-                    this.changeDirTimer = timer_1.default(true, 1000, function () {
-                        _this_1.turn(Phaser.Math.RND.frac() < 0.5 ? "left" : "right", "", Phaser.Math.RND.between(150, 350), undefined, function () {
-                            _this_1.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000) * 2);
-                        });
-                    });
-                },
-                turn: function (turnDir, oldTurn, time, maxTurnAmt, callback) {
-                    if (callback === undefined) {
-                        callback = function () { };
-                    }
-                    _this.turnDir = turnDir;
-                    this.redirectTimer = timer_1.default(true, time, function () {
-                        _this.turnDir = oldTurn || "";
-                        callback();
-                    });
-                },
-                update: function () {
-                    var _this_1 = this;
-                    this.changeDirTimer.update();
-                    if (this.redirectTimer !== undefined) {
-                        this.redirectTimer.update();
-                    }
-                    _this.visibleObjects.forEach(function (object) {
-                        var gameObject = object.gameObject;
-                        switch (gameObject._arrayName) {
-                            case "playerShip":
-                                _this.sm.stop("wander");
-                                _this.sm.start("follow");
-                                break;
-                            case _this._arrayName:
-                                _this_1.turn(object.angleBetween - _this.angle > 0 ? "left" : "right", "", 200, undefined, function () { });
-                                break;
+                    this.turnToTarget = false;
+                    this.targetTurnAngle = 0;
+                    this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
+                        if (_this_1.turnToTarget) {
+                            _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
+                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                            });
+                            _this_1.turnToTarget = false;
+                            _this_1.targetTurnAngle = 0;
+                        }
+                        else {
+                            _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
+                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                            });
                         }
                     });
-                }
-            },
-            "follow": {
-                start: function () {
-                    _this.isShooting = true;
-                    _this.turnDir = "";
                 },
                 update: function () {
-                    _this.shootTimer.update();
+                    this.changeDirTimer.update();
+                    _this.isShooting = false;
+                    for (var i = 0; i < _this.visibleObjects.length; i++) {
+                        var object = _this.visibleObjects[i];
+                        if (object.gameObject._arrayName === "playerShip") {
+                            _this.isShooting = true;
+                            this.targetTurnAngle = object.angleBetween;
+                            this.turnToTarget = true;
+                            break;
+                        }
+                    }
+                },
+                stop: function () {
                 }
             },
+            "attack": {
+                start: function () {
+                    _this.isShooting = true;
+                }
+            }
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
-        _this_1.shootTimer = timer_1.default(true, 200, function () {
+        _this_1.shootTimer = timer_1.default(true, 450, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
             _this_1.shootTimer.reset();
         });
+        _this_1.setFovStats(1000, 70);
+        _this_1.move = true;
         return _this_1;
     }
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
+        theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(2);
@@ -1023,17 +1051,14 @@ var HyperBeamerSType = (function (_super) {
         return false;
     };
     HyperBeamerSType.prototype.shoot = function () {
-        this.shootBullet(0, 20);
+        this.shootBullet(0, this.displayWidth / 2);
     };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var length = this.displayHeight * 0.4;
-        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
-        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
-        this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
-        this.pEmitter.setVisible(this.speed > 0.005);
-        this.pEmitter.setSpeed(this.speed * 30);
+        this.fps = 1000 / delta;
         this.sm.emit("update", []);
+        this.turnManager.update();
+        this.shootTimer.update();
     };
     HyperBeamerSType.prototype.onKill = function () {
         _super.prototype.onKill.call(this);
@@ -2563,6 +2588,7 @@ var SpaceGrid = (function () {
         if (newConfig !== undefined) {
             this.config = newConfig;
         }
+        Phaser.Math.RND.init([this.seed.toString()]);
         var world = this.world;
         var bounds = this.world.bounds;
         this.systems.cameras.main.setBounds(bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
@@ -2677,7 +2703,7 @@ var SpaceGrid = (function () {
                 gameObjects.removeObject(gameObjects[i]._name);
             }
         }
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.seed);
+        Phaser.Math.RND.init([this.seed.toString()]);
     };
     SpaceGrid.prototype.resetSpace = function () {
         this.clearSpace();
@@ -2759,25 +2785,22 @@ var HyperBeamerSType_1 = __webpack_require__(/*! ../../gameObjects/space/HyperBe
 var Shrapnel_1 = __webpack_require__(/*! ../../gameObjects/space/Shrapnel */ "./gameObjects/space/Shrapnel.js");
 var XPStar_1 = __webpack_require__(/*! ../../gameObjects/space/XPStar */ "./gameObjects/space/XPStar.js");
 var Crest_1 = __webpack_require__(/*! ../../gameObjects/space/Crest */ "./gameObjects/space/Crest.js");
-var trig_1 = __webpack_require__(/*! ../../gameObjects/Utils/trig */ "./gameObjects/Utils/trig.js");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
         return _super.call(this, "spaceLogic") || this;
     }
-    SpaceLogicScene.prototype.create = function () {
-    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
+        var RND = Phaser.Math.RND;
         var world = this.spaceScene.world;
-        var random = trig_1.default.random;
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 10000000);
         for (var i = 0; i < 300; i++) {
-            nebulae.add(this.spaceScene, 69000 + 13000 * Phaser.Math.RND.frac(), 60500 + 13000 * Phaser.Math.RND.frac(), "purpleNebula");
+            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
@@ -2787,10 +2810,10 @@ var SpaceLogicScene = (function (_super) {
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
         var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
         for (var i = 0; i < shrapnelClustAmt; i++) {
-            var shrapnelClusterX = random(500, placeWidth - 500);
-            var shrapnelClusterY = random(500, placeHeight - 500);
-            for (var j = 0; j < random(4, 6); j++) {
-                shrapnels.add(this.spaceScene, shrapnelClusterX + random(-200, 200), shrapnelClusterY + random(-200, 200), "shrapnel" + Math.floor(random(1, 5)));
+            var shrapnelClusterX = RND.integerInRange(500, placeWidth - 500);
+            var shrapnelClusterY = RND.integerInRange(500, placeHeight - 500);
+            for (var j = 0; j < RND.integerInRange(4, 6); j++) {
+                shrapnels.add(this.spaceScene, shrapnelClusterX + RND.integerInRange(-200, 200), shrapnelClusterY + RND.integerInRange(-200, 200), "shrapnel" + Math.floor(RND.integerInRange(1, 5)));
             }
         }
         shrapnels.add(this.spaceScene, 69000, 62000, "shrapnel1");
@@ -2808,15 +2831,10 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.x = 69000;
             this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
+            this.playerShip.setDepth(5);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
-        for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
-        }
-        for (var i = 0; i < 23; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-700, 700), 60600 + random(-700, 700));
-        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -2903,6 +2921,7 @@ var SpaceScene = (function (_super) {
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
         this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
         this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
@@ -3155,7 +3174,7 @@ var SpaceUIScene = (function (_super) {
         statsXpMask.setVisible(false);
         statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
         this.setXpBar = function (xp, maxXp) {
-            var xpBarLength = 93;
+            var xpBarLength = 74.4;
             statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
         };
     };
@@ -3300,7 +3319,7 @@ var config = {
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
-    seed: "explorationHelix1"
+    seed: "testing"
 };
 var game = new Phaser.Game(config);
 window.game = game;

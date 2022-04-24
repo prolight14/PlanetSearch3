@@ -29,7 +29,7 @@ export default class SpaceGrid
 
     private systems: Phaser.Scenes.Systems;
     private config: GridConfig | undefined;
-    private seed: number | string | undefined;
+    private seed: number | string;
     // @ts-ignore
     private world: CartesianSystem.World;
 
@@ -39,6 +39,8 @@ export default class SpaceGrid
         {
             this.config = newConfig;
         }
+
+        Phaser.Math.RND.init([this.seed.toString()]);
 
         // @ts-ignore
         const world = this.world;
@@ -261,7 +263,7 @@ export default class SpaceGrid
             }
         }
 
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.seed as (string | string[] | undefined));
+        Phaser.Math.RND.init([this.seed.toString()]);
     }
 
     // After calling this you will to add the objects back into space

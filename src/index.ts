@@ -91,7 +91,7 @@ let config: Phaser.Types.Core.GameConfig = {
         // Planet scene(s)
         PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene
     ],
-    seed: "explorationHelix1"
+    seed: "testing"
 }
 var game: Phaser.Game = new Phaser.Game(config);
 

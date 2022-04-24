@@ -17,6 +17,7 @@ var SpaceGrid = (function () {
         if (newConfig !== undefined) {
             this.config = newConfig;
         }
+        Phaser.Math.RND.init([this.seed.toString()]);
         var world = this.world;
         var bounds = this.world.bounds;
         this.systems.cameras.main.setBounds(bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
@@ -131,7 +132,7 @@ var SpaceGrid = (function () {
                 gameObjects.removeObject(gameObjects[i]._name);
             }
         }
-        Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.seed);
+        Phaser.Math.RND.init([this.seed.toString()]);
     };
     SpaceGrid.prototype.resetSpace = function () {
         this.clearSpace();

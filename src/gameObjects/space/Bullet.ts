@@ -11,6 +11,10 @@ export default class Bullet extends SpaceGameObject
         this.shootAngle = shootAngle;
         this.speed = 12;
 
+        this.setDepth(0);
+
+        this.setScale(2);
+
         this.killTimer = timer(true, life, () =>
         {
             this.kill();

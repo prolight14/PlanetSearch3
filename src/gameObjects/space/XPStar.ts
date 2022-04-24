@@ -29,6 +29,8 @@ export default class XPStar extends SpaceGameObject
         });
     }
 
+    public scene: SpaceScene;
+
     public amt: number = 1;
 
     public preUpdate(time: number, delta: number)

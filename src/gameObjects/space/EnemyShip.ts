@@ -37,17 +37,20 @@ export default class EnemyShip extends Ship
         };
 
         this.angleVel = 3;
+        this.fovLookDelay = 50;
 
-        this.lookTimer = timer(true, 70, () =>
+        this.lookTimer = timer(true, this.fovLookDelay, () =>
         {
             this.fovLook();
 
-            this.lookTimer.reset();
+            this.lookTimer.reset(this.fovLookDelay);
         });
 
         this.fovSetup();
     }
     
+    protected fovLookDelay: number;
+
     public scene: SpaceScene;
     public showHpBar: boolean = true;
 
@@ -55,11 +58,18 @@ export default class EnemyShip extends Ship
     protected isShooting: boolean = false;
 
 
-    private lookTimer: { update: () => any; reset: () => any;  };
+    private lookTimer: { update: () => any; reset: (rtime: number) => any;  };
     private fovRadius: number = 400;
     private fovRadiusSquared: number;
     private fovAngle: number = 60;
     private halfFovAngle: number;
+
+    protected setFovStats(fovRadius: number, fovAngle: number)
+    {
+        this.fovRadius = fovRadius;
+        this.fovAngle = fovAngle;
+        this.fovSetup();
+    }
 
     private fovSetup()
     {

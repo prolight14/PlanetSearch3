@@ -20,25 +20,22 @@ var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
 var XPStar_1 = require("../../gameObjects/space/XPStar");
 var Crest_1 = require("../../gameObjects/space/Crest");
-var trig_1 = require("../../gameObjects/Utils/trig");
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
         return _super.call(this, "spaceLogic") || this;
     }
-    SpaceLogicScene.prototype.create = function () {
-    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
+        var RND = Phaser.Math.RND;
         var world = this.spaceScene.world;
-        var random = trig_1.default.random;
         var nebulae = world.add.gameObjectArray(Nebula_1.default, "nebula");
         var gridConfig = this.spaceScene.cspConfig.grid;
         var placeWidth = gridConfig.cols * gridConfig.cellWidth;
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 10000000);
         for (var i = 0; i < 300; i++) {
-            nebulae.add(this.spaceScene, 69000 + 13000 * Phaser.Math.RND.frac(), 60500 + 13000 * Phaser.Math.RND.frac(), "purpleNebula");
+            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
@@ -48,10 +45,10 @@ var SpaceLogicScene = (function (_super) {
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
         var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
         for (var i = 0; i < shrapnelClustAmt; i++) {
-            var shrapnelClusterX = random(500, placeWidth - 500);
-            var shrapnelClusterY = random(500, placeHeight - 500);
-            for (var j = 0; j < random(4, 6); j++) {
-                shrapnels.add(this.spaceScene, shrapnelClusterX + random(-200, 200), shrapnelClusterY + random(-200, 200), "shrapnel" + Math.floor(random(1, 5)));
+            var shrapnelClusterX = RND.integerInRange(500, placeWidth - 500);
+            var shrapnelClusterY = RND.integerInRange(500, placeHeight - 500);
+            for (var j = 0; j < RND.integerInRange(4, 6); j++) {
+                shrapnels.add(this.spaceScene, shrapnelClusterX + RND.integerInRange(-200, 200), shrapnelClusterY + RND.integerInRange(-200, 200), "shrapnel" + Math.floor(RND.integerInRange(1, 5)));
             }
         }
         shrapnels.add(this.spaceScene, 69000, 62000, "shrapnel1");
@@ -69,15 +66,10 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.x = 69000;
             this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
+            this.playerShip.setDepth(5);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
-        for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-7000, 7000), 61000 + random(-7000, 7000));
-        }
-        for (var i = 0; i < 23; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + random(-700, 700), 60600 + random(-700, 700));
-        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

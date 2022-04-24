@@ -45,15 +45,21 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.lookTimer = timer_1.default(true, 70, function () {
+        _this.fovLookDelay = 50;
+        _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
-            _this.lookTimer.reset();
+            _this.lookTimer.reset(_this.fovLookDelay);
         });
         _this.fovSetup();
         return _this;
     }
     EnemyShip.prototype.isEnemyShip = function () { return true; };
     ;
+    EnemyShip.prototype.setFovStats = function (fovRadius, fovAngle) {
+        this.fovRadius = fovRadius;
+        this.fovAngle = fovAngle;
+        this.fovSetup();
+    };
     EnemyShip.prototype.fovSetup = function () {
         this.halfFovAngle = this.fovAngle / 2;
         this.fovRadiusSquared = this.fovRadius * this.fovRadius;

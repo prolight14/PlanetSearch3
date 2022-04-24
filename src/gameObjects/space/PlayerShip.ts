@@ -21,6 +21,8 @@ export default class PlayerShip extends Ship
         // shootZ: Phaser.Input.Keyboard.Key;
     };
 
+    public scene: SpaceScene;
+
     protected hp: number = 10;
     protected maxHp: number = 10;
 

@@ -16,10 +16,6 @@ class trig
     {
         return Math.atan2(x, y) * Phaser.Math.RAD_TO_DEG;
     }
-    public static random(min: number, max: number)
-    {
-        return Phaser.Math.RND.frac() * (max - min) + min;
-    }
 }
 
 export default trig;

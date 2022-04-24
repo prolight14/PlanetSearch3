@@ -33,6 +33,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
+        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
         this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
         
         this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
@@ -81,7 +82,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             The default for both is 512 
             it's also probably best to keep this to a power of 2
         */
-       const cellWidth = 512;
+        const cellWidth = 512;
         const cellHeight = 512;
         
         this.cspConfig = {
@@ -149,7 +150,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     //         // velocityIterations: 2,
     //         // constraintIterations: 1
     //     });
-    //     Phaser.Math.RND = new Phaser.Math.RandomDataGenerator(this.game.config.seed);
     //     this.csp.initWorld(this.cspConfig);
     //     (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
     //     playerShip.resetStats();

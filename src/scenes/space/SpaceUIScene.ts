@@ -38,7 +38,7 @@ export default class SpaceUIScene extends Phaser.Scene
 
         this.setXpBar = function(xp: number, maxXp: number)
         {
-            const xpBarLength = 93;
+            const xpBarLength = 74.4;
             statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
         };
     }

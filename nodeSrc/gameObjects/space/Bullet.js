@@ -24,6 +24,8 @@ var Bullet = (function (_super) {
         _this.range = 500;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
+        _this.setDepth(0);
+        _this.setScale(2);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });

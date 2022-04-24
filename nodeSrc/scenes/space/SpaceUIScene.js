@@ -35,7 +35,7 @@ var SpaceUIScene = (function (_super) {
         statsXpMask.setVisible(false);
         statsXpBar.mask = new Phaser.Display.Masks.BitmapMask(this, statsXpMask);
         this.setXpBar = function (xp, maxXp) {
-            var xpBarLength = 93;
+            var xpBarLength = 74.4;
             statsXpBar.y = statsY + xpBarLength - (xp * xpBarLength / maxXp);
         };
     };
