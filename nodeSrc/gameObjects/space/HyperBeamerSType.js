@@ -25,14 +25,12 @@ var HyperBeamerSType = (function (_super) {
         _this_1.setCollisionGroup(1);
         _this_1.setCollidesWith(0);
         _this_1.isShooting = true;
-        _this_1.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
         _this_1.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
         _this_1.setDepth(1).setScale(2);
         var _this = _this_1;
-        var world = scene.world;
         _this_1.AIType = "hostile";
         _this_1.turnManager = {
             turning: false,
@@ -145,14 +143,9 @@ var HyperBeamerSType = (function (_super) {
     };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        this.fps = 1000 / delta;
         this.sm.emit("update", []);
         this.turnManager.update();
         this.shootTimer.update();
-    };
-    HyperBeamerSType.prototype.onKill = function () {
-        _super.prototype.onKill.call(this);
-        this.particles.destroy();
     };
     HyperBeamerSType.indexId = 0;
     return HyperBeamerSType;

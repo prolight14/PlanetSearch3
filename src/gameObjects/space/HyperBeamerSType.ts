@@ -20,8 +20,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.isShooting = true;
 
-        this.particles = scene.add.particles("hyperBeamerSTypeGreenParticle");
-
         this.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
 
         if(!this.bullets)
@@ -30,90 +28,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
         }
 
         this.setDepth(1).setScale(2);
-        // this.pEmitter = this.particles.createEmitter({
-        //     lifespan: 500,
-        //     scale: 1.5,
-        //     rotate: 0,
-        //     x: 0,
-        //     y: 0,
-        //     quantity: 1
-        // });
-
-        // this.pEmitter.setAlpha(function(p: any, k: any, t: number)
-        // {
-        //     return 1 - t;
-        // });
 
         var _this = this;
-        const world = scene.world;
-
-        /*this.sm = new StateMachine({
-            "wander": {
-                start: function()
-                {
-                    _this.isShooting = false;
-                    this.cancelTurnTimers = false;
-
-                    this.changeDirTimer = timer(true, 1000, () =>
-                    {
-                        this.turn(Phaser.Math.RND.frac() < 0.5 ? "left" : "right", "", Phaser.Math.RND.between(150, 350), undefined, () =>
-                        {
-                            this.changeDirTimer.reset(Phaser.Math.RND.between(3000, 7000) * 2);
-                        });
-                    });
-                },
-                turn: function(turnDir: string, oldTurn: string | undefined, time: number, maxTurnAmt: number | undefined, callback: Function)
-                {
-                    if(callback === undefined) { callback = () => {}; }
-                    _this.turnDir = turnDir;
-
-                    this.redirectTimer = timer(true, time, () =>
-                    {
-                        _this.turnDir = oldTurn || "";
-                        callback();
-                    });
-                },
-                update: function()
-                {
-                    this.changeDirTimer.update();
-
-                    if(this.redirectTimer !== undefined)
-                    {
-                        this.redirectTimer.update();
-                    }
-
-                    // This doesn't work since I need to break out of this after
-                    _this.visibleObjects.forEach((object: any) =>
-                    {
-                        const gameObject = object.gameObject;
-
-                        switch(gameObject._arrayName)
-                        {
-                            case "playerShip":
-                                _this.sm.stop("wander");
-                                _this.sm.start("follow");
-                                break;
-
-                            case _this._arrayName:
-                                
-                                this.turn(object.angleBetween - _this.angle > 0 ? "left" : "right", "", 200, undefined, () => {});
-                                break;
-                        }
-                    });
-                }
-            },
-            "follow": {
-                start: function()
-                {
-                    _this.isShooting = true;
-                    _this.turnDir = "";
-                },
-                update: function()
-                {
-                    _this.shootTimer.update();
-                }
-            },
-        });*/
 
         this.AIType = "hostile";
 
@@ -169,7 +85,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
                 turnInterval: function()
                 {
                     return Phaser.Math.RND.between(750, 2100);
-                    // return Phaser.Math.RND.between(250, 400);
                 } ,
                 start: function()
                 {
@@ -300,35 +215,14 @@ export default class HyperBeamerSType extends HyperBeamerShip
     }
 
     private sm: StateMachine;
-
-    private particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
-    private pEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
     
-    private fps: number;
-
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
-
-        this.fps = 1000 / delta;
-
-        // var length = this.displayHeight * 0.4;
-        // this.particles.x = this.x + trig.cos(this.angle + 90) * length;
-        // this.particles.y = this.y + trig.sin(this.angle + 90) * length;
-        // this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
-        // this.pEmitter.setVisible(this.speed > 0.005);
-        // this.pEmitter.setSpeed(this.speed * 30);
 
         this.sm.emit("update", []);
 
         this.turnManager.update();
         this.shootTimer.update();
-    }
-
-    protected onKill()
-    {
-        super.onKill();
-
-        this.particles.destroy();
     }
 }
