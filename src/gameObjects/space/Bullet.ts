@@ -11,9 +11,9 @@ export default class Bullet extends SpaceGameObject
         this.shootAngle = shootAngle;
         this.speed = 12;
 
-        this.setDepth(0);
+        this.rangeSquared = this.range * this.range;
 
-        this.setScale(2);
+        this.setDepth(0);
 
         this.killTimer = timer(true, life, () =>
         {
@@ -32,39 +32,47 @@ export default class Bullet extends SpaceGameObject
                 }
             }
         });
-
     }
 
+    private compareX: number = 0;
+    private compareY: number = 0;
+
+    public setComparePosition(x: number, y: number)
+    {
+        this.compareX = x;
+        this.compareY = y;
+    }
+
+    public scene: SpaceScene;
+    
     private shootAngle: number;
-    private speed: number;
+    public speed: number;
 
     private killTimer: {
         update: () => void;
     };
 
-    private amtTraveled: number = 0;
     private range: number = 500;
-
-    protected onKill()
-    {
-        // this.bodyConf.updateBoundingBox();
-        // (this.scene as SpaceScene).world.cameraGrid.removeReference(this);
-    }
+    private rangeSquared: number = 0;
 
     protected preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
-
         this.killTimer.update();
-
+        
         this.x += trig.cos(this.shootAngle) * this.speed;
         this.y += trig.sin(this.shootAngle) * this.speed;
 
-        this.amtTraveled += this.speed;
-
-        if(this.amtTraveled > this.range)
+        if(this.compareX !== 0 && this.compareY !== 0)
         {
-            this.kill();
+            // Will not work for bullets that change direction
+            const dx = this.x - this.compareX;    
+            const dy = this.y - this.compareY;    
+            if(dx * dx + dy * dy > this.rangeSquared)
+            {
+                this.destroy();
+                this.kill();
+            }
         }
     }
 }

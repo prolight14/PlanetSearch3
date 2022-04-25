@@ -68,11 +68,11 @@ var PlayerShip = (function (_super) {
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
             lifespan: 500,
-            scale: 1.5,
-            rotate: 0,
+            scale: { start: 1.5, end: 0 },
+            rotate: 45,
             x: 0,
             y: 0,
-            quantity: 1
+            quantity: 1,
         });
         _this.pEmitter.setAlpha(function (p, k, t) {
             return 1 - t;
@@ -125,7 +125,9 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 2500, this.bulletOnCollide, this);
+        bullet.speed = 16;
+        bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(1);
         bullet.setCollidesWith(0);

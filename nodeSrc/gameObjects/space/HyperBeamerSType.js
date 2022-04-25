@@ -30,6 +30,13 @@ var HyperBeamerSType = (function (_super) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
         _this_1.setDepth(1).setScale(2);
+        scene.anims.create({
+            key: "flying",
+            frames: [{ key: "greenShip", frame: 0 }, { key: "greenShip", frame: 1 }],
+            frameRate: 8,
+            repeat: -1
+        });
+        _this_1.anims.play("flying");
         var _this = _this_1;
         _this_1.AIType = "hostile";
         _this_1.turnManager = {
@@ -127,7 +134,7 @@ var HyperBeamerSType = (function (_super) {
     }
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(2);
         bullet.setCollidesWith(0);

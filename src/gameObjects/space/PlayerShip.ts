@@ -137,11 +137,11 @@ export default class PlayerShip extends Ship
 
         this.pEmitter = this.particles.createEmitter({
             lifespan: 500,
-            scale: 1.5,
-            rotate: 0,
+            scale: { start: 1.5, end: 0 },
+            rotate: 45,
             x: 0,
             y: 0,
-            quantity: 1
+            quantity: 1,
         });
 
         this.pEmitter.setAlpha(function(p: any, k: any, t: number)
@@ -187,12 +187,14 @@ export default class PlayerShip extends Ship
             this.scene, 
             this.x + trig.cos(theta) * length, 
             this.y + trig.sin(theta) * length, 
-            "helixShipLvl1Bullet", 
+            "lightningBlueLong", 
             this.angle - 90,
-            life || 2000,
+            life || 2500,
             this.bulletOnCollide,
             this,
         ) as Bullet;
+        bullet.speed = 16;
+        bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(1);
         bullet.setCollidesWith(0);

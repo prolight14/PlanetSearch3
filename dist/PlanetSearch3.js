@@ -664,12 +664,14 @@ var Bullet = (function (_super) {
     __extends(Bullet, _super);
     function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.amtTraveled = 0;
+        _this.compareX = 0;
+        _this.compareY = 0;
         _this.range = 500;
+        _this.rangeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
+        _this.rangeSquared = _this.range * _this.range;
         _this.setDepth(0);
-        _this.setScale(2);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
@@ -683,16 +685,22 @@ var Bullet = (function (_super) {
         });
         return _this;
     }
-    Bullet.prototype.onKill = function () {
+    Bullet.prototype.setComparePosition = function (x, y) {
+        this.compareX = x;
+        this.compareY = y;
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.killTimer.update();
         this.x += trig_1.default.cos(this.shootAngle) * this.speed;
         this.y += trig_1.default.sin(this.shootAngle) * this.speed;
-        this.amtTraveled += this.speed;
-        if (this.amtTraveled > this.range) {
-            this.kill();
+        if (this.compareX !== 0 && this.compareY !== 0) {
+            var dx = this.x - this.compareX;
+            var dy = this.y - this.compareY;
+            if (dx * dx + dy * dy > this.rangeSquared) {
+                this.destroy();
+                this.kill();
+            }
         }
     };
     return Bullet;
@@ -723,15 +731,23 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Crest = (function (_super) {
     __extends(Crest, _super);
     function Crest(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.startBlinkingTime = 10000;
+        _this.blinkInterval = 30;
+        _this.despawnAfterBlinkingTime = 4500;
+        _this.isBlinking = false;
         _this.amt = 1;
         _this.setAngle(Phaser.Math.RND.between(0, 180));
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
+        _this.despawnTimer = timer_1.default(true, _this.startBlinkingTime, function () {
+            _this.startBlinking();
+        });
         _this.setOnCollide(function (colData) {
             if (colData.bodyA.gameObject && colData.bodyA.gameObject._arrayName === "playerShip") {
                 var playerShip = colData.bodyA.gameObject;
@@ -740,13 +756,30 @@ var Crest = (function (_super) {
         });
         return _this;
     }
+    Crest.prototype.startBlinking = function () {
+        var _this = this;
+        if (this.isBlinking) {
+            return;
+        }
+        this.isBlinking = true;
+        this.blinkTimer = timer_1.default(true, this.blinkInterval, function () {
+            _this.setVisible(!_this.visible);
+            _this.blinkTimer.reset(_this.blinkInterval);
+        });
+        this.despawnTimer = timer_1.default(true, this.despawnAfterBlinkingTime, function () {
+            _this.destroy();
+        });
+    };
     Crest.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
+        this.despawnTimer.update();
+        if (this.isBlinking) {
+            this.blinkTimer.update();
+        }
     };
     Crest.prototype.onCollide = function (playerShip) {
         playerShip.collectCrests(this);
-        this.bodyConf.destroy();
-        this.destroy();
+        this.kill();
     };
     return Crest;
 }(SpaceGameObject_1.default));
@@ -940,6 +973,13 @@ var HyperBeamerSType = (function (_super) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
         _this_1.setDepth(1).setScale(2);
+        scene.anims.create({
+            key: "flying",
+            frames: [{ key: "greenShip", frame: 0 }, { key: "greenShip", frame: 1 }],
+            frameRate: 8,
+            repeat: -1
+        });
+        _this_1.anims.play("flying");
         var _this = _this_1;
         _this_1.AIType = "hostile";
         _this_1.turnManager = {
@@ -1037,7 +1077,7 @@ var HyperBeamerSType = (function (_super) {
     }
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(2);
         bullet.setCollidesWith(0);
@@ -1272,11 +1312,11 @@ var PlayerShip = (function (_super) {
         _this.particles = scene.add.particles("helixShipParticle");
         _this.pEmitter = _this.particles.createEmitter({
             lifespan: 500,
-            scale: 1.5,
-            rotate: 0,
+            scale: { start: 1.5, end: 0 },
+            rotate: 45,
             x: 0,
             y: 0,
-            quantity: 1
+            quantity: 1,
         });
         _this.pEmitter.setAlpha(function (p, k, t) {
             return 1 - t;
@@ -1329,7 +1369,9 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "helixShipLvl1Bullet", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 2500, this.bulletOnCollide, this);
+        bullet.speed = 16;
+        bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(1);
         bullet.setCollidesWith(0);
@@ -1595,15 +1637,23 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/timer.js");
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var XPStar = (function (_super) {
     __extends(XPStar, _super);
     function XPStar(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.startBlinkingTime = 10000;
+        _this.blinkInterval = 30;
+        _this.despawnAfterBlinkingTime = 4500;
+        _this.isBlinking = false;
         _this.amt = 1;
         _this.setAngle(Phaser.Math.RND.between(0, 180));
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
+        _this.despawnTimer = timer_1.default(true, _this.startBlinkingTime, function () {
+            _this.startBlinking();
+        });
         if (texture === "xpStar") {
             _this.amt = 2;
         }
@@ -1615,12 +1665,30 @@ var XPStar = (function (_super) {
         });
         return _this;
     }
+    XPStar.prototype.startBlinking = function () {
+        var _this = this;
+        if (this.isBlinking) {
+            return;
+        }
+        this.isBlinking = true;
+        this.blinkTimer = timer_1.default(true, this.blinkInterval, function () {
+            _this.setVisible(!_this.visible);
+            _this.blinkTimer.reset(_this.blinkInterval);
+        });
+        this.despawnTimer = timer_1.default(true, this.despawnAfterBlinkingTime, function () {
+            _this.destroy();
+        });
+    };
     XPStar.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
+        this.despawnTimer.update();
+        if (this.isBlinking) {
+            this.blinkTimer.update();
+        }
     };
     XPStar.prototype.onCollide = function (playerShip) {
         playerShip.collectXPStars(this);
-        this.destroy();
+        this.kill();
     };
     return XPStar;
 }(SpaceGameObject_1.default));
@@ -2824,10 +2892,14 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.x = 69000;
             this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
-            this.playerShip.setDepth(5);
+            this.playerShip.setDepth(8);
+            this.playerShip.particles.setDepth(20);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
+        for (var i = 0; i < 7; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700));
+        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -2953,8 +3025,24 @@ var SpaceScene = (function (_super) {
         this.scene.get("spaceLogic").addObjectsToSpace();
         this.runScenes(false);
         this.prepareStatsGraphics();
+        this.generateBulletsTextures();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
         this.loaded = true;
+    };
+    SpaceScene.prototype.generateBulletsTextures = function () {
+        this.generateBullet("lightningBlue", 2, 16, 0x3CD3F8);
+        this.generateBullet("lightningBlueLong", 2, 24, 0x3CD3F8);
+    };
+    SpaceScene.prototype.generateBullet = function (key, width, length, color) {
+        var rt = this.add.renderTexture(0, 0, width, length);
+        var graphics = this.add.graphics();
+        graphics.fillStyle(color);
+        graphics.fillRect(0, 0, width, length);
+        rt.draw(graphics);
+        graphics.setVisible(false);
+        graphics.destroy();
+        rt.saveTexture(key);
+        rt.setVisible(false);
     };
     SpaceScene.prototype.handleGameOver = function () {
         this.reloadSpace();

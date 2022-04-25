@@ -77,8 +77,24 @@ var SpaceScene = (function (_super) {
         this.scene.get("spaceLogic").addObjectsToSpace();
         this.runScenes(false);
         this.prepareStatsGraphics();
+        this.generateBulletsTextures();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
         this.loaded = true;
+    };
+    SpaceScene.prototype.generateBulletsTextures = function () {
+        this.generateBullet("lightningBlue", 2, 16, 0x3CD3F8);
+        this.generateBullet("lightningBlueLong", 2, 24, 0x3CD3F8);
+    };
+    SpaceScene.prototype.generateBullet = function (key, width, length, color) {
+        var rt = this.add.renderTexture(0, 0, width, length);
+        var graphics = this.add.graphics();
+        graphics.fillStyle(color);
+        graphics.fillRect(0, 0, width, length);
+        rt.draw(graphics);
+        graphics.setVisible(false);
+        graphics.destroy();
+        rt.saveTexture(key);
+        rt.setVisible(false);
     };
     SpaceScene.prototype.handleGameOver = function () {
         this.reloadSpace();

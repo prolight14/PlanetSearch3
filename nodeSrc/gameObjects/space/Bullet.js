@@ -20,12 +20,14 @@ var Bullet = (function (_super) {
     __extends(Bullet, _super);
     function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
-        _this.amtTraveled = 0;
+        _this.compareX = 0;
+        _this.compareY = 0;
         _this.range = 500;
+        _this.rangeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
+        _this.rangeSquared = _this.range * _this.range;
         _this.setDepth(0);
-        _this.setScale(2);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
@@ -39,16 +41,22 @@ var Bullet = (function (_super) {
         });
         return _this;
     }
-    Bullet.prototype.onKill = function () {
+    Bullet.prototype.setComparePosition = function (x, y) {
+        this.compareX = x;
+        this.compareY = y;
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.killTimer.update();
         this.x += trig_1.default.cos(this.shootAngle) * this.speed;
         this.y += trig_1.default.sin(this.shootAngle) * this.speed;
-        this.amtTraveled += this.speed;
-        if (this.amtTraveled > this.range) {
-            this.kill();
+        if (this.compareX !== 0 && this.compareY !== 0) {
+            var dx = this.x - this.compareX;
+            var dy = this.y - this.compareY;
+            if (dx * dx + dy * dy > this.rangeSquared) {
+                this.destroy();
+                this.kill();
+            }
         }
     };
     return Bullet;

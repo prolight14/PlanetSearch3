@@ -29,6 +29,15 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         this.setDepth(1).setScale(2);
 
+        scene.anims.create({
+            key: "flying",
+            frames: [{ key: "greenShip", frame: 0 }, { key: "greenShip", frame: 1 }],
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.play("flying");
+
         var _this = this;
 
         this.AIType = "hostile";
@@ -186,7 +195,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
             this.scene, 
             this.x + trig.cos(theta) * length, 
             this.y + trig.sin(theta) * length, 
-            "helixShipLvl1Bullet", 
+            "lightningBlue", 
             this.angle - 90,
             life || 2000, // Life (in seconds)
             this.bulletOnCollide,

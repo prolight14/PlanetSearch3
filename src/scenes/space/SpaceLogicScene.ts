@@ -87,7 +87,8 @@ export default class SpaceLogicScene extends Phaser.Scene
             this.playerShip.x = 69000;
             this.playerShip.y = 60500;
             this.playerShip.bodyConf.update();
-            this.playerShip.setDepth(5);
+            this.playerShip.setDepth(8);
+            this.playerShip.particles.setDepth(20);
         }
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
@@ -97,10 +98,10 @@ export default class SpaceLogicScene extends Phaser.Scene
         //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
         // }
 
-        // for(var i = 0; i < 15; i++)
-        // {
-        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700)) as HyperBeamerSType;
-        // }
+        for(var i = 0; i < 7; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700)) as HyperBeamerSType;
+        }
     }
     
     public addXPStar(x: number, y: number)

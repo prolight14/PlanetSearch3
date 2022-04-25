@@ -1,5 +1,6 @@
 import EnemyShip from "../../gameObjects/space/EnemyShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
+import trig from "../../gameObjects/Utils/trig";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
@@ -107,19 +108,31 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
         this.runScenes(false);
         this.prepareStatsGraphics();
+        this.generateBulletsTextures();
 
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
         this.loaded = true;
-        ///////////////////////////////
+    }
 
-        // this.csp.initWorld(this.cspConfig);
-        // (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-        // this.runScenes(false);
-        // this.prepareStatsGraphics();
+    private generateBulletsTextures()
+    {
+        this.generateBullet("lightningBlue", 2, 16, 0x3CD3F8);
+        this.generateBullet("lightningBlueLong", 2, 24, 0x3CD3F8);
+    }
 
-        // this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
+    private generateBullet(key: string, width: number, length: number, color: number)
+    {
+        const rt = this.add.renderTexture(0, 0, width, length);
+        const graphics = this.add.graphics();
 
-        // this.loaded = true;
+        graphics.fillStyle(color);
+        graphics.fillRect(0, 0, width, length);
+        rt.draw(graphics);
+        graphics.setVisible(false);
+        graphics.destroy();
+
+        rt.saveTexture(key);
+        rt.setVisible(false);
     }
 
     public world: SpaceGrid;
@@ -135,27 +148,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
     }
-
-    // private reloadSpace()
-    // {
-    //     this.stopScenes();
-    //     var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
-    //     playerShip.ignoreDestroy = true;
-    //     this.matter.world.destroy();
-    //     this.matter.world = new Phaser.Physics.Matter.World(this,
-    //     {
-    //         gravity: false,
-    //         autoUpdate: false, 
-    //         // positionIterations: 4,
-    //         // velocityIterations: 2,
-    //         // constraintIterations: 1
-    //     });
-    //     this.csp.initWorld(this.cspConfig);
-    //     (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
-    //     playerShip.resetStats();
-    //     this.runScenes(false);
-    //     this.prepareStatsGraphics();
-    // }
 
     private statsGraphics: Phaser.GameObjects.Graphics;
 
@@ -260,6 +252,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
     public update(time: number, delta: number)
     {
+       
         var cam = this.cameras.main;
         this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
         this.world.updateSpace();
