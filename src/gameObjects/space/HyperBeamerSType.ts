@@ -6,6 +6,7 @@ import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 import PlayerShip from "./PlayerShip";
+import State from "../Utils/State";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -39,8 +40,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
         this.anims.play("flying");
 
         var _this = this;
-
-        this.AIType = "hostile";
 
         this.turnManager = {
             turning: false,
@@ -88,73 +87,117 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         };
 
-        this.sm = new StateMachine({
-            "wander": {
-                turnSpeed: 3,
-                turnInterval: function()
-                {
-                    return Phaser.Math.RND.between(750, 2100);
-                } ,
-                start: function()
-                {
-                    _this.isShooting = false;
-                    this.turnToTarget = false;
-                    this.targetTurnAngle = 0;
+        class WanderState extends State
+        {
+            private turnSpeed: number = 3;
 
-                    this.changeDirTimer = timer(true, this.turnInterval(), () =>
+            private turnToTarget: boolean;
+            private targetTurnAngle: number;
+            private changeDirTimer: { update: () => void; reset: (time?: number) => void; };
+
+            turnInterval()
+            {
+                return Phaser.Math.RND.between(750, 2100);
+            }
+
+            start()
+            {
+                _this.isShooting = false;
+                this.turnToTarget = false;
+                this.targetTurnAngle = 0;
+
+                this.changeDirTimer = timer(true, this.turnInterval(), () =>
+                {
+                    if(this.turnToTarget)
                     {
-                        if(this.turnToTarget)
+                        _this.turnManager.start(this.targetTurnAngle, 6, () => 
                         {
-                            _this.turnManager.start(this.targetTurnAngle, 6, () => 
-                            {
-                                this.changeDirTimer.reset(this.turnInterval());
-                            });      
+                            this.changeDirTimer.reset(this.turnInterval());
+                        });      
 
-                            this.turnToTarget = false;
-                            this.targetTurnAngle = 0;
-                        }
-                        else
-                        {
-                            _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), this.turnSpeed, () =>
-                            {
-                                this.changeDirTimer.reset(this.turnInterval());
-                            }); 
-                        }
-                    });
-                },
-                update: function()
-                {
-                    this.changeDirTimer.update();
-
-                    _this.isShooting = false;
-                    
-                    for(var i = 0; i < _this.visibleObjects.length; i++)
-                    {
-                        const object = _this.visibleObjects[i] as {
-                            gameObject: SpaceGameObject; 
-                            angleBetween: number;
-                        };
-
-                        if(object.gameObject._arrayName === "playerShip")
-                        {
-                            _this.isShooting = true;
-                            this.targetTurnAngle = object.angleBetween; 
-                            this.turnToTarget = true;
-                            break;
-                        }
+                        this.turnToTarget = false;
+                        this.targetTurnAngle = 0;
                     }
-                },
-                stop: function()
-                {
+                    else
+                    {
+                        _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), this.turnSpeed, () =>
+                        {
+                            this.changeDirTimer.reset(this.turnInterval());
+                        }); 
+                    }
+                });
+            }
 
-                }
-            },
-            "attack": {
-                start: function()
+            public update()
+            {
+                this.changeDirTimer.update();
+
+                _this.isShooting = false;
+                
+                for(var i = 0; i < _this.visibleObjects.length; i++)
                 {
-                    _this.isShooting = true;
+                    const object = _this.visibleObjects[i] as {
+                        gameObject: SpaceGameObject; 
+                        angleBetween: number;
+                    };
+
+                    const _arrayName = object.gameObject._arrayName;
+
+                    if(_this.shouldTarget(_arrayName))
+                    {
+                        this.startAttackState();
+                        return;
+                    }
+
+                    if(_arrayName === "playerShip")
+                    {
+                        _this.isShooting = true;
+                        this.targetTurnAngle = object.angleBetween; 
+                        this.turnToTarget = true;
+                        break;
+                    }
                 }
             }
+
+            private startAttackState()
+            {
+                _this.sm.stop("wander");
+                _this.sm.start("attack");
+                _this.sm.states.attack.updateTarget();
+            }
+        }
+
+        class AttackState extends State
+        {
+            private lastSceneTarget: {
+                x: number;
+                y: number;
+                _arrayName: number
+            };
+
+            private updateTarget(x: number, y: number, _arrayName: number)
+            {
+                this.lastSceneTarget = {
+                    x: x,
+                    y: y,
+                    _arrayName: _arrayName
+                };
+            }
+
+            public start()
+            {
+                _this.isShooting = true;
+            }
+
+            public update()
+            {
+
+            }
+        }
+        
+        this.sm = new StateMachine({
+            "wander": new WanderState(),
+            "attack": new AttackState()
         });
 
         this.setAngle(Phaser.Math.RND.frac() * 360);
@@ -176,7 +219,16 @@ export default class HyperBeamerSType extends HyperBeamerShip
         this.move = true;
     }
 
-    private AIType: string;
+    private shouldTarget(_arrayName: string): boolean
+    {
+        switch(_arrayName)
+        {
+            case "playerShip":
+                return true;
+        }
+
+        return false;
+    }
 
     private turnManager: any;
 

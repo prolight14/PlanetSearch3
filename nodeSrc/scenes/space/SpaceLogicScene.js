@@ -70,10 +70,7 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.particles.setDepth(20);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
-        for (var i = 0; i < 7; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700));
-        }
+        hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

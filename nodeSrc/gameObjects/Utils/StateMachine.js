@@ -2,15 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var StateMachine = (function () {
     function StateMachine(states) {
-        var func = function (name) {
-            if (!state[name]) {
-                state[name] = function () { };
-            }
-        };
-        for (var i in states) {
-            var state = states[i];
-            ["start", "update", "stop"].forEach(func);
-        }
         this.states = states;
     }
     StateMachine.prototype.start = function () {

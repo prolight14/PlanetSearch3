@@ -49,6 +49,36 @@ exports.default = InfoBar;
 
 /***/ }),
 
+/***/ "./gameObjects/Utils/State.js":
+/*!************************************!*\
+  !*** ./gameObjects/Utils/State.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var State = (function () {
+    function State() {
+    }
+    State.prototype.start = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+    };
+    State.prototype.stop = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+    };
+    return State;
+}());
+exports.default = State;
+//# sourceMappingURL=State.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/Utils/StateMachine.js":
 /*!*******************************************!*\
   !*** ./gameObjects/Utils/StateMachine.js ***!
@@ -59,15 +89,6 @@ exports.default = InfoBar;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var StateMachine = (function () {
     function StateMachine(states) {
-        var func = function (name) {
-            if (!state[name]) {
-                state[name] = function () { };
-            }
-        };
-        for (var i in states) {
-            var state = states[i];
-            ["start", "update", "stop"].forEach(func);
-        }
         this.states = states;
     }
     StateMachine.prototype.start = function () {
@@ -961,6 +982,7 @@ var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/tim
 var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObjects/Utils/StateMachine.js");
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
+var State_1 = __webpack_require__(/*! ../Utils/State */ "./gameObjects/Utils/State.js");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -981,7 +1003,6 @@ var HyperBeamerSType = (function (_super) {
         });
         _this_1.anims.play("flying");
         var _this = _this_1;
-        _this_1.AIType = "hostile";
         _this_1.turnManager = {
             turning: false,
             targetAngle: _this.angle,
@@ -1015,53 +1036,83 @@ var HyperBeamerSType = (function (_super) {
                 }
             }
         };
-        _this_1.sm = new StateMachine_1.default({
-            "wander": {
-                turnSpeed: 3,
-                turnInterval: function () {
-                    return Phaser.Math.RND.between(750, 2100);
-                },
-                start: function () {
-                    var _this_1 = this;
-                    _this.isShooting = false;
-                    this.turnToTarget = false;
-                    this.targetTurnAngle = 0;
-                    this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
-                        if (_this_1.turnToTarget) {
-                            _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
-                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                            });
-                            _this_1.turnToTarget = false;
-                            _this_1.targetTurnAngle = 0;
-                        }
-                        else {
-                            _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
-                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                            });
-                        }
-                    });
-                },
-                update: function () {
-                    this.changeDirTimer.update();
-                    _this.isShooting = false;
-                    for (var i = 0; i < _this.visibleObjects.length; i++) {
-                        var object = _this.visibleObjects[i];
-                        if (object.gameObject._arrayName === "playerShip") {
-                            _this.isShooting = true;
-                            this.targetTurnAngle = object.angleBetween;
-                            this.turnToTarget = true;
-                            break;
-                        }
-                    }
-                },
-                stop: function () {
-                }
-            },
-            "attack": {
-                start: function () {
-                    _this.isShooting = true;
-                }
+        var WanderState = (function (_super) {
+            __extends(WanderState, _super);
+            function WanderState() {
+                var _this_1 = _super !== null && _super.apply(this, arguments) || this;
+                _this_1.turnSpeed = 3;
+                return _this_1;
             }
+            WanderState.prototype.turnInterval = function () {
+                return Phaser.Math.RND.between(750, 2100);
+            };
+            WanderState.prototype.start = function () {
+                var _this_1 = this;
+                _this.isShooting = false;
+                this.turnToTarget = false;
+                this.targetTurnAngle = 0;
+                this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
+                    if (_this_1.turnToTarget) {
+                        _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
+                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                        });
+                        _this_1.turnToTarget = false;
+                        _this_1.targetTurnAngle = 0;
+                    }
+                    else {
+                        _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
+                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                        });
+                    }
+                });
+            };
+            WanderState.prototype.update = function () {
+                this.changeDirTimer.update();
+                _this.isShooting = false;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var object = _this.visibleObjects[i];
+                    var _arrayName = object.gameObject._arrayName;
+                    if (_this.shouldTarget(_arrayName)) {
+                        this.startAttackState();
+                        return;
+                    }
+                    if (_arrayName === "playerShip") {
+                        _this.isShooting = true;
+                        this.targetTurnAngle = object.angleBetween;
+                        this.turnToTarget = true;
+                        break;
+                    }
+                }
+            };
+            WanderState.prototype.startAttackState = function () {
+                _this.sm.stop("wander");
+                _this.sm.start("attack");
+                _this.sm.states.attack.updateTarget();
+            };
+            return WanderState;
+        }(State_1.default));
+        var AttackState = (function (_super) {
+            __extends(AttackState, _super);
+            function AttackState() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            AttackState.prototype.updateTarget = function (x, y, _arrayName) {
+                this.lastSceneTarget = {
+                    x: x,
+                    y: y,
+                    _arrayName: _arrayName
+                };
+            };
+            AttackState.prototype.start = function () {
+                _this.isShooting = true;
+            };
+            AttackState.prototype.update = function () {
+            };
+            return AttackState;
+        }(State_1.default));
+        _this_1.sm = new StateMachine_1.default({
+            "wander": new WanderState(),
+            "attack": new AttackState()
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
@@ -1075,6 +1126,13 @@ var HyperBeamerSType = (function (_super) {
         _this_1.move = true;
         return _this_1;
     }
+    HyperBeamerSType.prototype.shouldTarget = function (_arrayName) {
+        switch (_arrayName) {
+            case "playerShip":
+                return true;
+        }
+        return false;
+    };
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
@@ -2896,10 +2954,7 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.particles.setDepth(20);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69000, 60000 + 500);
-        for (var i = 0; i < 7; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700));
-        }
+        hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

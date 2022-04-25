@@ -2,21 +2,21 @@ class StateMachine
 {
     constructor(states: any)
     {
-        var func = function(name: string)
-        {
-            if(!state[name])
-            {
-                state[name] = function() {};
-            }
-        };
+        // var func = function(name: string)
+        // {
+        //     if(!state[name])
+        //     {
+        //         state[name] = function() {};
+        //     }
+        // };
 
-        for(var i in states)
-        {
-            var state = states[i];
+        // for(var i in states)
+        // {
+        //     var state = states[i];
     
-            // Loop through names of functions that should be in a state
-            ["start", "update", "stop"].forEach(func);
-        }
+        //     // Loop through names of functions that should be in a state
+        //     ["start", "update", "stop"].forEach(func);
+        // }
 
         this.states = states;
     }

@@ -18,6 +18,7 @@ var timer_1 = require("../Utils/timer");
 var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
+var State_1 = require("../Utils/State");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -38,7 +39,6 @@ var HyperBeamerSType = (function (_super) {
         });
         _this_1.anims.play("flying");
         var _this = _this_1;
-        _this_1.AIType = "hostile";
         _this_1.turnManager = {
             turning: false,
             targetAngle: _this.angle,
@@ -72,53 +72,83 @@ var HyperBeamerSType = (function (_super) {
                 }
             }
         };
-        _this_1.sm = new StateMachine_1.default({
-            "wander": {
-                turnSpeed: 3,
-                turnInterval: function () {
-                    return Phaser.Math.RND.between(750, 2100);
-                },
-                start: function () {
-                    var _this_1 = this;
-                    _this.isShooting = false;
-                    this.turnToTarget = false;
-                    this.targetTurnAngle = 0;
-                    this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
-                        if (_this_1.turnToTarget) {
-                            _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
-                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                            });
-                            _this_1.turnToTarget = false;
-                            _this_1.targetTurnAngle = 0;
-                        }
-                        else {
-                            _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
-                                _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                            });
-                        }
-                    });
-                },
-                update: function () {
-                    this.changeDirTimer.update();
-                    _this.isShooting = false;
-                    for (var i = 0; i < _this.visibleObjects.length; i++) {
-                        var object = _this.visibleObjects[i];
-                        if (object.gameObject._arrayName === "playerShip") {
-                            _this.isShooting = true;
-                            this.targetTurnAngle = object.angleBetween;
-                            this.turnToTarget = true;
-                            break;
-                        }
-                    }
-                },
-                stop: function () {
-                }
-            },
-            "attack": {
-                start: function () {
-                    _this.isShooting = true;
-                }
+        var WanderState = (function (_super) {
+            __extends(WanderState, _super);
+            function WanderState() {
+                var _this_1 = _super !== null && _super.apply(this, arguments) || this;
+                _this_1.turnSpeed = 3;
+                return _this_1;
             }
+            WanderState.prototype.turnInterval = function () {
+                return Phaser.Math.RND.between(750, 2100);
+            };
+            WanderState.prototype.start = function () {
+                var _this_1 = this;
+                _this.isShooting = false;
+                this.turnToTarget = false;
+                this.targetTurnAngle = 0;
+                this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
+                    if (_this_1.turnToTarget) {
+                        _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
+                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                        });
+                        _this_1.turnToTarget = false;
+                        _this_1.targetTurnAngle = 0;
+                    }
+                    else {
+                        _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
+                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
+                        });
+                    }
+                });
+            };
+            WanderState.prototype.update = function () {
+                this.changeDirTimer.update();
+                _this.isShooting = false;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var object = _this.visibleObjects[i];
+                    var _arrayName = object.gameObject._arrayName;
+                    if (_this.shouldTarget(_arrayName)) {
+                        this.startAttackState();
+                        return;
+                    }
+                    if (_arrayName === "playerShip") {
+                        _this.isShooting = true;
+                        this.targetTurnAngle = object.angleBetween;
+                        this.turnToTarget = true;
+                        break;
+                    }
+                }
+            };
+            WanderState.prototype.startAttackState = function () {
+                _this.sm.stop("wander");
+                _this.sm.start("attack");
+                _this.sm.states.attack.updateTarget();
+            };
+            return WanderState;
+        }(State_1.default));
+        var AttackState = (function (_super) {
+            __extends(AttackState, _super);
+            function AttackState() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            AttackState.prototype.updateTarget = function (x, y, _arrayName) {
+                this.lastSceneTarget = {
+                    x: x,
+                    y: y,
+                    _arrayName: _arrayName
+                };
+            };
+            AttackState.prototype.start = function () {
+                _this.isShooting = true;
+            };
+            AttackState.prototype.update = function () {
+            };
+            return AttackState;
+        }(State_1.default));
+        _this_1.sm = new StateMachine_1.default({
+            "wander": new WanderState(),
+            "attack": new AttackState()
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
@@ -132,6 +162,13 @@ var HyperBeamerSType = (function (_super) {
         _this_1.move = true;
         return _this_1;
     }
+    HyperBeamerSType.prototype.shouldTarget = function (_arrayName) {
+        switch (_arrayName) {
+            case "playerShip":
+                return true;
+        }
+        return false;
+    };
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
