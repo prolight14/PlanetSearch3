@@ -17,6 +17,7 @@ var SpaceGameObject = (function (_super) {
     __extends(SpaceGameObject, _super);
     function SpaceGameObject(scene, x, y, texture, frame) {
         var _this = _super.call(this, scene.matter.world, x, y, texture, frame) || this;
+        _this.getType = function () { return "spaceGameObject"; };
         _this.killed = false;
         _this.destroyOnKill = true;
         _this.destroyQueued = false;

@@ -1,41 +1,29 @@
+import State from "./State";
+
 class StateMachine
 {
     constructor(states: any)
     {
-        // var func = function(name: string)
-        // {
-        //     if(!state[name])
-        //     {
-        //         state[name] = function() {};
-        //     }
-        // };
-
-        // for(var i in states)
-        // {
-        //     var state = states[i];
-    
-        //     // Loop through names of functions that should be in a state
-        //     ["start", "update", "stop"].forEach(func);
-        // }
-
         this.states = states;
     }
 
     public states: any;
     
-    public start(...args: any[])
+    public startMultiple(...args: any[])
     {
-        var _this = this;
-
-        // Start all states in the arguments array
-        Array.prototype.slice.call(arguments).forEach(function(stateName: string)
+        Array.prototype.slice.call(arguments).forEach((key: string) =>
         {
-            var state = _this.states[stateName];
-
-            state.on = true;
-            state.start(this);
-        });
+            this.start(key);
+        }); 
     }
+
+    public start(key: string, args?: Array<any>)
+    {
+        var state = this.states[key];
+
+        state.on = true;
+        state.start.apply(state, args);
+    };
 
     public emit(name: string, args: Array<any>)
     {
@@ -60,18 +48,35 @@ class StateMachine
         }
     }    
 
-    public stop(...args: any[])
+    public getState(key: string): State
     {
-        var _this = this;
+        return this.states[key];
+    }
 
-        // Stop all states in the arguments array
-        Array.prototype.slice.call(arguments).forEach(function(stateName: string)
+    public stopAll()
+    {
+        for(var i in this.states)
         {
-            var state = _this.states[stateName];
-
+            const state = this.states[i];
             state.on = false;
-            state.stop(this);
-        });
+            state.stop();
+        };
+    }
+
+    public stopMultiple(...args: any[])
+    {
+        Array.prototype.slice.call(arguments).forEach((key: string) =>
+        {
+            this.stop(key);
+        }); 
+    }
+
+    public stop(key: string, args?: Array<any>)
+    {
+        var state = this.states[key];
+
+        state.on = false;
+        state.stop.call(state, args);
     };
 }
 

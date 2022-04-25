@@ -29,10 +29,16 @@ export default class Bullet extends SpaceGameObject
                 if(hit)
                 {
                     this.kill();
+                    (colData.bodyA.gameObject as SpaceGameObject).onCollide(this);
                 }
             }
         });
     }
+
+    public getType: () => string = () => 
+    {
+        return "Projectile";
+    };
 
     private compareX: number = 0;
     private compareY: number = 0;

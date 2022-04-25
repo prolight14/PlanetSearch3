@@ -15,6 +15,8 @@ export default class State
     //     }
     // }
 
+    public on: boolean = false;
+
     public start(...args: Array<any>): any
     {
 

@@ -75,7 +75,7 @@ export default class Crest extends SpaceGameObject
         }
     }
 
-    protected onCollide(playerShip: PlayerShip)
+    public onCollide(playerShip: PlayerShip)
     {
         playerShip.collectCrests(this);
 

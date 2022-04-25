@@ -4,18 +4,22 @@ var StateMachine = (function () {
     function StateMachine(states) {
         this.states = states;
     }
-    StateMachine.prototype.start = function () {
+    StateMachine.prototype.startMultiple = function () {
+        var _this = this;
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = this;
-        Array.prototype.slice.call(arguments).forEach(function (stateName) {
-            var state = _this.states[stateName];
-            state.on = true;
-            state.start(this);
+        Array.prototype.slice.call(arguments).forEach(function (key) {
+            _this.start(key);
         });
     };
+    StateMachine.prototype.start = function (key, args) {
+        var state = this.states[key];
+        state.on = true;
+        state.start.apply(state, args);
+    };
+    ;
     StateMachine.prototype.emit = function (name, args) {
         for (var i in this.states) {
             var state = this.states[i];
@@ -30,17 +34,31 @@ var StateMachine = (function () {
             state[name].apply(state, args);
         }
     };
-    StateMachine.prototype.stop = function () {
+    StateMachine.prototype.getState = function (key) {
+        return this.states[key];
+    };
+    StateMachine.prototype.stopAll = function () {
+        for (var i in this.states) {
+            var state = this.states[i];
+            state.on = false;
+            state.stop();
+        }
+        ;
+    };
+    StateMachine.prototype.stopMultiple = function () {
+        var _this = this;
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = this;
-        Array.prototype.slice.call(arguments).forEach(function (stateName) {
-            var state = _this.states[stateName];
-            state.on = false;
-            state.stop(this);
+        Array.prototype.slice.call(arguments).forEach(function (key) {
+            _this.stop(key);
         });
+    };
+    StateMachine.prototype.stop = function (key, args) {
+        var state = this.states[key];
+        state.on = false;
+        state.stop.call(state, args);
     };
     ;
     return StateMachine;

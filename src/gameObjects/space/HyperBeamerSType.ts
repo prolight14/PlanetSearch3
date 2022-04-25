@@ -145,48 +145,57 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
                     if(_this.shouldTarget(_arrayName))
                     {
-                        this.startAttackState();
+                        this.startAttackState(_arrayName, object.gameObject);
                         return;
                     }
 
-                    if(_arrayName === "playerShip")
-                    {
-                        _this.isShooting = true;
-                        this.targetTurnAngle = object.angleBetween; 
-                        this.turnToTarget = true;
-                        break;
-                    }
+                    // if(_arrayName === "playerShip")
+                    // {
+                    //     _this.isShooting = true;
+                    //     this.targetTurnAngle = object.angleBetween; 
+                    //     this.turnToTarget = true;
+                    //     break;
+                    // }
                 }
             }
 
-            private startAttackState()
+            private startAttackState(_arrayName: string, object: SpaceGameObject)
             {
-                _this.sm.stop("wander");
-                _this.sm.start("attack");
-                _this.sm.states.attack.updateTarget();
+                _this.sm.stopAll();
+                _this.sm.start("attack", [object, "saw"]);
             }
         }
 
         class AttackState extends State
         {
-            private lastSceneTarget: {
-                x: number;
-                y: number;
-                _arrayName: number
-            };
-
-            private updateTarget(x: number, y: number, _arrayName: number)
+            public start(object: SpaceGameObject, event: string)
             {
-                this.lastSceneTarget = {
-                    x: x,
-                    y: y,
-                    _arrayName: _arrayName
-                };
+                _this.isShooting = false;
+
+                this.studyObject(object, event);
+            }
+        
+            private studyObject(object: SpaceGameObject, event: string)
+            {
+                this.react({
+                    type: object.getType(),
+                    _arrayName: object._arrayName,
+                    lastSeenX: object.x,
+                    lastSeenY: object.y,
+                    angle: object.angle,
+                    event: event,
+                });
             }
 
-            public start()
+            private react(info: any)
             {
-                _this.isShooting = true;
+                switch(info.type)
+                {
+                    case "Projectile":
+                        _this.sm.stopAll();
+                        _this.sm.start("inspect", [info]);
+                        break;
+                }
             }
 
             public update()
@@ -195,9 +204,48 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
         }
         
+        class InspectState extends State
+        {
+            public start(object: { lastSeenX: number, lastSeenY: number })
+            {
+                const { lastSeenX, lastSeenY } = object;
+
+                const targetAngle = Phaser.Math.Angle.Between(_this.x, _this.y, lastSeenX, lastSeenY) * Phaser.Math.RAD_TO_DEG;
+                const turnStep = 5;
+
+                _this.move = false;
+                _this.turnManager.start(targetAngle, turnStep, () =>
+                {
+                    _this.move = true;
+                });
+            }
+
+            public update()
+            {
+                for(var i = 0; i < _this.visibleObjects.length; i++)
+                {
+                    const object = _this.visibleObjects[i] as {
+                        gameObject: SpaceGameObject; 
+                        angleBetween: number;
+                    };
+
+                    const _arrayName = object.gameObject._arrayName;
+
+                    // if(_arrayName === "playerShip")
+                    // {
+                    //     _this.isShooting = true;
+                    //     this.targetTurnAngle = object.angleBetween; 
+                    //     this.turnToTarget = true;
+                    //     break;
+                    // }
+                }
+            }
+        }
+
         this.sm = new StateMachine({
             "wander": new WanderState(),
-            "attack": new AttackState()
+            "attack": new AttackState(),
+            "inspect": new InspectState()
         });
 
         this.setAngle(Phaser.Math.RND.frac() * 360);
@@ -217,17 +265,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
     
 
         this.move = true;
-    }
-
-    private shouldTarget(_arrayName: string): boolean
-    {
-        switch(_arrayName)
-        {
-            case "playerShip":
-                return true;
-        }
-
-        return false;
     }
 
     private turnManager: any;
@@ -258,6 +295,11 @@ export default class HyperBeamerSType extends HyperBeamerShip
         bullet.setCollidesWith(0);
     }
 
+    private shoot()
+    {
+        this.shootBullet(0, this.displayWidth / 2);
+    }
+
     private bulletOnCollide(gameObject: SpaceGameObject)
     {
         if(gameObject._arrayName === "playerShip")
@@ -270,11 +312,31 @@ export default class HyperBeamerSType extends HyperBeamerShip
         return false;
     }
 
-    private shoot()
+    public onCollide(object: SpaceGameObject): void
     {
-        this.shootBullet(0, this.displayWidth / 2);
+        if(object._arrayName === "HyperBeamerSTypeBullet")
+        {
+            return;
+        }
+
+        if(object._arrayName === "playerShipBullet" && this.sm.getState("wander").on)
+        {
+            this.sm.stopAll();
+            this.sm.start("attack", [object, "collided"]);
+        }
     }
 
+    private shouldTarget(_arrayName: string): boolean
+    {
+        switch(_arrayName)
+        {
+            case "playerShip":
+                return true;
+        }
+
+        return false;
+    }
+  
     private sm: StateMachine;
     
     public preUpdate(time: number, delta: number)

@@ -82,7 +82,7 @@ export default class XPStar extends SpaceGameObject
         }
     }
 
-    protected onCollide(playerShip: PlayerShip)
+    public onCollide(playerShip: PlayerShip)
     {
         playerShip.collectXPStars(this);
 

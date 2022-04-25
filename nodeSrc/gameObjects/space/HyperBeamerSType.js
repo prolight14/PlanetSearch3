@@ -109,21 +109,14 @@ var HyperBeamerSType = (function (_super) {
                     var object = _this.visibleObjects[i];
                     var _arrayName = object.gameObject._arrayName;
                     if (_this.shouldTarget(_arrayName)) {
-                        this.startAttackState();
+                        this.startAttackState(_arrayName, object.gameObject);
                         return;
-                    }
-                    if (_arrayName === "playerShip") {
-                        _this.isShooting = true;
-                        this.targetTurnAngle = object.angleBetween;
-                        this.turnToTarget = true;
-                        break;
                     }
                 }
             };
-            WanderState.prototype.startAttackState = function () {
-                _this.sm.stop("wander");
-                _this.sm.start("attack");
-                _this.sm.states.attack.updateTarget();
+            WanderState.prototype.startAttackState = function (_arrayName, object) {
+                _this.sm.stopAll();
+                _this.sm.start("attack", [object, "saw"]);
             };
             return WanderState;
         }(State_1.default));
@@ -132,23 +125,58 @@ var HyperBeamerSType = (function (_super) {
             function AttackState() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
-            AttackState.prototype.updateTarget = function (x, y, _arrayName) {
-                this.lastSceneTarget = {
-                    x: x,
-                    y: y,
-                    _arrayName: _arrayName
-                };
+            AttackState.prototype.start = function (object, event) {
+                _this.isShooting = false;
+                this.studyObject(object, event);
             };
-            AttackState.prototype.start = function () {
-                _this.isShooting = true;
+            AttackState.prototype.studyObject = function (object, event) {
+                this.react({
+                    type: object.getType(),
+                    _arrayName: object._arrayName,
+                    lastSeenX: object.x,
+                    lastSeenY: object.y,
+                    angle: object.angle,
+                    event: event,
+                });
+            };
+            AttackState.prototype.react = function (info) {
+                switch (info.type) {
+                    case "Projectile":
+                        _this.sm.stopAll();
+                        _this.sm.start("inspect", [info]);
+                        break;
+                }
             };
             AttackState.prototype.update = function () {
             };
             return AttackState;
         }(State_1.default));
+        var InspectState = (function (_super) {
+            __extends(InspectState, _super);
+            function InspectState() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            InspectState.prototype.start = function (object) {
+                var lastSeenX = object.lastSeenX, lastSeenY = object.lastSeenY;
+                var targetAngle = Phaser.Math.Angle.Between(_this.x, _this.y, lastSeenX, lastSeenY) * Phaser.Math.RAD_TO_DEG;
+                var turnStep = 5;
+                _this.move = false;
+                _this.turnManager.start(targetAngle, turnStep, function () {
+                    _this.move = true;
+                });
+            };
+            InspectState.prototype.update = function () {
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var object = _this.visibleObjects[i];
+                    var _arrayName = object.gameObject._arrayName;
+                }
+            };
+            return InspectState;
+        }(State_1.default));
         _this_1.sm = new StateMachine_1.default({
             "wander": new WanderState(),
-            "attack": new AttackState()
+            "attack": new AttackState(),
+            "inspect": new InspectState()
         });
         _this_1.setAngle(Phaser.Math.RND.frac() * 360);
         _this_1.sm.start("wander");
@@ -162,13 +190,6 @@ var HyperBeamerSType = (function (_super) {
         _this_1.move = true;
         return _this_1;
     }
-    HyperBeamerSType.prototype.shouldTarget = function (_arrayName) {
-        switch (_arrayName) {
-            case "playerShip":
-                return true;
-        }
-        return false;
-    };
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
@@ -176,14 +197,30 @@ var HyperBeamerSType = (function (_super) {
         bullet.setCollisionGroup(2);
         bullet.setCollidesWith(0);
     };
+    HyperBeamerSType.prototype.shoot = function () {
+        this.shootBullet(0, this.displayWidth / 2);
+    };
     HyperBeamerSType.prototype.bulletOnCollide = function (gameObject) {
         if (gameObject._arrayName === "playerShip") {
             return gameObject.takeDamage(this);
         }
         return false;
     };
-    HyperBeamerSType.prototype.shoot = function () {
-        this.shootBullet(0, this.displayWidth / 2);
+    HyperBeamerSType.prototype.onCollide = function (object) {
+        if (object._arrayName === "HyperBeamerSTypeBullet") {
+            return;
+        }
+        if (object._arrayName === "playerShipBullet" && this.sm.getState("wander").on) {
+            this.sm.stopAll();
+            this.sm.start("attack", [object, "collided"]);
+        }
+    };
+    HyperBeamerSType.prototype.shouldTarget = function (_arrayName) {
+        switch (_arrayName) {
+            case "playerShip":
+                return true;
+        }
+        return false;
     };
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);

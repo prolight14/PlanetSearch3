@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var State = (function () {
     function State() {
+        this.on = false;
     }
     State.prototype.start = function () {
         var args = [];

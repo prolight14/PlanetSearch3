@@ -20,6 +20,9 @@ var Bullet = (function (_super) {
     __extends(Bullet, _super);
     function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.getType = function () {
+            return "Projectile";
+        };
         _this.compareX = 0;
         _this.compareY = 0;
         _this.range = 500;
@@ -36,6 +39,7 @@ var Bullet = (function (_super) {
                 var hit = onCollide.call(onCollideContext, colData.bodyA.gameObject);
                 if (hit) {
                     _this.kill();
+                    colData.bodyA.gameObject.onCollide(_this);
                 }
             }
         });

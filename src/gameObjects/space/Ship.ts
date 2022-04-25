@@ -8,6 +8,11 @@ export default class Ship extends SpaceGameObject
     {
         super(scene, x, y, texture, frame);
     }
+    
+    public getType: () => string = () => 
+    {
+        return "Spacecraft";
+    };
 
     protected maxHp: number = 10;
     protected hp: number = 10;

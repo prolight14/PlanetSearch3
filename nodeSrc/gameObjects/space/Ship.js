@@ -19,6 +19,9 @@ var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship(scene, x, y, texture, frame) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
+        _this.getType = function () {
+            return "Spacecraft";
+        };
         _this.maxHp = 10;
         _this.hp = 10;
         _this.damage = 1;

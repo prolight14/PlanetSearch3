@@ -18,6 +18,8 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
         super.preUpdate(time, delta);
     }
 
+    public getType: () => string = () => "spaceGameObject";
+
     public _id: number;
     public body: MatterJS.BodyType;
     public bodyConf: {
@@ -30,7 +32,7 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
     public _arrayName: string;
     public _name: string;
 
-    protected onCollide(object: SpaceGameObject)
+    public onCollide(object: SpaceGameObject)
     {
 
     }
