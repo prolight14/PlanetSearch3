@@ -136,7 +136,7 @@ export default class Ship extends SpaceGameObject
             else
             {
                 this.speed = 0; 
-            } 
+            }
         }
 
         this.speed = Math.min(this.speed, this.maxSpeed);

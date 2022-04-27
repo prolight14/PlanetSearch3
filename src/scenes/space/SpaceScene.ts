@@ -51,12 +51,6 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
-        
-        // this.load.scenePlugin({
-        //     key: "CartesianSystemPlugin",
-        //     url: "./libraries/CartesianSystemPlugin.js",
-        //     sceneKey: 'csp'
-        // });
     }
 
     public cspConfig: any;
@@ -248,11 +242,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         });
     }
 
-    // public csp: any;
-
     public update(time: number, delta: number)
     {
-       
         var cam = this.cameras.main;
         this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
         this.world.updateSpace();
@@ -304,7 +295,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                     this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
 
-                // enemyShip.debugFov(this.statsGraphics);
+                enemyShip.debugFov(this.statsGraphics);
             }
         });
 

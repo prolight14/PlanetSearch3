@@ -7,6 +7,8 @@ import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 import PlayerShip from "./PlayerShip";
 import State from "../Utils/State";
+import Clock from "../Utils/Clock";
+import TurnManager from "../Utils/TurnManager";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -41,216 +43,55 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         var _this = this;
 
-        this.turnManager = {
-            turning: false,
-            targetAngle: _this.angle,
-            turnStep: 0,
-            callback: () => {},
-            start: function(targetAngle: number, turnStep: number, callback?: () => void)//: boolean
-            {
-                if(callback === undefined)
-                {
-                    callback = () => {};
-                }
+        // this.turnManager = {
+        //     turning: false,
+        //     targetAngle: _this.angle,
+        //     turnStep: 0,
+        //     callback: () => {},
+        //     start: function(targetAngle: number, turnStep: number, callback?: () => void)
+        //     {
+        //         if(callback === undefined)
+        //         {
+        //             callback = () => {};
+        //         }
                 
-                this.targetAngle = Phaser.Math.Wrap(targetAngle, -180, 180);
+        //         this.targetAngle = Phaser.Math.Wrap(targetAngle, -180, 180);
                 
-                this.turning = true;
-                this.callback = callback;
-                this.turnStep = turnStep;
-            },
-            update: function()
-            {
-                if(!this.turning)
-                {
-                    return;
-                }
-                var angleDiff = Phaser.Math.Wrap(this.targetAngle - _this.angle, 0, 360);
+        //         this.turning = true;
+        //         this.callback = callback;
+        //         this.turnStep = turnStep;
+        //     },
+        //     update: function()
+        //     {
+        //         if(!this.turning)
+        //         {
+        //             return;
+        //         }
+        //         var angleDiff = Phaser.Math.Wrap(this.targetAngle - _this.angle, 0, 360);
 
-                if(Math.abs(angleDiff) <= this.turnStep || _this.angle === this.targetAngle)
-                {
-                    _this.angle = this.targetAngle;
+        //         if(Math.abs(angleDiff) <= this.turnStep || _this.angle === this.targetAngle)
+        //         {
+        //             _this.angle = this.targetAngle;
 
-                    this.callback();
-                    this.turning = false;
-                    return;
-                }
+        //             this.callback();
+        //             this.turning = false;
+        //             return;
+        //         }
 
-                if(angleDiff > 180)
-                {
-                    _this.angle -= this.turnStep;
-                }
-                else
-                {
-                    _this.angle += this.turnStep;
-                }
-            }
-        };
+        //         if(angleDiff > 180)
+        //         {
+        //             _this.angle -= this.turnStep;
+        //         }
+        //         else
+        //         {
+        //             _this.angle += this.turnStep;
+        //         }
+        //     }
+        // };
 
-        class WanderState extends State
-        {
-            private turnSpeed: number = 3;
+        this.turnManager = new TurnManager(this);
 
-            private turnToTarget: boolean;
-            private targetTurnAngle: number;
-            private changeDirTimer: { update: () => void; reset: (time?: number) => void; };
-
-            turnInterval()
-            {
-                return Phaser.Math.RND.between(750, 2100);
-            }
-
-            start()
-            {
-                _this.isShooting = false;
-                this.turnToTarget = false;
-                this.targetTurnAngle = 0;
-
-                this.changeDirTimer = timer(true, this.turnInterval(), () =>
-                {
-                    if(this.turnToTarget)
-                    {
-                        _this.turnManager.start(this.targetTurnAngle, 6, () => 
-                        {
-                            this.changeDirTimer.reset(this.turnInterval());
-                        });      
-
-                        this.turnToTarget = false;
-                        this.targetTurnAngle = 0;
-                    }
-                    else
-                    {
-                        _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), this.turnSpeed, () =>
-                        {
-                            this.changeDirTimer.reset(this.turnInterval());
-                        }); 
-                    }
-                });
-            }
-
-            public update()
-            {
-                this.changeDirTimer.update();
-
-                _this.isShooting = false;
-                
-                for(var i = 0; i < _this.visibleObjects.length; i++)
-                {
-                    const object = _this.visibleObjects[i] as {
-                        gameObject: SpaceGameObject; 
-                        angleBetween: number;
-                    };
-
-                    const _arrayName = object.gameObject._arrayName;
-
-                    if(_this.shouldTarget(_arrayName))
-                    {
-                        this.startAttackState(_arrayName, object.gameObject);
-                        return;
-                    }
-
-                    // if(_arrayName === "playerShip")
-                    // {
-                    //     _this.isShooting = true;
-                    //     this.targetTurnAngle = object.angleBetween; 
-                    //     this.turnToTarget = true;
-                    //     break;
-                    // }
-                }
-            }
-
-            private startAttackState(_arrayName: string, object: SpaceGameObject)
-            {
-                _this.sm.stopAll();
-                _this.sm.start("attack", [object, "saw"]);
-            }
-        }
-
-        class AttackState extends State
-        {
-            public start(object: SpaceGameObject, event: string)
-            {
-                _this.isShooting = false;
-
-                this.studyObject(object, event);
-            }
-        
-            private studyObject(object: SpaceGameObject, event: string)
-            {
-                this.react({
-                    type: object.getType(),
-                    _arrayName: object._arrayName,
-                    lastSeenX: object.x,
-                    lastSeenY: object.y,
-                    angle: object.angle,
-                    event: event,
-                });
-            }
-
-            private react(info: any)
-            {
-                switch(info.type)
-                {
-                    case "Projectile":
-                        _this.sm.stopAll();
-                        _this.sm.start("inspect", [info]);
-                        break;
-                }
-            }
-
-            public update()
-            {
-
-            }
-        }
-        
-        class InspectState extends State
-        {
-            public start(object: { lastSeenX: number, lastSeenY: number })
-            {
-                const { lastSeenX, lastSeenY } = object;
-
-                const targetAngle = Phaser.Math.Angle.Between(_this.x, _this.y, lastSeenX, lastSeenY) * Phaser.Math.RAD_TO_DEG;
-                const turnStep = 5;
-
-                _this.move = false;
-                _this.turnManager.start(targetAngle, turnStep, () =>
-                {
-                    _this.move = true;
-                });
-            }
-
-            public update()
-            {
-                for(var i = 0; i < _this.visibleObjects.length; i++)
-                {
-                    const object = _this.visibleObjects[i] as {
-                        gameObject: SpaceGameObject; 
-                        angleBetween: number;
-                    };
-
-                    const _arrayName = object.gameObject._arrayName;
-
-                    // if(_arrayName === "playerShip")
-                    // {
-                    //     _this.isShooting = true;
-                    //     this.targetTurnAngle = object.angleBetween; 
-                    //     this.turnToTarget = true;
-                    //     break;
-                    // }
-                }
-            }
-        }
-
-        this.sm = new StateMachine({
-            "wander": new WanderState(),
-            "attack": new AttackState(),
-            "inspect": new InspectState()
-        });
-
-        this.setAngle(Phaser.Math.RND.frac() * 360);
-
-        this.sm.start("wander");
+        this.setAngle(Phaser.Math.Angle.RandomDegrees());
 
         this.shootTimer = timer(true, 450, () =>
         {
@@ -261,13 +102,87 @@ export default class HyperBeamerSType extends HyperBeamerShip
             this.shootTimer.reset();
         });
 
-        this.setFovStats(1000, 70);
-    
+      
+        this.move = false;
 
-        this.move = true;
+        class WanderState
+        {
+            private subState: string;
+            private changeDirTimer: Clock;
+            
+            public start()
+            {
+                this.subState = "wander";
+
+                this.changeDirTimer = new Clock(Phaser.Math.RND.between(750, 1500), true);
+            }
+
+            public update()
+            {
+                switch(this.subState)
+                {
+                    // Fly around randomly observing things
+                    case "wander":
+                        if(!_this.turnManager.isTurning() && this.changeDirTimer.isFinished())
+                        {
+                            _this.turnManager.startTurning(Phaser.Math.RND.between(0, 360), () =>
+                            {
+                                this.changeDirTimer.reset(Phaser.Math.RND.between(750, 1500));
+                            });                            
+                        }
+                        break;
+
+                    // Follow another ship as long as it's in view
+                    case "attack":
+
+                        break;
+
+                    // If something hit this ship (like a bullet),
+                    // inspect where it came from
+                    case "inspect":
+
+                        break;
+                }
+            }
+
+            public stop()
+            {
+
+            }
+        }
+
+        this.sm = new StateMachine({
+            "wander": new WanderState()
+        });
+
+        this.sm.start("wander");
+
+        this.setFovStats(500, 70);
+
+
     }
 
-    private turnManager: any;
+    private turnManager: TurnManager;
+    private sm: StateMachine;
+    
+    public preUpdate(time: number, delta: number)
+    {
+        super.preUpdate(time, delta);
+
+        // this.sm.emit("update", []);
+
+        this.turnManager.update();
+        this.shootTimer.update();
+    }
+
+    public onCollide(object: SpaceGameObject): void
+    {
+        if(object._arrayName === "HyperBeamerSTypeBullet")
+        {
+            return;
+        }
+    }
+    
 
     private shootTimer: {
         update: () => void,
@@ -310,42 +225,5 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
         // Didn't hit since there were no relevant gameObjects
         return false;
-    }
-
-    public onCollide(object: SpaceGameObject): void
-    {
-        if(object._arrayName === "HyperBeamerSTypeBullet")
-        {
-            return;
-        }
-
-        if(object._arrayName === "playerShipBullet" && this.sm.getState("wander").on)
-        {
-            this.sm.stopAll();
-            this.sm.start("attack", [object, "collided"]);
-        }
-    }
-
-    private shouldTarget(_arrayName: string): boolean
-    {
-        switch(_arrayName)
-        {
-            case "playerShip":
-                return true;
-        }
-
-        return false;
-    }
-  
-    private sm: StateMachine;
-    
-    public preUpdate(time: number, delta: number)
-    {
-        super.preUpdate(time, delta);
-
-        this.sm.emit("update", []);
-
-        this.turnManager.update();
-        this.shootTimer.update();
     }
 }

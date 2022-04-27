@@ -201,6 +201,7 @@ var SpaceScene = (function (_super) {
                     _this.statsGraphics.fillStyle(0x54B70E);
                     _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
+                enemyShip.debugFov(_this.statsGraphics);
             }
         });
         this.sys.displayList.add(this.statsGraphics);

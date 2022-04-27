@@ -23,14 +23,14 @@ var StateMachine = (function () {
     StateMachine.prototype.emit = function (name, args) {
         for (var i in this.states) {
             var state = this.states[i];
-            if (state.on) {
+            if (state.on && state[name] !== undefined) {
                 state[name].apply(state, args);
             }
         }
     };
     StateMachine.prototype.emitState = function (stateName, name, args) {
         var state = this.states[stateName];
-        if (state.on) {
+        if (state.on && state[name] !== undefined) {
             state[name].apply(state, args);
         }
     };

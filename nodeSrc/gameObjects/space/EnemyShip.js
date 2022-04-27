@@ -45,7 +45,7 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.fovLookDelay = 50;
+        _this.fovLookDelay = 1;
         _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
             _this.lookTimer.reset(_this.fovLookDelay);
@@ -66,29 +66,19 @@ var EnemyShip = (function (_super) {
     };
     EnemyShip.prototype.fovLook = function () {
         var objectsInCells = [];
-        var world = this.scene.world;
         objectsInCells = this.scene.world.getObjectsInBox(this.x - this.fovRadius, this.y - this.fovRadius, this.x + this.fovRadius, this.y + this.fovRadius);
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
-        var minAngle = this.angle - this.halfFovAngle;
-        var maxAngle = this.angle + this.halfFovAngle;
-        if (minAngle < 0) {
-            minAngle = minAngle + 360;
-        }
-        if (maxAngle < 0) {
-            maxAngle = maxAngle + 360;
-        }
         for (var i = 0; i < objectsInCells.length; i++) {
+            if (objectsInCells[i]._arrayName !== "playerShip") {
+                continue;
+            }
             var object = objectsInCells[i];
             if (Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared) {
                 continue;
             }
-            var angleBetween = Phaser.Math.Angle.BetweenPoints(object, this) * Phaser.Math.RAD_TO_DEG;
-            angleBetween = angleBetween - 90;
-            if (angleBetween < 0) {
-                angleBetween = angleBetween + 360;
-            }
-            if (angleBetween > minAngle && angleBetween < maxAngle) {
+            var angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
+            if (Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle) {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
                     gameObject: object,
@@ -101,7 +91,7 @@ var EnemyShip = (function (_super) {
         graphics.lineStyle(10, 0x0FAB23);
         graphics.fillStyle(0xBB0012, 0.4);
         graphics.beginPath();
-        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD);
+        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.halfFovAngle) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.halfFovAngle) * Phaser.Math.DEG_TO_RAD);
         graphics.strokePath();
         if (this.canSeeSomething) {
             graphics.fillPath();

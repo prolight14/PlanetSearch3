@@ -49,34 +49,48 @@ exports.default = InfoBar;
 
 /***/ }),
 
-/***/ "./gameObjects/Utils/State.js":
+/***/ "./gameObjects/Utils/Clock.js":
 /*!************************************!*\
-  !*** ./gameObjects/Utils/State.js ***!
+  !*** ./gameObjects/Utils/Clock.js ***!
   \************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var State = (function () {
-    function State() {
-        this.on = false;
+var Clock = (function () {
+    function Clock(duration, start) {
+        this.duration = 500;
+        this.running = false;
+        this.startTime = 0;
+        if (start) {
+            this.reset(duration);
+            return;
+        }
+        if (duration !== undefined) {
+            this.duration = duration;
+        }
     }
-    State.prototype.start = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
+    Clock.prototype.getMilliseconds = function () {
+        return performance.now();
     };
-    State.prototype.stop = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
+    Clock.prototype.reset = function (duration) {
+        if (duration === undefined) {
+            duration = this.duration;
         }
+        this.duration = duration;
+        this.running = true;
+        this.startTime = this.getMilliseconds();
     };
-    return State;
+    Clock.prototype.isFinished = function () {
+        if (this.running && this.getMilliseconds() - this.startTime > this.duration) {
+            this.running = false;
+        }
+        return !this.running;
+    };
+    return Clock;
 }());
-exports.default = State;
-//# sourceMappingURL=State.js.map
+exports.default = Clock;
+//# sourceMappingURL=Clock.js.map
 
 /***/ }),
 
@@ -111,14 +125,14 @@ var StateMachine = (function () {
     StateMachine.prototype.emit = function (name, args) {
         for (var i in this.states) {
             var state = this.states[i];
-            if (state.on) {
+            if (state.on && state[name] !== undefined) {
                 state[name].apply(state, args);
             }
         }
     };
     StateMachine.prototype.emitState = function (stateName, name, args) {
         var state = this.states[stateName];
-        if (state.on) {
+        if (state.on && state[name] !== undefined) {
             state[name].apply(state, args);
         }
     };
@@ -153,6 +167,50 @@ var StateMachine = (function () {
 }());
 exports.default = StateMachine;
 //# sourceMappingURL=StateMachine.js.map
+
+/***/ }),
+
+/***/ "./gameObjects/Utils/TurnManager.js":
+/*!******************************************!*\
+  !*** ./gameObjects/Utils/TurnManager.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var TurnManager = (function () {
+    function TurnManager(followObject) {
+        this.targetAngle = 0;
+        this.turning = false;
+        this.followObject = followObject;
+    }
+    TurnManager.prototype.startTurning = function (angle, callback) {
+        this.targetAngle = Phaser.Math.Wrap(angle, -180, 180);
+        this.callback = callback || function () { };
+        this.turning = true;
+    };
+    TurnManager.prototype.isTurning = function () {
+        return this.turning;
+    };
+    TurnManager.prototype.update = function () {
+        if (!this.turning) {
+            return;
+        }
+        var followObject = this.followObject;
+        var angleDiff = Phaser.Math.Wrap(this.targetAngle - followObject.angle, 0, 360);
+        if (Math.abs(angleDiff) <= followObject.angleVel || followObject.angle === this.targetAngle) {
+            followObject.angle = this.targetAngle;
+            this.turning = false;
+            followObject.turnDir = "";
+            this.callback();
+            return;
+        }
+        followObject.turnDir = (angleDiff > 180) ? "left" : "right";
+    };
+    return TurnManager;
+}());
+exports.default = TurnManager;
+//# sourceMappingURL=TurnManager.js.map
 
 /***/ }),
 
@@ -885,7 +943,7 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.fovLookDelay = 50;
+        _this.fovLookDelay = 1;
         _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
             _this.lookTimer.reset(_this.fovLookDelay);
@@ -906,29 +964,19 @@ var EnemyShip = (function (_super) {
     };
     EnemyShip.prototype.fovLook = function () {
         var objectsInCells = [];
-        var world = this.scene.world;
         objectsInCells = this.scene.world.getObjectsInBox(this.x - this.fovRadius, this.y - this.fovRadius, this.x + this.fovRadius, this.y + this.fovRadius);
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
-        var minAngle = this.angle - this.halfFovAngle;
-        var maxAngle = this.angle + this.halfFovAngle;
-        if (minAngle < 0) {
-            minAngle = minAngle + 360;
-        }
-        if (maxAngle < 0) {
-            maxAngle = maxAngle + 360;
-        }
         for (var i = 0; i < objectsInCells.length; i++) {
+            if (objectsInCells[i]._arrayName !== "playerShip") {
+                continue;
+            }
             var object = objectsInCells[i];
             if (Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared) {
                 continue;
             }
-            var angleBetween = Phaser.Math.Angle.BetweenPoints(object, this) * Phaser.Math.RAD_TO_DEG;
-            angleBetween = angleBetween - 90;
-            if (angleBetween < 0) {
-                angleBetween = angleBetween + 360;
-            }
-            if (angleBetween > minAngle && angleBetween < maxAngle) {
+            var angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
+            if (Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle) {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
                     gameObject: object,
@@ -941,7 +989,7 @@ var EnemyShip = (function (_super) {
         graphics.lineStyle(10, 0x0FAB23);
         graphics.fillStyle(0xBB0012, 0.4);
         graphics.beginPath();
-        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD);
+        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.halfFovAngle) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.halfFovAngle) * Phaser.Math.DEG_TO_RAD);
         graphics.strokePath();
         if (this.canSeeSomething) {
             graphics.fillPath();
@@ -1005,7 +1053,8 @@ var timer_1 = __webpack_require__(/*! ../Utils/timer */ "./gameObjects/Utils/tim
 var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObjects/Utils/StateMachine.js");
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
-var State_1 = __webpack_require__(/*! ../Utils/State */ "./gameObjects/Utils/State.js");
+var Clock_1 = __webpack_require__(/*! ../Utils/Clock */ "./gameObjects/Utils/Clock.js");
+var TurnManager_1 = __webpack_require__(/*! ../Utils/TurnManager */ "./gameObjects/Utils/TurnManager.js");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -1026,157 +1075,59 @@ var HyperBeamerSType = (function (_super) {
         });
         _this_1.anims.play("flying");
         var _this = _this_1;
-        _this_1.turnManager = {
-            turning: false,
-            targetAngle: _this.angle,
-            turnStep: 0,
-            callback: function () { },
-            start: function (targetAngle, turnStep, callback) {
-                if (callback === undefined) {
-                    callback = function () { };
-                }
-                this.targetAngle = Phaser.Math.Wrap(targetAngle, -180, 180);
-                this.turning = true;
-                this.callback = callback;
-                this.turnStep = turnStep;
-            },
-            update: function () {
-                if (!this.turning) {
-                    return;
-                }
-                var angleDiff = Phaser.Math.Wrap(this.targetAngle - _this.angle, 0, 360);
-                if (Math.abs(angleDiff) <= this.turnStep || _this.angle === this.targetAngle) {
-                    _this.angle = this.targetAngle;
-                    this.callback();
-                    this.turning = false;
-                    return;
-                }
-                if (angleDiff > 180) {
-                    _this.angle -= this.turnStep;
-                }
-                else {
-                    _this.angle += this.turnStep;
-                }
-            }
-        };
-        var WanderState = (function (_super) {
-            __extends(WanderState, _super);
-            function WanderState() {
-                var _this_1 = _super !== null && _super.apply(this, arguments) || this;
-                _this_1.turnSpeed = 3;
-                return _this_1;
-            }
-            WanderState.prototype.turnInterval = function () {
-                return Phaser.Math.RND.between(750, 2100);
-            };
-            WanderState.prototype.start = function () {
-                var _this_1 = this;
-                _this.isShooting = false;
-                this.turnToTarget = false;
-                this.targetTurnAngle = 0;
-                this.changeDirTimer = timer_1.default(true, this.turnInterval(), function () {
-                    if (_this_1.turnToTarget) {
-                        _this.turnManager.start(_this_1.targetTurnAngle, 6, function () {
-                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                        });
-                        _this_1.turnToTarget = false;
-                        _this_1.targetTurnAngle = 0;
-                    }
-                    else {
-                        _this.turnManager.start(_this.angle + Phaser.Math.RND.between(0, 360), _this_1.turnSpeed, function () {
-                            _this_1.changeDirTimer.reset(_this_1.turnInterval());
-                        });
-                    }
-                });
-            };
-            WanderState.prototype.update = function () {
-                this.changeDirTimer.update();
-                _this.isShooting = false;
-                for (var i = 0; i < _this.visibleObjects.length; i++) {
-                    var object = _this.visibleObjects[i];
-                    var _arrayName = object.gameObject._arrayName;
-                    if (_this.shouldTarget(_arrayName)) {
-                        this.startAttackState(_arrayName, object.gameObject);
-                        return;
-                    }
-                }
-            };
-            WanderState.prototype.startAttackState = function (_arrayName, object) {
-                _this.sm.stopAll();
-                _this.sm.start("attack", [object, "saw"]);
-            };
-            return WanderState;
-        }(State_1.default));
-        var AttackState = (function (_super) {
-            __extends(AttackState, _super);
-            function AttackState() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            AttackState.prototype.start = function (object, event) {
-                _this.isShooting = false;
-                this.studyObject(object, event);
-            };
-            AttackState.prototype.studyObject = function (object, event) {
-                this.react({
-                    type: object.getType(),
-                    _arrayName: object._arrayName,
-                    lastSeenX: object.x,
-                    lastSeenY: object.y,
-                    angle: object.angle,
-                    event: event,
-                });
-            };
-            AttackState.prototype.react = function (info) {
-                switch (info.type) {
-                    case "Projectile":
-                        _this.sm.stopAll();
-                        _this.sm.start("inspect", [info]);
-                        break;
-                }
-            };
-            AttackState.prototype.update = function () {
-            };
-            return AttackState;
-        }(State_1.default));
-        var InspectState = (function (_super) {
-            __extends(InspectState, _super);
-            function InspectState() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            InspectState.prototype.start = function (object) {
-                var lastSeenX = object.lastSeenX, lastSeenY = object.lastSeenY;
-                var targetAngle = Phaser.Math.Angle.Between(_this.x, _this.y, lastSeenX, lastSeenY) * Phaser.Math.RAD_TO_DEG;
-                var turnStep = 5;
-                _this.move = false;
-                _this.turnManager.start(targetAngle, turnStep, function () {
-                    _this.move = true;
-                });
-            };
-            InspectState.prototype.update = function () {
-                for (var i = 0; i < _this.visibleObjects.length; i++) {
-                    var object = _this.visibleObjects[i];
-                    var _arrayName = object.gameObject._arrayName;
-                }
-            };
-            return InspectState;
-        }(State_1.default));
-        _this_1.sm = new StateMachine_1.default({
-            "wander": new WanderState(),
-            "attack": new AttackState(),
-            "inspect": new InspectState()
-        });
-        _this_1.setAngle(Phaser.Math.RND.frac() * 360);
-        _this_1.sm.start("wander");
+        _this_1.turnManager = new TurnManager_1.default(_this_1);
+        _this_1.setAngle(Phaser.Math.Angle.RandomDegrees());
         _this_1.shootTimer = timer_1.default(true, 450, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
             _this_1.shootTimer.reset();
         });
-        _this_1.setFovStats(1000, 70);
-        _this_1.move = true;
+        _this_1.move = false;
+        var WanderState = (function () {
+            function WanderState() {
+            }
+            WanderState.prototype.start = function () {
+                this.subState = "wander";
+                this.changeDirTimer = new Clock_1.default(Phaser.Math.RND.between(750, 1500), true);
+            };
+            WanderState.prototype.update = function () {
+                var _this_1 = this;
+                switch (this.subState) {
+                    case "wander":
+                        if (!_this.turnManager.isTurning() && this.changeDirTimer.isFinished()) {
+                            _this.turnManager.startTurning(Phaser.Math.RND.between(0, 360), function () {
+                                _this_1.changeDirTimer.reset(Phaser.Math.RND.between(750, 1500));
+                            });
+                        }
+                        break;
+                    case "attack":
+                        break;
+                    case "inspect":
+                        break;
+                }
+            };
+            WanderState.prototype.stop = function () {
+            };
+            return WanderState;
+        }());
+        _this_1.sm = new StateMachine_1.default({
+            "wander": new WanderState()
+        });
+        _this_1.sm.start("wander");
+        _this_1.setFovStats(500, 70);
         return _this_1;
     }
+    HyperBeamerSType.prototype.preUpdate = function (time, delta) {
+        _super.prototype.preUpdate.call(this, time, delta);
+        this.turnManager.update();
+        this.shootTimer.update();
+    };
+    HyperBeamerSType.prototype.onCollide = function (object) {
+        if (object._arrayName === "HyperBeamerSTypeBullet") {
+            return;
+        }
+    };
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
@@ -1192,28 +1143,6 @@ var HyperBeamerSType = (function (_super) {
             return gameObject.takeDamage(this);
         }
         return false;
-    };
-    HyperBeamerSType.prototype.onCollide = function (object) {
-        if (object._arrayName === "HyperBeamerSTypeBullet") {
-            return;
-        }
-        if (object._arrayName === "playerShipBullet" && this.sm.getState("wander").on) {
-            this.sm.stopAll();
-            this.sm.start("attack", [object, "collided"]);
-        }
-    };
-    HyperBeamerSType.prototype.shouldTarget = function (_arrayName) {
-        switch (_arrayName) {
-            case "playerShip":
-                return true;
-        }
-        return false;
-    };
-    HyperBeamerSType.prototype.preUpdate = function (time, delta) {
-        _super.prototype.preUpdate.call(this, time, delta);
-        this.sm.emit("update", []);
-        this.turnManager.update();
-        this.shootTimer.update();
     };
     HyperBeamerSType.indexId = 0;
     return HyperBeamerSType;
@@ -3268,6 +3197,7 @@ var SpaceScene = (function (_super) {
                     _this.statsGraphics.fillStyle(0x54B70E);
                     _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
+                enemyShip.debugFov(_this.statsGraphics);
             }
         });
         this.sys.displayList.add(this.statsGraphics);

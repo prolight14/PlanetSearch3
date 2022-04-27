@@ -31,7 +31,7 @@ class StateMachine
         {
             var state = this.states[i];
 
-            if(state.on)
+            if(state.on && state[name] !== undefined)
             {
                 state[name].apply(state, args);
             }
@@ -42,7 +42,7 @@ class StateMachine
     {
         var state = this.states[stateName];
 
-        if(state.on)
+        if(state.on && state[name] !== undefined)
         {
             state[name].apply(state, args);
         }

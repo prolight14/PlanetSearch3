@@ -7,7 +7,7 @@ import SpaceGameObject from "./SpaceGameObject";
 
 export default class EnemyShip extends Ship
 {
-    protected turnDir: string;
+    public turnDir: string;
     public isEnemyShip(): boolean { return true; };
 
     constructor(scene: SpaceScene, x: number, y: number, texture: string)
@@ -37,7 +37,7 @@ export default class EnemyShip extends Ship
         };
 
         this.angleVel = 3;
-        this.fovLookDelay = 50;
+        this.fovLookDelay = 1;
 
         this.lookTimer = timer(true, this.fovLookDelay, () =>
         {
@@ -57,8 +57,7 @@ export default class EnemyShip extends Ship
     protected move: boolean = true;
     protected isShooting: boolean = false;
 
-
-    private lookTimer: { update: () => any; reset: (rtime: number) => any;  };
+    private lookTimer: { update: () => any; reset: (rtime: number) => any; };
     private fovRadius: number = 400;
     private fovRadiusSquared: number;
     private fovAngle: number = 60;
@@ -79,8 +78,9 @@ export default class EnemyShip extends Ship
 
     private fovLook()
     {
+        // debugger;
         var objectsInCells: Array<SpaceGameObject> = [];
-        const world = this.scene.world;
+        // const world = this.scene.world;
 
         objectsInCells = this.scene.world.getObjectsInBox(
             this.x - this.fovRadius,
@@ -120,19 +120,23 @@ export default class EnemyShip extends Ship
 
         // var minAngle = this.angle + 90 - this.fovAngle / 2;
         // var maxAngle = this.angle + 90 + this.fovAngle / 2;
-        var minAngle = this.angle - this.halfFovAngle;
-        var maxAngle = this.angle + this.halfFovAngle;
+        // const wrappedAngle = Phaser.Math.Wrap(this.angle, 0, 360);
+        // var minAngle = Phaser.Math.Wrap(wrappedAngle - this.halfFovAngle, 0, 360);
+        // var maxAngle = Phaser.Math.Wrap(wrappedAngle + this.halfFovAngle, 0, 360);
 
-        // minAngle = minAngle - 90;
-        if(minAngle < 0)
-        {
-            minAngle = minAngle + 360;
-        }
-        // maxAngle = maxAngle - 90;
-        if(maxAngle < 0)
-        {
-            maxAngle = maxAngle + 360;
-        }
+        // var minAngle = this.angle - this.halfFovAngle;
+        // var maxAngle = this.angle + this.halfFovAngle;
+
+        // // minAngle = minAngle - 90;
+        // if(minAngle < 0)
+        // {
+        //     minAngle = minAngle + 360;
+        // }
+        // // maxAngle = maxAngle - 90;
+        // if(maxAngle < 0)
+        // {
+        //     maxAngle = maxAngle + 360;
+        // }
 
         // original
         // var minAngle = this.angle - this.fovAngle / 2;
@@ -140,6 +144,11 @@ export default class EnemyShip extends Ship
 
         for(var i = 0; i < objectsInCells.length; i++)
         {
+            if(objectsInCells[i]._arrayName !== "playerShip")
+            {   
+                continue;
+            }
+
             // if(objectsInCells[i]._arrayName === "playerShip")
             // {   
             var object = objectsInCells[i];
@@ -149,14 +158,19 @@ export default class EnemyShip extends Ship
                 continue;
             }
 
-            var angleBetween = Phaser.Math.Angle.BetweenPoints(object, this) * Phaser.Math.RAD_TO_DEG;
-            angleBetween = angleBetween - 90;
-            if(angleBetween < 0)
-            {
-                angleBetween = angleBetween + 360;
-            }
+            const angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
 
-            if(angleBetween > minAngle && angleBetween < maxAngle)
+            // console.log(angleBetween,);            
+
+            // angleBetween = angleBetween - 90;
+            // if(angleBetween < 0)
+            // {
+            //     angleBetween = angleBetween + 360;
+            // }
+
+            // if(angleBetween > minAngle && angleBetween < maxAngle)
+            if(Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle)
+            // if(Math.abs(angleBetween - wrappedAngle) < this.fovAngle)
             {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
@@ -169,7 +183,7 @@ export default class EnemyShip extends Ship
         }
     }
 
-    protected visibleObjects: Array<object> = [];
+    protected visibleObjects: Array<{ gameObject: SpaceGameObject, angleBetween: number }> = [];
     protected canSeeSomething: boolean = false;
 
     public debugFov(graphics: Phaser.GameObjects.Graphics)
@@ -179,7 +193,13 @@ export default class EnemyShip extends Ship
 
         graphics.fillStyle(0xBB0012, 0.4);
         graphics.beginPath();
-        graphics.arc(this.x, this.y, this.fovRadius, (this.angle - 90 - this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD, (this.angle - 90 + this.fovAngle / 2) * Phaser.Math.DEG_TO_RAD);
+        graphics.arc(
+            this.x, 
+            this.y, 
+            this.fovRadius,
+            (this.angle - 90 - this.halfFovAngle) * Phaser.Math.DEG_TO_RAD, 
+            (this.angle - 90 + this.halfFovAngle) * Phaser.Math.DEG_TO_RAD
+        );
         // graphics.closePath();
         graphics.strokePath();
 
