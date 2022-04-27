@@ -21,8 +21,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
         this.setCollisionGroup(1);
         this.setCollidesWith(0);
 
-        this.isShooting = true;
-
         this.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
 
         if(!this.bullets)
@@ -40,8 +38,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
         });
 
         this.anims.play("flying");
-
-        var _this = this;
 
         // this.turnManager = {
         //     turning: false,
@@ -89,9 +85,9 @@ export default class HyperBeamerSType extends HyperBeamerShip
         //     }
         // };
 
-        this.turnManager = new TurnManager(this);
+        const _this = this;
 
-        this.setAngle(Phaser.Math.Angle.RandomDegrees());
+        this.turnManager = new TurnManager(this);
 
         this.shootTimer = timer(true, 450, () =>
         {
@@ -101,20 +97,32 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
             this.shootTimer.reset();
         });
-
       
-        this.move = false;
-
+       
         class WanderState
         {
             private subState: string;
-            private changeDirTimer: Clock;
+            private wanderDirTimer: { update: () => void, reset: (time: number) => void };
             
+            private randomInt(min: number, max: number): number
+            {
+                return Phaser.Math.RND.between(min, max);
+            }
+
+            private getNextTurnTime(): number
+            {
+                return this.randomInt(750, 1500);
+            }
+
             public start()
             {
                 this.subState = "wander";
+                _this.isShooting = false;
 
-                this.changeDirTimer = new Clock(Phaser.Math.RND.between(750, 1500), true);
+                this.wanderDirTimer = timer(true, this.getNextTurnTime(), () =>
+                {
+                    _this.turnManager.startTurning(Phaser.Math.RND.angle(), () => this.wanderDirTimer.reset(this.getNextTurnTime()));
+                });
             }
 
             public update()
@@ -123,15 +131,9 @@ export default class HyperBeamerSType extends HyperBeamerShip
                 {
                     // Fly around randomly observing things
                     case "wander":
-                        if(!_this.turnManager.isTurning() && this.changeDirTimer.isFinished())
-                        {
-                            _this.turnManager.startTurning(Phaser.Math.RND.between(0, 360), () =>
-                            {
-                                this.changeDirTimer.reset(Phaser.Math.RND.between(750, 1500));
-                            });                            
-                        }
+                        this.wanderDirTimer.update();
                         break;
-
+                        
                     // Follow another ship as long as it's in view
                     case "attack":
 
@@ -140,9 +142,10 @@ export default class HyperBeamerSType extends HyperBeamerShip
                     // If something hit this ship (like a bullet),
                     // inspect where it came from
                     case "inspect":
-
+                        
                         break;
                 }
+
             }
 
             public stop()
@@ -156,10 +159,11 @@ export default class HyperBeamerSType extends HyperBeamerShip
         });
 
         this.sm.start("wander");
-
+        
+        this.setAngle(Phaser.Math.RND.angle());
         this.setFovStats(500, 70);
-
-
+        this.isMoving = true;
+        this.isShooting = false;
     }
 
     private turnManager: TurnManager;
@@ -169,7 +173,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
     {
         super.preUpdate(time, delta);
 
-        // this.sm.emit("update", []);
+        this.sm.emit("update", []);
 
         this.turnManager.update();
         this.shootTimer.update();

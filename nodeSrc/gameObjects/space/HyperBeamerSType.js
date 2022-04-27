@@ -18,7 +18,6 @@ var timer_1 = require("../Utils/timer");
 var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
-var Clock_1 = require("../Utils/Clock");
 var TurnManager_1 = require("../Utils/TurnManager");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
@@ -26,7 +25,6 @@ var HyperBeamerSType = (function (_super) {
         var _this_1 = _super.call(this, scene, x, y, "greenShip") || this;
         _this_1.setCollisionGroup(1);
         _this_1.setCollidesWith(0);
-        _this_1.isShooting = true;
         _this_1.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
@@ -41,30 +39,33 @@ var HyperBeamerSType = (function (_super) {
         _this_1.anims.play("flying");
         var _this = _this_1;
         _this_1.turnManager = new TurnManager_1.default(_this_1);
-        _this_1.setAngle(Phaser.Math.Angle.RandomDegrees());
         _this_1.shootTimer = timer_1.default(true, 450, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
             _this_1.shootTimer.reset();
         });
-        _this_1.move = false;
         var WanderState = (function () {
             function WanderState() {
             }
+            WanderState.prototype.randomInt = function (min, max) {
+                return Phaser.Math.RND.between(min, max);
+            };
+            WanderState.prototype.getNextTurnTime = function () {
+                return this.randomInt(750, 1500);
+            };
             WanderState.prototype.start = function () {
+                var _this_1 = this;
                 this.subState = "wander";
-                this.changeDirTimer = new Clock_1.default(Phaser.Math.RND.between(750, 1500), true);
+                _this.isShooting = false;
+                this.wanderDirTimer = timer_1.default(true, this.getNextTurnTime(), function () {
+                    _this.turnManager.startTurning(Phaser.Math.RND.angle(), function () { return _this_1.wanderDirTimer.reset(_this_1.getNextTurnTime()); });
+                });
             };
             WanderState.prototype.update = function () {
-                var _this_1 = this;
                 switch (this.subState) {
                     case "wander":
-                        if (!_this.turnManager.isTurning() && this.changeDirTimer.isFinished()) {
-                            _this.turnManager.startTurning(Phaser.Math.RND.between(0, 360), function () {
-                                _this_1.changeDirTimer.reset(Phaser.Math.RND.between(750, 1500));
-                            });
-                        }
+                        this.wanderDirTimer.update();
                         break;
                     case "attack":
                         break;
@@ -80,11 +81,15 @@ var HyperBeamerSType = (function (_super) {
             "wander": new WanderState()
         });
         _this_1.sm.start("wander");
+        _this_1.setAngle(Phaser.Math.RND.angle());
         _this_1.setFovStats(500, 70);
+        _this_1.isMoving = true;
+        _this_1.isShooting = false;
         return _this_1;
     }
     HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
+        this.sm.emit("update", []);
         this.turnManager.update();
         this.shootTimer.update();
     };

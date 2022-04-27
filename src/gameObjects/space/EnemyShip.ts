@@ -27,7 +27,7 @@ export default class EnemyShip extends Ship
             },
             goForward: () =>
             {
-                return this.move;
+                return this.isMoving;
             },
             slowDown: () => false,
             shoot: () => 
@@ -54,7 +54,7 @@ export default class EnemyShip extends Ship
     public scene: SpaceScene;
     public showHpBar: boolean = true;
 
-    protected move: boolean = true;
+    protected isMoving: boolean = true;
     protected isShooting: boolean = false;
 
     private lookTimer: { update: () => any; reset: (rtime: number) => any; };

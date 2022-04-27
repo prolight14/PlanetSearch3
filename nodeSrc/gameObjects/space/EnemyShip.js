@@ -20,7 +20,7 @@ var EnemyShip = (function (_super) {
     function EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.showHpBar = true;
-        _this.move = true;
+        _this.isMoving = true;
         _this.isShooting = false;
         _this.fovRadius = 400;
         _this.fovAngle = 60;
@@ -37,7 +37,7 @@ var EnemyShip = (function (_super) {
                 return _this.turnDir === "right";
             },
             goForward: function () {
-                return _this.move;
+                return _this.isMoving;
             },
             slowDown: function () { return false; },
             shoot: function () {
