@@ -153,6 +153,7 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceUI");
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceMap");
         this.scene.sleep("spaceLogic");
         this.sleepDebugScenes();
     };
@@ -162,6 +163,7 @@ var SpaceScene = (function (_super) {
         this.scene.stop("spaceUI");
         this.scene.stop("starSceneController");
         this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceMap");
         this.scene.stop("spaceLogic");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
@@ -201,7 +203,6 @@ var SpaceScene = (function (_super) {
                     _this.statsGraphics.fillStyle(0x54B70E);
                     _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
-                enemyShip.debugFov(_this.statsGraphics);
             }
         });
         this.sys.displayList.add(this.statsGraphics);

@@ -15,6 +15,7 @@ var PlanetBackScene_1 = require("./scenes/planet/PlanetBackScene");
 var PlanetLoaderScene_1 = require("./scenes/planet/PlanetLoaderScene");
 var SpaceUIScene_1 = require("./scenes/space/SpaceUIScene");
 var SpaceEffectsScene_1 = require("./scenes/space/SpaceEffectsScene");
+var SpaceMapScene_1 = require("./scenes/space/SpaceMapScene");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -32,7 +33,7 @@ var config = {
     scene: [
         EntryScene_1.default,
         SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
-        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
     seed: "testing"

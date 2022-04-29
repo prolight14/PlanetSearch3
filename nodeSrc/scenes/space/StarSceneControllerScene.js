@@ -25,23 +25,25 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.create = function () {
         var cam = this.cameras.main;
-        this.tileSprites = [];
+        this.starLayers = new Array();
         this.scrollValues = [0.65, 0.9, 1];
         var layerAmt = this.scrollValues.length;
         for (var i = 1; i <= layerAmt; i++) {
             var tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
-            this.tileSprites.push(tileSprite);
+            tileSprite.setOrigin(0.5);
+            this.starLayers.push(tileSprite);
         }
         this.scene.sendToBack("starSceneController");
+        this.scene.run("spaceMap");
+        this.scene.bringToTop("spaceMap");
     };
     StarSceneControllerScene.prototype.update = function (time, delta) {
         var cam = this.scene.get("space").cameras.main;
         var scrollX = cam.scrollX, scrollY = cam.scrollY, zoom = cam.zoom;
         var rf = (1 - 1 / zoom);
-        for (var i = 0; i < this.tileSprites.length; i++) {
-            var tileSprite = this.tileSprites[i];
+        for (var i = 0; i < this.starLayers.length; i++) {
+            var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
-            tileSprite.setOrigin(0.5);
             tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
         }
     };

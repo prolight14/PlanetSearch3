@@ -33,7 +33,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
-        this.updateZoom(0.9);
+        this.updateZoom(0.5);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;

@@ -22,8 +22,8 @@ var TurnManager = (function () {
         var angleDiff = Phaser.Math.Wrap(this.targetAngle - followObject.angle, 0, 360);
         if (Math.abs(angleDiff) <= followObject.angleVel || followObject.angle === this.targetAngle) {
             followObject.angle = this.targetAngle;
-            this.turning = false;
             followObject.turnDir = "";
+            this.turning = false;
             this.callback();
             return;
         }

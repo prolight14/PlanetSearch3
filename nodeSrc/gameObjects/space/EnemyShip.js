@@ -24,6 +24,7 @@ var EnemyShip = (function (_super) {
         _this.isShooting = false;
         _this.fovRadius = 400;
         _this.fovAngle = 60;
+        _this.ignoreObjNames = [];
         _this.visibleObjects = [];
         _this.canSeeSomething = false;
         _this.xpDropAmt = 3;
@@ -45,7 +46,7 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.fovLookDelay = 1;
+        _this.fovLookDelay = 50;
         _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
             _this.lookTimer.reset(_this.fovLookDelay);
@@ -70,19 +71,24 @@ var EnemyShip = (function (_super) {
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
         for (var i = 0; i < objectsInCells.length; i++) {
-            if (objectsInCells[i]._arrayName !== "playerShip") {
+            var object = objectsInCells[i];
+            if (this.ignoreObjNames.indexOf(object._arrayName) !== -1) {
                 continue;
             }
-            var object = objectsInCells[i];
-            if (Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared) {
+            var distanceSquared = Phaser.Math.Distance.BetweenPointsSquared(object, this);
+            if (distanceSquared > this.fovRadiusSquared) {
                 continue;
             }
             var angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
-            if (Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle) {
+            var angleDiff = Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween);
+            if (Math.abs(angleDiff) < this.halfFovAngle) {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
                     gameObject: object,
-                    angleBetween: angleBetween
+                    _arrayName: object._arrayName,
+                    angleDiff: angleDiff,
+                    angleBetween: angleBetween,
+                    distanceSquared: distanceSquared
                 });
             }
         }

@@ -52,14 +52,6 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.updateSpace = function () {
         var world = this.world;
         world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
-        if (this.sleepingEnabled) {
-            this.sleeping = (this.lastScrollX === world.camera.scrollX && this.lastScrollY === world.camera.scrollY);
-            this.lastScrollX = world.camera.scrollX;
-            this.lastScrollY = world.camera.scrollY;
-            if (this.sleeping) {
-                return;
-            }
-        }
         world.resetProcessList();
         world.updateProcessList();
         this.integrate(this.systems);

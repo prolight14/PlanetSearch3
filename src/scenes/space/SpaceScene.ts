@@ -161,7 +161,11 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("starSceneController");
         
         this.scene.run("spaceUI");
-        // this.scene.bringToTop("spaceUI");
+
+        // this.scene.run("spaceMap");
+        // // this.scene.bringToTop("spaceUI");
+
+        // this.scene.bringToTop("spaceMap");
 
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 
@@ -218,6 +222,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("spaceUI");
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceMap");
         this.scene.sleep("spaceLogic");
         this.sleepDebugScenes();
     }
@@ -229,6 +234,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.stop("spaceUI");
         this.scene.stop("starSceneController");
         this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceMap");
         this.scene.stop("spaceLogic");
     }
 
@@ -295,7 +301,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
                     this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
 
-                enemyShip.debugFov(this.statsGraphics);
+                // enemyShip.debugFov(this.statsGraphics);
             }
         });
 

@@ -37,7 +37,7 @@ export default class EnemyShip extends Ship
         };
 
         this.angleVel = 3;
-        this.fovLookDelay = 1;
+        this.fovLookDelay = 50;
 
         this.lookTimer = timer(true, this.fovLookDelay, () =>
         {
@@ -63,6 +63,8 @@ export default class EnemyShip extends Ship
     private fovAngle: number = 60;
     private halfFovAngle: number;
 
+    protected ignoreObjNames: Array<string> = [];
+
     protected setFovStats(fovRadius: number, fovAngle: number)
     {
         this.fovRadius = fovRadius;
@@ -78,9 +80,7 @@ export default class EnemyShip extends Ship
 
     private fovLook()
     {
-        // debugger;
         var objectsInCells: Array<SpaceGameObject> = [];
-        // const world = this.scene.world;
 
         objectsInCells = this.scene.world.getObjectsInBox(
             this.x - this.fovRadius,
@@ -89,101 +89,52 @@ export default class EnemyShip extends Ship
             this.y + this.fovRadius
         ) as Array<SpaceGameObject>;
 
-        // const minCoor = this.scene.world.cameraGrid.getCoordinates(
-        //     Math.floor(this.x - this.fovRadius),
-        //     Math.floor(this.y - this.fovRadius)
-        // ); 
-        // const maxCoor = this.scene.world.cameraGrid.getCoordinates(
-        //     Math.floor(this.x + this.fovRadius),
-        //     Math.floor(this.y + this.fovRadius)
-        // );
-
-        // world.cameraGrid.loopThroughCells(
-        //     minCoor.col, minCoor.row,
-        //     maxCoor.col, maxCoor.row,
-        //     function(cell: Array<any>, col: number, row: number)
-        //     {
-        //         for(var i in cell)
-        //         {
-        //             var object = world.get.gameObject(cell[i].arrayName, cell[i].id);
-        //             if(object !== undefined)
-        //             {
-        //                 objectsInCells.push(object);
-        //             }
-        //         }
-        //     }
-        // );
-
         this.visibleObjects.length = 0;
-
         this.canSeeSomething = false;
 
-        // var minAngle = this.angle + 90 - this.fovAngle / 2;
-        // var maxAngle = this.angle + 90 + this.fovAngle / 2;
-        // const wrappedAngle = Phaser.Math.Wrap(this.angle, 0, 360);
-        // var minAngle = Phaser.Math.Wrap(wrappedAngle - this.halfFovAngle, 0, 360);
-        // var maxAngle = Phaser.Math.Wrap(wrappedAngle + this.halfFovAngle, 0, 360);
-
-        // var minAngle = this.angle - this.halfFovAngle;
-        // var maxAngle = this.angle + this.halfFovAngle;
-
-        // // minAngle = minAngle - 90;
-        // if(minAngle < 0)
-        // {
-        //     minAngle = minAngle + 360;
-        // }
-        // // maxAngle = maxAngle - 90;
-        // if(maxAngle < 0)
-        // {
-        //     maxAngle = maxAngle + 360;
-        // }
-
-        // original
-        // var minAngle = this.angle - this.fovAngle / 2;
-        // var maxAngle = this.angle + this.fovAngle / 2;
-
         for(var i = 0; i < objectsInCells.length; i++)
-        {
-            if(objectsInCells[i]._arrayName !== "playerShip")
-            {   
+        { 
+            var object = objectsInCells[i];
+
+            if(this.ignoreObjNames.indexOf(object._arrayName) !== -1)
+            {
                 continue;
             }
-
-            // if(objectsInCells[i]._arrayName === "playerShip")
-            // {   
-            var object = objectsInCells[i];
             
-            if(Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared)
+            const distanceSquared = Phaser.Math.Distance.BetweenPointsSquared(object, this);
+            if(distanceSquared > this.fovRadiusSquared)
             {
                 continue;
             }
 
             const angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
+            const angleDiff = Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween);
 
-            // console.log(angleBetween,);            
-
-            // angleBetween = angleBetween - 90;
-            // if(angleBetween < 0)
-            // {
-            //     angleBetween = angleBetween + 360;
-            // }
-
-            // if(angleBetween > minAngle && angleBetween < maxAngle)
-            if(Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle)
-            // if(Math.abs(angleBetween - wrappedAngle) < this.fovAngle)
+            if(Math.abs(angleDiff) < this.halfFovAngle)
             {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
                     gameObject: object,
-                    angleBetween: angleBetween
+                    _arrayName: object._arrayName,
+
+                    angleDiff: angleDiff,
+                    angleBetween: angleBetween,
+
+                    distanceSquared: distanceSquared
                 });
             }
-
-            // }
         }
     }
+    protected visibleObjects: Array<{ 
+        gameObject: SpaceGameObject; 
+        _arrayName: string; 
 
-    protected visibleObjects: Array<{ gameObject: SpaceGameObject, angleBetween: number }> = [];
+        angleBetween: number;
+        angleDiff: number;
+
+        distanceSquared: number;
+    }> = [];
+
     protected canSeeSomething: boolean = false;
 
     public debugFov(graphics: Phaser.GameObjects.Graphics)

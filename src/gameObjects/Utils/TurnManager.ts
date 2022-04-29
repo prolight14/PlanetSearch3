@@ -13,7 +13,17 @@ export default class TurnManager
     public startTurning(angle: number, callback?: () => void)
     {
         this.targetAngle = Phaser.Math.Wrap(angle, -180, 180);
+
         this.callback = callback || function() {};
+
+        // if(this.targetAngle === this.followObject.angle)
+        // {
+        //     this.followObject.turnDir = "";
+        //     this.turning = false;
+        //     this.callback();
+        //     return;
+        // }
+
         this.turning = true;
     }
 
@@ -36,8 +46,8 @@ export default class TurnManager
         if(Math.abs(angleDiff) <= followObject.angleVel || followObject.angle === this.targetAngle)
         {
             followObject.angle = this.targetAngle;
-            this.turning = false;
             followObject.turnDir = "";
+            this.turning = false;
             this.callback();
             return;
         }

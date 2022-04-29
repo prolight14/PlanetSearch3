@@ -6,9 +6,9 @@ import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import SpaceGameObject from "./SpaceGameObject";
 import PlayerShip from "./PlayerShip";
+import TurnManager from "../Utils/TurnManager";
 import State from "../Utils/State";
 import Clock from "../Utils/Clock";
-import TurnManager from "../Utils/TurnManager";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -28,6 +28,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
             this.bullets = scene.world.add.gameObjectArray(Bullet, "hyperBeamerSTypeGreenBullet");
         }
 
+        this.ignoreObjNames = ["hyperBeamerSTypeGreenBullet", "purpleNebula", "grayNebula"];
+
         this.setDepth(1).setScale(2);
 
         scene.anims.create({
@@ -38,52 +40,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
         });
 
         this.anims.play("flying");
-
-        // this.turnManager = {
-        //     turning: false,
-        //     targetAngle: _this.angle,
-        //     turnStep: 0,
-        //     callback: () => {},
-        //     start: function(targetAngle: number, turnStep: number, callback?: () => void)
-        //     {
-        //         if(callback === undefined)
-        //         {
-        //             callback = () => {};
-        //         }
-                
-        //         this.targetAngle = Phaser.Math.Wrap(targetAngle, -180, 180);
-                
-        //         this.turning = true;
-        //         this.callback = callback;
-        //         this.turnStep = turnStep;
-        //     },
-        //     update: function()
-        //     {
-        //         if(!this.turning)
-        //         {
-        //             return;
-        //         }
-        //         var angleDiff = Phaser.Math.Wrap(this.targetAngle - _this.angle, 0, 360);
-
-        //         if(Math.abs(angleDiff) <= this.turnStep || _this.angle === this.targetAngle)
-        //         {
-        //             _this.angle = this.targetAngle;
-
-        //             this.callback();
-        //             this.turning = false;
-        //             return;
-        //         }
-
-        //         if(angleDiff > 180)
-        //         {
-        //             _this.angle -= this.turnStep;
-        //         }
-        //         else
-        //         {
-        //             _this.angle += this.turnStep;
-        //         }
-        //     }
-        // };
 
         const _this = this;
 
@@ -97,13 +53,42 @@ export default class HyperBeamerSType extends HyperBeamerShip
             }
             this.shootTimer.reset();
         });
-      
-       
-        class WanderState
+
+        const defaultMaxSpeed: number = this.maxSpeed; 
+
+        const avoidLimits = {
+            changeDir: 450,
+            slowdown: 120,
+            turnAround: 30,
+
+            changeDirSquared: 0,
+            slowdownSquared: 0,
+            turnAroundSquared: 0,
+
+            avoidAngleAmt: 50,
+        };  
+
+        avoidLimits.changeDirSquared = avoidLimits.changeDir * avoidLimits.changeDir;
+        avoidLimits.slowdownSquared = avoidLimits.slowdown * avoidLimits.slowdown;
+        avoidLimits.turnAroundSquared = avoidLimits.turnAround * avoidLimits.turnAround;
+
+        type vObj = { 
+            _arrayName: string 
+
+            angleDiff: number, 
+            angleBetween: number, 
+
+            distanceSquared: number,
+        };
+
+        class WanderState extends State
         {
             private subState: string;
-            private wanderDirTimer: { update: () => void, reset: (time: number) => void };
-            
+            private lastSubState: string;
+            private wanderTurnTimer: { update: () => void, reset: (time: number) => void };
+            private turningTowardsTarget: boolean = false;
+            private lookTimer: { update: () => void, reset: (time: number) => void };
+
             private randomInt(min: number, max: number): number
             {
                 return Phaser.Math.RND.between(min, max);
@@ -111,7 +96,12 @@ export default class HyperBeamerSType extends HyperBeamerShip
 
             private getNextTurnTime(): number
             {
-                return this.randomInt(750, 1500);
+                return this.randomInt(1000, 3000);
+            }
+
+            private getNextTurnAngle(): number
+            {
+                return Phaser.Math.RND.angle();
             }
 
             public start()
@@ -119,33 +109,165 @@ export default class HyperBeamerSType extends HyperBeamerShip
                 this.subState = "wander";
                 _this.isShooting = false;
 
-                this.wanderDirTimer = timer(true, this.getNextTurnTime(), () =>
+                this.wanderTurnTimer = timer(true, this.getNextTurnTime(), () =>
                 {
-                    _this.turnManager.startTurning(Phaser.Math.RND.angle(), () => this.wanderDirTimer.reset(this.getNextTurnTime()));
+                    _this.turnManager.startTurning(this.getNextTurnAngle(), () => this.wanderTurnTimer.reset(this.getNextTurnTime()));
                 });
+
+                this.lookTimer = timer(true, 300, () => 
+                {
+                    this.look();
+                    this.lookTimer.reset(300);
+                })
             }
 
             public update()
+            {
+                this.runSubStates();
+            }
+ 
+            private setSubState(state: string)
+            {
+                if(this.subState !== state)
+                {
+                    this.lastSubState = this.subState;
+                    this.subState = state;
+                }
+            }
+
+            private look()
+            {
+                for(var i = 0; i < _this.visibleObjects.length; i++)
+                {
+                    const { _arrayName, distanceSquared, angleDiff, angleBetween }: vObj = _this.visibleObjects[i];
+
+                    switch(true)
+                    {
+                        case _arrayName === _this._arrayName: 
+                        case _this.getType() === "projectile":
+                            // this.setSubState("redirect");
+                            this.subState = "redirect";
+
+                            if(distanceSquared > avoidLimits.changeDirSquared)
+                            {
+                                break;
+                            }
+
+                            var redirectAngle = _this.angle + avoidLimits.avoidAngleAmt * (angleDiff < 0 ? 1 : -1);
+
+                            if(distanceSquared < avoidLimits.slowdownSquared)
+                            {
+                                _this.maxSpeed = 2.5;
+
+                                // if(distanceSquared < avoidLimits.turnAroundSquared)
+                                // {
+                                //     redirectAngle = _this.angle + (angleDiff < 0 ? 1 : -1) * 90;
+                                //     _this.maxSpeed = 0.5;
+                                // }
+                            }
+
+                            _this.turnManager.startTurning(redirectAngle, () =>
+                            {
+                                this.subState = "wander";
+                                _this.maxSpeed = defaultMaxSpeed;
+
+                                // if(this.subState === "wander")
+                                // {
+                                    this.wanderTurnTimer.reset(this.getNextTurnTime());
+                                // }
+                            });
+                            return;
+                    }
+                }
+            }
+
+            private offense()
+            {
+                var canSeeEnemy: boolean = false;
+
+                for(var i = 0; i < _this.visibleObjects.length; i++)
+                {
+                    const { _arrayName, distanceSquared, angleDiff, angleBetween }: vObj = _this.visibleObjects[i];
+
+                    switch(true)
+                    {
+                        case _arrayName === "playerShip": 
+
+                        // if(distanceSquared < 30 * 30)
+                        // {
+                        //     this.subState = "loopAround";
+
+                        //     return;
+                        // }
+
+                        if(this.subState === "wander")
+                        {
+                            // this.setSubState("attack");
+                            this.subState = "attack";
+                            _this.isShooting = true;
+                            canSeeEnemy = true;
+
+                            if(!this.turningTowardsTarget)
+                            {
+                                var redirectAngle = _this.angle + angleDiff * 0.2;
+                                this.turningTowardsTarget = true;
+
+                                _this.turnManager.startTurning(redirectAngle, () =>
+                                {
+                                    this.turningTowardsTarget = false;
+                                    _this.isShooting = false;
+                                });
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                if(!canSeeEnemy)
+                {
+                    this.subState = "wander";
+                    _this.isShooting = false;
+                    this.turningTowardsTarget = false;
+                }
+            }
+
+            private runSubStates()
             {
                 switch(this.subState)
                 {
                     // Fly around randomly observing things
                     case "wander":
-                        this.wanderDirTimer.update();
+                        this.wanderTurnTimer.update();
+                        // this.look();
+                        this.lookTimer.update();
+                     
                         break;
                         
-                    // Follow another ship as long as it's in view
-                    case "attack":
+                    case "redirect":
 
+                        break;
+                    
+                    // Follow another ship and attack it as long as it's in view
+                    case "attack":
+                        // this.look();
+                        this.lookTimer.update();
+                        // this.offense();
+                        break;
+
+                    case "loopAround":
+                        // this.look();
+                        this.lookTimer.update();
+                        // this.offense();
                         break;
 
                     // If something hit this ship (like a bullet),
-                    // inspect where it came from
-                    case "inspect":
+                    // Instead take evasive action
+                    case "evade":
                         
                         break;
                 }
 
+                this.offense();
             }
 
             public stop()
@@ -186,7 +308,6 @@ export default class HyperBeamerSType extends HyperBeamerShip
             return;
         }
     }
-    
 
     private shootTimer: {
         update: () => void,

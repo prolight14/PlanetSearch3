@@ -12,6 +12,8 @@ export default class Bullet extends SpaceGameObject
         this.speed = 12;
 
         this.rangeSquared = this.range * this.range;
+        var diff = this.range - 100;
+        this.startFadeSquared = diff * diff;
 
         this.setDepth(0);
 
@@ -54,16 +56,20 @@ export default class Bullet extends SpaceGameObject
     private shootAngle: number;
     public speed: number;
 
+    private fading: boolean = false;
+
     private killTimer: {
         update: () => void;
     };
 
     private range: number = 500;
     private rangeSquared: number = 0;
+    private startFadeSquared: number = 0;
 
     protected preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
+
         this.killTimer.update();
         
         this.x += trig.cos(this.shootAngle) * this.speed;
@@ -73,8 +79,20 @@ export default class Bullet extends SpaceGameObject
         {
             // Will not work for bullets that change direction
             const dx = this.x - this.compareX;    
-            const dy = this.y - this.compareY;    
-            if(dx * dx + dy * dy > this.rangeSquared)
+            const dy = this.y - this.compareY;   
+            const diffSquared = dx * dx + dy * dy;
+            
+            if(diffSquared > this.startFadeSquared)
+            {
+                this.fading = true;
+            }
+
+            if(this.fading)
+            {
+                this.alpha *= 0.7;
+            }
+
+            if(this.alpha < 0.001 && diffSquared > this.rangeSquared)
             {
                 this.destroy();
                 this.kill();

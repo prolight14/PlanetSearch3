@@ -49,6 +49,37 @@ exports.default = InfoBar;
 
 /***/ }),
 
+/***/ "./gameObjects/Utils/State.js":
+/*!************************************!*\
+  !*** ./gameObjects/Utils/State.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var State = (function () {
+    function State() {
+        this.on = false;
+    }
+    State.prototype.start = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+    };
+    State.prototype.stop = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+    };
+    return State;
+}());
+exports.default = State;
+//# sourceMappingURL=State.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/Utils/StateMachine.js":
 /*!*******************************************!*\
   !*** ./gameObjects/Utils/StateMachine.js ***!
@@ -155,8 +186,8 @@ var TurnManager = (function () {
         var angleDiff = Phaser.Math.Wrap(this.targetAngle - followObject.angle, 0, 360);
         if (Math.abs(angleDiff) <= followObject.angleVel || followObject.angle === this.targetAngle) {
             followObject.angle = this.targetAngle;
-            this.turning = false;
             followObject.turnDir = "";
+            this.turning = false;
             this.callback();
             return;
         }
@@ -722,11 +753,15 @@ var Bullet = (function (_super) {
         };
         _this.compareX = 0;
         _this.compareY = 0;
+        _this.fading = false;
         _this.range = 500;
         _this.rangeSquared = 0;
+        _this.startFadeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
         _this.rangeSquared = _this.range * _this.range;
+        var diff = _this.range - 100;
+        _this.startFadeSquared = diff * diff;
         _this.setDepth(0);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
@@ -754,7 +789,14 @@ var Bullet = (function (_super) {
         if (this.compareX !== 0 && this.compareY !== 0) {
             var dx = this.x - this.compareX;
             var dy = this.y - this.compareY;
-            if (dx * dx + dy * dy > this.rangeSquared) {
+            var diffSquared = dx * dx + dy * dy;
+            if (diffSquared > this.startFadeSquared) {
+                this.fading = true;
+            }
+            if (this.fading) {
+                this.alpha *= 0.7;
+            }
+            if (this.alpha < 0.001 && diffSquared > this.rangeSquared) {
                 this.destroy();
                 this.kill();
             }
@@ -877,6 +919,7 @@ var EnemyShip = (function (_super) {
         _this.isShooting = false;
         _this.fovRadius = 400;
         _this.fovAngle = 60;
+        _this.ignoreObjNames = [];
         _this.visibleObjects = [];
         _this.canSeeSomething = false;
         _this.xpDropAmt = 3;
@@ -898,7 +941,7 @@ var EnemyShip = (function (_super) {
             }
         };
         _this.angleVel = 3;
-        _this.fovLookDelay = 1;
+        _this.fovLookDelay = 50;
         _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
             _this.lookTimer.reset(_this.fovLookDelay);
@@ -923,19 +966,24 @@ var EnemyShip = (function (_super) {
         this.visibleObjects.length = 0;
         this.canSeeSomething = false;
         for (var i = 0; i < objectsInCells.length; i++) {
-            if (objectsInCells[i]._arrayName !== "playerShip") {
+            var object = objectsInCells[i];
+            if (this.ignoreObjNames.indexOf(object._arrayName) !== -1) {
                 continue;
             }
-            var object = objectsInCells[i];
-            if (Phaser.Math.Distance.BetweenPointsSquared(object, this) > this.fovRadiusSquared) {
+            var distanceSquared = Phaser.Math.Distance.BetweenPointsSquared(object, this);
+            if (distanceSquared > this.fovRadiusSquared) {
                 continue;
             }
             var angleBetween = Phaser.Math.Angle.Reverse(Phaser.Math.Angle.BetweenPoints(object, this)) * Phaser.Math.RAD_TO_DEG;
-            if (Math.abs(Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween)) < this.halfFovAngle) {
+            var angleDiff = Phaser.Math.Angle.ShortestBetween(this.angle - 90, angleBetween);
+            if (Math.abs(angleDiff) < this.halfFovAngle) {
                 this.canSeeSomething = true;
                 this.visibleObjects.push({
                     gameObject: object,
-                    angleBetween: angleBetween
+                    _arrayName: object._arrayName,
+                    angleDiff: angleDiff,
+                    angleBetween: angleBetween,
+                    distanceSquared: distanceSquared
                 });
             }
         }
@@ -1009,6 +1057,7 @@ var StateMachine_1 = __webpack_require__(/*! ../Utils/StateMachine */ "./gameObj
 var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.js");
 var Bullet_1 = __webpack_require__(/*! ./Bullet */ "./gameObjects/space/Bullet.js");
 var TurnManager_1 = __webpack_require__(/*! ../Utils/TurnManager */ "./gameObjects/Utils/TurnManager.js");
+var State_1 = __webpack_require__(/*! ../Utils/State */ "./gameObjects/Utils/State.js");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -1019,6 +1068,7 @@ var HyperBeamerSType = (function (_super) {
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
+        _this_1.ignoreObjNames = ["hyperBeamerSTypeGreenBullet", "purpleNebula", "grayNebula"];
         _this_1.setDepth(1).setScale(2);
         scene.anims.create({
             key: "flying",
@@ -1035,38 +1085,132 @@ var HyperBeamerSType = (function (_super) {
             }
             _this_1.shootTimer.reset();
         });
-        var WanderState = (function () {
+        var defaultMaxSpeed = _this_1.maxSpeed;
+        var avoidLimits = {
+            changeDir: 450,
+            slowdown: 120,
+            turnAround: 30,
+            changeDirSquared: 0,
+            slowdownSquared: 0,
+            turnAroundSquared: 0,
+            avoidAngleAmt: 50,
+        };
+        avoidLimits.changeDirSquared = avoidLimits.changeDir * avoidLimits.changeDir;
+        avoidLimits.slowdownSquared = avoidLimits.slowdown * avoidLimits.slowdown;
+        avoidLimits.turnAroundSquared = avoidLimits.turnAround * avoidLimits.turnAround;
+        var WanderState = (function (_super) {
+            __extends(WanderState, _super);
             function WanderState() {
+                var _this_1 = _super !== null && _super.apply(this, arguments) || this;
+                _this_1.turningTowardsTarget = false;
+                return _this_1;
             }
             WanderState.prototype.randomInt = function (min, max) {
                 return Phaser.Math.RND.between(min, max);
             };
             WanderState.prototype.getNextTurnTime = function () {
-                return this.randomInt(750, 1500);
+                return this.randomInt(1000, 3000);
+            };
+            WanderState.prototype.getNextTurnAngle = function () {
+                return Phaser.Math.RND.angle();
             };
             WanderState.prototype.start = function () {
                 var _this_1 = this;
                 this.subState = "wander";
                 _this.isShooting = false;
-                this.wanderDirTimer = timer_1.default(true, this.getNextTurnTime(), function () {
-                    _this.turnManager.startTurning(Phaser.Math.RND.angle(), function () { return _this_1.wanderDirTimer.reset(_this_1.getNextTurnTime()); });
+                this.wanderTurnTimer = timer_1.default(true, this.getNextTurnTime(), function () {
+                    _this.turnManager.startTurning(_this_1.getNextTurnAngle(), function () { return _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime()); });
+                });
+                this.lookTimer = timer_1.default(true, 300, function () {
+                    _this_1.look();
+                    _this_1.lookTimer.reset(300);
                 });
             };
             WanderState.prototype.update = function () {
+                this.runSubStates();
+            };
+            WanderState.prototype.setSubState = function (state) {
+                if (this.subState !== state) {
+                    this.lastSubState = this.subState;
+                    this.subState = state;
+                }
+            };
+            WanderState.prototype.look = function () {
+                var _this_1 = this;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var _a = _this.visibleObjects[i], _arrayName = _a._arrayName, distanceSquared = _a.distanceSquared, angleDiff = _a.angleDiff, angleBetween = _a.angleBetween;
+                    switch (true) {
+                        case _arrayName === _this._arrayName:
+                        case _this.getType() === "projectile":
+                            this.subState = "redirect";
+                            if (distanceSquared > avoidLimits.changeDirSquared) {
+                                break;
+                            }
+                            var redirectAngle = _this.angle + avoidLimits.avoidAngleAmt * (angleDiff < 0 ? 1 : -1);
+                            if (distanceSquared < avoidLimits.slowdownSquared) {
+                                _this.maxSpeed = 2.5;
+                            }
+                            _this.turnManager.startTurning(redirectAngle, function () {
+                                _this_1.subState = "wander";
+                                _this.maxSpeed = defaultMaxSpeed;
+                                _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime());
+                            });
+                            return;
+                    }
+                }
+            };
+            WanderState.prototype.offense = function () {
+                var _this_1 = this;
+                var canSeeEnemy = false;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var _a = _this.visibleObjects[i], _arrayName = _a._arrayName, distanceSquared = _a.distanceSquared, angleDiff = _a.angleDiff, angleBetween = _a.angleBetween;
+                    switch (true) {
+                        case _arrayName === "playerShip":
+                            if (this.subState === "wander") {
+                                this.subState = "attack";
+                                _this.isShooting = true;
+                                canSeeEnemy = true;
+                                if (!this.turningTowardsTarget) {
+                                    var redirectAngle = _this.angle + angleDiff * 0.2;
+                                    this.turningTowardsTarget = true;
+                                    _this.turnManager.startTurning(redirectAngle, function () {
+                                        _this_1.turningTowardsTarget = false;
+                                        _this.isShooting = false;
+                                    });
+                                }
+                            }
+                            break;
+                    }
+                }
+                if (!canSeeEnemy) {
+                    this.subState = "wander";
+                    _this.isShooting = false;
+                    this.turningTowardsTarget = false;
+                }
+            };
+            WanderState.prototype.runSubStates = function () {
                 switch (this.subState) {
                     case "wander":
-                        this.wanderDirTimer.update();
+                        this.wanderTurnTimer.update();
+                        this.lookTimer.update();
+                        break;
+                    case "redirect":
                         break;
                     case "attack":
+                        this.lookTimer.update();
                         break;
-                    case "inspect":
+                    case "loopAround":
+                        this.lookTimer.update();
+                        break;
+                    case "evade":
                         break;
                 }
+                this.offense();
             };
             WanderState.prototype.stop = function () {
             };
             return WanderState;
-        }());
+        }(State_1.default));
         _this_1.sm = new StateMachine_1.default({
             "wander": new WanderState()
         });
@@ -1727,6 +1871,53 @@ var logger = {
 };
 exports.default = logger;
 //# sourceMappingURL=logger.js.map
+
+/***/ }),
+
+/***/ "./mapSystem/space/MapSystem.js":
+/*!**************************************!*\
+  !*** ./mapSystem/space/MapSystem.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var MapSystem = (function () {
+    function MapSystem() {
+    }
+    MapSystem.prototype.createMap = function (scene, x, y, width, height) {
+        this.world = scene.scene.get("space").world;
+        this.backGraphics = scene.add.graphics();
+        this.backGraphics.fillStyle(0x000000);
+        this.backGraphics.fillRoundedRect(x, y, width, height, { tl: 20, tr: 0, bl: 0, br: 0 });
+        this.rt = scene.add.renderTexture(x, y, width, height);
+    };
+    MapSystem.prototype.updateMap = function (cam, starsTileSprites) {
+        var rt = this.rt;
+        var camHalfWidth = cam.width * 0.5;
+        var camHalfHeight = cam.height * 0.5;
+        var zoom = 0.175;
+        var visibleObjects = this.world.getObjectsInBox(cam.scrollX - camHalfWidth / zoom, cam.scrollY - camHalfWidth / zoom, cam.scrollX + camHalfHeight / zoom, cam.scrollY + camHalfHeight / zoom);
+        this.rt.clear();
+        var rf = (1 - 1 / zoom);
+        rt.camera.setZoom(zoom);
+        rt.camera.scrollX = cam.scrollX + (cam.width - rt.camera.width * rf) / 2 - rt.camera.width * 0.5 / zoom;
+        rt.camera.scrollY = cam.scrollY + (cam.height - rt.camera.height * rf) / 2 - rt.camera.height * 0.5 / zoom;
+        rt.beginDraw();
+        for (var i = 0; i < visibleObjects.length; i++) {
+            var obj = visibleObjects[i];
+            rt.batchDraw(obj, obj.x, obj.y);
+        }
+        for (var i = 0; i < starsTileSprites.length; i++) {
+            var tileSprite = starsTileSprites[i];
+            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
+        }
+        rt.endDraw();
+    };
+    return MapSystem;
+}());
+exports.default = MapSystem;
+//# sourceMappingURL=MapSystem.js.map
 
 /***/ }),
 
@@ -2459,7 +2650,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
-        this.updateZoom(0.9);
+        this.updateZoom(0.5);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;
@@ -2695,14 +2886,6 @@ var SpaceGrid = (function () {
     SpaceGrid.prototype.updateSpace = function () {
         var world = this.world;
         world.camera.updateScroll(this.scrollX, this.scrollY, world.bounds);
-        if (this.sleepingEnabled) {
-            this.sleeping = (this.lastScrollX === world.camera.scrollX && this.lastScrollY === world.camera.scrollY);
-            this.lastScrollX = world.camera.scrollX;
-            this.lastScrollY = world.camera.scrollY;
-            if (this.sleeping) {
-                return;
-            }
-        }
         world.resetProcessList();
         world.updateProcessList();
         this.integrate(this.systems);
@@ -2948,6 +3131,53 @@ exports.default = SpaceLogicScene;
 
 /***/ }),
 
+/***/ "./scenes/space/SpaceMapScene.js":
+/*!***************************************!*\
+  !*** ./scenes/space/SpaceMapScene.js ***!
+  \***************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var MapSystem_1 = __webpack_require__(/*! ../../mapSystem/space/MapSystem */ "./mapSystem/space/MapSystem.js");
+var SpaceMapScene = (function (_super) {
+    __extends(SpaceMapScene, _super);
+    function SpaceMapScene() {
+        return _super.call(this, "spaceMap") || this;
+    }
+    SpaceMapScene.prototype.preload = function () {
+    };
+    SpaceMapScene.prototype.create = function () {
+        this.starScene = this.scene.get("starSceneController");
+        this.spaceSceneCam = this.scene.get("space").cameras.main;
+        this.map = new MapSystem_1.default();
+        var mapWidth = 170;
+        var mapHeight = 150;
+        this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+    };
+    SpaceMapScene.prototype.update = function () {
+        this.map.updateMap(this.spaceSceneCam, this.starScene.starLayers);
+    };
+    return SpaceMapScene;
+}(Phaser.Scene));
+exports.default = SpaceMapScene;
+//# sourceMappingURL=SpaceMapScene.js.map
+
+/***/ }),
+
 /***/ "./scenes/space/SpaceScene.js":
 /*!************************************!*\
   !*** ./scenes/space/SpaceScene.js ***!
@@ -3109,6 +3339,7 @@ var SpaceScene = (function (_super) {
         this.scene.sleep("spaceUI");
         this.scene.sleep("starSceneController");
         this.scene.sleep("spaceCameraController");
+        this.scene.sleep("spaceMap");
         this.scene.sleep("spaceLogic");
         this.sleepDebugScenes();
     };
@@ -3118,6 +3349,7 @@ var SpaceScene = (function (_super) {
         this.scene.stop("spaceUI");
         this.scene.stop("starSceneController");
         this.scene.stop("spaceCameraController");
+        this.scene.stop("spaceMap");
         this.scene.stop("spaceLogic");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
@@ -3157,7 +3389,6 @@ var SpaceScene = (function (_super) {
                     _this.statsGraphics.fillStyle(0x54B70E);
                     _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
                 }
-                enemyShip.debugFov(_this.statsGraphics);
             }
         });
         this.sys.displayList.add(this.statsGraphics);
@@ -3312,23 +3543,25 @@ var StarSceneControllerScene = (function (_super) {
     };
     StarSceneControllerScene.prototype.create = function () {
         var cam = this.cameras.main;
-        this.tileSprites = [];
+        this.starLayers = new Array();
         this.scrollValues = [0.65, 0.9, 1];
         var layerAmt = this.scrollValues.length;
         for (var i = 1; i <= layerAmt; i++) {
             var tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
-            this.tileSprites.push(tileSprite);
+            tileSprite.setOrigin(0.5);
+            this.starLayers.push(tileSprite);
         }
         this.scene.sendToBack("starSceneController");
+        this.scene.run("spaceMap");
+        this.scene.bringToTop("spaceMap");
     };
     StarSceneControllerScene.prototype.update = function (time, delta) {
         var cam = this.scene.get("space").cameras.main;
         var scrollX = cam.scrollX, scrollY = cam.scrollY, zoom = cam.zoom;
         var rf = (1 - 1 / zoom);
-        for (var i = 0; i < this.tileSprites.length; i++) {
-            var tileSprite = this.tileSprites[i];
+        for (var i = 0; i < this.starLayers.length; i++) {
+            var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
-            tileSprite.setOrigin(0.5);
             tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
         }
     };
@@ -3389,6 +3622,7 @@ var PlanetBackScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetBackScene 
 var PlanetLoaderScene_1 = __webpack_require__(/*! ./scenes/planet/PlanetLoaderScene */ "./scenes/planet/PlanetLoaderScene.js");
 var SpaceUIScene_1 = __webpack_require__(/*! ./scenes/space/SpaceUIScene */ "./scenes/space/SpaceUIScene.js");
 var SpaceEffectsScene_1 = __webpack_require__(/*! ./scenes/space/SpaceEffectsScene */ "./scenes/space/SpaceEffectsScene.js");
+var SpaceMapScene_1 = __webpack_require__(/*! ./scenes/space/SpaceMapScene */ "./scenes/space/SpaceMapScene.js");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -3406,7 +3640,7 @@ var config = {
     scene: [
         EntryScene_1.default,
         SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
-        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
     seed: "testing"

@@ -25,11 +25,15 @@ var Bullet = (function (_super) {
         };
         _this.compareX = 0;
         _this.compareY = 0;
+        _this.fading = false;
         _this.range = 500;
         _this.rangeSquared = 0;
+        _this.startFadeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
         _this.rangeSquared = _this.range * _this.range;
+        var diff = _this.range - 100;
+        _this.startFadeSquared = diff * diff;
         _this.setDepth(0);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
@@ -57,7 +61,14 @@ var Bullet = (function (_super) {
         if (this.compareX !== 0 && this.compareY !== 0) {
             var dx = this.x - this.compareX;
             var dy = this.y - this.compareY;
-            if (dx * dx + dy * dy > this.rangeSquared) {
+            var diffSquared = dx * dx + dy * dy;
+            if (diffSquared > this.startFadeSquared) {
+                this.fading = true;
+            }
+            if (this.fading) {
+                this.alpha *= 0.7;
+            }
+            if (this.alpha < 0.001 && diffSquared > this.rangeSquared) {
                 this.destroy();
                 this.kill();
             }

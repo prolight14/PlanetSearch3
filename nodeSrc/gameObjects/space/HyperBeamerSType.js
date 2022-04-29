@@ -19,6 +19,7 @@ var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
 var TurnManager_1 = require("../Utils/TurnManager");
+var State_1 = require("../Utils/State");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
@@ -29,6 +30,7 @@ var HyperBeamerSType = (function (_super) {
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
         }
+        _this_1.ignoreObjNames = ["hyperBeamerSTypeGreenBullet", "purpleNebula", "grayNebula"];
         _this_1.setDepth(1).setScale(2);
         scene.anims.create({
             key: "flying",
@@ -45,38 +47,132 @@ var HyperBeamerSType = (function (_super) {
             }
             _this_1.shootTimer.reset();
         });
-        var WanderState = (function () {
+        var defaultMaxSpeed = _this_1.maxSpeed;
+        var avoidLimits = {
+            changeDir: 450,
+            slowdown: 120,
+            turnAround: 30,
+            changeDirSquared: 0,
+            slowdownSquared: 0,
+            turnAroundSquared: 0,
+            avoidAngleAmt: 50,
+        };
+        avoidLimits.changeDirSquared = avoidLimits.changeDir * avoidLimits.changeDir;
+        avoidLimits.slowdownSquared = avoidLimits.slowdown * avoidLimits.slowdown;
+        avoidLimits.turnAroundSquared = avoidLimits.turnAround * avoidLimits.turnAround;
+        var WanderState = (function (_super) {
+            __extends(WanderState, _super);
             function WanderState() {
+                var _this_1 = _super !== null && _super.apply(this, arguments) || this;
+                _this_1.turningTowardsTarget = false;
+                return _this_1;
             }
             WanderState.prototype.randomInt = function (min, max) {
                 return Phaser.Math.RND.between(min, max);
             };
             WanderState.prototype.getNextTurnTime = function () {
-                return this.randomInt(750, 1500);
+                return this.randomInt(1000, 3000);
+            };
+            WanderState.prototype.getNextTurnAngle = function () {
+                return Phaser.Math.RND.angle();
             };
             WanderState.prototype.start = function () {
                 var _this_1 = this;
                 this.subState = "wander";
                 _this.isShooting = false;
-                this.wanderDirTimer = timer_1.default(true, this.getNextTurnTime(), function () {
-                    _this.turnManager.startTurning(Phaser.Math.RND.angle(), function () { return _this_1.wanderDirTimer.reset(_this_1.getNextTurnTime()); });
+                this.wanderTurnTimer = timer_1.default(true, this.getNextTurnTime(), function () {
+                    _this.turnManager.startTurning(_this_1.getNextTurnAngle(), function () { return _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime()); });
+                });
+                this.lookTimer = timer_1.default(true, 300, function () {
+                    _this_1.look();
+                    _this_1.lookTimer.reset(300);
                 });
             };
             WanderState.prototype.update = function () {
+                this.runSubStates();
+            };
+            WanderState.prototype.setSubState = function (state) {
+                if (this.subState !== state) {
+                    this.lastSubState = this.subState;
+                    this.subState = state;
+                }
+            };
+            WanderState.prototype.look = function () {
+                var _this_1 = this;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var _a = _this.visibleObjects[i], _arrayName = _a._arrayName, distanceSquared = _a.distanceSquared, angleDiff = _a.angleDiff, angleBetween = _a.angleBetween;
+                    switch (true) {
+                        case _arrayName === _this._arrayName:
+                        case _this.getType() === "projectile":
+                            this.subState = "redirect";
+                            if (distanceSquared > avoidLimits.changeDirSquared) {
+                                break;
+                            }
+                            var redirectAngle = _this.angle + avoidLimits.avoidAngleAmt * (angleDiff < 0 ? 1 : -1);
+                            if (distanceSquared < avoidLimits.slowdownSquared) {
+                                _this.maxSpeed = 2.5;
+                            }
+                            _this.turnManager.startTurning(redirectAngle, function () {
+                                _this_1.subState = "wander";
+                                _this.maxSpeed = defaultMaxSpeed;
+                                _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime());
+                            });
+                            return;
+                    }
+                }
+            };
+            WanderState.prototype.offense = function () {
+                var _this_1 = this;
+                var canSeeEnemy = false;
+                for (var i = 0; i < _this.visibleObjects.length; i++) {
+                    var _a = _this.visibleObjects[i], _arrayName = _a._arrayName, distanceSquared = _a.distanceSquared, angleDiff = _a.angleDiff, angleBetween = _a.angleBetween;
+                    switch (true) {
+                        case _arrayName === "playerShip":
+                            if (this.subState === "wander") {
+                                this.subState = "attack";
+                                _this.isShooting = true;
+                                canSeeEnemy = true;
+                                if (!this.turningTowardsTarget) {
+                                    var redirectAngle = _this.angle + angleDiff * 0.2;
+                                    this.turningTowardsTarget = true;
+                                    _this.turnManager.startTurning(redirectAngle, function () {
+                                        _this_1.turningTowardsTarget = false;
+                                        _this.isShooting = false;
+                                    });
+                                }
+                            }
+                            break;
+                    }
+                }
+                if (!canSeeEnemy) {
+                    this.subState = "wander";
+                    _this.isShooting = false;
+                    this.turningTowardsTarget = false;
+                }
+            };
+            WanderState.prototype.runSubStates = function () {
                 switch (this.subState) {
                     case "wander":
-                        this.wanderDirTimer.update();
+                        this.wanderTurnTimer.update();
+                        this.lookTimer.update();
+                        break;
+                    case "redirect":
                         break;
                     case "attack":
+                        this.lookTimer.update();
                         break;
-                    case "inspect":
+                    case "loopAround":
+                        this.lookTimer.update();
+                        break;
+                    case "evade":
                         break;
                 }
+                this.offense();
             };
             WanderState.prototype.stop = function () {
             };
             return WanderState;
-        }());
+        }(State_1.default));
         _this_1.sm = new StateMachine_1.default({
             "wander": new WanderState()
         });

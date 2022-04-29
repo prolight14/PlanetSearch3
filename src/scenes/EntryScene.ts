@@ -19,6 +19,11 @@ export default class EntryScene extends Phaser.Scene
     public create()
     {   
         this.scene.run(this.currentSceneGroup);
+
+        // this.input.on('pointerdown', function (pointer: Phaser.Input.Pointer) 
+        // {
+        //     this.input.mouse.requestPointerLock();
+        // }, this);
     }
 
     public switchSceneGroup(sceneGroup: string, callback?: Function, callbackScope?: object)

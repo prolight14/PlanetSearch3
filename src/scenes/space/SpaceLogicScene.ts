@@ -93,12 +93,15 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
+        
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
         // for(var i = 0; i < 100; i++)
         // {
         //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
         // }
 
-        // for(var i = 0; i < 7; i++)
+        // for(var i = 0; i < 20; i++)
         // {
         //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-700, 700), 60600 + RND.integerInRange(-700, 700)) as HyperBeamerSType;
         // }
