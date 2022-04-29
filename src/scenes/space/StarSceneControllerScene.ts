@@ -1,4 +1,3 @@
-
 export default class StarSceneControllerScene extends Phaser.Scene
 {
     constructor()
@@ -34,7 +33,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         this.scene.bringToTop("spaceMap");
     }
 
-    public starLayers: Array<Phaser.GameObjects.TileSprite>;
+    private starLayers: Array<Phaser.GameObjects.TileSprite>;
     private scrollValues: Array<number>;
 
     public update(time: number, delta: number) 
@@ -48,7 +47,30 @@ export default class StarSceneControllerScene extends Phaser.Scene
             const tileSprite = this.starLayers[i];
 
             tileSprite.setTileScale(zoom);
-            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
+            tileSprite.setTilePosition(
+                rf * cam.width + scrollX * this.scrollValues[i] | 0, 
+                rf * cam.height + scrollY * this.scrollValues[i] | 0
+            );
+        }
+    }
+
+    public updateToRenderTexture(rt: Phaser.GameObjects.RenderTexture, cam: Phaser.Cameras.Scene2D.BaseCamera, starZoom: number, relativeWidth: number, relativeHeight: number)
+    {
+        const starLayers = this.starLayers;
+        const scrollValues = this.scrollValues;
+        const zoom = cam.zoom * starZoom;
+
+        for(var i = 0; i < starLayers.length; i++)
+        {
+            const tileSprite = starLayers[i];
+
+            tileSprite.setTileScale(zoom);
+            tileSprite.setTilePosition(
+                (relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, 
+                (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0
+            );
+          
+            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
     }
 }

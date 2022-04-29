@@ -28,7 +28,7 @@ export default class SpaceUIDebugScene extends Phaser.Scene
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
 
         var cam: Phaser.Cameras.Scene2D.Camera = this.spaceScene.cameras.main;
-        this.shipPositionText.setText(`(${cam.scrollX.toFixed(2)}, ${cam.scrollY.toFixed(2)})`);
+        this.shipPositionText.setText(`(${cam.worldView.centerX.toFixed(2)}, ${cam.worldView.centerY.toFixed(2)})`);
 
         this.peekCell();
     }

@@ -162,10 +162,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         
         this.scene.run("spaceUI");
 
-        // this.scene.run("spaceMap");
-        // // this.scene.bringToTop("spaceUI");
+        this.scene.run("spaceMap");
+        // this.scene.bringToTop("spaceUI");
 
-        // this.scene.bringToTop("spaceMap");
+        this.scene.bringToTop("spaceMap");
 
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
 

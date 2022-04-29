@@ -1887,16 +1887,31 @@ var MapSystem = (function () {
     }
     MapSystem.prototype.createMap = function (scene, x, y, width, height) {
         this.world = scene.scene.get("space").world;
-        this.backGraphics = scene.add.graphics();
-        this.backGraphics.fillStyle(0x000000);
-        this.backGraphics.fillRoundedRect(x, y, width, height, { tl: 20, tr: 0, bl: 0, br: 0 });
+        this.staticRT = scene.add.renderTexture(x, y, width, height);
         this.rt = scene.add.renderTexture(x, y, width, height);
+        var roundAmt = 40;
+        var shape = scene.add.graphics();
+        shape.fillStyle(0xFFFFFF);
+        shape.beginPath();
+        shape.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
+        shape.setVisible(false);
+        var mask = shape.createGeometryMask();
+        this.staticRT.setMask(mask);
+        this.rt.setMask(mask);
+        var tint = 0x9CFFC1;
+        this.staticRT.setTint(tint);
+        this.rt.setTint(tint);
+        var backGraphics = this.backGraphics = scene.add.graphics();
+        backGraphics.fillStyle(0x000000);
+        backGraphics.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
+        backGraphics.setVisible(false);
+        backGraphics.setMask(mask);
+        backGraphics.setDepth(-1);
     };
-    MapSystem.prototype.updateMap = function (cam, starsTileSprites) {
+    MapSystem.prototype.updateMap = function (zoom, cam, drawBackObjs) {
         var rt = this.rt;
         var camHalfWidth = cam.width * 0.5;
         var camHalfHeight = cam.height * 0.5;
-        var zoom = 0.175;
         var visibleObjects = this.world.getObjectsInBox(cam.scrollX - camHalfWidth / zoom, cam.scrollY - camHalfWidth / zoom, cam.scrollX + camHalfHeight / zoom, cam.scrollY + camHalfHeight / zoom);
         this.rt.clear();
         var rf = (1 - 1 / zoom);
@@ -1908,11 +1923,17 @@ var MapSystem = (function () {
             var obj = visibleObjects[i];
             rt.batchDraw(obj, obj.x, obj.y);
         }
-        for (var i = 0; i < starsTileSprites.length; i++) {
-            var tileSprite = starsTileSprites[i];
-            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
-        }
         rt.endDraw();
+        this.staticRT.clear();
+        if (zoom < 0.125) {
+            this.backGraphics.setVisible(true);
+            return;
+        }
+        this.backGraphics.setVisible(false);
+        this.staticRT.beginDraw();
+        var starZoom = 4;
+        drawBackObjs(this.staticRT, this.rt.camera, starZoom, rf * cam.width, rf * cam.height);
+        this.staticRT.endDraw();
     };
     return MapSystem;
 }());
@@ -3079,12 +3100,12 @@ var SpaceLogicScene = (function (_super) {
         if (!world.get.gameObjectArray("playerShip")) {
             var playerShips = world.add.gameObjectArray(PlayerShip_1.default, "playerShip");
             playerShips.define("ignoreDestroy", true);
-            this.playerShip = playerShips.add(this.spaceScene, 69000, 60500);
+            this.playerShip = playerShips.add(this.spaceScene, 69400, 60376);
         }
         else {
             this.playerShip.resetStats();
-            this.playerShip.x = 69000;
-            this.playerShip.y = 60500;
+            this.playerShip.x = 69404;
+            this.playerShip.y = 60376;
             this.playerShip.bodyConf.update();
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);
@@ -3169,7 +3190,17 @@ var SpaceMapScene = (function (_super) {
         this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
     };
     SpaceMapScene.prototype.update = function () {
-        this.map.updateMap(this.spaceSceneCam, this.starScene.starLayers);
+        if (!this.scene.isActive("starSceneController")) {
+            return;
+        }
+        var starScene = this.starScene;
+        this.map.updateMap(0.22, this.spaceSceneCam, function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            starScene.updateToRenderTexture.apply(starScene, args);
+        });
     };
     return SpaceMapScene;
 }(Phaser.Scene));
@@ -3299,6 +3330,8 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
+        this.scene.run("spaceMap");
+        this.scene.bringToTop("spaceMap");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;
@@ -3436,7 +3469,7 @@ var SpaceUIDebugScene = (function (_super) {
     SpaceUIDebugScene.prototype.update = function (time, delta) {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
         var cam = this.spaceScene.cameras.main;
-        this.shipPositionText.setText("(" + cam.scrollX.toFixed(2) + ", " + cam.scrollY.toFixed(2) + ")");
+        this.shipPositionText.setText("(" + cam.worldView.centerX.toFixed(2) + ", " + cam.worldView.centerY.toFixed(2) + ")");
         this.peekCell();
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
@@ -3562,7 +3595,18 @@ var StarSceneControllerScene = (function (_super) {
         for (var i = 0; i < this.starLayers.length; i++) {
             var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
-            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
+            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
+        }
+    };
+    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight) {
+        var starLayers = this.starLayers;
+        var scrollValues = this.scrollValues;
+        var zoom = cam.zoom * starZoom;
+        for (var i = 0; i < starLayers.length; i++) {
+            var tileSprite = starLayers[i];
+            tileSprite.setTileScale(zoom);
+            tileSprite.setTilePosition((relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0);
+            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
     };
     return StarSceneControllerScene;

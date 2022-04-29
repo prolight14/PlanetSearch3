@@ -44,7 +44,18 @@ var StarSceneControllerScene = (function (_super) {
         for (var i = 0; i < this.starLayers.length; i++) {
             var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
-            tileSprite.setTilePosition(Math.floor(rf * cam.width + scrollX * this.scrollValues[i]), Math.floor(rf * cam.height + scrollY * this.scrollValues[i]));
+            tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
+        }
+    };
+    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight) {
+        var starLayers = this.starLayers;
+        var scrollValues = this.scrollValues;
+        var zoom = cam.zoom * starZoom;
+        for (var i = 0; i < starLayers.length; i++) {
+            var tileSprite = starLayers[i];
+            tileSprite.setTileScale(zoom);
+            tileSprite.setTilePosition((relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0);
+            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
     };
     return StarSceneControllerScene;

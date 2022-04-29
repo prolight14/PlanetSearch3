@@ -30,6 +30,16 @@ export default class SpaceMapScene extends Phaser.Scene
 
     update ()
     {
-        this.map.updateMap(this.spaceSceneCam, this.starScene.starLayers);
+        if(!this.scene.isActive("starSceneController"))
+        {
+            return;
+        }
+
+        const starScene = this.starScene;
+
+        this.map.updateMap(0.22, this.spaceSceneCam, (...args: any[]) =>
+        {
+            starScene.updateToRenderTexture.apply(starScene, args);
+        });
     }
 }

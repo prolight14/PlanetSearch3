@@ -30,7 +30,17 @@ var SpaceMapScene = (function (_super) {
         this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
     };
     SpaceMapScene.prototype.update = function () {
-        this.map.updateMap(this.spaceSceneCam, this.starScene.starLayers);
+        if (!this.scene.isActive("starSceneController")) {
+            return;
+        }
+        var starScene = this.starScene;
+        this.map.updateMap(0.22, this.spaceSceneCam, function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            starScene.updateToRenderTexture.apply(starScene, args);
+        });
     };
     return SpaceMapScene;
 }(Phaser.Scene));

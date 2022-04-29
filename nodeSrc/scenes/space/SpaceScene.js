@@ -113,6 +113,8 @@ var SpaceScene = (function (_super) {
         this.scene.run("spaceCameraController");
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
+        this.scene.run("spaceMap");
+        this.scene.bringToTop("spaceMap");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
             playerShip.y += 500;

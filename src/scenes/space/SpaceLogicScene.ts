@@ -79,13 +79,13 @@ export default class SpaceLogicScene extends Phaser.Scene
         {
             var playerShips = world.add.gameObjectArray(PlayerShip, "playerShip");
             playerShips.define("ignoreDestroy", true);
-            this.playerShip = playerShips.add(this.spaceScene, 69000, 60500);
+            this.playerShip = playerShips.add(this.spaceScene, 69400, 60376);
         }
         else
         {
             this.playerShip.resetStats();
-            this.playerShip.x = 69000;
-            this.playerShip.y = 60500;
+            this.playerShip.x = 69404;
+            this.playerShip.y = 60376;
             this.playerShip.bodyConf.update();
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);

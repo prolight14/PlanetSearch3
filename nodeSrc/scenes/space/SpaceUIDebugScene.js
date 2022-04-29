@@ -28,7 +28,7 @@ var SpaceUIDebugScene = (function (_super) {
     SpaceUIDebugScene.prototype.update = function (time, delta) {
         this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
         var cam = this.spaceScene.cameras.main;
-        this.shipPositionText.setText("(" + cam.scrollX.toFixed(2) + ", " + cam.scrollY.toFixed(2) + ")");
+        this.shipPositionText.setText("(" + cam.worldView.centerX.toFixed(2) + ", " + cam.worldView.centerY.toFixed(2) + ")");
         this.peekCell();
     };
     SpaceUIDebugScene.prototype.peekCell = function () {
