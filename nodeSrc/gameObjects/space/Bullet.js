@@ -18,7 +18,7 @@ var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
+    function Bullet(scene, x, y, texture, shootAngle, life, range, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.getType = function () {
             return "Projectile";
@@ -31,9 +31,12 @@ var Bullet = (function (_super) {
         _this.startFadeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
-        _this.rangeSquared = _this.range * _this.range;
-        var diff = _this.range - 100;
-        _this.startFadeSquared = diff * diff;
+        if (range !== undefined) {
+            _this.updateRange(range);
+        }
+        else {
+            _this.updateRange(_this.range);
+        }
         _this.setDepth(0);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
@@ -52,6 +55,12 @@ var Bullet = (function (_super) {
     Bullet.prototype.setComparePosition = function (x, y) {
         this.compareX = x;
         this.compareY = y;
+    };
+    Bullet.prototype.updateRange = function (range) {
+        this.rangeSquared = range * range;
+        this.range = range;
+        var d = range - 100;
+        this.startFadeSquared = d * d;
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);

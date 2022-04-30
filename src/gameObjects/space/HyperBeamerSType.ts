@@ -327,6 +327,7 @@ export default class HyperBeamerSType extends HyperBeamerShip
             "lightningBlue", 
             this.angle - 90,
             life || 2000, // Life (in seconds)
+            3000,
             this.bulletOnCollide,
             this,
         ) as Bullet;

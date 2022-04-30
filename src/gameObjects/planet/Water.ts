@@ -12,7 +12,6 @@ export default class Water extends StaticGameObject
 
         this.setMaxVelocity(0, 0);
         this.setOrigin(0, 0);
-        // this.setSize(this.displayWidth, this.displayHeight);
         this.setVisible(false);
     }
 

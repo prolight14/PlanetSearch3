@@ -22,23 +22,24 @@ var Lifeform = (function (_super) {
         _this.maxHp = 2;
         _this.damage = 1;
         _this.isLifeform = true;
+        _this.physics = {
+            jumpSpeed: 80,
+            jumpHeight: 367,
+            swimSpeed: new Phaser.Math.Vector2(40, 40),
+            accelerationX: {
+                onGround: 420,
+                inAir: 360,
+                inLiquid: 30
+            },
+            drag: new Phaser.Math.Vector2(300, 160),
+            maxVelocity: new Phaser.Math.Vector2(156, 480),
+        };
         _this.inLiquid = false;
-        _this.isOnSlope = false;
-        _this.wasInLiquid = false;
-        _this.wasOnSlope = false;
         _this.isJumping = false;
-        _this.jumpSpeed = 80;
-        _this.jumpHeight = 310;
-        _this.xSpeed = 8;
-        _this.maxVel = { x: 175, y: 600 };
-        _this.drag = { x: 30, y: 0 };
-        _this.xDeacl = 10;
-        _this.xDeaclInAir = 3;
-        _this.ySwimSpeed = 140;
-        _this.maxVelInWater = 75;
+        _this.onEdgeOfLiquid = false;
         _this.dead = false;
         scene.physics.add.existing(_this);
-        _this.resetPhysics();
+        _this.updatePhysics();
         return _this;
     }
     Lifeform.prototype.getDamage = function (object) {
@@ -47,68 +48,64 @@ var Lifeform = (function (_super) {
     Lifeform.prototype.takeDamage = function (object) {
         this.hp -= object.getDamage(this);
     };
+    Lifeform.prototype.updatePhysics = function () {
+        var _a = this.physics, drag = _a.drag, maxVelocity = _a.maxVelocity;
+        this.setDrag(drag.x, drag.y).setMaxVelocity(maxVelocity.x, maxVelocity.y);
+    };
     Lifeform.prototype.resetPhysics = function () {
-        return this.setDrag(this.drag.x, this.drag.y).setMaxVelocity(this.maxVel.x, this.maxVel.y);
     };
     Lifeform.prototype.preUpdate = function (time, delta) {
         if (this.dead) {
             return;
         }
         _super.prototype.preUpdate.call(this, time, delta);
-        var onGround = this.body.blocked.down || this.isOnSlope;
+        var _a = this.physics, accelerationX = _a.accelerationX, swimSpeed = _a.swimSpeed, jumpSpeed = _a.jumpSpeed, jumpHeight = _a.jumpHeight;
+        var onGround = this.body.blocked.down;
+        var acceleration = onGround ? accelerationX.onGround : accelerationX.inAir;
+        if (this.inLiquid) {
+            acceleration = accelerationX.inLiquid;
+            this.setDrag(400, 400);
+            this.setGravityY(0);
+            this.setMaxVelocity(100, 100);
+        }
+        else {
+            this.updatePhysics();
+        }
         if (this.controls.left()) {
-            this.setVelocityX(this.body.velocity.x - this.xSpeed);
+            this.setAccelerationX(-acceleration);
         }
         if (this.controls.right()) {
-            this.setVelocityX(this.body.velocity.x + this.xSpeed);
+            this.setAccelerationX(acceleration);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            var xDeacl = onGround ? this.xDeacl : this.xDeaclInAir;
-            if (this.body.velocity.x > 0) {
-                this.setVelocityX(this.body.velocity.x - xDeacl);
-            }
-            if (this.body.velocity.x < 0) {
-                this.setVelocityX(this.body.velocity.x + xDeacl);
-            }
-            if (Math.abs(this.body.velocity.x) < xDeacl) {
-                this.setVelocityX(0);
-                this.anims.play("idle");
-            }
+            this.setAccelerationX(0);
         }
         if (this.inLiquid) {
             if (this.controls.up()) {
-                this.setVelocityY(-this.ySwimSpeed);
+                this.setVelocityY(-swimSpeed.y);
             }
-            else if (this.controls.down()) {
-                this.setVelocityY(this.ySwimSpeed);
+            if (this.controls.down()) {
+                this.setVelocityY(swimSpeed.y);
             }
-        }
-        else if (onGround && this.controls.up()) {
-            this.isJumping = true;
-        }
-        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
-            this.isJumping = false;
-        }
-        if (this.isJumping) {
-            this.body.velocity.y -= this.jumpSpeed;
-        }
-        var onCeiling = this.body.blocked.up;
-        if (onCeiling) {
-            this.isJumping = false;
-            this.body.velocity.y = 0;
-        }
-        if (this.inLiquid) {
-            this.setMaxVelocity(this.maxVelInWater);
-            this.setGravity(0);
         }
         else {
-            this.resetPhysics();
+            if (this.controls.up()) {
+                if (onGround) {
+                    this.isJumping = true;
+                }
+            }
+            else {
+                this.isJumping = false;
+            }
+            if (this.isJumping) {
+                this.body.velocity.y -= jumpSpeed;
+                if (this.body.velocity.y < -jumpHeight) {
+                    this.isJumping = false;
+                }
+            }
         }
-        this.body.setAllowGravity(!this.isOnSlope);
-        this.wasInLiquid = this.inLiquid;
-        this.wasOnSlope = this.isOnSlope;
-        this.isOnSlope = false;
         this.inLiquid = false;
+        this.onEdgeOfLiquid = false;
         if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
             this.kill("fellOff");
         }

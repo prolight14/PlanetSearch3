@@ -193,7 +193,13 @@ export default class Player extends Lifeform
     {
         super.preUpdate(time, delta);
 
-        const onGround = this.body.blocked.down || this.isOnSlope;
+        
+        if(Math.abs(this.body.velocity.x) < 10)
+        {
+            this.anims.play("idle");
+        }
+
+        const onGround = this.body.blocked.down; //|| this.isOnSlope;
 
         if(this.controls.left())
         {

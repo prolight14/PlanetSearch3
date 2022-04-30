@@ -5,15 +5,20 @@ import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject
 {
-    constructor(scene: SpaceScene, x: number, y: number, texture: string, shootAngle: number, life: number, onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string, shootAngle: number, life: number, range: number | undefined, onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
     {
         super(scene, x, y, texture);
         this.shootAngle = shootAngle;
         this.speed = 12;
 
-        this.rangeSquared = this.range * this.range;
-        var diff = this.range - 100;
-        this.startFadeSquared = diff * diff;
+        if(range !== undefined)
+        {
+            this.updateRange(range);
+        }
+        else
+        {
+            this.updateRange(this.range);
+        }
 
         this.setDepth(0);
 
@@ -65,6 +70,14 @@ export default class Bullet extends SpaceGameObject
     private range: number = 500;
     private rangeSquared: number = 0;
     private startFadeSquared: number = 0;
+
+    public updateRange(range: number)
+    {
+        this.rangeSquared = range * range;
+        this.range = range;
+        var d = range - 100;
+        this.startFadeSquared = d * d;
+    }
 
     protected preUpdate(time: number, delta: number)
     {

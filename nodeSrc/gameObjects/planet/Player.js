@@ -133,7 +133,10 @@ var Player = (function (_super) {
     };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var onGround = this.body.blocked.down || this.isOnSlope;
+        if (Math.abs(this.body.velocity.x) < 10) {
+            this.anims.play("idle");
+        }
+        var onGround = this.body.blocked.down;
         if (this.controls.left()) {
             this.looking = "left";
         }

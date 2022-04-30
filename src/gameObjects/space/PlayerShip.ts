@@ -280,6 +280,7 @@ export default class PlayerShip extends Ship
             "lightningBlueLong", 
             this.angle - 90,
             life || 3200,
+            600,
             this.bulletOnCollide,
             this,
         ) as Bullet;

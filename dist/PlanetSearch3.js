@@ -338,23 +338,24 @@ var Lifeform = (function (_super) {
         _this.maxHp = 2;
         _this.damage = 1;
         _this.isLifeform = true;
+        _this.physics = {
+            jumpSpeed: 80,
+            jumpHeight: 367,
+            swimSpeed: new Phaser.Math.Vector2(40, 40),
+            accelerationX: {
+                onGround: 420,
+                inAir: 360,
+                inLiquid: 30
+            },
+            drag: new Phaser.Math.Vector2(300, 160),
+            maxVelocity: new Phaser.Math.Vector2(156, 480),
+        };
         _this.inLiquid = false;
-        _this.isOnSlope = false;
-        _this.wasInLiquid = false;
-        _this.wasOnSlope = false;
         _this.isJumping = false;
-        _this.jumpSpeed = 80;
-        _this.jumpHeight = 310;
-        _this.xSpeed = 8;
-        _this.maxVel = { x: 175, y: 600 };
-        _this.drag = { x: 30, y: 0 };
-        _this.xDeacl = 10;
-        _this.xDeaclInAir = 3;
-        _this.ySwimSpeed = 140;
-        _this.maxVelInWater = 75;
+        _this.onEdgeOfLiquid = false;
         _this.dead = false;
         scene.physics.add.existing(_this);
-        _this.resetPhysics();
+        _this.updatePhysics();
         return _this;
     }
     Lifeform.prototype.getDamage = function (object) {
@@ -363,68 +364,64 @@ var Lifeform = (function (_super) {
     Lifeform.prototype.takeDamage = function (object) {
         this.hp -= object.getDamage(this);
     };
+    Lifeform.prototype.updatePhysics = function () {
+        var _a = this.physics, drag = _a.drag, maxVelocity = _a.maxVelocity;
+        this.setDrag(drag.x, drag.y).setMaxVelocity(maxVelocity.x, maxVelocity.y);
+    };
     Lifeform.prototype.resetPhysics = function () {
-        return this.setDrag(this.drag.x, this.drag.y).setMaxVelocity(this.maxVel.x, this.maxVel.y);
     };
     Lifeform.prototype.preUpdate = function (time, delta) {
         if (this.dead) {
             return;
         }
         _super.prototype.preUpdate.call(this, time, delta);
-        var onGround = this.body.blocked.down || this.isOnSlope;
+        var _a = this.physics, accelerationX = _a.accelerationX, swimSpeed = _a.swimSpeed, jumpSpeed = _a.jumpSpeed, jumpHeight = _a.jumpHeight;
+        var onGround = this.body.blocked.down;
+        var acceleration = onGround ? accelerationX.onGround : accelerationX.inAir;
+        if (this.inLiquid) {
+            acceleration = accelerationX.inLiquid;
+            this.setDrag(400, 400);
+            this.setGravityY(0);
+            this.setMaxVelocity(100, 100);
+        }
+        else {
+            this.updatePhysics();
+        }
         if (this.controls.left()) {
-            this.setVelocityX(this.body.velocity.x - this.xSpeed);
+            this.setAccelerationX(-acceleration);
         }
         if (this.controls.right()) {
-            this.setVelocityX(this.body.velocity.x + this.xSpeed);
+            this.setAccelerationX(acceleration);
         }
         if (!this.controls.left() && !this.controls.right()) {
-            var xDeacl = onGround ? this.xDeacl : this.xDeaclInAir;
-            if (this.body.velocity.x > 0) {
-                this.setVelocityX(this.body.velocity.x - xDeacl);
-            }
-            if (this.body.velocity.x < 0) {
-                this.setVelocityX(this.body.velocity.x + xDeacl);
-            }
-            if (Math.abs(this.body.velocity.x) < xDeacl) {
-                this.setVelocityX(0);
-                this.anims.play("idle");
-            }
+            this.setAccelerationX(0);
         }
         if (this.inLiquid) {
             if (this.controls.up()) {
-                this.setVelocityY(-this.ySwimSpeed);
+                this.setVelocityY(-swimSpeed.y);
             }
-            else if (this.controls.down()) {
-                this.setVelocityY(this.ySwimSpeed);
+            if (this.controls.down()) {
+                this.setVelocityY(swimSpeed.y);
             }
-        }
-        else if (onGround && this.controls.up()) {
-            this.isJumping = true;
-        }
-        if (!this.controls.up() || this.body.velocity.y < -this.jumpHeight) {
-            this.isJumping = false;
-        }
-        if (this.isJumping) {
-            this.body.velocity.y -= this.jumpSpeed;
-        }
-        var onCeiling = this.body.blocked.up;
-        if (onCeiling) {
-            this.isJumping = false;
-            this.body.velocity.y = 0;
-        }
-        if (this.inLiquid) {
-            this.setMaxVelocity(this.maxVelInWater);
-            this.setGravity(0);
         }
         else {
-            this.resetPhysics();
+            if (this.controls.up()) {
+                if (onGround) {
+                    this.isJumping = true;
+                }
+            }
+            else {
+                this.isJumping = false;
+            }
+            if (this.isJumping) {
+                this.body.velocity.y -= jumpSpeed;
+                if (this.body.velocity.y < -jumpHeight) {
+                    this.isJumping = false;
+                }
+            }
         }
-        this.body.setAllowGravity(!this.isOnSlope);
-        this.wasInLiquid = this.inLiquid;
-        this.wasOnSlope = this.isOnSlope;
-        this.isOnSlope = false;
         this.inLiquid = false;
+        this.onEdgeOfLiquid = false;
         if (this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight) {
             this.kill("fellOff");
         }
@@ -590,7 +587,10 @@ var Player = (function (_super) {
     };
     Player.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var onGround = this.body.blocked.down || this.isOnSlope;
+        if (Math.abs(this.body.velocity.x) < 10) {
+            this.anims.play("idle");
+        }
+        var onGround = this.body.blocked.down;
         if (this.controls.left()) {
             this.looking = "left";
         }
@@ -745,7 +745,7 @@ var trig_1 = __webpack_require__(/*! ../Utils/trig */ "./gameObjects/Utils/trig.
 var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture, shootAngle, life, onCollide, onCollideContext) {
+    function Bullet(scene, x, y, texture, shootAngle, life, range, onCollide, onCollideContext) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.getType = function () {
             return "Projectile";
@@ -758,9 +758,12 @@ var Bullet = (function (_super) {
         _this.startFadeSquared = 0;
         _this.shootAngle = shootAngle;
         _this.speed = 12;
-        _this.rangeSquared = _this.range * _this.range;
-        var diff = _this.range - 100;
-        _this.startFadeSquared = diff * diff;
+        if (range !== undefined) {
+            _this.updateRange(range);
+        }
+        else {
+            _this.updateRange(_this.range);
+        }
         _this.setDepth(0);
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
@@ -779,6 +782,12 @@ var Bullet = (function (_super) {
     Bullet.prototype.setComparePosition = function (x, y) {
         this.compareX = x;
         this.compareY = y;
+    };
+    Bullet.prototype.updateRange = function (range) {
+        this.rangeSquared = range * range;
+        this.range = range;
+        var d = range - 100;
+        this.startFadeSquared = d * d;
     };
     Bullet.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
@@ -1233,7 +1242,7 @@ var HyperBeamerSType = (function (_super) {
     };
     HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, 3000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionGroup(2);
         bullet.setCollidesWith(0);
@@ -1579,7 +1588,7 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, 600, this.bulletOnCollide, this);
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);

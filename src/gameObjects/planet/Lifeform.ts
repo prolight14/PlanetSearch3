@@ -9,7 +9,9 @@ export default class Lifeform extends GameObject
 
         scene.physics.add.existing(this);
 
-        this.resetPhysics();
+        // this.resetPhysics();
+
+        this.updatePhysics();
     }
 
     protected hp: number = 2;
@@ -36,29 +38,143 @@ export default class Lifeform extends GameObject
         activate: () => boolean;
     };
 
-    public inLiquid: boolean = false;
-    public isOnSlope: boolean = false;
-    public wasInLiquid: boolean = false;
-    public wasOnSlope: boolean = false;
+    // public inLiquid: boolean = false;
+    // public isOnSlope: boolean = false;
+    // public wasInLiquid: boolean = false;
+    // public wasOnSlope: boolean = false;
     
-    private isJumping: boolean = false;
-    protected jumpSpeed: number = 80;
-    protected jumpHeight: number = 310;
+    // private isJumping: boolean = false;
+    // protected jumpSpeed: number = 80;
+    // protected jumpHeight: number = 310;
 
-    protected xSpeed: number = 8;
-    protected maxVel: { x: number, y: number} = { x: 175, y: 600};
-    protected drag: { x: number, y: number} = { x: 30, y: 0};
-    protected xDeacl: number = 10;
-    protected xDeaclInAir: number = 3;
-    protected ySwimSpeed: number = 140;
-    protected maxVelInWater: number = 75;
+    // protected xSpeed: number = 8;
+    // protected maxVel: { x: number, y: number} = { x: 175, y: 600};
+    // protected drag: { x: number, y: number} = { x: 30, y: 0};
+    // protected xDeacl: number = 10;
+    // protected xDeaclInAir: number = 3;
+    // protected ySwimSpeed: number = 140;
+    // protected maxVelInWater: number = 75;
+
+    protected physics = {
+        jumpSpeed: 80,
+        jumpHeight: 367,
+        swimSpeed: new Phaser.Math.Vector2(40, 40),
+        accelerationX: {
+            onGround: 420,
+            inAir: 360,
+            inLiquid: 30
+        },
+
+        drag: new Phaser.Math.Vector2(300, 160),
+        maxVelocity: new Phaser.Math.Vector2(156, 480),
+    };
+
+    private updatePhysics()
+    {
+        const { drag, maxVelocity } = this.physics;
+        this.setDrag(drag.x, drag.y).setMaxVelocity(maxVelocity.x, maxVelocity.y);
+    }
+
+    public inLiquid: boolean = false;
 
     protected resetPhysics()
     {
-        return this.setDrag(this.drag.x, this.drag.y).setMaxVelocity(this.maxVel.x, this.maxVel.y);
+        // return this.setDrag(this.drag.x, this.drag.y).setMaxVelocity(this.maxVel.x, this.maxVel.y);
     }
 
-    public preUpdate(time: number, delta: number)
+    private isJumping: boolean = false; 
+    public onEdgeOfLiquid: boolean = false;
+
+    protected preUpdate(time: number, delta: number)
+    {
+        if(this.dead)
+        {
+            return;
+        }
+
+        super.preUpdate(time, delta);
+
+        const { accelerationX, swimSpeed, jumpSpeed, jumpHeight } = this.physics;
+
+        const onGround = this.body.blocked.down;
+        var acceleration = onGround ? accelerationX.onGround : accelerationX.inAir;
+
+        if(this.inLiquid)
+        {
+            acceleration = accelerationX.inLiquid;
+            this.setDrag(400, 400);
+            this.setGravityY(0);
+            this.setMaxVelocity(100, 100);
+        }
+        else
+        {
+            this.updatePhysics();
+        }
+
+        if(this.controls.left())
+        {
+            this.setAccelerationX(-acceleration);
+        }
+        if(this.controls.right())
+        {
+            this.setAccelerationX(acceleration);
+        }
+        if(!this.controls.left() && !this.controls.right())
+        {
+            this.setAccelerationX(0);
+        }
+
+        if(this.inLiquid)
+        {
+            if(this.controls.up())
+            {
+                this.setVelocityY(-swimSpeed.y);
+            }
+            if(this.controls.down())
+            {
+                this.setVelocityY(swimSpeed.y);
+            }
+        }
+        else
+        {
+            if(this.controls.up())
+            {
+                if(onGround)
+                {
+                    this.isJumping = true;
+                }
+            }
+            else
+            {
+                this.isJumping = false;
+            }
+                  
+            if(this.isJumping)
+            {
+                this.body.velocity.y -= jumpSpeed;
+    
+                if(this.body.velocity.y < -jumpHeight)
+                {
+                    this.isJumping = false;
+                }
+            }
+        }
+
+        this.inLiquid = false;
+        this.onEdgeOfLiquid = false;
+
+        if(this.y > this.scene.cameras.main.getBounds().height + this.body.halfHeight)
+        {
+            this.kill("fellOff");
+        }
+        else if(this.hp <= 0)
+        {
+            this.kill("noHp");
+        }
+    }
+  
+
+    /*public _preUpdate(time: number, delta: number)
     {
         if(this.dead)
         {
@@ -79,7 +195,7 @@ export default class Lifeform extends GameObject
         }
         if(!this.controls.left() && !this.controls.right())
         {
-            const xDeacl = onGround ? this.xDeacl : this.xDeaclInAir;
+            const xDeacl = this.xDeacl + 1;//(onGround || this.inLiquid) ? this.xDeacl : this.xDeaclInAir;
 
             if(this.body.velocity.x > 0)
             {
@@ -133,8 +249,8 @@ export default class Lifeform extends GameObject
 
         if(this.inLiquid)
         {
-            this.setMaxVelocity(this.maxVelInWater);
-            this.setGravity(0);
+            this.setMaxVelocity(this.maxVel.x * 2, this.maxVelInWater);
+            this.setGravity(200);
         }
         else
         {
@@ -156,7 +272,7 @@ export default class Lifeform extends GameObject
         {
             this.kill("noHp");
         }
-    }
+    }*/
 
     protected dead: boolean = false;
 
