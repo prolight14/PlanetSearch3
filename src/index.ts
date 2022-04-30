@@ -74,6 +74,9 @@ let config: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         autoRound: true
     },
+    input: {
+        gamepad: true
+    },
     pixelArt: true,
     disableContextMenu: true,
     antialiasGL: false,

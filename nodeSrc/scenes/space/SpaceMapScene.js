@@ -25,8 +25,8 @@ var SpaceMapScene = (function (_super) {
         this.starScene = this.scene.get("starSceneController");
         this.spaceSceneCam = this.scene.get("space").cameras.main;
         this.map = new MapSystem_1.default();
-        var mapWidth = 170;
-        var mapHeight = 150;
+        var mapWidth = 250 * 1.2;
+        var mapHeight = 150 * 1.0;
         this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
     };
     SpaceMapScene.prototype.update = function () {
@@ -34,7 +34,7 @@ var SpaceMapScene = (function (_super) {
             return;
         }
         var starScene = this.starScene;
-        this.map.updateMap(0.22, this.spaceSceneCam, function () {
+        this.map.updateMap(0.1, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];

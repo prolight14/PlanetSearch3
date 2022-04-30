@@ -23,6 +23,7 @@ var SpaceGameObject = (function (_super) {
         _this.destroyQueued = false;
         scene.add.existing(_this);
         scene.world.initGameObject(_this);
+        scene.matter.world.remove(_this);
         return _this;
     }
     SpaceGameObject.prototype.preUpdate = function (time, delta) {

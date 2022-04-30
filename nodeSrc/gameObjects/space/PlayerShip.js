@@ -27,12 +27,18 @@ var PlayerShip = (function (_super) {
         _this.nextLevelXp = 100;
         _this.crests = 0;
         _this.maxSpeed = 7.5;
-        _this.speedAcl = 0.25;
-        _this.speedDeacl = 0.075;
+        _this.speedAcl = 0.2;
+        _this.speedDeacl = 0.0745;
         _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.2;
+        _this.angleDeacl = 0.06;
         _this.destroyOnKill = false;
         _this.canShoot = true;
+        _this.gamepadControls = {
+            forward: false,
+            slowdown: false,
+        };
+        _this.setGamepadControls = false;
+        _this.relSpeed = 0;
         _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
@@ -48,18 +54,6 @@ var PlayerShip = (function (_super) {
             _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
             _this.bullets.define("ignoreDestroy", true);
         }
-        _this.scene.input.keyboard.on("keyup-Z", function () {
-            if (_this.canShoot) {
-                _this.shoot();
-                _this.canShoot = false;
-            }
-        });
-        _this.scene.input.keyboard.on("keyup-SPACE", function () {
-            if (_this.canShoot) {
-                _this.shoot();
-                _this.canShoot = false;
-            }
-        });
         var shootInterval = 200;
         _this.shootLimiterTimer = timer_1.default(true, shootInterval, function () {
             _this.canShoot = true;
@@ -77,6 +71,66 @@ var PlayerShip = (function (_super) {
         _this.pEmitter.setAlpha(function (p, k, t) {
             return 1 - t;
         });
+        var BTNS = {
+            B: 0,
+            A: 1,
+            Y: 2,
+            X: 3,
+            L: 4,
+            R: 5,
+            ZL: 6,
+            ZR: 7,
+        };
+        scene.input.gamepad.on('connected', function (gamepad) {
+            this.usingGamepad = true;
+            this.gamepad = gamepad;
+        });
+        scene.input.gamepad.on('disconnected', function (gamepad) {
+            this.usingGamepad = false;
+            delete this.gamepad;
+        });
+        scene.input.gamepad.on('down', function (gamepad, button, value) {
+            if (value !== 1) {
+                return;
+            }
+            if (!_this.usingGamepad) {
+                _this.gamepad = gamepad;
+                _this.usingGamepad = true;
+            }
+            if (button.index === BTNS.ZL) {
+                _this.gamepadControls.forward = true;
+            }
+            if (button.index === BTNS.ZR) {
+                _this.gamepadControls.slowdown = true;
+            }
+        });
+        scene.input.gamepad.on('up', function (gamepad, button, value) {
+            if (value !== 0) {
+                return;
+            }
+            if (button.index === BTNS.ZL) {
+                _this.gamepadControls.forward = false;
+            }
+            if (button.index === BTNS.ZR) {
+                _this.gamepadControls.slowdown = false;
+            }
+            if ((button.index === BTNS.A || button.index === BTNS.B) && _this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-Z", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-SPACE", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
         _this.controls = {
             turnLeft: function () {
                 return _this.keys.turnLeft.isDown;
@@ -85,15 +139,16 @@ var PlayerShip = (function (_super) {
                 return _this.keys.turnRight.isDown;
             },
             goForward: function () {
-                return _this.keys.goForward.isDown;
+                return _this.keys.goForward.isDown || _this.gamepadControls.forward;
             },
             slowDown: function () {
-                return _this.keys.slowDown.isDown;
+                return _this.keys.slowDown.isDown || _this.gamepadControls.slowdown;
             },
             shoot: function () {
                 return false;
             }
         };
+        _this.targetAngle = _this.angle;
         return _this;
     }
     PlayerShip.prototype.resetStats = function () {
@@ -125,7 +180,7 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 2500, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, this.bulletOnCollide, this);
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
@@ -140,9 +195,47 @@ var PlayerShip = (function (_super) {
     };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
-        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
+        if (this.usingGamepad && this.gamepad !== undefined) {
+            var AXES = {
+                LX: 0,
+                LY: 1,
+                RX: 2,
+                RY: 3
+            };
+            var gamepad = this.gamepad;
+            var axisX = gamepad.leftStick.x;
+            var axisY = gamepad.leftStick.y;
+            if (axisX !== 0 || axisY !== 0) {
+                var refAngle = Phaser.Math.Wrap(this.angle, 0, 360);
+                var targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
+                this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, targetAngle, 0.09);
+            }
+            if (this.controls.goForward()) {
+                this.relSpeed += this.speedAcl;
+            }
+            else {
+                if (this.relSpeed > 0) {
+                    this.relSpeed -= this.speedDeacl;
+                }
+                else {
+                    this.relSpeed = 0;
+                }
+            }
+            if (this.controls.slowDown()) {
+                if (this.relSpeed > 0) {
+                    this.relSpeed -= this.manualSpeedDeacl;
+                }
+                else {
+                    this.relSpeed = 0;
+                }
+            }
+            this.relSpeed = Math.min(this.relSpeed, this.maxSpeed);
+            this.speed = this.relSpeed;
+        }
+        var length = this.displayHeight * 0.4;
+        var relAngle = this.angle + 90;
+        this.particles.x = this.x + trig_1.default.cos(relAngle) * length;
+        this.particles.y = this.y + trig_1.default.sin(relAngle) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);

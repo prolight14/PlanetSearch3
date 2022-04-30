@@ -42,6 +42,8 @@ export default class Ship extends SpaceGameObject
         return this.damage;
     }
 
+    protected usingGamepad: boolean = false;
+
     protected controls: {
         turnLeft: () => boolean;
         turnRight: () => boolean;
@@ -67,83 +69,93 @@ export default class Ship extends SpaceGameObject
     {
         super.preUpdate(time, delta);
 
-        if(this.useAngleAcl)
+        if(!this.usingGamepad)
         {
-            if(this.controls.turnLeft())
+            if(this.useAngleAcl)
             {
-                this.angleVel -= this.angleAcl;
-            }
-            if(this.controls.turnRight())
-            {
-                this.angleVel += this.angleAcl;
-            }
-            this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
-
-            if(!this.controls.turnLeft() && !this.controls.turnRight())
-            {
-                if(this.angleVel > 0)
+                if(this.controls.turnLeft())
                 {
-                    this.angleVel -= this.angleDeacl;
+                    this.angleVel -= this.angleAcl;
                 }
-                if(this.angleVel < 0)
+                if(this.controls.turnRight())
                 {
-                    this.angleVel += this.angleDeacl;
+                    this.angleVel += this.angleAcl;
                 }
-
-                if(this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl)
+                this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
+    
+                if(!this.controls.turnLeft() && !this.controls.turnRight())
                 {
-                    this.angleVel = 0;
+                    if(this.angleVel > 0)
+                    {
+                        this.angleVel -= this.angleDeacl;
+                    }
+                    if(this.angleVel < 0)
+                    {
+                        this.angleVel += this.angleDeacl;
+                    }
+    
+                    if(this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl)
+                    {
+                        this.angleVel = 0;
+                    }
+    
                 }
-
-            }
-
-            this.setAngle(this.angle + this.angleVel);
-        }
-        else
-        {
-            if(this.controls.turnLeft())
-            {
-                this.setAngle(this.angle - this.angleVel);
-            }     
-            if(this.controls.turnRight())
-            {
+    
                 this.setAngle(this.angle + this.angleVel);
             }
-        }
-
-        if(this.controls.goForward())
-        {
-            this.speed += this.speedAcl;
-        }
-        else 
-        {
-            if(this.speed > 0)
-            {
-                this.speed -= this.speedDeacl;
-            }  
             else
             {
-                this.speed = 0;
-            } 
-        }
-
-        if(this.controls.slowDown())
-        {
-            if(this.speed > 0)
+                if(this.controls.turnLeft())
+                {
+                    this.setAngle(this.angle - this.angleVel);
+                }     
+                if(this.controls.turnRight())
+                {
+                    this.setAngle(this.angle + this.angleVel);
+                }
+            }    
+            
+            if(this.controls.goForward())
             {
-                this.speed -= this.manualSpeedDeacl;
-            }  
-            else
-            {
-                this.speed = 0; 
+                this.speed += this.speedAcl;
             }
+            else 
+            {
+                if(this.speed > 0)
+                {
+                    this.speed -= this.speedDeacl;
+                }  
+                else
+                {
+                    this.speed = 0;
+                } 
+            }
+
+            if(this.controls.slowDown())
+            {
+                if(this.speed > 0)
+                {
+                    this.speed -= this.manualSpeedDeacl;
+                }  
+                else
+                {
+                    this.speed = 0; 
+                }
+            }
+
+            this.speed = Math.min(this.speed, this.maxSpeed);
         }
+        // else if(this.controls.goForward())
+        // {
+        //     this.speed = Math.min(this.speed, this.maxSpeed);
+        // }
 
-        this.speed = Math.min(this.speed, this.maxSpeed);
-
-        let angle = this.angle - 90;
-        this.x += trig.cos(angle) * this.speed;
-        this.y += trig.sin(angle) * this.speed;
+        // if(!this.usingGamepad)
+        // {
+            let angle = this.angle - 90;
+            this.x += trig.cos(angle) * this.speed;
+            this.y += trig.sin(angle) * this.speed;
+        // }
 
         if(this.hp <= 0)
         {

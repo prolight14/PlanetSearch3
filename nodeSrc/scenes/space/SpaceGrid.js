@@ -60,9 +60,12 @@ var SpaceGrid = (function () {
         sys.displayList.removeAll();
         sys.updateList.removeAll();
         sys.updateList.update();
+        var matter = this.systems.scene.matter;
+        matter.world.remove(matter.world.getAllBodies());
         this.world.loopProcessList(function (object) {
             sys.displayList.add(object);
             sys.updateList.add(object);
+            matter.world.add(object.body);
         });
         var checkDestroy = function (gameObject) {
             if (gameObject.destroyQueued) {

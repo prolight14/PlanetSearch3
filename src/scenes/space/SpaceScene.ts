@@ -267,6 +267,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         if(this.stepMatter++ >= 2)
         {
             this.matter.step(1000 / 30, 0);
+
             this.stepMatter = 0;
         }
     }

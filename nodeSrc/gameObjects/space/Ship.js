@@ -26,6 +26,7 @@ var Ship = (function (_super) {
         _this.hp = 10;
         _this.damage = 1;
         _this.isShip = true;
+        _this.usingGamepad = false;
         _this.maxSpeed = 5;
         _this.speedAcl = 0.5;
         _this.speedDeacl = 0.05;
@@ -52,55 +53,57 @@ var Ship = (function (_super) {
     };
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (this.useAngleAcl) {
-            if (this.controls.turnLeft()) {
-                this.angleVel -= this.angleAcl;
-            }
-            if (this.controls.turnRight()) {
-                this.angleVel += this.angleAcl;
-            }
-            this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
-            if (!this.controls.turnLeft() && !this.controls.turnRight()) {
-                if (this.angleVel > 0) {
-                    this.angleVel -= this.angleDeacl;
+        if (!this.usingGamepad) {
+            if (this.useAngleAcl) {
+                if (this.controls.turnLeft()) {
+                    this.angleVel -= this.angleAcl;
                 }
-                if (this.angleVel < 0) {
-                    this.angleVel += this.angleDeacl;
+                if (this.controls.turnRight()) {
+                    this.angleVel += this.angleAcl;
                 }
-                if (this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl) {
-                    this.angleVel = 0;
+                this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
+                if (!this.controls.turnLeft() && !this.controls.turnRight()) {
+                    if (this.angleVel > 0) {
+                        this.angleVel -= this.angleDeacl;
+                    }
+                    if (this.angleVel < 0) {
+                        this.angleVel += this.angleDeacl;
+                    }
+                    if (this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl) {
+                        this.angleVel = 0;
+                    }
                 }
-            }
-            this.setAngle(this.angle + this.angleVel);
-        }
-        else {
-            if (this.controls.turnLeft()) {
-                this.setAngle(this.angle - this.angleVel);
-            }
-            if (this.controls.turnRight()) {
                 this.setAngle(this.angle + this.angleVel);
             }
-        }
-        if (this.controls.goForward()) {
-            this.speed += this.speedAcl;
-        }
-        else {
-            if (this.speed > 0) {
-                this.speed -= this.speedDeacl;
+            else {
+                if (this.controls.turnLeft()) {
+                    this.setAngle(this.angle - this.angleVel);
+                }
+                if (this.controls.turnRight()) {
+                    this.setAngle(this.angle + this.angleVel);
+                }
+            }
+            if (this.controls.goForward()) {
+                this.speed += this.speedAcl;
             }
             else {
-                this.speed = 0;
+                if (this.speed > 0) {
+                    this.speed -= this.speedDeacl;
+                }
+                else {
+                    this.speed = 0;
+                }
             }
+            if (this.controls.slowDown()) {
+                if (this.speed > 0) {
+                    this.speed -= this.manualSpeedDeacl;
+                }
+                else {
+                    this.speed = 0;
+                }
+            }
+            this.speed = Math.min(this.speed, this.maxSpeed);
         }
-        if (this.controls.slowDown()) {
-            if (this.speed > 0) {
-                this.speed -= this.manualSpeedDeacl;
-            }
-            else {
-                this.speed = 0;
-            }
-        }
-        this.speed = Math.min(this.speed, this.maxSpeed);
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;

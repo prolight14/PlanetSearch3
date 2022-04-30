@@ -163,10 +163,15 @@ export default class SpaceGrid
 
         sys.updateList.update();
 
+        const matter = this.systems.scene.matter;
+        matter.world.remove(matter.world.getAllBodies());
+
         this.world.loopProcessList(function(object: Phaser.GameObjects.GameObject)
         {
             sys.displayList.add(object);
             sys.updateList.add(object);
+
+            matter.world.add(object.body);
         });
         
         const checkDestroy = (gameObject: SpaceGameObject | SpaceImg) =>
@@ -177,7 +182,7 @@ export default class SpaceGrid
                 gameObject.destroyQueued = false;
             }
         };
-        
+
         sys.displayList.list.forEach(checkDestroy);
         sys.updateList.getActive().forEach(checkDestroy);
 

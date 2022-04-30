@@ -7,8 +7,11 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
         super(scene.matter.world, x, y, texture, frame);
 
         scene.add.existing(this);
+
         // Todo: move to SpaceGrid
         scene.world.initGameObject(this);
+
+        scene.matter.world.remove(this);
     }
 
     protected preUpdate(time: number, delta: number)

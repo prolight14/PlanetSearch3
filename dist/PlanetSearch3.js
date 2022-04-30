@@ -1422,12 +1422,18 @@ var PlayerShip = (function (_super) {
         _this.nextLevelXp = 100;
         _this.crests = 0;
         _this.maxSpeed = 7.5;
-        _this.speedAcl = 0.25;
-        _this.speedDeacl = 0.075;
+        _this.speedAcl = 0.2;
+        _this.speedDeacl = 0.0745;
         _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.2;
+        _this.angleDeacl = 0.06;
         _this.destroyOnKill = false;
         _this.canShoot = true;
+        _this.gamepadControls = {
+            forward: false,
+            slowdown: false,
+        };
+        _this.setGamepadControls = false;
+        _this.relSpeed = 0;
         _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
@@ -1443,18 +1449,6 @@ var PlayerShip = (function (_super) {
             _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
             _this.bullets.define("ignoreDestroy", true);
         }
-        _this.scene.input.keyboard.on("keyup-Z", function () {
-            if (_this.canShoot) {
-                _this.shoot();
-                _this.canShoot = false;
-            }
-        });
-        _this.scene.input.keyboard.on("keyup-SPACE", function () {
-            if (_this.canShoot) {
-                _this.shoot();
-                _this.canShoot = false;
-            }
-        });
         var shootInterval = 200;
         _this.shootLimiterTimer = timer_1.default(true, shootInterval, function () {
             _this.canShoot = true;
@@ -1472,6 +1466,66 @@ var PlayerShip = (function (_super) {
         _this.pEmitter.setAlpha(function (p, k, t) {
             return 1 - t;
         });
+        var BTNS = {
+            B: 0,
+            A: 1,
+            Y: 2,
+            X: 3,
+            L: 4,
+            R: 5,
+            ZL: 6,
+            ZR: 7,
+        };
+        scene.input.gamepad.on('connected', function (gamepad) {
+            this.usingGamepad = true;
+            this.gamepad = gamepad;
+        });
+        scene.input.gamepad.on('disconnected', function (gamepad) {
+            this.usingGamepad = false;
+            delete this.gamepad;
+        });
+        scene.input.gamepad.on('down', function (gamepad, button, value) {
+            if (value !== 1) {
+                return;
+            }
+            if (!_this.usingGamepad) {
+                _this.gamepad = gamepad;
+                _this.usingGamepad = true;
+            }
+            if (button.index === BTNS.ZL) {
+                _this.gamepadControls.forward = true;
+            }
+            if (button.index === BTNS.ZR) {
+                _this.gamepadControls.slowdown = true;
+            }
+        });
+        scene.input.gamepad.on('up', function (gamepad, button, value) {
+            if (value !== 0) {
+                return;
+            }
+            if (button.index === BTNS.ZL) {
+                _this.gamepadControls.forward = false;
+            }
+            if (button.index === BTNS.ZR) {
+                _this.gamepadControls.slowdown = false;
+            }
+            if ((button.index === BTNS.A || button.index === BTNS.B) && _this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-Z", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
+        _this.scene.input.keyboard.on("keyup-SPACE", function () {
+            if (_this.canShoot) {
+                _this.shoot();
+                _this.canShoot = false;
+            }
+        });
         _this.controls = {
             turnLeft: function () {
                 return _this.keys.turnLeft.isDown;
@@ -1480,15 +1534,16 @@ var PlayerShip = (function (_super) {
                 return _this.keys.turnRight.isDown;
             },
             goForward: function () {
-                return _this.keys.goForward.isDown;
+                return _this.keys.goForward.isDown || _this.gamepadControls.forward;
             },
             slowDown: function () {
-                return _this.keys.slowDown.isDown;
+                return _this.keys.slowDown.isDown || _this.gamepadControls.slowdown;
             },
             shoot: function () {
                 return false;
             }
         };
+        _this.targetAngle = _this.angle;
         return _this;
     }
     PlayerShip.prototype.resetStats = function () {
@@ -1520,7 +1575,7 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 2500, this.bulletOnCollide, this);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, this.bulletOnCollide, this);
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
@@ -1535,9 +1590,47 @@ var PlayerShip = (function (_super) {
     };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        var length = this.height * this.scaleX * 0.4;
-        this.particles.x = this.x + trig_1.default.cos(this.angle + 90) * length;
-        this.particles.y = this.y + trig_1.default.sin(this.angle + 90) * length;
+        if (this.usingGamepad && this.gamepad !== undefined) {
+            var AXES = {
+                LX: 0,
+                LY: 1,
+                RX: 2,
+                RY: 3
+            };
+            var gamepad = this.gamepad;
+            var axisX = gamepad.leftStick.x;
+            var axisY = gamepad.leftStick.y;
+            if (axisX !== 0 || axisY !== 0) {
+                var refAngle = Phaser.Math.Wrap(this.angle, 0, 360);
+                var targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
+                this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, targetAngle, 0.09);
+            }
+            if (this.controls.goForward()) {
+                this.relSpeed += this.speedAcl;
+            }
+            else {
+                if (this.relSpeed > 0) {
+                    this.relSpeed -= this.speedDeacl;
+                }
+                else {
+                    this.relSpeed = 0;
+                }
+            }
+            if (this.controls.slowDown()) {
+                if (this.relSpeed > 0) {
+                    this.relSpeed -= this.manualSpeedDeacl;
+                }
+                else {
+                    this.relSpeed = 0;
+                }
+            }
+            this.relSpeed = Math.min(this.relSpeed, this.maxSpeed);
+            this.speed = this.relSpeed;
+        }
+        var length = this.displayHeight * 0.4;
+        var relAngle = this.angle + 90;
+        this.particles.x = this.x + trig_1.default.cos(relAngle) * length;
+        this.particles.y = this.y + trig_1.default.sin(relAngle) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
@@ -1588,6 +1681,7 @@ var Ship = (function (_super) {
         _this.hp = 10;
         _this.damage = 1;
         _this.isShip = true;
+        _this.usingGamepad = false;
         _this.maxSpeed = 5;
         _this.speedAcl = 0.5;
         _this.speedDeacl = 0.05;
@@ -1614,55 +1708,57 @@ var Ship = (function (_super) {
     };
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (this.useAngleAcl) {
-            if (this.controls.turnLeft()) {
-                this.angleVel -= this.angleAcl;
-            }
-            if (this.controls.turnRight()) {
-                this.angleVel += this.angleAcl;
-            }
-            this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
-            if (!this.controls.turnLeft() && !this.controls.turnRight()) {
-                if (this.angleVel > 0) {
-                    this.angleVel -= this.angleDeacl;
+        if (!this.usingGamepad) {
+            if (this.useAngleAcl) {
+                if (this.controls.turnLeft()) {
+                    this.angleVel -= this.angleAcl;
                 }
-                if (this.angleVel < 0) {
-                    this.angleVel += this.angleDeacl;
+                if (this.controls.turnRight()) {
+                    this.angleVel += this.angleAcl;
                 }
-                if (this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl) {
-                    this.angleVel = 0;
+                this.angleVel = Math.min(Math.max(this.angleVel, -this.maxAngleVel), this.maxAngleVel);
+                if (!this.controls.turnLeft() && !this.controls.turnRight()) {
+                    if (this.angleVel > 0) {
+                        this.angleVel -= this.angleDeacl;
+                    }
+                    if (this.angleVel < 0) {
+                        this.angleVel += this.angleDeacl;
+                    }
+                    if (this.angleVel > -this.angleDeacl && this.angleVel < this.angleDeacl) {
+                        this.angleVel = 0;
+                    }
                 }
-            }
-            this.setAngle(this.angle + this.angleVel);
-        }
-        else {
-            if (this.controls.turnLeft()) {
-                this.setAngle(this.angle - this.angleVel);
-            }
-            if (this.controls.turnRight()) {
                 this.setAngle(this.angle + this.angleVel);
             }
-        }
-        if (this.controls.goForward()) {
-            this.speed += this.speedAcl;
-        }
-        else {
-            if (this.speed > 0) {
-                this.speed -= this.speedDeacl;
+            else {
+                if (this.controls.turnLeft()) {
+                    this.setAngle(this.angle - this.angleVel);
+                }
+                if (this.controls.turnRight()) {
+                    this.setAngle(this.angle + this.angleVel);
+                }
+            }
+            if (this.controls.goForward()) {
+                this.speed += this.speedAcl;
             }
             else {
-                this.speed = 0;
+                if (this.speed > 0) {
+                    this.speed -= this.speedDeacl;
+                }
+                else {
+                    this.speed = 0;
+                }
             }
+            if (this.controls.slowDown()) {
+                if (this.speed > 0) {
+                    this.speed -= this.manualSpeedDeacl;
+                }
+                else {
+                    this.speed = 0;
+                }
+            }
+            this.speed = Math.min(this.speed, this.maxSpeed);
         }
-        if (this.controls.slowDown()) {
-            if (this.speed > 0) {
-                this.speed -= this.manualSpeedDeacl;
-            }
-            else {
-                this.speed = 0;
-            }
-        }
-        this.speed = Math.min(this.speed, this.maxSpeed);
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;
@@ -1746,6 +1842,7 @@ var SpaceGameObject = (function (_super) {
         _this.destroyQueued = false;
         scene.add.existing(_this);
         scene.world.initGameObject(_this);
+        scene.matter.world.remove(_this);
         return _this;
     }
     SpaceGameObject.prototype.preUpdate = function (time, delta) {
@@ -2915,9 +3012,12 @@ var SpaceGrid = (function () {
         sys.displayList.removeAll();
         sys.updateList.removeAll();
         sys.updateList.update();
+        var matter = this.systems.scene.matter;
+        matter.world.remove(matter.world.getAllBodies());
         this.world.loopProcessList(function (object) {
             sys.displayList.add(object);
             sys.updateList.add(object);
+            matter.world.add(object.body);
         });
         var checkDestroy = function (gameObject) {
             if (gameObject.destroyQueued) {
@@ -3112,6 +3212,14 @@ var SpaceLogicScene = (function (_super) {
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
+        for (var i = 0; i < 100; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000));
+        }
+        for (var i = 0; i < 3000; i++) {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-12000, 12000), 60600 + RND.integerInRange(-12000, 12000));
+        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -3185,8 +3293,8 @@ var SpaceMapScene = (function (_super) {
         this.starScene = this.scene.get("starSceneController");
         this.spaceSceneCam = this.scene.get("space").cameras.main;
         this.map = new MapSystem_1.default();
-        var mapWidth = 170;
-        var mapHeight = 150;
+        var mapWidth = 250 * 1.2;
+        var mapHeight = 150 * 1.0;
         this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
     };
     SpaceMapScene.prototype.update = function () {
@@ -3194,7 +3302,7 @@ var SpaceMapScene = (function (_super) {
             return;
         }
         var starScene = this.starScene;
-        this.map.updateMap(0.22, this.spaceSceneCam, function () {
+        this.map.updateMap(0.1, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
@@ -3675,6 +3783,9 @@ var config = {
         mode: Phaser.Scale.ScaleModes.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         autoRound: true
+    },
+    input: {
+        gamepad: true
     },
     pixelArt: true,
     disableContextMenu: true,

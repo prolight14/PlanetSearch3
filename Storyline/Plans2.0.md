@@ -74,3 +74,17 @@ What software will be used to create the game
 Storyline
 ---------
 Keep a compelling storyline to keep the player playing!
+
+
+Todo
+------
+Improve thrusters
+Try the Space track from Helix's Adventure in space
+try adding a ton of enemy ships into the game for performance
+
+
+Minimap:
+Make it so the minimap expands and you can see where you've been
+Make it so you can toggle between minimap game object icons and minimap game object images
+
+Improve enemy AI

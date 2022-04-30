@@ -23,8 +23,8 @@ export default class SpaceMapScene extends Phaser.Scene
         this.spaceSceneCam = this.scene.get("space").cameras.main;
         this.map = new MapSystem();
 
-        const mapWidth = 170;
-        const mapHeight = 150;
+        const mapWidth = 250 * 1.2;
+        const mapHeight = 150 * 1.0;
         this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
     }
 
@@ -37,7 +37,7 @@ export default class SpaceMapScene extends Phaser.Scene
 
         const starScene = this.starScene;
 
-        this.map.updateMap(0.22, this.spaceSceneCam, (...args: any[]) =>
+        this.map.updateMap(0.1, this.spaceSceneCam, (...args: any[]) =>
         {
             starScene.updateToRenderTexture.apply(starScene, args);
         });
