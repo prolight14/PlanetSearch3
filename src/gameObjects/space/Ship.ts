@@ -114,48 +114,41 @@ export default class Ship extends SpaceGameObject
                     this.setAngle(this.angle + this.angleVel);
                 }
             }    
-            
-            if(this.controls.goForward())
-            {
-                this.speed += this.speedAcl;
-            }
-            else 
-            {
-                if(this.speed > 0)
-                {
-                    this.speed -= this.speedDeacl;
-                }  
-                else
-                {
-                    this.speed = 0;
-                } 
-            }
-
-            if(this.controls.slowDown())
-            {
-                if(this.speed > 0)
-                {
-                    this.speed -= this.manualSpeedDeacl;
-                }  
-                else
-                {
-                    this.speed = 0; 
-                }
-            }
-
-            this.speed = Math.min(this.speed, this.maxSpeed);
         }
-        // else if(this.controls.goForward())
-        // {
-        //     this.speed = Math.min(this.speed, this.maxSpeed);
-        // }
+            
+        if(this.controls.goForward())
+        {
+            this.speed += this.speedAcl;
+        }
+        else 
+        {
+            if(this.speed > 0)
+            {
+                this.speed -= this.speedDeacl;
+            }  
+            else
+            {
+                this.speed = 0;
+            } 
+        }
 
-        // if(!this.usingGamepad)
-        // {
-            let angle = this.angle - 90;
-            this.x += trig.cos(angle) * this.speed;
-            this.y += trig.sin(angle) * this.speed;
-        // }
+        if(this.controls.slowDown())
+        {
+            if(this.speed > 0)
+            {
+                this.speed -= this.manualSpeedDeacl;
+            }  
+            else
+            {
+                this.speed = 0; 
+            }
+        }
+
+        this.speed = Math.min(this.speed, this.maxSpeed);
+
+        let angle = this.angle - 90;
+        this.x += trig.cos(angle) * this.speed;
+        this.y += trig.sin(angle) * this.speed;
 
         if(this.hp <= 0)
         {

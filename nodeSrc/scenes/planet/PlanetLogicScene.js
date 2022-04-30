@@ -72,14 +72,15 @@ var PlanetLogicScene = (function (_super) {
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         var water = this.add.group();
-        this.physics.add.collider(this.player, water, function (objectA, objectB) {
-            objectB.onCollide(objectA);
-        });
         groundLayer.forEachTile(function (tile) {
-            if (tile.index > 82 && tile.index < 99) {
+            if (tile.index > 80 && tile.index < 115) {
                 tile.alpha = 0.8;
                 water.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
             }
+        });
+        this.physics.add.overlap(this.player, water, function (player, water) {
+            player.onOverlap(water);
+            water.onOverlap(player);
         });
     };
     PlanetLogicScene.prototype.getPlayerStats = function () {

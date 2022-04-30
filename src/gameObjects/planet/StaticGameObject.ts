@@ -6,6 +6,7 @@ export default class StaticGameObject extends Phaser.Physics.Arcade.Image
     {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);
+
         // (scene as PlanetLogicScene).gameObjects.push(this);
 
         // if(solid === undefined) { solid = true; }

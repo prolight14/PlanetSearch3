@@ -1,4 +1,3 @@
-import GameObject from "../../gameObjects/planet/GameObject";
 import Player from "../../gameObjects/planet/Player";
 import Water from "../../gameObjects/planet/Water";
 
@@ -89,46 +88,20 @@ export default class PlanetLogicScene extends Phaser.Scene
 
         const water = this.add.group();
 
-        this.physics.add.collider(this.player, water, function(objectA: GameObject, objectB: GameObject)
-        {
-            // objectA.onCollide(objectB);
-            objectB.onCollide(objectA);
-        });
-
-        // //value: Phaser.Tilemaps.Tile, index: number, array: Phaser.Tilemaps.Tile[])
-        // groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile, index: number) =>
-        // {
-        //     // if(tile.index === BlockIndexes.GRASS_PLANET.WATER || tile.index === BlockIndexes.GRASS_PLANET.WATER_2)
-        //     if(tile.index > 82 && tile.index < 93)
-        //     {
-        //         tile.alpha = 0.8;
-        //         // tile.destroy();
-        //         water.add(new Water(this, tile.pixelX, tile.pixelY));
-        //     }
-        //     // if(tile.index === 86 || tile.index === 87)
-        //     // {
-        //         // water.add(new Water(this, tile.pixelX, tile.pixelY));
-        //     // }
-        // });
-
         groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) =>
         {
-            if(tile.index > 82 && tile.index < 99)
+            if(tile.index > 80 && tile.index < 115)
             {
                 tile.alpha = 0.8;
                 water.add(new Water(this, tile.pixelX, tile.pixelY));
             }
         });
 
-        // groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile, index: number) =>
-        // {
-        //     if(tile.index > 82 && tile.index < 93)
-        //     {
-        //         // groundLayer.removeTileAt(tile.x, tile.y);
-        //         water.add(new Water(this, tile.pixelX, tile.pixelY));
-        //         // tile.destroy();
-        //     }
-        // });
+        this.physics.add.overlap(this.player, water, function(player: Player, water: Water)
+        {
+            player.onOverlap(water);
+            water.onOverlap(player);
+        });
     }
 
     public getPlayerStats()

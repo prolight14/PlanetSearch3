@@ -37,8 +37,7 @@ var PlayerShip = (function (_super) {
             forward: false,
             slowdown: false,
         };
-        _this.setGamepadControls = false;
-        _this.relSpeed = 0;
+        _this.targetAngle = 0;
         _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
@@ -48,7 +47,7 @@ var PlayerShip = (function (_super) {
             turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-            slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+            slowdown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
         };
         if (!(_this.bullets = scene.world.get.gameObjectArray("playerShipBullet"))) {
             _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
@@ -81,6 +80,12 @@ var PlayerShip = (function (_super) {
             ZL: 6,
             ZR: 7,
         };
+        if (scene.input.gamepad !== undefined &&
+            scene.input.gamepad.total > 0 &&
+            scene.input.gamepad.gamepads.length > 0) {
+            _this.usingGamepad = true;
+            _this.gamepad = scene.input.gamepad.gamepads[0];
+        }
         scene.input.gamepad.on('connected', function (gamepad) {
             this.usingGamepad = true;
             this.gamepad = gamepad;
@@ -100,7 +105,7 @@ var PlayerShip = (function (_super) {
             if (button.index === BTNS.ZL) {
                 _this.gamepadControls.forward = true;
             }
-            if (button.index === BTNS.ZR) {
+            if (button.index === BTNS.B) {
                 _this.gamepadControls.slowdown = true;
             }
         });
@@ -111,10 +116,10 @@ var PlayerShip = (function (_super) {
             if (button.index === BTNS.ZL) {
                 _this.gamepadControls.forward = false;
             }
-            if (button.index === BTNS.ZR) {
+            if (button.index === BTNS.B) {
                 _this.gamepadControls.slowdown = false;
             }
-            if ((button.index === BTNS.A || button.index === BTNS.B) && _this.canShoot) {
+            if ((button.index === BTNS.A || button.index === BTNS.ZR) && _this.canShoot) {
                 _this.shoot();
                 _this.canShoot = false;
             }
@@ -142,7 +147,7 @@ var PlayerShip = (function (_super) {
                 return _this.keys.goForward.isDown || _this.gamepadControls.forward;
             },
             slowDown: function () {
-                return _this.keys.slowDown.isDown || _this.gamepadControls.slowdown;
+                return _this.keys.slowdown.isDown || _this.gamepadControls.slowdown;
             },
             shoot: function () {
                 return false;
@@ -193,49 +198,25 @@ var PlayerShip = (function (_super) {
         }
         return false;
     };
+    PlayerShip.prototype.updateGamepad = function () {
+        if (!this.usingGamepad || this.gamepad === undefined) {
+            return;
+        }
+        var gamepad = this.gamepad;
+        var axisX = gamepad.leftStick.x;
+        var axisY = gamepad.leftStick.y;
+        if (axisX !== 0 || axisY !== 0) {
+            this.targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
+        }
+        this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, this.targetAngle, 0.09);
+    };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (this.usingGamepad && this.gamepad !== undefined) {
-            var AXES = {
-                LX: 0,
-                LY: 1,
-                RX: 2,
-                RY: 3
-            };
-            var gamepad = this.gamepad;
-            var axisX = gamepad.leftStick.x;
-            var axisY = gamepad.leftStick.y;
-            if (axisX !== 0 || axisY !== 0) {
-                var refAngle = Phaser.Math.Wrap(this.angle, 0, 360);
-                var targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
-                this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, targetAngle, 0.09);
-            }
-            if (this.controls.goForward()) {
-                this.relSpeed += this.speedAcl;
-            }
-            else {
-                if (this.relSpeed > 0) {
-                    this.relSpeed -= this.speedDeacl;
-                }
-                else {
-                    this.relSpeed = 0;
-                }
-            }
-            if (this.controls.slowDown()) {
-                if (this.relSpeed > 0) {
-                    this.relSpeed -= this.manualSpeedDeacl;
-                }
-                else {
-                    this.relSpeed = 0;
-                }
-            }
-            this.relSpeed = Math.min(this.relSpeed, this.maxSpeed);
-            this.speed = this.relSpeed;
-        }
+        this.updateGamepad();
         var length = this.displayHeight * 0.4;
-        var relAngle = this.angle + 90;
-        this.particles.x = this.x + trig_1.default.cos(relAngle) * length;
-        this.particles.y = this.y + trig_1.default.sin(relAngle) * length;
+        var refAngle = this.angle + 90;
+        this.particles.x = this.x + trig_1.default.cos(refAngle) * length;
+        this.particles.y = this.y + trig_1.default.sin(refAngle) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);

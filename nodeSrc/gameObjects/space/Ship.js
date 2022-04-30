@@ -83,27 +83,27 @@ var Ship = (function (_super) {
                     this.setAngle(this.angle + this.angleVel);
                 }
             }
-            if (this.controls.goForward()) {
-                this.speed += this.speedAcl;
+        }
+        if (this.controls.goForward()) {
+            this.speed += this.speedAcl;
+        }
+        else {
+            if (this.speed > 0) {
+                this.speed -= this.speedDeacl;
             }
             else {
-                if (this.speed > 0) {
-                    this.speed -= this.speedDeacl;
-                }
-                else {
-                    this.speed = 0;
-                }
+                this.speed = 0;
             }
-            if (this.controls.slowDown()) {
-                if (this.speed > 0) {
-                    this.speed -= this.manualSpeedDeacl;
-                }
-                else {
-                    this.speed = 0;
-                }
-            }
-            this.speed = Math.min(this.speed, this.maxSpeed);
         }
+        if (this.controls.slowDown()) {
+            if (this.speed > 0) {
+                this.speed -= this.manualSpeedDeacl;
+            }
+            else {
+                this.speed = 0;
+            }
+        }
+        this.speed = Math.min(this.speed, this.maxSpeed);
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;

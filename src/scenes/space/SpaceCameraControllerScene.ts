@@ -23,9 +23,55 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         this.spaceScene = this.scene.get("space") as SpaceScene;
         this.spaceDebugScene = this.scene.get("spaceDebug") as SpaceDebugScene;
 
+        const BTNS = {
+            DPU: 12,
+            DPD: 13
+        };
+            
+        this.gamepadControls = {
+            zoomingIn: false,
+            zoomingOut: false
+        };
+
+        this.spaceScene.input.gamepad.on('down', (gamepad: Phaser.Input.Gamepad.Gamepad, button: Phaser.Input.Gamepad.Button, value: number) =>
+        {
+            if(value !== 1)
+            {
+                return;
+            }
+
+            if(button.index === BTNS.DPU)
+            {
+                this.gamepadControls.zoomingIn = true;
+                this.gamepadControls.zoomingOut = false;
+            }
+            if(button.index === BTNS.DPD)
+            {
+                this.gamepadControls.zoomingOut = true;
+                this.gamepadControls.zoomingIn = false;
+            }
+        });
+        
+        this.spaceScene.input.gamepad.on('up', (gamepad: Phaser.Input.Gamepad.Gamepad, button: Phaser.Input.Gamepad.Button, value: number) =>
+        {
+            if(value !== 0)
+            {
+                return;
+            }
+            
+            if(button.index === BTNS.DPU)
+            {
+                this.gamepadControls.zoomingIn = false;
+            }
+            if(button.index === BTNS.DPD)
+            {
+                this.gamepadControls.zoomingOut = false;
+            }
+        });
+
         this.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
-            var cam = this.cameras.main;
+            const cam = this.cameras.main;
 
             this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
         });
@@ -42,6 +88,11 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         // this.updateZoom(0.9);
         this.updateZoom(0.5);
     }
+
+    private gamepadControls: {
+        zoomingIn: boolean;
+        zoomingOut: boolean;
+    };
    
     public getCameraAngle(): number
     {
@@ -73,8 +124,24 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         this.resizeCSPCameraWindow();
     }
 
+    private updateGamepadZoom()
+    {
+        const cam = this.cameras.main;
+
+        if(this.gamepadControls.zoomingIn)
+        {
+            this.updateZoom(Math.min(Math.max(cam.zoom + 0.01, 0.005), 2.5));
+        }
+        else if(this.gamepadControls.zoomingOut)
+        {
+            this.updateZoom(Math.min(Math.max(cam.zoom - 0.01, 0.005), 2.5));
+        }
+    }
+
     public update ()
     {
+        this.updateGamepadZoom();
+
         var cam = this.cameras.main;
 
         var spaceCam = this.spaceScene.cameras.main;

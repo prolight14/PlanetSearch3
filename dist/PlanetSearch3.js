@@ -706,11 +706,10 @@ var Water = (function (_super) {
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
-        _this.setSize(_this.displayWidth, _this.displayHeight);
         _this.setVisible(false);
         return _this;
     }
-    Water.prototype.onCollide = function (object) {
+    Water.prototype.onOverlap = function (object) {
         object.inLiquid = true;
     };
     return Water;
@@ -1432,8 +1431,7 @@ var PlayerShip = (function (_super) {
             forward: false,
             slowdown: false,
         };
-        _this.setGamepadControls = false;
-        _this.relSpeed = 0;
+        _this.targetAngle = 0;
         _this.ignoreDestroy = true;
         _this.setCollisionGroup(2);
         _this.setCollidesWith(0);
@@ -1443,7 +1441,7 @@ var PlayerShip = (function (_super) {
             turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
             goForward: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-            slowDown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+            slowdown: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
         };
         if (!(_this.bullets = scene.world.get.gameObjectArray("playerShipBullet"))) {
             _this.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "playerShipBullet");
@@ -1476,6 +1474,12 @@ var PlayerShip = (function (_super) {
             ZL: 6,
             ZR: 7,
         };
+        if (scene.input.gamepad !== undefined &&
+            scene.input.gamepad.total > 0 &&
+            scene.input.gamepad.gamepads.length > 0) {
+            _this.usingGamepad = true;
+            _this.gamepad = scene.input.gamepad.gamepads[0];
+        }
         scene.input.gamepad.on('connected', function (gamepad) {
             this.usingGamepad = true;
             this.gamepad = gamepad;
@@ -1495,7 +1499,7 @@ var PlayerShip = (function (_super) {
             if (button.index === BTNS.ZL) {
                 _this.gamepadControls.forward = true;
             }
-            if (button.index === BTNS.ZR) {
+            if (button.index === BTNS.B) {
                 _this.gamepadControls.slowdown = true;
             }
         });
@@ -1506,10 +1510,10 @@ var PlayerShip = (function (_super) {
             if (button.index === BTNS.ZL) {
                 _this.gamepadControls.forward = false;
             }
-            if (button.index === BTNS.ZR) {
+            if (button.index === BTNS.B) {
                 _this.gamepadControls.slowdown = false;
             }
-            if ((button.index === BTNS.A || button.index === BTNS.B) && _this.canShoot) {
+            if ((button.index === BTNS.A || button.index === BTNS.ZR) && _this.canShoot) {
                 _this.shoot();
                 _this.canShoot = false;
             }
@@ -1537,7 +1541,7 @@ var PlayerShip = (function (_super) {
                 return _this.keys.goForward.isDown || _this.gamepadControls.forward;
             },
             slowDown: function () {
-                return _this.keys.slowDown.isDown || _this.gamepadControls.slowdown;
+                return _this.keys.slowdown.isDown || _this.gamepadControls.slowdown;
             },
             shoot: function () {
                 return false;
@@ -1588,49 +1592,25 @@ var PlayerShip = (function (_super) {
         }
         return false;
     };
+    PlayerShip.prototype.updateGamepad = function () {
+        if (!this.usingGamepad || this.gamepad === undefined) {
+            return;
+        }
+        var gamepad = this.gamepad;
+        var axisX = gamepad.leftStick.x;
+        var axisY = gamepad.leftStick.y;
+        if (axisX !== 0 || axisY !== 0) {
+            this.targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
+        }
+        this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, this.targetAngle, 0.09);
+    };
     PlayerShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
-        if (this.usingGamepad && this.gamepad !== undefined) {
-            var AXES = {
-                LX: 0,
-                LY: 1,
-                RX: 2,
-                RY: 3
-            };
-            var gamepad = this.gamepad;
-            var axisX = gamepad.leftStick.x;
-            var axisY = gamepad.leftStick.y;
-            if (axisX !== 0 || axisY !== 0) {
-                var refAngle = Phaser.Math.Wrap(this.angle, 0, 360);
-                var targetAngle = Phaser.Math.Angle.Normalize(Math.atan2(axisY, axisX) + 90 * Phaser.Math.DEG_TO_RAD);
-                this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, targetAngle, 0.09);
-            }
-            if (this.controls.goForward()) {
-                this.relSpeed += this.speedAcl;
-            }
-            else {
-                if (this.relSpeed > 0) {
-                    this.relSpeed -= this.speedDeacl;
-                }
-                else {
-                    this.relSpeed = 0;
-                }
-            }
-            if (this.controls.slowDown()) {
-                if (this.relSpeed > 0) {
-                    this.relSpeed -= this.manualSpeedDeacl;
-                }
-                else {
-                    this.relSpeed = 0;
-                }
-            }
-            this.relSpeed = Math.min(this.relSpeed, this.maxSpeed);
-            this.speed = this.relSpeed;
-        }
+        this.updateGamepad();
         var length = this.displayHeight * 0.4;
-        var relAngle = this.angle + 90;
-        this.particles.x = this.x + trig_1.default.cos(relAngle) * length;
-        this.particles.y = this.y + trig_1.default.sin(relAngle) * length;
+        var refAngle = this.angle + 90;
+        this.particles.x = this.x + trig_1.default.cos(refAngle) * length;
+        this.particles.y = this.y + trig_1.default.sin(refAngle) * length;
         this.pEmitter.setAngle(this.angle + 67.5 + 45 * Phaser.Math.RND.frac());
         this.pEmitter.setVisible(this.speed > 0.0);
         this.pEmitter.setSpeed(this.speed * 30);
@@ -1738,27 +1718,27 @@ var Ship = (function (_super) {
                     this.setAngle(this.angle + this.angleVel);
                 }
             }
-            if (this.controls.goForward()) {
-                this.speed += this.speedAcl;
+        }
+        if (this.controls.goForward()) {
+            this.speed += this.speedAcl;
+        }
+        else {
+            if (this.speed > 0) {
+                this.speed -= this.speedDeacl;
             }
             else {
-                if (this.speed > 0) {
-                    this.speed -= this.speedDeacl;
-                }
-                else {
-                    this.speed = 0;
-                }
+                this.speed = 0;
             }
-            if (this.controls.slowDown()) {
-                if (this.speed > 0) {
-                    this.speed -= this.manualSpeedDeacl;
-                }
-                else {
-                    this.speed = 0;
-                }
-            }
-            this.speed = Math.min(this.speed, this.maxSpeed);
         }
+        if (this.controls.slowDown()) {
+            if (this.speed > 0) {
+                this.speed -= this.manualSpeedDeacl;
+            }
+            else {
+                this.speed = 0;
+            }
+        }
+        this.speed = Math.min(this.speed, this.maxSpeed);
         var angle = this.angle - 90;
         this.x += trig_1.default.cos(angle) * this.speed;
         this.y += trig_1.default.sin(angle) * this.speed;
@@ -2600,14 +2580,15 @@ var PlanetLogicScene = (function (_super) {
         cam.setZoom(2);
         cam.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
         var water = this.add.group();
-        this.physics.add.collider(this.player, water, function (objectA, objectB) {
-            objectB.onCollide(objectA);
-        });
         groundLayer.forEachTile(function (tile) {
-            if (tile.index > 82 && tile.index < 99) {
+            if (tile.index > 80 && tile.index < 115) {
                 tile.alpha = 0.8;
                 water.add(new Water_1.default(_this, tile.pixelX, tile.pixelY));
             }
+        });
+        this.physics.add.overlap(this.player, water, function (player, water) {
+            player.onOverlap(water);
+            water.onOverlap(player);
         });
     };
     PlanetLogicScene.prototype.getPlayerStats = function () {
@@ -2757,6 +2738,38 @@ var SpaceCameraControllerScene = (function (_super) {
         var _this = this;
         this.spaceScene = this.scene.get("space");
         this.spaceDebugScene = this.scene.get("spaceDebug");
+        var BTNS = {
+            DPU: 12,
+            DPD: 13
+        };
+        this.gamepadControls = {
+            zoomingIn: false,
+            zoomingOut: false
+        };
+        this.spaceScene.input.gamepad.on('down', function (gamepad, button, value) {
+            if (value !== 1) {
+                return;
+            }
+            if (button.index === BTNS.DPU) {
+                _this.gamepadControls.zoomingIn = true;
+                _this.gamepadControls.zoomingOut = false;
+            }
+            if (button.index === BTNS.DPD) {
+                _this.gamepadControls.zoomingOut = true;
+                _this.gamepadControls.zoomingIn = false;
+            }
+        });
+        this.spaceScene.input.gamepad.on('up', function (gamepad, button, value) {
+            if (value !== 0) {
+                return;
+            }
+            if (button.index === BTNS.DPU) {
+                _this.gamepadControls.zoomingIn = false;
+            }
+            if (button.index === BTNS.DPD) {
+                _this.gamepadControls.zoomingOut = false;
+            }
+        });
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
             _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
@@ -2788,7 +2801,17 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene.cameras.main.setAngle(angle);
         this.resizeCSPCameraWindow();
     };
+    SpaceCameraControllerScene.prototype.updateGamepadZoom = function () {
+        var cam = this.cameras.main;
+        if (this.gamepadControls.zoomingIn) {
+            this.updateZoom(Math.min(Math.max(cam.zoom + 0.01, 0.005), 2.5));
+        }
+        else if (this.gamepadControls.zoomingOut) {
+            this.updateZoom(Math.min(Math.max(cam.zoom - 0.01, 0.005), 2.5));
+        }
+    };
     SpaceCameraControllerScene.prototype.update = function () {
+        this.updateGamepadZoom();
         var cam = this.cameras.main;
         var spaceCam = this.spaceScene.cameras.main;
         cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);

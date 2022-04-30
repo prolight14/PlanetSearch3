@@ -22,6 +22,38 @@ var SpaceCameraControllerScene = (function (_super) {
         var _this = this;
         this.spaceScene = this.scene.get("space");
         this.spaceDebugScene = this.scene.get("spaceDebug");
+        var BTNS = {
+            DPU: 12,
+            DPD: 13
+        };
+        this.gamepadControls = {
+            zoomingIn: false,
+            zoomingOut: false
+        };
+        this.spaceScene.input.gamepad.on('down', function (gamepad, button, value) {
+            if (value !== 1) {
+                return;
+            }
+            if (button.index === BTNS.DPU) {
+                _this.gamepadControls.zoomingIn = true;
+                _this.gamepadControls.zoomingOut = false;
+            }
+            if (button.index === BTNS.DPD) {
+                _this.gamepadControls.zoomingOut = true;
+                _this.gamepadControls.zoomingIn = false;
+            }
+        });
+        this.spaceScene.input.gamepad.on('up', function (gamepad, button, value) {
+            if (value !== 0) {
+                return;
+            }
+            if (button.index === BTNS.DPU) {
+                _this.gamepadControls.zoomingIn = false;
+            }
+            if (button.index === BTNS.DPD) {
+                _this.gamepadControls.zoomingOut = false;
+            }
+        });
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
             _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
@@ -53,7 +85,17 @@ var SpaceCameraControllerScene = (function (_super) {
         this.spaceDebugScene.cameras.main.setAngle(angle);
         this.resizeCSPCameraWindow();
     };
+    SpaceCameraControllerScene.prototype.updateGamepadZoom = function () {
+        var cam = this.cameras.main;
+        if (this.gamepadControls.zoomingIn) {
+            this.updateZoom(Math.min(Math.max(cam.zoom + 0.01, 0.005), 2.5));
+        }
+        else if (this.gamepadControls.zoomingOut) {
+            this.updateZoom(Math.min(Math.max(cam.zoom - 0.01, 0.005), 2.5));
+        }
+    };
     SpaceCameraControllerScene.prototype.update = function () {
+        this.updateGamepadZoom();
         var cam = this.cameras.main;
         var spaceCam = this.spaceScene.cameras.main;
         cam.setScroll(spaceCam.scrollX, spaceCam.scrollY);

@@ -21,11 +21,10 @@ var Water = (function (_super) {
         scene.physics.add.existing(_this);
         _this.setMaxVelocity(0, 0);
         _this.setOrigin(0, 0);
-        _this.setSize(_this.displayWidth, _this.displayHeight);
         _this.setVisible(false);
         return _this;
     }
-    Water.prototype.onCollide = function (object) {
+    Water.prototype.onOverlap = function (object) {
         object.inLiquid = true;
     };
     return Water;

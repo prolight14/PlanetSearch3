@@ -1,4 +1,5 @@
 import PlanetLogicScene from "../../scenes/planet/PlanetLogicScene";
+import StaticGameObject from "./StaticGameObject";
 
 export default class GameObject extends Phaser.Physics.Arcade.Sprite
 {
@@ -25,7 +26,7 @@ export default class GameObject extends Phaser.Physics.Arcade.Sprite
 
     }
 
-    public onOverlap(object: GameObject) 
+    public onOverlap(object: StaticGameObject) 
     {
 
     }
