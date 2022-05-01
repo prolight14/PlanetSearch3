@@ -56,7 +56,7 @@ var SpaceCameraControllerScene = (function (_super) {
         });
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
+            _this.updateZoom(Math.min(Math.max(cam.zoom * (1 - dy * 0.001), 0.005), 2.5));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),

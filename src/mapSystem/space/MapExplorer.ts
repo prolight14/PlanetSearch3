@@ -69,7 +69,7 @@ export default class MapExplorer
 
         rt.beginDraw();
 
-            drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+            drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
 
         rt.endDraw();
     }
@@ -115,7 +115,7 @@ export default class MapExplorer
 
     private filterGameObject(obj: SpaceGameObject)
     {
-        return obj._arrayName === "planet" || obj._arrayName === "nebula";
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula") && this.canRender(obj);
     }
 
     private setVisibility(visibility: boolean)
@@ -153,6 +153,21 @@ export default class MapExplorer
         tracker.render(this.rt);
     }
 
+    private canRender: (obj: SpaceGameObject) => boolean = (obj: SpaceGameObject) => 
+    {
+        return true;
+    };
+
+    public setCanRender(canRender: (obj: SpaceGameObject) => boolean, context: any)
+    {
+        if(context === undefined) { context = this; }
+
+        this.canRender = (obj: SpaceGameObject) => 
+        {
+            return canRender.call(context, obj);
+        };
+    }
+
     public update()
     {
         if(!this.open)
@@ -170,7 +185,7 @@ export default class MapExplorer
     {
         this.controlsSpeed = 10.0;
 
-        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN");
+        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
 
         this.innerCam.zoom = 0.25;
 
@@ -200,6 +215,11 @@ export default class MapExplorer
         if(this.keys.DOWN.isDown || this.keys.D.isDown)
         {
            innerCam.scrollY += this.controlsSpeed / zoom;
+        }
+        if(this.keys.SPACE.isDown)
+        {
+            innerCam.scrollX = this.spaceCam.scrollX;
+            innerCam.scrollY = this.spaceCam.scrollY;
         }
     }
 }

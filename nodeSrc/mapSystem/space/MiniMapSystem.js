@@ -26,6 +26,12 @@ var MapSystem = (function () {
         backGraphics.setMask(mask);
         backGraphics.setDepth(-1);
     };
+    MapSystem.prototype.getViewportSize = function () {
+        return {
+            width: this.rt.camera.width,
+            height: this.rt.camera.height
+        };
+    };
     MapSystem.prototype.updateMap = function (zoom, cam, drawBackObjs) {
         var rt = this.rt;
         var camHalfWidth = cam.width * 0.5;

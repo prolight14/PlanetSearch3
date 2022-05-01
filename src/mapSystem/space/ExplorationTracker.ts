@@ -68,16 +68,57 @@ export default class ExplorationTracker
         this.renderTracks(rt);
     }
 
-    private renderTracks(rt: Phaser.GameObjects.RenderTexture)
+    private renderTracks(rt: Phaser.GameObjects.RenderTexture, )
     {
         const graphics = this.graphics;
         const path = this.path;
 
         graphics.clear();
-        graphics.lineStyle(2, 0x00FFFF, 10.0);
+        graphics.lineStyle(6, 0x00FFFF, 1.0);
         path.draw(graphics);
 
         rt.draw(graphics);
+    }
+
+    private cullViewport: {
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        halfWidth: number,
+        halfHeight: number
+    };
+
+    public setDiscoverViewport(x: number, y: number, width: number, height: number)
+    {
+        this.cullViewport = {
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            halfWidth: width * 0.5,
+            halfHeight: height * 0.5,
+        };
+    }
+
+    public hasBeenUncovered(object: SpaceGameObject): boolean
+    {
+        const track = this.track;
+        const view = this.cullViewport;
+        const objBounds = object.getBounds();
+
+        for(var i = 0; i < track.length; i++)
+        {
+            const point = track[i];
+            const viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
+            
+            if(Phaser.Geom.Rectangle.Overlaps(viewport, objBounds))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private updateTrack()

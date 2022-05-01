@@ -2006,9 +2006,32 @@ var ExplorationTracker = (function () {
         var graphics = this.graphics;
         var path = this.path;
         graphics.clear();
-        graphics.lineStyle(2, 0x00FFFF, 10.0);
+        graphics.lineStyle(6, 0x00FFFF, 1.0);
         path.draw(graphics);
         rt.draw(graphics);
+    };
+    ExplorationTracker.prototype.setDiscoverViewport = function (x, y, width, height) {
+        this.cullViewport = {
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            halfWidth: width * 0.5,
+            halfHeight: height * 0.5,
+        };
+    };
+    ExplorationTracker.prototype.hasBeenUncovered = function (object) {
+        var track = this.track;
+        var view = this.cullViewport;
+        var objBounds = object.getBounds();
+        for (var i = 0; i < track.length; i++) {
+            var point = track[i];
+            var viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
+            if (Phaser.Geom.Rectangle.Overlaps(viewport, objBounds)) {
+                return true;
+            }
+        }
+        return false;
     };
     ExplorationTracker.prototype.updateTrack = function () {
         var world = this.spaceScene.world;
@@ -2045,6 +2068,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var MapExplorer = (function () {
     function MapExplorer(scene) {
         this.open = false;
+        this.canRender = function (obj) {
+            return true;
+        };
         this.scene = scene;
         this.open = true;
         this.init();
@@ -2068,7 +2094,7 @@ var MapExplorer = (function () {
         var rt = this.starsRT;
         var rf = (1 - 1 / cam.zoom);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+        drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
@@ -2093,7 +2119,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return obj._arrayName === "planet" || obj._arrayName === "nebula";
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula") && this.canRender(obj);
     };
     MapExplorer.prototype.setVisibility = function (visibility) {
         this.rt.setVisible(visibility);
@@ -2121,6 +2147,14 @@ var MapExplorer = (function () {
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
     };
+    MapExplorer.prototype.setCanRender = function (canRender, context) {
+        if (context === undefined) {
+            context = this;
+        }
+        this.canRender = function (obj) {
+            return canRender.call(context, obj);
+        };
+    };
     MapExplorer.prototype.update = function () {
         if (!this.open) {
             return;
@@ -2130,7 +2164,7 @@ var MapExplorer = (function () {
     MapExplorer.prototype.initControls = function () {
         var _this = this;
         this.controlsSpeed = 10.0;
-        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN");
+        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
         this.innerCam.zoom = 0.25;
         this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
@@ -2150,6 +2184,10 @@ var MapExplorer = (function () {
         }
         if (this.keys.DOWN.isDown || this.keys.D.isDown) {
             innerCam.scrollY += this.controlsSpeed / zoom;
+        }
+        if (this.keys.SPACE.isDown) {
+            innerCam.scrollX = this.spaceCam.scrollX;
+            innerCam.scrollY = this.spaceCam.scrollY;
         }
     };
     return MapExplorer;
@@ -2192,6 +2230,12 @@ var MapSystem = (function () {
         backGraphics.setVisible(false);
         backGraphics.setMask(mask);
         backGraphics.setDepth(-1);
+    };
+    MapSystem.prototype.getViewportSize = function () {
+        return {
+            width: this.rt.camera.width,
+            height: this.rt.camera.height
+        };
     };
     MapSystem.prototype.updateMap = function (zoom, cam, drawBackObjs) {
         var rt = this.rt;
@@ -2981,7 +3025,7 @@ var SpaceCameraControllerScene = (function (_super) {
         });
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             var cam = _this.cameras.main;
-            _this.updateZoom(Math.min(Math.max(cam.zoom - dy * 0.001, 0.005), 2.5));
+            _this.updateZoom(Math.min(Math.max(cam.zoom * (1 - dy * 0.001), 0.005), 2.5));
         });
         this.keys = {
             rotateLeft: this.input.keyboard.addKey('a'),
@@ -3511,7 +3555,9 @@ var MiniMapSystem_1 = __webpack_require__(/*! ../../mapSystem/space/MiniMapSyste
 var SpaceMapScene = (function (_super) {
     __extends(SpaceMapScene, _super);
     function SpaceMapScene() {
-        return _super.call(this, "spaceMap") || this;
+        var _this = _super.call(this, "spaceMap") || this;
+        _this.miniMapZoom = 1;
+        return _this;
     }
     SpaceMapScene.prototype.create = function () {
         var _this = this;
@@ -3528,6 +3574,8 @@ var SpaceMapScene = (function (_super) {
             _this.updateScenesStates(_this.mapExplorer.open);
         });
         this.tracker = new ExplorationTracker_1.default(this);
+        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
+        this.miniMapZoom = 0.1;
     };
     SpaceMapScene.prototype.updateScenesStates = function (open) {
         if (open) {
@@ -3555,13 +3603,16 @@ var SpaceMapScene = (function (_super) {
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
-        this.miniMap.updateMap(0.1, this.spaceSceneCam, function () {
+        var zoom = this.miniMapZoom;
+        this.miniMap.updateMap(zoom, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
             starScene.updateToRenderTexture.apply(starScene, args);
         });
+        var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
+        this.tracker.setDiscoverViewport(0, 0, width / zoom, height / zoom);
     };
     return SpaceMapScene;
 }(Phaser.Scene));

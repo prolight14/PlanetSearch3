@@ -19,7 +19,9 @@ var MiniMapSystem_1 = require("../../mapSystem/space/MiniMapSystem");
 var SpaceMapScene = (function (_super) {
     __extends(SpaceMapScene, _super);
     function SpaceMapScene() {
-        return _super.call(this, "spaceMap") || this;
+        var _this = _super.call(this, "spaceMap") || this;
+        _this.miniMapZoom = 1;
+        return _this;
     }
     SpaceMapScene.prototype.create = function () {
         var _this = this;
@@ -36,6 +38,8 @@ var SpaceMapScene = (function (_super) {
             _this.updateScenesStates(_this.mapExplorer.open);
         });
         this.tracker = new ExplorationTracker_1.default(this);
+        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
+        this.miniMapZoom = 0.1;
     };
     SpaceMapScene.prototype.updateScenesStates = function (open) {
         if (open) {
@@ -63,13 +67,16 @@ var SpaceMapScene = (function (_super) {
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
-        this.miniMap.updateMap(0.1, this.spaceSceneCam, function () {
+        var zoom = this.miniMapZoom;
+        this.miniMap.updateMap(zoom, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
             starScene.updateToRenderTexture.apply(starScene, args);
         });
+        var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
+        this.tracker.setDiscoverViewport(0, 0, width / zoom, height / zoom);
     };
     return SpaceMapScene;
 }(Phaser.Scene));

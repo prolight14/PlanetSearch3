@@ -39,7 +39,12 @@ export default class SpaceMapScene extends Phaser.Scene
         });
 
         this.tracker = new ExplorationTracker(this);
+        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
+
+        this.miniMapZoom = 0.1;
     }
+
+    private miniMapZoom: number = 1;
 
     private updateScenesStates(open: boolean)
     {
@@ -79,10 +84,14 @@ export default class SpaceMapScene extends Phaser.Scene
     private runMiniMap()
     {
         const starScene = this.starScene;
+        const zoom = this.miniMapZoom;
 
-        this.miniMap.updateMap(0.1, this.spaceSceneCam, (...args: any[]) =>
+        this.miniMap.updateMap(zoom, this.spaceSceneCam, (...args: any[]) =>
         {
             starScene.updateToRenderTexture.apply(starScene, args);
         });
+        
+        const { width, height} = this.miniMap.getViewportSize();
+        this.tracker.setDiscoverViewport(0, 0, width / zoom, height / zoom);
     }
 }

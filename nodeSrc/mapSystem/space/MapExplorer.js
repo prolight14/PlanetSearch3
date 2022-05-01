@@ -3,6 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var MapExplorer = (function () {
     function MapExplorer(scene) {
         this.open = false;
+        this.canRender = function (obj) {
+            return true;
+        };
         this.scene = scene;
         this.open = true;
         this.init();
@@ -26,7 +29,7 @@ var MapExplorer = (function () {
         var rt = this.starsRT;
         var rf = (1 - 1 / cam.zoom);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+        drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
@@ -51,7 +54,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return obj._arrayName === "planet" || obj._arrayName === "nebula";
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula") && this.canRender(obj);
     };
     MapExplorer.prototype.setVisibility = function (visibility) {
         this.rt.setVisible(visibility);
@@ -79,6 +82,14 @@ var MapExplorer = (function () {
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
     };
+    MapExplorer.prototype.setCanRender = function (canRender, context) {
+        if (context === undefined) {
+            context = this;
+        }
+        this.canRender = function (obj) {
+            return canRender.call(context, obj);
+        };
+    };
     MapExplorer.prototype.update = function () {
         if (!this.open) {
             return;
@@ -88,7 +99,7 @@ var MapExplorer = (function () {
     MapExplorer.prototype.initControls = function () {
         var _this = this;
         this.controlsSpeed = 10.0;
-        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN");
+        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
         this.innerCam.zoom = 0.25;
         this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
@@ -108,6 +119,10 @@ var MapExplorer = (function () {
         }
         if (this.keys.DOWN.isDown || this.keys.D.isDown) {
             innerCam.scrollY += this.controlsSpeed / zoom;
+        }
+        if (this.keys.SPACE.isDown) {
+            innerCam.scrollX = this.spaceCam.scrollX;
+            innerCam.scrollY = this.spaceCam.scrollY;
         }
     };
     return MapExplorer;

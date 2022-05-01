@@ -38,9 +38,32 @@ var ExplorationTracker = (function () {
         var graphics = this.graphics;
         var path = this.path;
         graphics.clear();
-        graphics.lineStyle(2, 0x00FFFF, 10.0);
+        graphics.lineStyle(6, 0x00FFFF, 1.0);
         path.draw(graphics);
         rt.draw(graphics);
+    };
+    ExplorationTracker.prototype.setDiscoverViewport = function (x, y, width, height) {
+        this.cullViewport = {
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            halfWidth: width * 0.5,
+            halfHeight: height * 0.5,
+        };
+    };
+    ExplorationTracker.prototype.hasBeenUncovered = function (object) {
+        var track = this.track;
+        var view = this.cullViewport;
+        var objBounds = object.getBounds();
+        for (var i = 0; i < track.length; i++) {
+            var point = track[i];
+            var viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
+            if (Phaser.Geom.Rectangle.Overlaps(viewport, objBounds)) {
+                return true;
+            }
+        }
+        return false;
     };
     ExplorationTracker.prototype.updateTrack = function () {
         var world = this.spaceScene.world;

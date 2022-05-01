@@ -42,6 +42,14 @@ export default class MapSystem
         backGraphics.setDepth(-1);
     }
 
+    public getViewportSize()
+    {
+        return {
+            width: this.rt.camera.width,
+            height: this.rt.camera.height
+        };
+    }
+
     public updateMap(zoom: number, cam: Phaser.Cameras.Scene2D.Camera, 
         drawBackObjs: (rt: Phaser.GameObjects.RenderTexture, cam: Phaser.Cameras.Scene2D.BaseCamera, starZoom: number, relativeWidth: number, relativeHeight: number) => void)
     {
