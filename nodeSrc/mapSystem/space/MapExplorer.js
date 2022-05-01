@@ -25,11 +25,13 @@ var MapExplorer = (function () {
         this.infoText = scene.add.text(550, 20, "(?, ?)");
         this.initControls();
     };
-    MapExplorer.prototype.updateStarsRT = function (cam, drawBackObjs) {
+    MapExplorer.prototype.updateStarsRT = function (innerCam, drawBackObjs) {
+        var spaceCam = this.spaceCam;
         var rt = this.starsRT;
-        var rf = (1 - 1 / cam.zoom);
+        var rf = (1 - 1 / innerCam.zoom);
+        var h_zoom = (innerCam.zoom / 0.5);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+        drawBackObjs(rt, innerCam, this.rt.camera.scrollX - this.innerCam.scrollX + this.innerCam.scrollX, this.rt.camera.scrollY);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {

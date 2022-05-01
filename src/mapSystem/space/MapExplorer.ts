@@ -54,22 +54,48 @@ export default class MapExplorer
         this.initControls();
     }
 
-    private updateStarsRT(cam: Phaser.Cameras.Scene2D.Camera, drawBackObjs: (
-        rt: Phaser.GameObjects.RenderTexture, 
+    // private updateStarsRT(innerCam: Phaser.Cameras.Scene2D.Camera, drawBackObjs: (
+    //     rt: Phaser.GameObjects.RenderTexture, 
+    //     cam: Phaser.Cameras.Scene2D.BaseCamera, 
+    //     starZoom: number, 
+    //     relativeWidth: number, 
+    //     relativeHeight: number,
+    //     layerAmt?: number,
+    //     overrideScroll?: Array<number>
+    // ) => void)
+    private updateStarsRT(innerCam: Phaser.Cameras.Scene2D.Camera, drawBackObjs: (
+        rt: Phaser.GameObjects.RenderTexture,
         cam: Phaser.Cameras.Scene2D.BaseCamera, 
-        starZoom: number, 
-        relativeWidth: number, 
-        relativeHeight: number,
-        layerAmt?: number,
-        overrideScroll?: Array<number>
+        tileX: number,
+        tileY: number
     ) => void)
     {
+        const spaceCam = this.spaceCam;
         const rt = this.starsRT;
-        var rf = (1 - 1 / cam.zoom);
+
+        var rf = (1 - 1 / innerCam.zoom);
+        const h_zoom = (innerCam.zoom / 0.5);
 
         rt.beginDraw();
 
-            drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+            // drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height, 2, [1, 1, 1]);
+            // drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height);
+            // drawBackObjs(
+            //     rt, innerCam, 1.0, 
+            //     // (cam.width - rf * cam.width) * 0.5 - rt.camera.width / h_zoom,
+            //     // (cam.height - rf * cam.height) * 0.5 - rt.camera.height / h_zoom
+            //     (spaceCam.width - rt.camera.width * rf) * 0.5 - rt.camera.width / h_zoom,
+            //     (spaceCam.height - rt.camera.height * rf) * 0.5 - rt.camera.height / h_zoom, 
+            //     2, [1, 1, 1]
+            // );
+
+            drawBackObjs(
+                rt, innerCam, 
+                this.rt.camera.scrollX - this.innerCam.scrollX + this.innerCam.scrollX,
+                this.rt.camera.scrollY
+            //    innerCam.scrollX + (spaceCam.width - rt.camera.width * rf) * 0.5 - rt.camera.width / h_zoom,
+            //    innerCam.scrollY + (spaceCam.height - rt.camera.height * rf) * 0.5 - rt.camera.height / h_zoom,
+            );
 
         rt.endDraw();
     }

@@ -2090,11 +2090,13 @@ var MapExplorer = (function () {
         this.infoText = scene.add.text(550, 20, "(?, ?)");
         this.initControls();
     };
-    MapExplorer.prototype.updateStarsRT = function (cam, drawBackObjs) {
+    MapExplorer.prototype.updateStarsRT = function (innerCam, drawBackObjs) {
+        var spaceCam = this.spaceCam;
         var rt = this.starsRT;
-        var rf = (1 - 1 / cam.zoom);
+        var rf = (1 - 1 / innerCam.zoom);
+        var h_zoom = (innerCam.zoom / 0.5);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 2, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+        drawBackObjs(rt, innerCam, this.rt.camera.scrollX - this.innerCam.scrollX + this.innerCam.scrollX, this.rt.camera.scrollY);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
@@ -4010,20 +4012,13 @@ var StarSceneControllerScene = (function (_super) {
             tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
         }
     };
-    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight, layerAmt, overrideScroll) {
+    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, tileX, tileY) {
         var starLayers = this.starLayers;
-        var scrollValues = this.scrollValues;
-        var zoom = cam.zoom * starZoom;
-        if (layerAmt === undefined) {
-            layerAmt = starLayers.length;
-        }
-        if (overrideScroll !== undefined) {
-            scrollValues = overrideScroll;
-        }
-        for (var i = 0; i < layerAmt; i++) {
+        var zoom = cam.zoom;
+        for (var i = 0; i < starLayers.length; i++) {
             var tileSprite = starLayers[i];
             tileSprite.setTileScale(zoom);
-            tileSprite.setTilePosition((relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0);
+            tileSprite.setTilePosition(tileX, tileY);
             rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
     };
