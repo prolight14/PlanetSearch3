@@ -47,11 +47,17 @@ var StarSceneControllerScene = (function (_super) {
             tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
         }
     };
-    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight) {
+    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight, layerAmt, overrideScroll) {
         var starLayers = this.starLayers;
         var scrollValues = this.scrollValues;
         var zoom = cam.zoom * starZoom;
-        for (var i = 0; i < starLayers.length; i++) {
+        if (layerAmt === undefined) {
+            layerAmt = starLayers.length;
+        }
+        if (overrideScroll !== undefined) {
+            scrollValues = overrideScroll;
+        }
+        for (var i = 0; i < layerAmt; i++) {
             var tileSprite = starLayers[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setTilePosition((relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0);

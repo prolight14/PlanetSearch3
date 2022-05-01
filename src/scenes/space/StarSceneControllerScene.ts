@@ -54,13 +54,24 @@ export default class StarSceneControllerScene extends Phaser.Scene
         }
     }
 
-    public updateToRenderTexture(rt: Phaser.GameObjects.RenderTexture, cam: Phaser.Cameras.Scene2D.BaseCamera, starZoom: number, relativeWidth: number, relativeHeight: number)
+    public updateToRenderTexture(
+        rt: Phaser.GameObjects.RenderTexture,
+        cam: Phaser.Cameras.Scene2D.BaseCamera, 
+        starZoom: number, 
+        relativeWidth: number, 
+        relativeHeight: number,
+        layerAmt?: number | undefined,
+        overrideScroll?: Array<number> | undefined
+    )
     {
         const starLayers = this.starLayers;
-        const scrollValues = this.scrollValues;
+        var scrollValues = this.scrollValues;
         const zoom = cam.zoom * starZoom;
 
-        for(var i = 0; i < starLayers.length; i++)
+        if(layerAmt === undefined) { layerAmt = starLayers.length; }
+        if(overrideScroll !== undefined) { scrollValues = overrideScroll; }
+
+        for(var i = 0; i < layerAmt; i++)
         {
             const tileSprite = starLayers[i];
 

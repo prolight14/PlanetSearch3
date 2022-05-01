@@ -39,7 +39,7 @@ var SpaceLogicScene = (function (_super) {
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
+        planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
         world.add.gameObjectArray(XPStar_1.default, "xpStar");
         world.add.gameObjectArray(Crest_1.default, "crest");
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
@@ -59,26 +59,18 @@ var SpaceLogicScene = (function (_super) {
         if (!world.get.gameObjectArray("playerShip")) {
             var playerShips = world.add.gameObjectArray(PlayerShip_1.default, "playerShip");
             playerShips.define("ignoreDestroy", true);
-            this.playerShip = playerShips.add(this.spaceScene, 69400, 60376);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60200);
         }
         else {
             this.playerShip.resetStats();
-            this.playerShip.x = 69404;
-            this.playerShip.y = 60376;
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60200;
             this.playerShip.bodyConf.update();
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000));
-        }
-        for (var i = 0; i < 3000; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-12000, 12000), 60600 + RND.integerInRange(-12000, 12000));
-        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

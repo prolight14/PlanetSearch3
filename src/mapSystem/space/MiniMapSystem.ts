@@ -14,13 +14,13 @@ export default class MapSystem
     public createMap(scene: Phaser.Scene, x: number, y: number, width: number, height: number)
     {
         this.world = (scene.scene.get("space") as SpaceScene).world;  
-        this.staticRT = scene.add.renderTexture(x, y, width, height);
+        this.staticRT = scene.add.renderTexture(x, y, width, height).setScrollFactor(0);
 
-        this.rt = scene.add.renderTexture(x, y, width, height);
+        this.rt = scene.add.renderTexture(x, y, width, height).setScrollFactor(0);
 
         const roundAmt = 40;
 
-        const shape = scene.add.graphics();
+        const shape = scene.add.graphics().setScrollFactor(0);
         shape.fillStyle(0xFFFFFF);
         shape.beginPath();
         shape.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
@@ -34,7 +34,7 @@ export default class MapSystem
         this.staticRT.setTint(tint);
         this.rt.setTint(tint);
 
-        const backGraphics = this.backGraphics = scene.add.graphics();
+        const backGraphics = this.backGraphics = scene.add.graphics().setScrollFactor(0);
         backGraphics.fillStyle(0x000000);
         backGraphics.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
         backGraphics.setVisible(false);
@@ -59,10 +59,11 @@ export default class MapSystem
         this.rt.clear();
 
         const rf = (1 - 1 / zoom);
+        const h_zoom = (zoom / 0.5);
     
         rt.camera.setZoom(zoom);
-        rt.camera.scrollX = cam.scrollX + (cam.width - rt.camera.width * rf) / 2 - rt.camera.width * 0.5 / zoom;
-        rt.camera.scrollY = cam.scrollY + (cam.height - rt.camera.height * rf) / 2 - rt.camera.height * 0.5 / zoom;
+        rt.camera.scrollX = cam.scrollX + (cam.width - rt.camera.width * rf) * 0.5 - rt.camera.width / h_zoom;
+        rt.camera.scrollY = cam.scrollY + (cam.height - rt.camera.height * rf) * 0.5 - rt.camera.height / h_zoom;
 
         rt.beginDraw();
  
@@ -90,18 +91,6 @@ export default class MapSystem
         const starZoom = 4;
 
         drawBackObjs(this.staticRT, this.rt.camera, starZoom, rf * cam.width, rf * cam.height);
-
-        // const starZoom = 4;
-
-        // for(var i = 0; i < starsTileSprites.length; i++)
-        // {
-        //     const tileSprite = starsTileSprites[i];
-
-        //     tileSprite.setTileScale(zoom * starZoom);
-        //     tileSprite.setTilePosition((rf * cam.width + rt.camera.scrollX * scrollValues[i]) / starZoom | 0, (rf * cam.height + rt.camera.scrollY * scrollValues[i]) / starZoom | 0);
-
-        //     this.staticRT.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
-        // }
 
         this.staticRT.endDraw();
     }

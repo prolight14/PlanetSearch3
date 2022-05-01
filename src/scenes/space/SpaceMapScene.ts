@@ -1,4 +1,6 @@
-import MapSystem from "../../mapSystem/space/MapSystem";
+import ExplorationTracker from "../../mapSystem/space/ExplorationTracker";
+import MapExplorer from "../../mapSystem/space/MapExplorer";
+import MiniMapSystem from "../../mapSystem/space/MiniMapSystem";
 import StarSceneControllerScene from "./StarSceneControllerScene";
 
 export default class SpaceMapScene extends Phaser.Scene
@@ -10,34 +12,75 @@ export default class SpaceMapScene extends Phaser.Scene
 
     private spaceSceneCam: Phaser.Cameras.Scene2D.Camera;
     private starScene: StarSceneControllerScene;
-    private map: MapSystem;
+    private miniMap: MiniMapSystem;
 
-    preload ()
-    {
-    
-    }
+    private mapExplorer: MapExplorer;
+    private tracker: ExplorationTracker;
 
     create ()
     {
         this.starScene = (this.scene.get("starSceneController") as StarSceneControllerScene);
         this.spaceSceneCam = this.scene.get("space").cameras.main;
-        this.map = new MapSystem();
+        this.miniMap = new MiniMapSystem();
 
         const mapWidth = 250 * 1.2;
         const mapHeight = 150 * 1.0;
-        this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+        this.miniMap.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+
+        this.mapExplorer = new MapExplorer(this);
+
+        this.updateScenesStates(this.mapExplorer.open);
+
+        this.input.keyboard.on("keyup-M", () =>
+        {
+            this.mapExplorer.open = !this.mapExplorer.open;
+
+            this.updateScenesStates(this.mapExplorer.open);
+        });
+
+        this.tracker = new ExplorationTracker(this);
+    }
+
+    private updateScenesStates(open: boolean)
+    {
+        if(open)
+        {
+            this.scene.sleep("space");
+            this.scene.sleep("spaceLogic");
+            this.scene.sleep("spaceUI");
+            this.scene.sleep("spaceCameraController");
+        }
+        else
+        {
+            this.scene.run("space");
+            this.scene.run("spaceLogic");
+            this.scene.run("spaceUI");
+            this.scene.run("spaceCameraController");
+        }
     }
 
     update ()
     {
+        
         if(!this.scene.isActive("starSceneController"))
         {
             return;
         }
+        
+        this.mapExplorer.update();
+        this.mapExplorer.render();
+        this.mapExplorer.renderTracker(this.tracker);
 
+        this.runMiniMap();
+
+        this.tracker.update();
+    }
+
+    private runMiniMap()
+    {
         const starScene = this.starScene;
 
-        this.map.updateMap(0.1, this.spaceSceneCam, (...args: any[]) =>
+        this.miniMap.updateMap(0.1, this.spaceSceneCam, (...args: any[]) =>
         {
             starScene.updateToRenderTexture.apply(starScene, args);
         });

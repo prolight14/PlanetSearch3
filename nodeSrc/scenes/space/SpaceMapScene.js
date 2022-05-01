@@ -13,28 +13,57 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var MapSystem_1 = require("../../mapSystem/space/MapSystem");
+var ExplorationTracker_1 = require("../../mapSystem/space/ExplorationTracker");
+var MapExplorer_1 = require("../../mapSystem/space/MapExplorer");
+var MiniMapSystem_1 = require("../../mapSystem/space/MiniMapSystem");
 var SpaceMapScene = (function (_super) {
     __extends(SpaceMapScene, _super);
     function SpaceMapScene() {
         return _super.call(this, "spaceMap") || this;
     }
-    SpaceMapScene.prototype.preload = function () {
-    };
     SpaceMapScene.prototype.create = function () {
+        var _this = this;
         this.starScene = this.scene.get("starSceneController");
         this.spaceSceneCam = this.scene.get("space").cameras.main;
-        this.map = new MapSystem_1.default();
+        this.miniMap = new MiniMapSystem_1.default();
         var mapWidth = 250 * 1.2;
         var mapHeight = 150 * 1.0;
-        this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+        this.miniMap.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+        this.mapExplorer = new MapExplorer_1.default(this);
+        this.updateScenesStates(this.mapExplorer.open);
+        this.input.keyboard.on("keyup-M", function () {
+            _this.mapExplorer.open = !_this.mapExplorer.open;
+            _this.updateScenesStates(_this.mapExplorer.open);
+        });
+        this.tracker = new ExplorationTracker_1.default(this);
+    };
+    SpaceMapScene.prototype.updateScenesStates = function (open) {
+        if (open) {
+            this.scene.sleep("space");
+            this.scene.sleep("spaceLogic");
+            this.scene.sleep("spaceUI");
+            this.scene.sleep("spaceCameraController");
+        }
+        else {
+            this.scene.run("space");
+            this.scene.run("spaceLogic");
+            this.scene.run("spaceUI");
+            this.scene.run("spaceCameraController");
+        }
     };
     SpaceMapScene.prototype.update = function () {
         if (!this.scene.isActive("starSceneController")) {
             return;
         }
+        this.mapExplorer.update();
+        this.mapExplorer.render();
+        this.mapExplorer.renderTracker(this.tracker);
+        this.runMiniMap();
+        this.tracker.update();
+    };
+    SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
-        this.map.updateMap(0.1, this.spaceSceneCam, function () {
+        this.miniMap.updateMap(0.1, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];

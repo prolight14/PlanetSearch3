@@ -45,7 +45,8 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         var planets = world.add.gameObjectArray(Planet, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
+        // planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
+        planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
 
         world.add.gameObjectArray(XPStar, "xpStar");
         world.add.gameObjectArray(Crest, "crest");
@@ -79,13 +80,13 @@ export default class SpaceLogicScene extends Phaser.Scene
         {
             var playerShips = world.add.gameObjectArray(PlayerShip, "playerShip");
             playerShips.define("ignoreDestroy", true);
-            this.playerShip = playerShips.add(this.spaceScene, 69400, 60376);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60200);
         }
         else
         {
             this.playerShip.resetStats();
-            this.playerShip.x = 69404;
-            this.playerShip.y = 60376;
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60200;
             this.playerShip.bodyConf.update();
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);
@@ -94,17 +95,17 @@ export default class SpaceLogicScene extends Phaser.Scene
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
         
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        for(var i = 0; i < 100; i++)
-        {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
-        }
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
+        // for(var i = 0; i < 100; i++)
+        // {
+        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
+        // }
 
-        for(var i = 0; i < 3000; i++)
-        {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-12000, 12000), 60600 + RND.integerInRange(-12000, 12000)) as HyperBeamerSType;
-        }
+        // for(var i = 0; i < 3000; i++)
+        // {
+        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-12000, 12000), 60600 + RND.integerInRange(-12000, 12000)) as HyperBeamerSType;
+        // }
     }
     
     public addXPStar(x: number, y: number)

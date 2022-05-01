@@ -1960,10 +1960,209 @@ exports.default = logger;
 
 /***/ }),
 
-/***/ "./mapSystem/space/MapSystem.js":
-/*!**************************************!*\
-  !*** ./mapSystem/space/MapSystem.js ***!
-  \**************************************/
+/***/ "./mapSystem/space/ExplorationTracker.js":
+/*!***********************************************!*\
+  !*** ./mapSystem/space/ExplorationTracker.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var timer_1 = __webpack_require__(/*! ../../gameObjects/Utils/timer */ "./gameObjects/Utils/timer.js");
+var ExplorationTracker = (function () {
+    function ExplorationTracker(scene) {
+        this.active = true;
+        this.scene = scene;
+        this.spaceScene = scene.scene.get("space");
+        this.reset();
+        this.graphics = scene.add.graphics();
+    }
+    ExplorationTracker.prototype.reset = function () {
+        var _this = this;
+        this.track = [];
+        this.updateTrackTimer = timer_1.default(true, 100, function () {
+            _this.updateTrack();
+            _this.updateTrackTimer.reset();
+        });
+        this.path = new Phaser.Curves.Path();
+        var world = this.spaceScene.world;
+        var trackingObj = world.get.gameObject("playerShip", 0);
+        this.path.moveTo(trackingObj.body.position.x, trackingObj.body.position.y);
+        this.active = true;
+    };
+    ExplorationTracker.prototype.update = function () {
+        if (!this.active) {
+            return;
+        }
+        this.updateTrackTimer.update();
+    };
+    ExplorationTracker.prototype.render = function (rt) {
+        if (!this.active) {
+            return;
+        }
+        this.renderTracks(rt);
+    };
+    ExplorationTracker.prototype.renderTracks = function (rt) {
+        var graphics = this.graphics;
+        var path = this.path;
+        graphics.clear();
+        graphics.lineStyle(2, 0x00FFFF, 10.0);
+        path.draw(graphics);
+        rt.draw(graphics);
+    };
+    ExplorationTracker.prototype.updateTrack = function () {
+        var world = this.spaceScene.world;
+        var trackingObj = world.get.gameObject("playerShip", 0);
+        this.addToTrack(trackingObj.x, trackingObj.y);
+    };
+    ExplorationTracker.prototype.addToTrack = function (x, y) {
+        x |= 0;
+        y |= 0;
+        if (this.track.length !== 0) {
+            var trackEnd = this.track[this.track.length - 1];
+            if (trackEnd.x === x && trackEnd.y === y) {
+                return;
+            }
+        }
+        this.track.push(new Phaser.Math.Vector2(x, y));
+        this.path.lineTo(x, y);
+    };
+    return ExplorationTracker;
+}());
+exports.default = ExplorationTracker;
+//# sourceMappingURL=ExplorationTracker.js.map
+
+/***/ }),
+
+/***/ "./mapSystem/space/MapExplorer.js":
+/*!****************************************!*\
+  !*** ./mapSystem/space/MapExplorer.js ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var MapExplorer = (function () {
+    function MapExplorer(scene) {
+        this.open = false;
+        this.scene = scene;
+        this.open = true;
+        this.init();
+    }
+    MapExplorer.prototype.init = function () {
+        var scene = this.scene;
+        this.starScene = scene.scene.get("starSceneController");
+        var spaceScene = scene.scene.get("space");
+        this.world = spaceScene.world;
+        var spaceCam = this.spaceCam = spaceScene.cameras.main;
+        var mainCam = scene.cameras.main;
+        var cam = this.cam = mainCam;
+        this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
+        this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
+        this.starsRT = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
+        this.rt = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
+        this.infoText = scene.add.text(550, 20, "(?, ?)");
+        this.initControls();
+    };
+    MapExplorer.prototype.updateStarsRT = function (cam, drawBackObjs) {
+        var rt = this.starsRT;
+        var rf = (1 - 1 / cam.zoom);
+        rt.beginDraw();
+        drawBackObjs(rt, cam, 1, rf * cam.width, rf * cam.height, 1, [1, 1, 1]);
+        rt.endDraw();
+    };
+    MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
+        var rt = this.rt;
+        var camHalfWidth = cam.width * 0.5;
+        var camHalfHeight = cam.height * 0.5;
+        var r_zoom = zoom * cam.zoom;
+        var visibleObjects = this.world.getObjectsInBox(scrollX - camHalfWidth / r_zoom, scrollY - camHalfWidth / r_zoom, scrollX + camHalfHeight / r_zoom, scrollY + camHalfHeight / r_zoom);
+        this.rt.clear();
+        var rf = (1 - 1 / zoom);
+        var h_zoom = (zoom / 0.5);
+        rt.camera.setZoom(zoom);
+        rt.camera.scrollX = scrollX + (cam.width - rt.camera.width * rf) * 0.5 - rt.camera.width / h_zoom;
+        rt.camera.scrollY = scrollY + (cam.height - rt.camera.height * rf) * 0.5 - rt.camera.height / h_zoom;
+        rt.beginDraw();
+        for (var i = 0; i < visibleObjects.length; i++) {
+            var obj = visibleObjects[i];
+            if (this.filterGameObject(obj)) {
+                rt.batchDraw(obj, obj.x, obj.y);
+            }
+        }
+        rt.endDraw();
+    };
+    MapExplorer.prototype.filterGameObject = function (obj) {
+        return obj._arrayName === "planet" || obj._arrayName === "nebula";
+    };
+    MapExplorer.prototype.setVisibility = function (visibility) {
+        this.rt.setVisible(visibility);
+        this.starsRT.setVisible(visibility);
+        this.infoText.setVisible(visibility);
+    };
+    MapExplorer.prototype.render = function () {
+        if (!this.open) {
+            this.setVisibility(false);
+            return;
+        }
+        this.setVisibility(true);
+        var starScene = this.starScene;
+        this.updateStarsRT(this.innerCam, function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            starScene.updateToRenderTexture.apply(starScene, args);
+        });
+        var _a = this.innerCam, zoom = _a.zoom, scrollX = _a.scrollX, scrollY = _a.scrollY;
+        this.updateRT(zoom, scrollX, scrollY, this.spaceCam);
+        this.infoText.setText("(" + scrollX.toFixed(2) + ", " + scrollY.toFixed(2) + ")");
+    };
+    MapExplorer.prototype.renderTracker = function (tracker) {
+        tracker.render(this.rt);
+    };
+    MapExplorer.prototype.update = function () {
+        if (!this.open) {
+            return;
+        }
+        this.updateControls();
+    };
+    MapExplorer.prototype.initControls = function () {
+        var _this = this;
+        this.controlsSpeed = 10.0;
+        this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN");
+        this.innerCam.zoom = 0.25;
+        this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
+            _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
+        });
+    };
+    MapExplorer.prototype.updateControls = function () {
+        var innerCam = this.innerCam;
+        var zoom = innerCam.zoom;
+        if (this.keys.LEFT.isDown || this.keys.A.isDown) {
+            innerCam.scrollX -= this.controlsSpeed / zoom;
+        }
+        if (this.keys.RIGHT.isDown || this.keys.D.isDown) {
+            innerCam.scrollX += this.controlsSpeed / zoom;
+        }
+        if (this.keys.UP.isDown || this.keys.W.isDown) {
+            innerCam.scrollY -= this.controlsSpeed / zoom;
+        }
+        if (this.keys.DOWN.isDown || this.keys.D.isDown) {
+            innerCam.scrollY += this.controlsSpeed / zoom;
+        }
+    };
+    return MapExplorer;
+}());
+exports.default = MapExplorer;
+//# sourceMappingURL=MapExplorer.js.map
+
+/***/ }),
+
+/***/ "./mapSystem/space/MiniMapSystem.js":
+/*!******************************************!*\
+  !*** ./mapSystem/space/MiniMapSystem.js ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1973,10 +2172,10 @@ var MapSystem = (function () {
     }
     MapSystem.prototype.createMap = function (scene, x, y, width, height) {
         this.world = scene.scene.get("space").world;
-        this.staticRT = scene.add.renderTexture(x, y, width, height);
-        this.rt = scene.add.renderTexture(x, y, width, height);
+        this.staticRT = scene.add.renderTexture(x, y, width, height).setScrollFactor(0);
+        this.rt = scene.add.renderTexture(x, y, width, height).setScrollFactor(0);
         var roundAmt = 40;
-        var shape = scene.add.graphics();
+        var shape = scene.add.graphics().setScrollFactor(0);
         shape.fillStyle(0xFFFFFF);
         shape.beginPath();
         shape.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
@@ -1987,7 +2186,7 @@ var MapSystem = (function () {
         var tint = 0x9CFFC1;
         this.staticRT.setTint(tint);
         this.rt.setTint(tint);
-        var backGraphics = this.backGraphics = scene.add.graphics();
+        var backGraphics = this.backGraphics = scene.add.graphics().setScrollFactor(0);
         backGraphics.fillStyle(0x000000);
         backGraphics.fillRoundedRect(x, y, width, height, { tl: roundAmt, tr: 0, bl: 0, br: 0 });
         backGraphics.setVisible(false);
@@ -2001,9 +2200,10 @@ var MapSystem = (function () {
         var visibleObjects = this.world.getObjectsInBox(cam.scrollX - camHalfWidth / zoom, cam.scrollY - camHalfWidth / zoom, cam.scrollX + camHalfHeight / zoom, cam.scrollY + camHalfHeight / zoom);
         this.rt.clear();
         var rf = (1 - 1 / zoom);
+        var h_zoom = (zoom / 0.5);
         rt.camera.setZoom(zoom);
-        rt.camera.scrollX = cam.scrollX + (cam.width - rt.camera.width * rf) / 2 - rt.camera.width * 0.5 / zoom;
-        rt.camera.scrollY = cam.scrollY + (cam.height - rt.camera.height * rf) / 2 - rt.camera.height * 0.5 / zoom;
+        rt.camera.scrollX = cam.scrollX + (cam.width - rt.camera.width * rf) * 0.5 - rt.camera.width / h_zoom;
+        rt.camera.scrollY = cam.scrollY + (cam.height - rt.camera.height * rf) * 0.5 - rt.camera.height / h_zoom;
         rt.beginDraw();
         for (var i = 0; i < visibleObjects.length; i++) {
             var obj = visibleObjects[i];
@@ -2024,7 +2224,7 @@ var MapSystem = (function () {
     return MapSystem;
 }());
 exports.default = MapSystem;
-//# sourceMappingURL=MapSystem.js.map
+//# sourceMappingURL=MiniMapSystem.js.map
 
 /***/ }),
 
@@ -3212,7 +3412,7 @@ var SpaceLogicScene = (function (_super) {
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
+        planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
         world.add.gameObjectArray(XPStar_1.default, "xpStar");
         world.add.gameObjectArray(Crest_1.default, "crest");
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
@@ -3232,26 +3432,18 @@ var SpaceLogicScene = (function (_super) {
         if (!world.get.gameObjectArray("playerShip")) {
             var playerShips = world.add.gameObjectArray(PlayerShip_1.default, "playerShip");
             playerShips.define("ignoreDestroy", true);
-            this.playerShip = playerShips.add(this.spaceScene, 69400, 60376);
+            this.playerShip = playerShips.add(this.spaceScene, 69000, 60200);
         }
         else {
             this.playerShip.resetStats();
-            this.playerShip.x = 69404;
-            this.playerShip.y = 60376;
+            this.playerShip.x = 69000;
+            this.playerShip.y = 60200;
             this.playerShip.bodyConf.update();
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000));
-        }
-        for (var i = 0; i < 3000; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-12000, 12000), 60600 + RND.integerInRange(-12000, 12000));
-        }
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -3313,28 +3505,57 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var MapSystem_1 = __webpack_require__(/*! ../../mapSystem/space/MapSystem */ "./mapSystem/space/MapSystem.js");
+var ExplorationTracker_1 = __webpack_require__(/*! ../../mapSystem/space/ExplorationTracker */ "./mapSystem/space/ExplorationTracker.js");
+var MapExplorer_1 = __webpack_require__(/*! ../../mapSystem/space/MapExplorer */ "./mapSystem/space/MapExplorer.js");
+var MiniMapSystem_1 = __webpack_require__(/*! ../../mapSystem/space/MiniMapSystem */ "./mapSystem/space/MiniMapSystem.js");
 var SpaceMapScene = (function (_super) {
     __extends(SpaceMapScene, _super);
     function SpaceMapScene() {
         return _super.call(this, "spaceMap") || this;
     }
-    SpaceMapScene.prototype.preload = function () {
-    };
     SpaceMapScene.prototype.create = function () {
+        var _this = this;
         this.starScene = this.scene.get("starSceneController");
         this.spaceSceneCam = this.scene.get("space").cameras.main;
-        this.map = new MapSystem_1.default();
+        this.miniMap = new MiniMapSystem_1.default();
         var mapWidth = 250 * 1.2;
         var mapHeight = 150 * 1.0;
-        this.map.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+        this.miniMap.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
+        this.mapExplorer = new MapExplorer_1.default(this);
+        this.updateScenesStates(this.mapExplorer.open);
+        this.input.keyboard.on("keyup-M", function () {
+            _this.mapExplorer.open = !_this.mapExplorer.open;
+            _this.updateScenesStates(_this.mapExplorer.open);
+        });
+        this.tracker = new ExplorationTracker_1.default(this);
+    };
+    SpaceMapScene.prototype.updateScenesStates = function (open) {
+        if (open) {
+            this.scene.sleep("space");
+            this.scene.sleep("spaceLogic");
+            this.scene.sleep("spaceUI");
+            this.scene.sleep("spaceCameraController");
+        }
+        else {
+            this.scene.run("space");
+            this.scene.run("spaceLogic");
+            this.scene.run("spaceUI");
+            this.scene.run("spaceCameraController");
+        }
     };
     SpaceMapScene.prototype.update = function () {
         if (!this.scene.isActive("starSceneController")) {
             return;
         }
+        this.mapExplorer.update();
+        this.mapExplorer.render();
+        this.mapExplorer.renderTracker(this.tracker);
+        this.runMiniMap();
+        this.tracker.update();
+    };
+    SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
-        this.map.updateMap(0.1, this.spaceSceneCam, function () {
+        this.miniMap.updateMap(0.1, this.spaceSceneCam, function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
@@ -3738,11 +3959,17 @@ var StarSceneControllerScene = (function (_super) {
             tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
         }
     };
-    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight) {
+    StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight, layerAmt, overrideScroll) {
         var starLayers = this.starLayers;
         var scrollValues = this.scrollValues;
         var zoom = cam.zoom * starZoom;
-        for (var i = 0; i < starLayers.length; i++) {
+        if (layerAmt === undefined) {
+            layerAmt = starLayers.length;
+        }
+        if (overrideScroll !== undefined) {
+            scrollValues = overrideScroll;
+        }
+        for (var i = 0; i < layerAmt; i++) {
             var tileSprite = starLayers[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setTilePosition((relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0);
