@@ -54,7 +54,7 @@ export default class StarSceneControllerScene extends Phaser.Scene
         }
     }
 
-    /*public updateToRenderTexture(
+    public updateToRenderTexture(
         rt: Phaser.GameObjects.RenderTexture,
         cam: Phaser.Cameras.Scene2D.BaseCamera, 
         starZoom: number, 
@@ -80,28 +80,6 @@ export default class StarSceneControllerScene extends Phaser.Scene
                 (relativeWidth + cam.scrollX * scrollValues[i]) / starZoom | 0, 
                 (relativeHeight + cam.scrollY * scrollValues[i]) / starZoom | 0
             );
-          
-            rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
-        }
-    }*/
-
-    public updateToRenderTexture(
-        rt: Phaser.GameObjects.RenderTexture,
-        cam: Phaser.Cameras.Scene2D.BaseCamera, 
-        tileX: number,
-        tileY: number
-    )
-    {
-        const starLayers = this.starLayers;
-        // var scrollValues = this.scrollValues;
-        const zoom = cam.zoom;
-
-        for(var i = 0; i <  starLayers.length; i++)
-        {
-            const tileSprite = starLayers[i];
-
-            tileSprite.setTileScale(zoom);
-            tileSprite.setTilePosition(tileX, tileY);
           
             rt.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
