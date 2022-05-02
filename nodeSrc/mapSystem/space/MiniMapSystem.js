@@ -28,15 +28,15 @@ var MapSystem = (function () {
     };
     MapSystem.prototype.getViewportSize = function () {
         return {
-            width: this.rt.camera.width,
-            height: this.rt.camera.height
+            width: this.rt.camera.worldView.width,
+            height: this.rt.camera.worldView.height
         };
     };
     MapSystem.prototype.updateMap = function (zoom, cam, drawBackObjs) {
         var rt = this.rt;
         var camHalfWidth = cam.width * 0.5;
         var camHalfHeight = cam.height * 0.5;
-        var visibleObjects = this.world.getObjectsInBox(cam.scrollX - camHalfWidth / zoom, cam.scrollY - camHalfWidth / zoom, cam.scrollX + camHalfHeight / zoom, cam.scrollY + camHalfHeight / zoom);
+        var visibleObjects = this.world.getObjectsInBox(cam.scrollX - camHalfWidth / zoom, cam.scrollY - camHalfHeight / zoom, cam.scrollX + camHalfWidth / zoom, cam.scrollY + camHalfHeight / zoom);
         this.rt.clear();
         var rf = (1 - 1 / zoom);
         var h_zoom = (zoom / 0.5);

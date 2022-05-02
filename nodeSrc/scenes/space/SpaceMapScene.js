@@ -33,13 +33,19 @@ var SpaceMapScene = (function (_super) {
         this.miniMap.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
         this.mapExplorer = new MapExplorer_1.default(this);
         this.updateScenesStates(this.mapExplorer.open);
+        this.miniMapZoom = 0.1;
+        this.tracker = new ExplorationTracker_1.default(this);
+        this.setTrackerView();
+        this.mapExplorer.tracker = this.tracker;
+        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
         this.input.keyboard.on("keyup-M", function () {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
         });
-        this.tracker = new ExplorationTracker_1.default(this);
-        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
-        this.miniMapZoom = 0.1;
+    };
+    SpaceMapScene.prototype.setTrackerView = function () {
+        var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
+        this.tracker.setDiscoverViewport(width, height);
     };
     SpaceMapScene.prototype.updateScenesStates = function (open) {
         if (open) {
@@ -47,12 +53,14 @@ var SpaceMapScene = (function (_super) {
             this.scene.sleep("spaceLogic");
             this.scene.sleep("spaceUI");
             this.scene.sleep("spaceCameraController");
+            this.scene.sleep("spaceUIDebug");
         }
         else {
             this.scene.run("space");
             this.scene.run("spaceLogic");
             this.scene.run("spaceUI");
             this.scene.run("spaceCameraController");
+            this.scene.run("spaceUIDebug");
         }
     };
     SpaceMapScene.prototype.update = function () {
@@ -75,8 +83,7 @@ var SpaceMapScene = (function (_super) {
             }
             starScene.updateToRenderTexture.apply(starScene, args);
         });
-        var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
-        this.tracker.setDiscoverViewport(0, 0, width / zoom, height / zoom);
+        this.setTrackerView();
     };
     return SpaceMapScene;
 }(Phaser.Scene));

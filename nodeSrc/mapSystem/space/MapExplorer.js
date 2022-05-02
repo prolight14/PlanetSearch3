@@ -17,11 +17,10 @@ var MapExplorer = (function () {
         this.world = spaceScene.world;
         var spaceCam = this.spaceCam = spaceScene.cameras.main;
         var mainCam = scene.cameras.main;
-        var cam = this.cam = mainCam;
         this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
         this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
-        this.starsRT = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
-        this.rt = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
+        this.starsRT = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
+        this.rt = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
         this.infoText = scene.add.text(550, 20, "(?, ?)");
         this.initControls();
     };
@@ -33,11 +32,11 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
-        var rt = this.rt;
         var camHalfWidth = cam.width * 0.5;
         var camHalfHeight = cam.height * 0.5;
         var r_zoom = zoom * cam.zoom;
-        var visibleObjects = this.world.getObjectsInBox(scrollX - camHalfWidth / r_zoom, scrollY - camHalfWidth / r_zoom, scrollX + camHalfHeight / r_zoom, scrollY + camHalfHeight / r_zoom);
+        var visibleObjects = this.world.getObjectsInBox(scrollX - camHalfWidth / r_zoom, scrollY - camHalfHeight / r_zoom, scrollX + camHalfWidth / r_zoom, scrollY + camHalfHeight / r_zoom);
+        var rt = this.rt;
         this.rt.clear();
         var rf = (1 - 1 / zoom);
         var h_zoom = (zoom / 0.5);
@@ -54,7 +53,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula") && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
     };
     MapExplorer.prototype.setVisibility = function (visibility) {
         this.rt.setVisible(visibility);
@@ -79,6 +78,12 @@ var MapExplorer = (function () {
         this.updateRT(zoom, scrollX, scrollY, this.spaceCam);
         this.infoText.setText("(" + scrollX.toFixed(2) + ", " + scrollY.toFixed(2) + ")");
     };
+    MapExplorer.prototype.getZoom = function () {
+        return this.innerCam.zoom;
+    };
+    MapExplorer.prototype.getCamera = function () {
+        return this.rt.camera;
+    };
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
     };
@@ -100,7 +105,7 @@ var MapExplorer = (function () {
         var _this = this;
         this.controlsSpeed = 10.0;
         this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
-        this.innerCam.zoom = 0.25;
+        this.innerCam.zoom = 1.0;
         this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
         });

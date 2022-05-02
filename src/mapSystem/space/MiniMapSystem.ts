@@ -45,8 +45,8 @@ export default class MapSystem
     public getViewportSize()
     {
         return {
-            width: this.rt.camera.width,
-            height: this.rt.camera.height
+            width: this.rt.camera.worldView.width,
+            height: this.rt.camera.worldView.height
         };
     }
 
@@ -59,8 +59,8 @@ export default class MapSystem
 
         const visibleObjects: Array<Phaser.GameObjects.GameObject> = this.world.getObjectsInBox(
             cam.scrollX - camHalfWidth / zoom, 
-            cam.scrollY - camHalfWidth / zoom, 
-            cam.scrollX + camHalfHeight / zoom, 
+            cam.scrollY - camHalfHeight / zoom, 
+            cam.scrollX + camHalfWidth / zoom, 
             cam.scrollY + camHalfHeight / zoom
         );
 

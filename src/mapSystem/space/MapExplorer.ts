@@ -39,15 +39,13 @@ export default class MapExplorer
         const spaceCam = this.spaceCam = spaceScene.cameras.main;
 
         const mainCam = scene.cameras.main;
-        const cam = this.cam = mainCam;
 
         // The reference Camera
         this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
-
         this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
 
-        this.starsRT = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
-        this.rt = scene.add.renderTexture(0, 0, cam.width, cam.height).setScrollFactor(0);
+        this.starsRT = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
+        this.rt = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
 
         this.infoText = scene.add.text(550, 20, "(?, ?)");
 
@@ -76,7 +74,6 @@ export default class MapExplorer
 
     private updateRT(zoom: number, scrollX: number, scrollY: number, cam: Phaser.Cameras.Scene2D.Camera)
     {
-        const rt = this.rt;
         const camHalfWidth = cam.width * 0.5;
         const camHalfHeight = cam.height * 0.5;
 
@@ -84,10 +81,12 @@ export default class MapExplorer
 
         const visibleObjects: Array<Phaser.GameObjects.GameObject> = this.world.getObjectsInBox(
             scrollX - camHalfWidth / r_zoom, 
-            scrollY - camHalfWidth / r_zoom, 
-            scrollX + camHalfHeight / r_zoom, 
+            scrollY - camHalfHeight / r_zoom, 
+            scrollX + camHalfWidth / r_zoom, 
             scrollY + camHalfHeight / r_zoom
         );
+
+        const rt = this.rt;
 
         this.rt.clear();
 
@@ -113,9 +112,20 @@ export default class MapExplorer
         rt.endDraw();
     }
 
+    // public setMask(mask: Phaser.Display.Masks.GeometryMask)
+    // {
+    //     this.rt.setMask(mask);
+    //     this.starsRT.setMask(mask);
+    // }
+
+    // public generateMask(generateMask: (cam: Phaser.Cameras.Scene2D.Camera) => void, context: any)
+    // {
+    //     generateMask.call(context, this.innerCam);
+    // }
+
     private filterGameObject(obj: SpaceGameObject)
     {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula") && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
     }
 
     private setVisibility(visibility: boolean)
@@ -124,6 +134,8 @@ export default class MapExplorer
         this.starsRT.setVisible(visibility);
         this.infoText.setVisible(visibility);
     }
+    
+    public tracker: ExplorationTracker;
 
     public render()
     {
@@ -145,7 +157,28 @@ export default class MapExplorer
         const { zoom, scrollX, scrollY } = this.innerCam;
         this.updateRT(zoom, scrollX, scrollY, this.spaceCam);
 
+        // this.tracker.setRTCamera(this.innerCam);
+
         this.infoText.setText(`(${scrollX.toFixed(2)}, ${scrollY.toFixed(2)})`);
+    }
+
+    public getZoom(): number
+    {
+        return this.innerCam.zoom;
+    }
+
+    // public getCameraStats()
+    // {
+    //     return {
+    //         zoom: this.innerCam.zoom,
+    //         scrollX: this.innerCam.scrollX,
+    //         scrollY: this.innerCam.scrollY
+    //     };
+    // }
+
+    public getCamera()
+    {
+        return this.rt.camera;
     }
 
     public renderTracker(tracker: ExplorationTracker)
@@ -187,7 +220,7 @@ export default class MapExplorer
 
         this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
 
-        this.innerCam.zoom = 0.25;
+        this.innerCam.zoom = 1.0;//0.25;
 
         this.scene.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 

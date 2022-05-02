@@ -63,6 +63,15 @@ import SpaceMapScene from "./scenes/space/SpaceMapScene";
     7. Bullets cell references stay even after the bullets are gone (Fixed!)
 
     8. The ui debug scene's cell reference debug tool isn't accurate when space is zoomed out (Fixed)
+
+    
+    Todo:
+
+    1. Fix performance with ExplorationTracker path
+    2. Make shown path masking on map
+    3. Fix objects disappearing when zooming in and out of map (fixed)
+    4. Make a rectangle in the minimap showing the camera where you can see 
+    and use that for the exploration tracker's view
 */
 
 let config: Phaser.Types.Core.GameConfig = {

@@ -38,14 +38,12 @@ var ExplorationTracker = (function () {
         var graphics = this.graphics;
         var path = this.path;
         graphics.clear();
-        graphics.lineStyle(6, 0x00FFFF, 1.0);
+        graphics.lineStyle(6, 0x00FF00, 1.0);
         path.draw(graphics);
         rt.draw(graphics);
     };
-    ExplorationTracker.prototype.setDiscoverViewport = function (x, y, width, height) {
+    ExplorationTracker.prototype.setDiscoverViewport = function (width, height) {
         this.cullViewport = {
-            x: x,
-            y: y,
             width: width,
             height: height,
             halfWidth: width * 0.5,

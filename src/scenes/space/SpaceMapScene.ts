@@ -21,30 +21,51 @@ export default class SpaceMapScene extends Phaser.Scene
     {
         this.starScene = (this.scene.get("starSceneController") as StarSceneControllerScene);
         this.spaceSceneCam = this.scene.get("space").cameras.main;
-        this.miniMap = new MiniMapSystem();
 
+
+        this.miniMap = new MiniMapSystem();
         const mapWidth = 250 * 1.2;
         const mapHeight = 150 * 1.0;
         this.miniMap.createMap(this, this.spaceSceneCam.width - mapWidth, this.spaceSceneCam.height - mapHeight, mapWidth, mapHeight);
 
         this.mapExplorer = new MapExplorer(this);
-
         this.updateScenesStates(this.mapExplorer.open);
 
+
+        
+        this.miniMapZoom = 0.1;
+        
+        this.tracker = new ExplorationTracker(this);
+        this.setTrackerView();
+        
+        this.mapExplorer.tracker = this.tracker;
+
+
+        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
+
+        // // this.mapExplorer.generateMask(this.tracker.generateMask, this.tracker);
+        // this.tracker.generateMask(this.mapExplorer.getCamera());
+        // this.mapExplorer.setMask(this.tracker.mask);
+        
         this.input.keyboard.on("keyup-M", () =>
         {
             this.mapExplorer.open = !this.mapExplorer.open;
 
             this.updateScenesStates(this.mapExplorer.open);
+
+            // // this.mapExplorer.generateMask(this.tracker.generateMask, this.tracker);
+            // this.tracker.generateMask(this.mapExplorer.getCamera());
+            // this.mapExplorer.setMask(this.tracker.mask);
         });
-
-        this.tracker = new ExplorationTracker(this);
-        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
-
-        this.miniMapZoom = 0.1;
     }
 
     private miniMapZoom: number = 1;
+
+    private setTrackerView()
+    {
+        const { width, height } = this.miniMap.getViewportSize();
+        this.tracker.setDiscoverViewport(width, height);
+    }
 
     private updateScenesStates(open: boolean)
     {
@@ -54,6 +75,7 @@ export default class SpaceMapScene extends Phaser.Scene
             this.scene.sleep("spaceLogic");
             this.scene.sleep("spaceUI");
             this.scene.sleep("spaceCameraController");
+            this.scene.sleep("spaceUIDebug");
         }
         else
         {
@@ -61,10 +83,11 @@ export default class SpaceMapScene extends Phaser.Scene
             this.scene.run("spaceLogic");
             this.scene.run("spaceUI");
             this.scene.run("spaceCameraController");
+            this.scene.run("spaceUIDebug");
         }
     }
 
-    update ()
+    public update ()
     {
         
         if(!this.scene.isActive("starSceneController"))
@@ -79,6 +102,8 @@ export default class SpaceMapScene extends Phaser.Scene
         this.runMiniMap();
 
         this.tracker.update();
+        // this.tracker.generateMask(this.mapExplorer.getCamera());
+        // this.tracker.updateRTCamera(this.mapExplorer.getCameraStats());
     }
 
     private runMiniMap()
@@ -91,7 +116,6 @@ export default class SpaceMapScene extends Phaser.Scene
             starScene.updateToRenderTexture.apply(starScene, args);
         });
         
-        const { width, height} = this.miniMap.getViewportSize();
-        this.tracker.setDiscoverViewport(0, 0, width / zoom, height / zoom);
+        this.setTrackerView();
     }
 }
