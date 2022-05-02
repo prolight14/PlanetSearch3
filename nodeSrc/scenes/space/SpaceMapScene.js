@@ -36,12 +36,14 @@ var SpaceMapScene = (function (_super) {
         this.miniMapZoom = 0.1;
         this.tracker = new ExplorationTracker_1.default(this);
         this.setTrackerView();
-        this.mapExplorer.tracker = this.tracker;
         this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
         this.input.keyboard.on("keyup-M", function () {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
         });
+    };
+    SpaceMapScene.prototype.setMapExplorerMask = function (mask) {
+        this.mapExplorer.setMask(mask);
     };
     SpaceMapScene.prototype.setTrackerView = function () {
         var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
@@ -72,6 +74,7 @@ var SpaceMapScene = (function (_super) {
         this.mapExplorer.renderTracker(this.tracker);
         this.runMiniMap();
         this.tracker.update();
+        this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;

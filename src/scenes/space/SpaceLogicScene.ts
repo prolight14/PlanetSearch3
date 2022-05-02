@@ -39,11 +39,9 @@ export default class SpaceLogicScene extends Phaser.Scene
         for(var i = 0; i < 300; i++)
         {
             // nebulae.add(this.spaceScene, placeWidth * RND.frac(), placeHeight * RND.frac(), "grayNebula");
-            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula").setScale(4);
+            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula");
         }
-    
-        nebulae.add(this.spaceScene, 70400, 60200, "purpleNebula").setScale(4);
-        
+            
         var planets = world.add.gameObjectArray(Planet, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         // planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");

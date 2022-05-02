@@ -17,6 +17,9 @@ var MapExplorer = (function () {
         this.world = spaceScene.world;
         var spaceCam = this.spaceCam = spaceScene.cameras.main;
         var mainCam = scene.cameras.main;
+        var background = this.background = scene.add.graphics().setScrollFactor(0);
+        background.fillStyle(0x000000);
+        background.fillRect(0, 0, mainCam.width, mainCam.height);
         this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
         this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.starsRT = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
@@ -55,7 +58,12 @@ var MapExplorer = (function () {
     MapExplorer.prototype.filterGameObject = function (obj) {
         return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
     };
+    MapExplorer.prototype.setMask = function (mask) {
+        this.rt.setMask(mask);
+        this.starsRT.setMask(mask);
+    };
     MapExplorer.prototype.setVisibility = function (visibility) {
+        this.background.setVisible(visibility);
         this.rt.setVisible(visibility);
         this.starsRT.setVisible(visibility);
         this.infoText.setVisible(visibility);
@@ -82,7 +90,7 @@ var MapExplorer = (function () {
         return this.innerCam.zoom;
     };
     MapExplorer.prototype.getCamera = function () {
-        return this.rt.camera;
+        return this.innerCam;
     };
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
@@ -109,6 +117,7 @@ var MapExplorer = (function () {
         this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
         });
+        this.resetZoomKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO);
     };
     MapExplorer.prototype.updateControls = function () {
         var innerCam = this.innerCam;
@@ -128,6 +137,9 @@ var MapExplorer = (function () {
         if (this.keys.SPACE.isDown) {
             innerCam.scrollX = this.spaceCam.scrollX;
             innerCam.scrollY = this.spaceCam.scrollY;
+        }
+        if (this.resetZoomKey.isDown) {
+            this.innerCam.zoom = 1.0;
         }
     };
     return MapExplorer;

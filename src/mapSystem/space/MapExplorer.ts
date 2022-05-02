@@ -29,6 +29,8 @@ export default class MapExplorer
         
     private infoText: Phaser.GameObjects.Text;
     
+    private background: Phaser.GameObjects.Graphics;
+
     public init()
     {
         const scene = this.scene;
@@ -40,6 +42,10 @@ export default class MapExplorer
 
         const mainCam = scene.cameras.main;
 
+        const background = this.background = scene.add.graphics().setScrollFactor(0);
+        background.fillStyle(0x000000);
+        background.fillRect(0, 0, mainCam.width, mainCam.height);
+
         // The reference Camera
         this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
         this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
@@ -48,6 +54,7 @@ export default class MapExplorer
         this.rt = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
 
         this.infoText = scene.add.text(550, 20, "(?, ?)");
+
 
         this.initControls();
     }
@@ -112,30 +119,24 @@ export default class MapExplorer
         rt.endDraw();
     }
 
-    // public setMask(mask: Phaser.Display.Masks.GeometryMask)
-    // {
-    //     this.rt.setMask(mask);
-    //     this.starsRT.setMask(mask);
-    // }
-
-    // public generateMask(generateMask: (cam: Phaser.Cameras.Scene2D.Camera) => void, context: any)
-    // {
-    //     generateMask.call(context, this.innerCam);
-    // }
-
     private filterGameObject(obj: SpaceGameObject)
     {
         return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
     }
 
+    public setMask(mask: Phaser.Display.Masks.GeometryMask)
+    {
+        this.rt.setMask(mask);
+        this.starsRT.setMask(mask);
+    }
+
     private setVisibility(visibility: boolean)
     {
+        this.background.setVisible(visibility);
         this.rt.setVisible(visibility);
         this.starsRT.setVisible(visibility);
         this.infoText.setVisible(visibility);
     }
-    
-    public tracker: ExplorationTracker;
 
     public render()
     {
@@ -157,8 +158,6 @@ export default class MapExplorer
         const { zoom, scrollX, scrollY } = this.innerCam;
         this.updateRT(zoom, scrollX, scrollY, this.spaceCam);
 
-        // this.tracker.setRTCamera(this.innerCam);
-
         this.infoText.setText(`(${scrollX.toFixed(2)}, ${scrollY.toFixed(2)})`);
     }
 
@@ -167,18 +166,9 @@ export default class MapExplorer
         return this.innerCam.zoom;
     }
 
-    // public getCameraStats()
-    // {
-    //     return {
-    //         zoom: this.innerCam.zoom,
-    //         scrollX: this.innerCam.scrollX,
-    //         scrollY: this.innerCam.scrollY
-    //     };
-    // }
-
-    public getCamera()
+    public getCamera(): Phaser.Cameras.Scene2D.BaseCamera
     {
-        return this.rt.camera;
+        return this.innerCam;
     }
 
     public renderTracker(tracker: ExplorationTracker)
@@ -213,6 +203,7 @@ export default class MapExplorer
     
     private controlsSpeed: number;
     private keys: any;
+    private resetZoomKey: Phaser.Input.Keyboard.Key;
 
     private initControls()
     {
@@ -226,6 +217,8 @@ export default class MapExplorer
         { 
             this.innerCam.zoom = Math.min(Math.max(this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
         });
+
+        this.resetZoomKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO);
     }
 
     private updateControls()
@@ -253,6 +246,11 @@ export default class MapExplorer
         {
             innerCam.scrollX = this.spaceCam.scrollX;
             innerCam.scrollY = this.spaceCam.scrollY;
+        }
+
+        if(this.resetZoomKey.isDown)
+        {
+            this.innerCam.zoom = 1.0;
         }
     }
 }

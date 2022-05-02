@@ -2010,6 +2010,46 @@ var ExplorationTracker = (function () {
         path.draw(graphics);
         rt.draw(graphics);
     };
+    ExplorationTracker.prototype.updateTrack = function () {
+        var world = this.spaceScene.world;
+        var trackingObj = world.get.gameObject("playerShip", 0);
+        this.addToTrack(trackingObj.x, trackingObj.y);
+    };
+    ExplorationTracker.prototype.addToTrack = function (x, y) {
+        x |= 0;
+        y |= 0;
+        if (this.track.length !== 0) {
+            var trackEnd = this.track[this.track.length - 1];
+            if (trackEnd.x === x && trackEnd.y === y) {
+                return;
+            }
+        }
+        this.track.push(new Phaser.Math.Vector2(x, y));
+        this.path.lineTo(x, y);
+    };
+    ExplorationTracker.prototype.createMask = function (cam) {
+        var shape = this.scene.add.graphics();
+        var viewCam = this.scene.cameras.main;
+        var view = this.cullViewport;
+        var v_width = view.width;
+        var v_height = view.height;
+        var v_halfWidth = view.width * 0.5;
+        var v_halfHeight = view.height * 0.5;
+        var track = this.track;
+        var length = track.length;
+        for (var i = 0; i < length; i++) {
+            var point = track[i];
+            shape.fillRect(point.x - v_halfWidth, point.y - v_halfHeight, v_width, v_height);
+        }
+        shape.setVisible(false).setScrollFactor(0);
+        var zoom = cam.zoom;
+        var rf = (1 - 1 / zoom);
+        shape.x = -(cam.scrollX + viewCam.width * rf * 0.5) * zoom;
+        shape.y = -(cam.scrollY + viewCam.height * rf * 0.5) * zoom;
+        shape.setScale(cam.zoom);
+        var mask = shape.createGeometryMask();
+        return mask;
+    };
     ExplorationTracker.prototype.setDiscoverViewport = function (width, height) {
         this.cullViewport = {
             width: width,
@@ -2030,23 +2070,6 @@ var ExplorationTracker = (function () {
             }
         }
         return false;
-    };
-    ExplorationTracker.prototype.updateTrack = function () {
-        var world = this.spaceScene.world;
-        var trackingObj = world.get.gameObject("playerShip", 0);
-        this.addToTrack(trackingObj.x, trackingObj.y);
-    };
-    ExplorationTracker.prototype.addToTrack = function (x, y) {
-        x |= 0;
-        y |= 0;
-        if (this.track.length !== 0) {
-            var trackEnd = this.track[this.track.length - 1];
-            if (trackEnd.x === x && trackEnd.y === y) {
-                return;
-            }
-        }
-        this.track.push(new Phaser.Math.Vector2(x, y));
-        this.path.lineTo(x, y);
     };
     return ExplorationTracker;
 }());
@@ -2080,6 +2103,9 @@ var MapExplorer = (function () {
         this.world = spaceScene.world;
         var spaceCam = this.spaceCam = spaceScene.cameras.main;
         var mainCam = scene.cameras.main;
+        var background = this.background = scene.add.graphics().setScrollFactor(0);
+        background.fillStyle(0x000000);
+        background.fillRect(0, 0, mainCam.width, mainCam.height);
         this.innerCam = scene.cameras.add(0, 0, mainCam.x, mainCam.y).setVisible(false);
         this.innerCam.setScroll(spaceCam.scrollX, spaceCam.scrollY);
         this.starsRT = scene.add.renderTexture(0, 0, mainCam.width, mainCam.height).setScrollFactor(0);
@@ -2118,7 +2144,12 @@ var MapExplorer = (function () {
     MapExplorer.prototype.filterGameObject = function (obj) {
         return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
     };
+    MapExplorer.prototype.setMask = function (mask) {
+        this.rt.setMask(mask);
+        this.starsRT.setMask(mask);
+    };
     MapExplorer.prototype.setVisibility = function (visibility) {
+        this.background.setVisible(visibility);
         this.rt.setVisible(visibility);
         this.starsRT.setVisible(visibility);
         this.infoText.setVisible(visibility);
@@ -2145,7 +2176,7 @@ var MapExplorer = (function () {
         return this.innerCam.zoom;
     };
     MapExplorer.prototype.getCamera = function () {
-        return this.rt.camera;
+        return this.innerCam;
     };
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
@@ -2172,6 +2203,7 @@ var MapExplorer = (function () {
         this.scene.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz) {
             _this.innerCam.zoom = Math.min(Math.max(_this.innerCam.zoom * (1 - dy * 0.001), 0.005), 2.5);
         });
+        this.resetZoomKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO);
     };
     MapExplorer.prototype.updateControls = function () {
         var innerCam = this.innerCam;
@@ -2191,6 +2223,9 @@ var MapExplorer = (function () {
         if (this.keys.SPACE.isDown) {
             innerCam.scrollX = this.spaceCam.scrollX;
             innerCam.scrollY = this.spaceCam.scrollY;
+        }
+        if (this.resetZoomKey.isDown) {
+            this.innerCam.zoom = 1.0;
         }
     };
     return MapExplorer;
@@ -3455,9 +3490,8 @@ var SpaceLogicScene = (function (_super) {
         var placeHeight = gridConfig.rows * gridConfig.cellHeight;
         var nebulaeAmt = Math.floor((placeWidth * placeHeight) / 10000000);
         for (var i = 0; i < 300; i++) {
-            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula").setScale(4);
+            nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula");
         }
-        nebulae.add(this.spaceScene, 70400, 60200, "purpleNebula").setScale(4);
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
@@ -3576,12 +3610,14 @@ var SpaceMapScene = (function (_super) {
         this.miniMapZoom = 0.1;
         this.tracker = new ExplorationTracker_1.default(this);
         this.setTrackerView();
-        this.mapExplorer.tracker = this.tracker;
         this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
         this.input.keyboard.on("keyup-M", function () {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
         });
+    };
+    SpaceMapScene.prototype.setMapExplorerMask = function (mask) {
+        this.mapExplorer.setMask(mask);
     };
     SpaceMapScene.prototype.setTrackerView = function () {
         var _a = this.miniMap.getViewportSize(), width = _a.width, height = _a.height;
@@ -3612,6 +3648,7 @@ var SpaceMapScene = (function (_super) {
         this.mapExplorer.renderTracker(this.tracker);
         this.runMiniMap();
         this.tracker.update();
+        this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
