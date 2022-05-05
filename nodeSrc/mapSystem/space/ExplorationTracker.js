@@ -90,19 +90,6 @@ var ExplorationTracker = (function () {
             halfHeight: height * 0.5,
         };
     };
-    ExplorationTracker.prototype.hasBeenUncovered = function (object) {
-        var track = this.track;
-        var view = this.cullViewport;
-        var objBounds = object.getBounds();
-        for (var i = 0; i < track.length; i++) {
-            var point = track[i];
-            var viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
-            if (Phaser.Geom.Rectangle.Overlaps(viewport, objBounds)) {
-                return true;
-            }
-        }
-        return false;
-    };
     return ExplorationTracker;
 }());
 exports.default = ExplorationTracker;

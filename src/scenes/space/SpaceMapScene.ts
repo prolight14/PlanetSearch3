@@ -36,7 +36,7 @@ export default class SpaceMapScene extends Phaser.Scene
         this.tracker = new ExplorationTracker(this);
         this.setTrackerView();
 
-        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
+        // this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
 
         this.input.keyboard.on("keyup-M", () =>
         {
@@ -71,11 +71,17 @@ export default class SpaceMapScene extends Phaser.Scene
         }
         else
         {
-            this.scene.run("space");
-            this.scene.run("spaceLogic");
-            this.scene.run("spaceUI");
-            this.scene.run("spaceCameraController");
-            this.scene.run("spaceUIDebug");
+            this.scene.wake("space");
+            this.scene.wake("spaceLogic");
+            this.scene.wake("spaceUI");
+            this.scene.wake("spaceCameraController");
+            this.scene.wake("spaceUIDebug");
+
+            // this.scene.run("space");
+            // this.scene.run("spaceLogic");
+            // this.scene.run("spaceUI");
+            // this.scene.run("spaceCameraController");
+            // this.scene.run("spaceUIDebug");
         }
     }
 

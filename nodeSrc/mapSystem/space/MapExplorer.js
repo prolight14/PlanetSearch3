@@ -3,11 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var MapExplorer = (function () {
     function MapExplorer(scene) {
         this.open = false;
-        this.canRender = function (obj) {
-            return true;
-        };
         this.scene = scene;
-        this.open = true;
+        this.open = false;
         this.init();
     }
     MapExplorer.prototype.init = function () {
@@ -56,7 +53,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");
     };
     MapExplorer.prototype.setMask = function (mask) {
         this.rt.setMask(mask);
@@ -94,14 +91,6 @@ var MapExplorer = (function () {
     };
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
-    };
-    MapExplorer.prototype.setCanRender = function (canRender, context) {
-        if (context === undefined) {
-            context = this;
-        }
-        this.canRender = function (obj) {
-            return canRender.call(context, obj);
-        };
     };
     MapExplorer.prototype.update = function () {
         if (!this.open) {

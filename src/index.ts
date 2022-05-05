@@ -92,7 +92,7 @@ let config: Phaser.Types.Core.GameConfig = {
     antialias: false,
     batchSize: 128,
     scene: [
-        // TitleScene,
+        TitleScene,
  
         // Entry scene 
         EntryScene,

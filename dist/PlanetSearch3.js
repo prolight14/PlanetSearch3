@@ -2058,19 +2058,6 @@ var ExplorationTracker = (function () {
             halfHeight: height * 0.5,
         };
     };
-    ExplorationTracker.prototype.hasBeenUncovered = function (object) {
-        var track = this.track;
-        var view = this.cullViewport;
-        var objBounds = object.getBounds();
-        for (var i = 0; i < track.length; i++) {
-            var point = track[i];
-            var viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
-            if (Phaser.Geom.Rectangle.Overlaps(viewport, objBounds)) {
-                return true;
-            }
-        }
-        return false;
-    };
     return ExplorationTracker;
 }());
 exports.default = ExplorationTracker;
@@ -2089,11 +2076,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var MapExplorer = (function () {
     function MapExplorer(scene) {
         this.open = false;
-        this.canRender = function (obj) {
-            return true;
-        };
         this.scene = scene;
-        this.open = true;
+        this.open = false;
         this.init();
     }
     MapExplorer.prototype.init = function () {
@@ -2142,7 +2126,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");
     };
     MapExplorer.prototype.setMask = function (mask) {
         this.rt.setMask(mask);
@@ -2180,14 +2164,6 @@ var MapExplorer = (function () {
     };
     MapExplorer.prototype.renderTracker = function (tracker) {
         tracker.render(this.rt);
-    };
-    MapExplorer.prototype.setCanRender = function (canRender, context) {
-        if (context === undefined) {
-            context = this;
-        }
-        this.canRender = function (obj) {
-            return canRender.call(context, obj);
-        };
     };
     MapExplorer.prototype.update = function () {
         if (!this.open) {
@@ -2362,6 +2338,55 @@ var EntryScene = (function (_super) {
 }(Phaser.Scene));
 exports.default = EntryScene;
 //# sourceMappingURL=EntryScene.js.map
+
+/***/ }),
+
+/***/ "./scenes/TitleScene.js":
+/*!******************************!*\
+  !*** ./scenes/TitleScene.js ***!
+  \******************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var TitleScene = (function (_super) {
+    __extends(TitleScene, _super);
+    function TitleScene() {
+        return _super.call(this, "title") || this;
+    }
+    TitleScene.prototype.preload = function () {
+        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
+    };
+    TitleScene.prototype.create = function () {
+        var _this = this;
+        var gameWidth = this.game.canvas.width;
+        var gameHeight = this.game.canvas.height;
+        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
+        this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
+        this.input.keyboard.once("keydown", function () {
+            _this.cameras.main.fadeOut(500, 0, 0, 0);
+            _this.cameras.main.once("camerafadeoutcomplete", function () {
+                _this.scene.start("entry");
+            });
+        });
+    };
+    return TitleScene;
+}(Phaser.Scene));
+exports.default = TitleScene;
+//# sourceMappingURL=TitleScene.js.map
 
 /***/ }),
 
@@ -3610,7 +3635,6 @@ var SpaceMapScene = (function (_super) {
         this.miniMapZoom = 0.1;
         this.tracker = new ExplorationTracker_1.default(this);
         this.setTrackerView();
-        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
         this.input.keyboard.on("keyup-M", function () {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
@@ -3632,11 +3656,11 @@ var SpaceMapScene = (function (_super) {
             this.scene.sleep("spaceUIDebug");
         }
         else {
-            this.scene.run("space");
-            this.scene.run("spaceLogic");
-            this.scene.run("spaceUI");
-            this.scene.run("spaceCameraController");
-            this.scene.run("spaceUIDebug");
+            this.scene.wake("space");
+            this.scene.wake("spaceLogic");
+            this.scene.wake("spaceUI");
+            this.scene.wake("spaceCameraController");
+            this.scene.wake("spaceUIDebug");
         }
     };
     SpaceMapScene.prototype.update = function () {
@@ -4117,6 +4141,7 @@ var exports = __webpack_exports__;
   \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+var TitleScene_1 = __webpack_require__(/*! ./scenes/TitleScene */ "./scenes/TitleScene.js");
 var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/EntryScene.js");
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
@@ -4151,6 +4176,7 @@ var config = {
     antialias: false,
     batchSize: 128,
     scene: [
+        TitleScene_1.default,
         EntryScene_1.default,
         SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default,

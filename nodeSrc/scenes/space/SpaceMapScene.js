@@ -36,7 +36,6 @@ var SpaceMapScene = (function (_super) {
         this.miniMapZoom = 0.1;
         this.tracker = new ExplorationTracker_1.default(this);
         this.setTrackerView();
-        this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
         this.input.keyboard.on("keyup-M", function () {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
@@ -58,11 +57,11 @@ var SpaceMapScene = (function (_super) {
             this.scene.sleep("spaceUIDebug");
         }
         else {
-            this.scene.run("space");
-            this.scene.run("spaceLogic");
-            this.scene.run("spaceUI");
-            this.scene.run("spaceCameraController");
-            this.scene.run("spaceUIDebug");
+            this.scene.wake("space");
+            this.scene.wake("spaceLogic");
+            this.scene.wake("spaceUI");
+            this.scene.wake("spaceCameraController");
+            this.scene.wake("spaceUIDebug");
         }
     };
     SpaceMapScene.prototype.update = function () {

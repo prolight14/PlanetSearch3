@@ -9,7 +9,7 @@ export default class MapExplorer
     constructor(scene: Phaser.Scene)
     {
         this.scene = scene;
-        this.open = true;
+        this.open = false;
 
         this.init();
     }
@@ -121,7 +121,7 @@ export default class MapExplorer
 
     private filterGameObject(obj: SpaceGameObject)
     {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel") && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");// && this.canRender(obj);
     }
 
     public setMask(mask: Phaser.Display.Masks.GeometryMask)
@@ -176,20 +176,20 @@ export default class MapExplorer
         tracker.render(this.rt);
     }
 
-    private canRender: (obj: SpaceGameObject) => boolean = (obj: SpaceGameObject) => 
-    {
-        return true;
-    };
+    // private canRender: (obj: SpaceGameObject) => boolean = (obj: SpaceGameObject) => 
+    // {
+    //     return true;
+    // };
 
-    public setCanRender(canRender: (obj: SpaceGameObject) => boolean, context: any)
-    {
-        if(context === undefined) { context = this; }
+    // public setCanRender(canRender: (obj: SpaceGameObject) => boolean, context: any)
+    // {
+    //     if(context === undefined) { context = this; }
 
-        this.canRender = (obj: SpaceGameObject) => 
-        {
-            return canRender.call(context, obj);
-        };
-    }
+    //     this.canRender = (obj: SpaceGameObject) => 
+    //     {
+    //         return canRender.call(context, obj);
+    //     };
+    // }
 
     public update()
     {

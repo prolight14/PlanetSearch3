@@ -161,23 +161,23 @@ export default class ExplorationTracker
         };
     }
 
-    public hasBeenUncovered(object: SpaceGameObject): boolean
-    {
-        const track = this.track;
-        const view = this.cullViewport;
-        const objBounds = object.getBounds();
+    // public hasBeenUncovered(object: SpaceGameObject): boolean
+    // {
+    //     const track = this.track;
+    //     const view = this.cullViewport;
+    //     const objBounds = object.getBounds();
 
-        for(var i = 0; i < track.length; i++)
-        {
-            const point = track[i];
-            const viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
+    //     for(var i = 0; i < track.length; i++)
+    //     {
+    //         const point = track[i];
+    //         const viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
             
-            if(Phaser.Geom.Rectangle.Overlaps(viewport, objBounds))
-            {
-                return true;
-            }
-        }
+    //         if(Phaser.Geom.Rectangle.Overlaps(viewport, objBounds))
+    //         {
+    //             return true;
+    //         }
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 }
