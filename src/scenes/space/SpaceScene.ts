@@ -6,6 +6,7 @@ import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
 import SpaceGrid from "./SpaceGrid";
 import SpaceLogicScene from "./SpaceLogicScene";
+import StarSceneControllerScene from "./StarSceneControllerScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 {
@@ -25,6 +26,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             }
         });
     }
+
+    public blackholeShader: Phaser.GameObjects.Shader;
     
     public preload()
     {
@@ -251,7 +254,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     public update(time: number, delta: number)
     {
         var cam = this.cameras.main;
-        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateScroll(cam.scrollX + cam.centerX, cam.scrollY + cam.centerY);
         this.world.updateSpace();
 
         this.sys.displayList.list.forEach((gameObject: any) =>
@@ -259,10 +262,24 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             if(gameObject.particles !== undefined)
             {
                 this.sys.displayList.add(gameObject.particles);
+                // gameObject.particles.setPipeline("blackhole");
             }
         });
 
+        const spaceLogicScene = (this.scene.get("spaceLogic") as SpaceLogicScene);
+        
+        this.sys.displayList.add(spaceLogicScene.blackhole);
+        // spaceLogicScene.blackhole.setPipeline("blackhole");
+
+        // this.world.get.gameObject("planet", 0).setPipeline("blackhole");
+
         this.updateStatsGraphics();
+
+        // spaceLogicScene.playerShip.setPipeline("blackhole");
+
+        // this.cameras.main.setPostPipeline("blackhole");
+
+        // (this.scene.get("starSceneController") as StarSceneControllerScene)..setPostPipeline("blackhole");
 
         if(this.stepMatter++ >= 2)
         {

@@ -32,20 +32,34 @@ var StarSceneControllerScene = (function (_super) {
             var tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
             tileSprite.setOrigin(0.5);
             this.starLayers.push(tileSprite);
+            tileSprite.setVisible(false);
         }
         this.scene.sendToBack("starSceneController");
         this.scene.run("spaceMap");
         this.scene.bringToTop("spaceMap");
+        this.camRT = this.add.renderTexture(cam.x, cam.y, cam.width, cam.height);
+        this.camRT.draw(this.cameras.main);
+        this.camRT.setDepth(500);
+        this.camRT.setScrollFactor(0);
+        this.camRT.saveTexture("camRT_Pipeline");
+        this.camSprite = this.add.image(0, 0, "camRT_Pipeline").setDepth(3000).setScrollFactor(0);
+        this.camSprite.setOrigin(0);
+        this.camSprite.setPipeline("blackhole");
     };
     StarSceneControllerScene.prototype.update = function (time, delta) {
         var cam = this.scene.get("space").cameras.main;
         var scrollX = cam.scrollX, scrollY = cam.scrollY, zoom = cam.zoom;
         var rf = (1 - 1 / zoom);
+        this.camRT.clear();
+        this.camRT.beginDraw();
         for (var i = 0; i < this.starLayers.length; i++) {
             var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
+            this.camRT.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
+        this.camRT.endDraw();
+        this.camRT.saveTexture("camRT_Pipeline");
     };
     StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight, layerAmt, overrideScroll) {
         var starLayers = this.starLayers;

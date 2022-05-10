@@ -4,6 +4,7 @@ var timer_1 = require("../../gameObjects/Utils/timer");
 var ExplorationTracker = (function () {
     function ExplorationTracker(scene) {
         this.active = true;
+        this.onUpdateTrack = function () { };
         this.scene = scene;
         this.spaceScene = scene.scene.get("space");
         this.reset();
@@ -12,7 +13,7 @@ var ExplorationTracker = (function () {
     ExplorationTracker.prototype.reset = function () {
         var _this = this;
         this.track = [];
-        this.updateTrackTimer = timer_1.default(true, 100, function () {
+        this.updateTrackTimer = timer_1.default(true, 250, function () {
             _this.updateTrack();
             _this.updateTrackTimer.reset();
         });
@@ -22,9 +23,15 @@ var ExplorationTracker = (function () {
         this.path.moveTo(trackingObj.body.position.x, trackingObj.body.position.y);
         this.active = true;
     };
-    ExplorationTracker.prototype.update = function () {
+    ExplorationTracker.prototype.update = function (callback, context) {
         if (!this.active) {
             return;
+        }
+        if (callback === undefined) {
+            this.onUpdateTrack = function () { };
+        }
+        else {
+            this.onUpdateTrack = callback;
         }
         this.updateTrackTimer.update();
     };
@@ -46,6 +53,7 @@ var ExplorationTracker = (function () {
         var world = this.spaceScene.world;
         var trackingObj = world.get.gameObject("playerShip", 0);
         this.addToTrack(trackingObj.x, trackingObj.y);
+        this.onUpdateTrack();
     };
     ExplorationTracker.prototype.addToTrack = function (x, y) {
         x |= 0;
@@ -80,6 +88,7 @@ var ExplorationTracker = (function () {
         shape.y = -(cam.scrollY + viewCam.height * rf * 0.5) * zoom;
         shape.setScale(cam.zoom);
         var mask = shape.createGeometryMask();
+        this.outMask = mask;
         return mask;
     };
     ExplorationTracker.prototype.setDiscoverViewport = function (width, height) {

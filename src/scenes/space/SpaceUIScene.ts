@@ -21,6 +21,9 @@ export default class SpaceUIScene extends Phaser.Scene
         const statsY = Math.floor(this.cameras.main.height - 114);
 
         const statsContainer = this.add.image(0, statsY, "shipHealthBar", 0).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
+
+        // statsContainer.setPipeline("blackhole");
+
         const statsHpBar = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         const statsHpMask = this.add.image(0, statsY, "shipHealthBar", 2).setScrollFactor(0).setScale(2).setOrigin(0).setFlipX(true);
         statsHpMask.setVisible(false);

@@ -28,7 +28,7 @@ var MapExplorer = (function () {
         var rt = this.starsRT;
         var rf = (1 - 1 / cam.zoom);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 1, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
+        drawBackObjs(rt, cam, 4, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {

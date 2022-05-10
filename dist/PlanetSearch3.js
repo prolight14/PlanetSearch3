@@ -719,6 +719,48 @@ exports.default = Water;
 
 /***/ }),
 
+/***/ "./gameObjects/space/Blackhole.js":
+/*!****************************************!*\
+  !*** ./gameObjects/space/Blackhole.js ***!
+  \****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var SpaceGameObject_1 = __webpack_require__(/*! ./SpaceGameObject */ "./gameObjects/space/SpaceGameObject.js");
+var Blackhole = (function (_super) {
+    __extends(Blackhole, _super);
+    function Blackhole(scene, x, y) {
+        var _this = _super.call(this, scene, x, y, "crest") || this;
+        _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
+        _this.setPipeline("blackhole");
+        return _this;
+    }
+    return Blackhole;
+}(SpaceGameObject_1.default));
+exports.default = Blackhole;
+//# sourceMappingURL=Blackhole.js.map
+
+/***/ }),
+
 /***/ "./gameObjects/space/Bullet.js":
 /*!*************************************!*\
   !*** ./gameObjects/space/Bullet.js ***!
@@ -1972,6 +2014,7 @@ var timer_1 = __webpack_require__(/*! ../../gameObjects/Utils/timer */ "./gameOb
 var ExplorationTracker = (function () {
     function ExplorationTracker(scene) {
         this.active = true;
+        this.onUpdateTrack = function () { };
         this.scene = scene;
         this.spaceScene = scene.scene.get("space");
         this.reset();
@@ -1980,7 +2023,7 @@ var ExplorationTracker = (function () {
     ExplorationTracker.prototype.reset = function () {
         var _this = this;
         this.track = [];
-        this.updateTrackTimer = timer_1.default(true, 100, function () {
+        this.updateTrackTimer = timer_1.default(true, 250, function () {
             _this.updateTrack();
             _this.updateTrackTimer.reset();
         });
@@ -1990,9 +2033,15 @@ var ExplorationTracker = (function () {
         this.path.moveTo(trackingObj.body.position.x, trackingObj.body.position.y);
         this.active = true;
     };
-    ExplorationTracker.prototype.update = function () {
+    ExplorationTracker.prototype.update = function (callback, context) {
         if (!this.active) {
             return;
+        }
+        if (callback === undefined) {
+            this.onUpdateTrack = function () { };
+        }
+        else {
+            this.onUpdateTrack = callback;
         }
         this.updateTrackTimer.update();
     };
@@ -2014,6 +2063,7 @@ var ExplorationTracker = (function () {
         var world = this.spaceScene.world;
         var trackingObj = world.get.gameObject("playerShip", 0);
         this.addToTrack(trackingObj.x, trackingObj.y);
+        this.onUpdateTrack();
     };
     ExplorationTracker.prototype.addToTrack = function (x, y) {
         x |= 0;
@@ -2048,6 +2098,7 @@ var ExplorationTracker = (function () {
         shape.y = -(cam.scrollY + viewCam.height * rf * 0.5) * zoom;
         shape.setScale(cam.zoom);
         var mask = shape.createGeometryMask();
+        this.outMask = mask;
         return mask;
     };
     ExplorationTracker.prototype.setDiscoverViewport = function (width, height) {
@@ -2101,7 +2152,7 @@ var MapExplorer = (function () {
         var rt = this.starsRT;
         var rf = (1 - 1 / cam.zoom);
         rt.beginDraw();
-        drawBackObjs(rt, cam, 1, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
+        drawBackObjs(rt, cam, 4, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
         rt.endDraw();
     };
     MapExplorer.prototype.updateRT = function (zoom, scrollX, scrollY, cam) {
@@ -2338,55 +2389,6 @@ var EntryScene = (function (_super) {
 }(Phaser.Scene));
 exports.default = EntryScene;
 //# sourceMappingURL=EntryScene.js.map
-
-/***/ }),
-
-/***/ "./scenes/TitleScene.js":
-/*!******************************!*\
-  !*** ./scenes/TitleScene.js ***!
-  \******************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene = (function (_super) {
-    __extends(TitleScene, _super);
-    function TitleScene() {
-        return _super.call(this, "title") || this;
-    }
-    TitleScene.prototype.preload = function () {
-        this.load.image("planetSearch3", "./assets/Title/PlanetSearch3.png");
-    };
-    TitleScene.prototype.create = function () {
-        var _this = this;
-        var gameWidth = this.game.canvas.width;
-        var gameHeight = this.game.canvas.height;
-        this.add.image(0, 0, "planetSearch3").setOrigin(0, 0).setDisplaySize(gameWidth, gameHeight);
-        this.add.text(gameWidth * 0.5, gameHeight * 0.7, "Press any key to play!").setOrigin(0.5).setAlign("center");
-        this.input.keyboard.once("keydown", function () {
-            _this.cameras.main.fadeOut(500, 0, 0, 0);
-            _this.cameras.main.once("camerafadeoutcomplete", function () {
-                _this.scene.start("entry");
-            });
-        });
-    };
-    return TitleScene;
-}(Phaser.Scene));
-exports.default = TitleScene;
-//# sourceMappingURL=TitleScene.js.map
 
 /***/ }),
 
@@ -3097,7 +3099,7 @@ var SpaceCameraControllerScene = (function (_super) {
         };
         this.camAngle = 0;
         this.angleSpeed = 2;
-        this.updateZoom(0.5);
+        this.updateZoom(1.0);
     };
     SpaceCameraControllerScene.prototype.getCameraAngle = function () {
         return this.camAngle;
@@ -3500,11 +3502,58 @@ var HyperBeamerSType_1 = __webpack_require__(/*! ../../gameObjects/space/HyperBe
 var Shrapnel_1 = __webpack_require__(/*! ../../gameObjects/space/Shrapnel */ "./gameObjects/space/Shrapnel.js");
 var XPStar_1 = __webpack_require__(/*! ../../gameObjects/space/XPStar */ "./gameObjects/space/XPStar.js");
 var Crest_1 = __webpack_require__(/*! ../../gameObjects/space/Crest */ "./gameObjects/space/Crest.js");
+var Blackhole_1 = __webpack_require__(/*! ../../gameObjects/space/Blackhole */ "./gameObjects/space/Blackhole.js");
+function parseShader(shaderSrc) {
+    var maxTextures = 16;
+    var src = '';
+    for (var i = 0; i < maxTextures; i++) {
+        if (i > 0) {
+            src += '\n\telse ';
+        }
+        if (i < maxTextures - 1) {
+            src += 'if (outTexId < ' + i + '.5)';
+        }
+        src += '\n\t{';
+        src += '\n\t\tcol = blackhole(uMainSampler[' + i + ']);';
+        src += '\n\t}';
+    }
+    shaderSrc = shaderSrc.replace(/%count%/gi, maxTextures.toString());
+    shaderSrc = shaderSrc.replace(/%forloop%/gi, src);
+    console.log(shaderSrc);
+    return shaderSrc;
+}
+var BlackholePipeline = (function (_super) {
+    __extends(BlackholePipeline, _super);
+    function BlackholePipeline(game) {
+        return _super.call(this, {
+            game: game,
+            fragShader: parseShader(game.scene.scenes[0].cache.text.get("blackhole")),
+            uniforms: [
+                'uProjectionMatrix',
+                'uViewMatrix',
+                'uModelMatrix',
+                'uMainSampler',
+                'resolution',
+                'uTime'
+            ]
+        }) || this;
+    }
+    return BlackholePipeline;
+}(Phaser.Renderer.WebGL.Pipelines.MultiPipeline));
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
         return _super.call(this, "spaceLogic") || this;
     }
+    SpaceLogicScene.prototype.preload = function () {
+        this.load.text("blackhole", "./assets/Shaders/blackhole.glsl");
+    };
+    SpaceLogicScene.prototype.create = function () {
+        this.spaceScene = this.scene.get("space");
+        var mainCam = this.spaceScene.cameras.main;
+        var blackholePipeline = this.blackholePipeline = this.renderer.pipelines.add("blackhole", new BlackholePipeline(this.game));
+        blackholePipeline.set2f('uResolution', mainCam.width, mainCam.height);
+    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var RND = Phaser.Math.RND;
@@ -3551,6 +3600,8 @@ var SpaceLogicScene = (function (_super) {
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
+        var blackholes = world.add.gameObjectArray(Blackhole_1.default, "blackhole");
+        this.blackhole = blackholes.add(this.spaceScene, 69000, 60700).setScale(3.0, 3.0).setDepth(1000);
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -3564,8 +3615,8 @@ var SpaceLogicScene = (function (_super) {
         var crests = this.spaceScene.world.get.gameObjectArray("crest");
         crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     };
-    SpaceLogicScene.prototype.update = function () {
-        this.updatePlanets();
+    SpaceLogicScene.prototype.update = function (time, delta) {
+        this.blackholePipeline.set1f('uTime', time * 0.005);
     };
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;
@@ -3620,6 +3671,7 @@ var SpaceMapScene = (function (_super) {
     function SpaceMapScene() {
         var _this = _super.call(this, "spaceMap") || this;
         _this.miniMapZoom = 1;
+        _this.renderTracker = false;
         return _this;
     }
     SpaceMapScene.prototype.create = function () {
@@ -3639,6 +3691,7 @@ var SpaceMapScene = (function (_super) {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
         });
+        this.fpsText = this.add.text(40, 20, "");
     };
     SpaceMapScene.prototype.setMapExplorerMask = function (mask) {
         this.mapExplorer.setMask(mask);
@@ -3663,16 +3716,26 @@ var SpaceMapScene = (function (_super) {
             this.scene.wake("spaceUIDebug");
         }
     };
-    SpaceMapScene.prototype.update = function () {
+    SpaceMapScene.prototype.update = function (time, delta) {
+        var _this = this;
+        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
         if (!this.scene.isActive("starSceneController")) {
             return;
         }
         this.mapExplorer.update();
         this.mapExplorer.render();
-        this.mapExplorer.renderTracker(this.tracker);
         this.runMiniMap();
-        this.tracker.update();
-        this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+        if (this.renderTracker) {
+            this.mapExplorer.renderTracker(this.tracker);
+        }
+        var setMask = false;
+        this.tracker.update(function () {
+            _this.setMapExplorerMask(_this.tracker.createMask(_this.mapExplorer.getCamera()));
+            setMask = true;
+        });
+        if (this.mapExplorer.open && !setMask && this.tracker.outMask !== undefined) {
+            this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+        }
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;
@@ -3878,13 +3941,15 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var cam = this.cameras.main;
-        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateScroll(cam.scrollX + cam.centerX, cam.scrollY + cam.centerY);
         this.world.updateSpace();
         this.sys.displayList.list.forEach(function (gameObject) {
             if (gameObject.particles !== undefined) {
                 _this.sys.displayList.add(gameObject.particles);
             }
         });
+        var spaceLogicScene = this.scene.get("spaceLogic");
+        this.sys.displayList.add(spaceLogicScene.blackhole);
         this.updateStatsGraphics();
         if (this.stepMatter++ >= 2) {
             this.matter.step(1000 / 30, 0);
@@ -4067,20 +4132,34 @@ var StarSceneControllerScene = (function (_super) {
             var tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
             tileSprite.setOrigin(0.5);
             this.starLayers.push(tileSprite);
+            tileSprite.setVisible(false);
         }
         this.scene.sendToBack("starSceneController");
         this.scene.run("spaceMap");
         this.scene.bringToTop("spaceMap");
+        this.camRT = this.add.renderTexture(cam.x, cam.y, cam.width, cam.height);
+        this.camRT.draw(this.cameras.main);
+        this.camRT.setDepth(500);
+        this.camRT.setScrollFactor(0);
+        this.camRT.saveTexture("camRT_Pipeline");
+        this.camSprite = this.add.image(0, 0, "camRT_Pipeline").setDepth(3000).setScrollFactor(0);
+        this.camSprite.setOrigin(0);
+        this.camSprite.setPipeline("blackhole");
     };
     StarSceneControllerScene.prototype.update = function (time, delta) {
         var cam = this.scene.get("space").cameras.main;
         var scrollX = cam.scrollX, scrollY = cam.scrollY, zoom = cam.zoom;
         var rf = (1 - 1 / zoom);
+        this.camRT.clear();
+        this.camRT.beginDraw();
         for (var i = 0; i < this.starLayers.length; i++) {
             var tileSprite = this.starLayers[i];
             tileSprite.setTileScale(zoom);
             tileSprite.setTilePosition(rf * cam.width + scrollX * this.scrollValues[i] | 0, rf * cam.height + scrollY * this.scrollValues[i] | 0);
+            this.camRT.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
         }
+        this.camRT.endDraw();
+        this.camRT.saveTexture("camRT_Pipeline");
     };
     StarSceneControllerScene.prototype.updateToRenderTexture = function (rt, cam, starZoom, relativeWidth, relativeHeight, layerAmt, overrideScroll) {
         var starLayers = this.starLayers;
@@ -4141,7 +4220,6 @@ var exports = __webpack_exports__;
   \******************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var TitleScene_1 = __webpack_require__(/*! ./scenes/TitleScene */ "./scenes/TitleScene.js");
 var EntryScene_1 = __webpack_require__(/*! ./scenes/EntryScene */ "./scenes/EntryScene.js");
 var SpaceScene_1 = __webpack_require__(/*! ./scenes/space/SpaceScene */ "./scenes/space/SpaceScene.js");
 var SpaceCameraControllerScene_1 = __webpack_require__(/*! ./scenes/space/SpaceCameraControllerScene */ "./scenes/space/SpaceCameraControllerScene.js");
@@ -4176,7 +4254,6 @@ var config = {
     antialias: false,
     batchSize: 128,
     scene: [
-        TitleScene_1.default,
         EntryScene_1.default,
         SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
         SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default,

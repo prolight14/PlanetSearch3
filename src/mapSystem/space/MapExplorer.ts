@@ -74,7 +74,7 @@ export default class MapExplorer
 
         rt.beginDraw();
 
-            drawBackObjs(rt, cam, 1, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
+            drawBackObjs(rt, cam, 4, rf * this.spaceCam.width, rf * this.spaceCam.height, 3);
 
         rt.endDraw();
     }
@@ -121,7 +121,7 @@ export default class MapExplorer
 
     private filterGameObject(obj: SpaceGameObject)
     {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");// && this.canRender(obj);
+        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");
     }
 
     public setMask(mask: Phaser.Display.Masks.GeometryMask)
@@ -176,21 +176,6 @@ export default class MapExplorer
         tracker.render(this.rt);
     }
 
-    // private canRender: (obj: SpaceGameObject) => boolean = (obj: SpaceGameObject) => 
-    // {
-    //     return true;
-    // };
-
-    // public setCanRender(canRender: (obj: SpaceGameObject) => boolean, context: any)
-    // {
-    //     if(context === undefined) { context = this; }
-
-    //     this.canRender = (obj: SpaceGameObject) => 
-    //     {
-    //         return canRender.call(context, obj);
-    //     };
-    // }
-
     public update()
     {
         if(!this.open)
@@ -211,7 +196,7 @@ export default class MapExplorer
 
         this.keys = this.scene.input.keyboard.addKeys("W,A,S,D,LEFT,RIGHT,UP,DOWN,SPACE");
 
-        this.innerCam.zoom = 1.0;//0.25;
+        this.innerCam.zoom = 1.0;
 
         this.scene.input.on('wheel', (pointer: Phaser.Input.Pointer, currentlyOver: any, dx: number, dy: number, dz: number) =>
         { 
