@@ -17,6 +17,8 @@ export default class SpaceMapScene extends Phaser.Scene
     private mapExplorer: MapExplorer;
     private tracker: ExplorationTracker;
 
+    private fpsText: Phaser.GameObjects.Text;
+
     create ()
     {
         this.starScene = (this.scene.get("starSceneController") as StarSceneControllerScene);
@@ -36,14 +38,14 @@ export default class SpaceMapScene extends Phaser.Scene
         this.tracker = new ExplorationTracker(this);
         this.setTrackerView();
 
-        // this.mapExplorer.setCanRender(this.tracker.hasBeenUncovered, this.tracker);
-
         this.input.keyboard.on("keyup-M", () =>
         {
             this.mapExplorer.open = !this.mapExplorer.open;
 
             this.updateScenesStates(this.mapExplorer.open);
         });
+
+        this.fpsText = this.add.text(40, 20, "");
     }
 
     private setMapExplorerMask(mask: Phaser.Display.Masks.GeometryMask)
@@ -76,18 +78,15 @@ export default class SpaceMapScene extends Phaser.Scene
             this.scene.wake("spaceUI");
             this.scene.wake("spaceCameraController");
             this.scene.wake("spaceUIDebug");
-
-            // this.scene.run("space");
-            // this.scene.run("spaceLogic");
-            // this.scene.run("spaceUI");
-            // this.scene.run("spaceCameraController");
-            // this.scene.run("spaceUIDebug");
         }
     }
 
-    public update ()
+    private renderTracker: boolean = false;
+
+    public update (time: number, delta: number)
     {
-        
+        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
+
         if(!this.scene.isActive("starSceneController"))
         {
             return;
@@ -95,13 +94,26 @@ export default class SpaceMapScene extends Phaser.Scene
         
         this.mapExplorer.update();
         this.mapExplorer.render();
-        this.mapExplorer.renderTracker(this.tracker);
 
         this.runMiniMap();
 
-        this.tracker.update();
+        if(this.renderTracker)
+        {
+            this.mapExplorer.renderTracker(this.tracker);
+        }   
 
-        this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+        var setMask: boolean = false; 
+        this.tracker.update(() =>
+        {
+            this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+            setMask = true;
+        });
+
+        if(this.mapExplorer.open && !setMask && this.tracker.outMask !== undefined)
+        {
+            this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+
+        } 
     }
 
     private runMiniMap()

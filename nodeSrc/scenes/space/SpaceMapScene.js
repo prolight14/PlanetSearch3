@@ -21,6 +21,7 @@ var SpaceMapScene = (function (_super) {
     function SpaceMapScene() {
         var _this = _super.call(this, "spaceMap") || this;
         _this.miniMapZoom = 1;
+        _this.renderTracker = false;
         return _this;
     }
     SpaceMapScene.prototype.create = function () {
@@ -40,6 +41,7 @@ var SpaceMapScene = (function (_super) {
             _this.mapExplorer.open = !_this.mapExplorer.open;
             _this.updateScenesStates(_this.mapExplorer.open);
         });
+        this.fpsText = this.add.text(40, 20, "");
     };
     SpaceMapScene.prototype.setMapExplorerMask = function (mask) {
         this.mapExplorer.setMask(mask);
@@ -64,16 +66,26 @@ var SpaceMapScene = (function (_super) {
             this.scene.wake("spaceUIDebug");
         }
     };
-    SpaceMapScene.prototype.update = function () {
+    SpaceMapScene.prototype.update = function (time, delta) {
+        var _this = this;
+        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
         if (!this.scene.isActive("starSceneController")) {
             return;
         }
         this.mapExplorer.update();
         this.mapExplorer.render();
-        this.mapExplorer.renderTracker(this.tracker);
         this.runMiniMap();
-        this.tracker.update();
-        this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+        if (this.renderTracker) {
+            this.mapExplorer.renderTracker(this.tracker);
+        }
+        var setMask = false;
+        this.tracker.update(function () {
+            _this.setMapExplorerMask(_this.tracker.createMask(_this.mapExplorer.getCamera()));
+            setMask = true;
+        });
+        if (this.mapExplorer.open && !setMask && this.tracker.outMask !== undefined) {
+            this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
+        }
     };
     SpaceMapScene.prototype.runMiniMap = function () {
         var starScene = this.starScene;

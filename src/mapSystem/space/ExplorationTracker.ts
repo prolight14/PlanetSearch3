@@ -1,7 +1,6 @@
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import timer from "../../gameObjects/Utils/timer";
 import SpaceScene from "../../scenes/space/SpaceScene";
-import MapExplorer from "./MapExplorer";
 
 export default class ExplorationTracker 
 {
@@ -34,7 +33,7 @@ export default class ExplorationTracker
     {
         this.track = [];
 
-        this.updateTrackTimer = timer(true, 100, () =>
+        this.updateTrackTimer = timer(true, 250, () =>
         {
             this.updateTrack();
 
@@ -49,11 +48,22 @@ export default class ExplorationTracker
         this.active = true;
     }
 
-    public update()
+    private onUpdateTrack: () => void = () => {};
+
+    public update(callback?: () => void, context?: any)
     {
         if(!this.active)
         {
             return;
+        }
+
+        if(callback === undefined)
+        {
+            this.onUpdateTrack = () => {};
+        }
+        else
+        {
+            this.onUpdateTrack = callback;
         }
 
         this.updateTrackTimer.update();
@@ -87,6 +97,8 @@ export default class ExplorationTracker
         const trackingObj = world.get.gameObject("playerShip", 0) as SpaceGameObject;
 
         this.addToTrack(trackingObj.x, trackingObj.y);
+
+        this.onUpdateTrack();
     }
 
     private addToTrack(x: number, y: number)
@@ -141,8 +153,12 @@ export default class ExplorationTracker
 
         const mask = shape.createGeometryMask();
 
+        this.outMask = mask;
+
         return mask;
     }
+
+    public outMask?: Phaser.Display.Masks.GeometryMask | undefined;
 
     private cullViewport: {
         width: number,
@@ -160,24 +176,4 @@ export default class ExplorationTracker
             halfHeight: height * 0.5,
         };
     }
-
-    // public hasBeenUncovered(object: SpaceGameObject): boolean
-    // {
-    //     const track = this.track;
-    //     const view = this.cullViewport;
-    //     const objBounds = object.getBounds();
-
-    //     for(var i = 0; i < track.length; i++)
-    //     {
-    //         const point = track[i];
-    //         const viewport = new Phaser.Geom.Rectangle(point.x - view.halfWidth, point.y - view.halfHeight, view.width, view.height);
-            
-    //         if(Phaser.Geom.Rectangle.Overlaps(viewport, objBounds))
-    //         {
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }
 }

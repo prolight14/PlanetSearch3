@@ -86,7 +86,8 @@ export default class SpaceCameraControllerScene extends Phaser.Scene
         this.angleSpeed = 2;
 
         // this.updateZoom(0.9);
-        this.updateZoom(0.5);
+        // this.updateZoom(0.5);
+        this.updateZoom(1.0);
     }
 
     private gamepadControls: {

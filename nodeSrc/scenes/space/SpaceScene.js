@@ -177,13 +177,15 @@ var SpaceScene = (function (_super) {
     SpaceScene.prototype.update = function (time, delta) {
         var _this = this;
         var cam = this.cameras.main;
-        this.world.updateScroll(cam.scrollX + cam.width * 0.5, cam.scrollY + cam.height * 0.5);
+        this.world.updateScroll(cam.scrollX + cam.centerX, cam.scrollY + cam.centerY);
         this.world.updateSpace();
         this.sys.displayList.list.forEach(function (gameObject) {
             if (gameObject.particles !== undefined) {
                 _this.sys.displayList.add(gameObject.particles);
             }
         });
+        var spaceLogicScene = this.scene.get("spaceLogic");
+        this.sys.displayList.add(spaceLogicScene.blackhole);
         this.updateStatsGraphics();
         if (this.stepMatter++ >= 2) {
             this.matter.step(1000 / 30, 0);
