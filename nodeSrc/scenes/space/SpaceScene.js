@@ -184,8 +184,6 @@ var SpaceScene = (function (_super) {
                 _this.sys.displayList.add(gameObject.particles);
             }
         });
-        var spaceLogicScene = this.scene.get("spaceLogic");
-        this.sys.displayList.add(spaceLogicScene.blackhole);
         this.updateStatsGraphics();
         if (this.stepMatter++ >= 2) {
             this.matter.step(1000 / 30, 0);

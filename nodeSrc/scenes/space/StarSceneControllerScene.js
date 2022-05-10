@@ -44,7 +44,6 @@ var StarSceneControllerScene = (function (_super) {
         this.camRT.saveTexture("camRT_Pipeline");
         this.camSprite = this.add.image(0, 0, "camRT_Pipeline").setDepth(3000).setScrollFactor(0);
         this.camSprite.setOrigin(0);
-        this.camSprite.setPipeline("blackhole");
     };
     StarSceneControllerScene.prototype.update = function (time, delta) {
         var cam = this.scene.get("space").cameras.main;

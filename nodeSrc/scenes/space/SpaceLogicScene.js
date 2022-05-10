@@ -20,58 +20,11 @@ var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
 var XPStar_1 = require("../../gameObjects/space/XPStar");
 var Crest_1 = require("../../gameObjects/space/Crest");
-var Blackhole_1 = require("../../gameObjects/space/Blackhole");
-function parseShader(shaderSrc) {
-    var maxTextures = 16;
-    var src = '';
-    for (var i = 0; i < maxTextures; i++) {
-        if (i > 0) {
-            src += '\n\telse ';
-        }
-        if (i < maxTextures - 1) {
-            src += 'if (outTexId < ' + i + '.5)';
-        }
-        src += '\n\t{';
-        src += '\n\t\tcol = blackhole(uMainSampler[' + i + ']);';
-        src += '\n\t}';
-    }
-    shaderSrc = shaderSrc.replace(/%count%/gi, maxTextures.toString());
-    shaderSrc = shaderSrc.replace(/%forloop%/gi, src);
-    console.log(shaderSrc);
-    return shaderSrc;
-}
-var BlackholePipeline = (function (_super) {
-    __extends(BlackholePipeline, _super);
-    function BlackholePipeline(game) {
-        return _super.call(this, {
-            game: game,
-            fragShader: parseShader(game.scene.scenes[0].cache.text.get("blackhole")),
-            uniforms: [
-                'uProjectionMatrix',
-                'uViewMatrix',
-                'uModelMatrix',
-                'uMainSampler',
-                'resolution',
-                'uTime'
-            ]
-        }) || this;
-    }
-    return BlackholePipeline;
-}(Phaser.Renderer.WebGL.Pipelines.MultiPipeline));
 var SpaceLogicScene = (function (_super) {
     __extends(SpaceLogicScene, _super);
     function SpaceLogicScene() {
         return _super.call(this, "spaceLogic") || this;
     }
-    SpaceLogicScene.prototype.preload = function () {
-        this.load.text("blackhole", "./assets/Shaders/blackhole.glsl");
-    };
-    SpaceLogicScene.prototype.create = function () {
-        this.spaceScene = this.scene.get("space");
-        var mainCam = this.spaceScene.cameras.main;
-        var blackholePipeline = this.blackholePipeline = this.renderer.pipelines.add("blackhole", new BlackholePipeline(this.game));
-        blackholePipeline.set2f('uResolution', mainCam.width, mainCam.height);
-    };
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
         this.spaceScene = this.scene.get("space");
         var RND = Phaser.Math.RND;
@@ -118,8 +71,6 @@ var SpaceLogicScene = (function (_super) {
         }
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
-        var blackholes = world.add.gameObjectArray(Blackhole_1.default, "blackhole");
-        this.blackhole = blackholes.add(this.spaceScene, 69000, 60700).setScale(3.0, 3.0).setDepth(1000);
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
@@ -134,7 +85,7 @@ var SpaceLogicScene = (function (_super) {
         crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
     };
     SpaceLogicScene.prototype.update = function (time, delta) {
-        this.blackholePipeline.set1f('uTime', time * 0.005);
+        this.updatePlanets();
     };
     SpaceLogicScene.prototype.updatePlanets = function () {
         var _this = this;

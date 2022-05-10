@@ -24,7 +24,6 @@ export default class StarSceneControllerScene extends Phaser.Scene
         {
             const tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
             tileSprite.setOrigin(0.5);
-            // tileSprite.setPipeline("blackhole");
             this.starLayers.push(tileSprite);
 
             tileSprite.setVisible(false);
@@ -35,13 +34,10 @@ export default class StarSceneControllerScene extends Phaser.Scene
         this.scene.run("spaceMap");
         this.scene.bringToTop("spaceMap");
 
-        // this.cameras.main.setPostPipeline("blackhole");
-
         this.camRT = this.add.renderTexture(cam.x, cam.y, cam.width, cam.height);
 
         this.camRT.draw(this.cameras.main);
         this.camRT.setDepth(500);
-        // this.camRT.setPipeline("blackhole");
 
         this.camRT.setScrollFactor(0);
 
@@ -50,7 +46,6 @@ export default class StarSceneControllerScene extends Phaser.Scene
         this.camSprite = this.add.image(0, 0, "camRT_Pipeline").setDepth(3000).setScrollFactor(0);
         // this.camSprite.setScale(2.0);
         this.camSprite.setOrigin(0);
-        this.camSprite.setPipeline("blackhole");
     }
 
     private camSprite: Phaser.GameObjects.Image;
