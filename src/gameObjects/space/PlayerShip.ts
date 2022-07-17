@@ -125,6 +125,7 @@ export default class PlayerShip extends Ship
             x: 0,
             y: 0,
             quantity: 1,
+            // blendMode: "ADD"
         });
 
         this.pEmitter.setAlpha(function(p: any, k: any, t: number)

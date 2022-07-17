@@ -22,35 +22,19 @@ export default class StarSceneControllerScene extends Phaser.Scene
 
         for(var i = 1; i <= layerAmt; i++)
         {
-            const tileSprite = this.add.tileSprite(cam.width / 2, cam.height / 2, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
+            const tileSprite = this.add.tileSprite(cam.centerX, cam.centerY, cam.width * 2, cam.height * 2, "starBackground" + i).setDepth(i - layerAmt);
             tileSprite.setOrigin(0.5);
+            tileSprite.setTint(0x00FFFF);
             this.starLayers.push(tileSprite);
-
-            tileSprite.setVisible(false);
         }
         
         this.scene.sendToBack("starSceneController");
 
         this.scene.run("spaceMap");
         this.scene.bringToTop("spaceMap");
-
-        this.camRT = this.add.renderTexture(cam.x, cam.y, cam.width, cam.height);
-
-        this.camRT.draw(this.cameras.main);
-        this.camRT.setDepth(500);
-
-        this.camRT.setScrollFactor(0);
-
-        this.camRT.saveTexture("camRT_Pipeline");
-
-        this.camSprite = this.add.image(0, 0, "camRT_Pipeline").setDepth(3000).setScrollFactor(0);
-        // this.camSprite.setScale(2.0);
-        this.camSprite.setOrigin(0);
     }
 
     private camSprite: Phaser.GameObjects.Image;
-
-    private camRT: Phaser.GameObjects.RenderTexture; 
 
     private starLayers: Array<Phaser.GameObjects.TileSprite>;
     private scrollValues: Array<number>;
@@ -61,32 +45,16 @@ export default class StarSceneControllerScene extends Phaser.Scene
         const { scrollX, scrollY, zoom } = cam;
         const rf = (1 - 1 / zoom);
 
-        this.camRT.clear();
-        // this.camRT.draw(this.cameras.main);
-        this.camRT.beginDraw();
+        for(var i = 0; i < this.starLayers.length; i++)
+        {
+            const tileSprite = this.starLayers[i];
 
-            for(var i = 0; i < this.starLayers.length; i++)
-            {
-                const tileSprite = this.starLayers[i];
-
-                tileSprite.setTileScale(zoom);
-                tileSprite.setTilePosition(
-                    rf * cam.width + scrollX * this.scrollValues[i] | 0, 
-                    rf * cam.height + scrollY * this.scrollValues[i] | 0
-                );
-
-                // this.camRT.camera.x = (-tileSprite.tilePositionX);
-                // this.camRT.camera.y = (-tileSprite.tilePositionY);
-
-                this.camRT.batchDraw(tileSprite, tileSprite.x, tileSprite.y);
-            }
-            
-            // this.updateToRenderTexture(this.camRT, cam, 1.0, cam.width, cam.height);
-
-        this.camRT.endDraw();
-
-        this.camRT.saveTexture("camRT_Pipeline");
-
+            tileSprite.setTileScale(zoom);
+            tileSprite.setTilePosition(
+                rf * cam.width + scrollX * this.scrollValues[i] | 0, 
+                rf * cam.height + scrollY * this.scrollValues[i] | 0
+            );
+        }
     }
 
     public updateToRenderTexture(

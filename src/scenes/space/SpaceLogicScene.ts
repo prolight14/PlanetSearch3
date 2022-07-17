@@ -8,6 +8,7 @@ import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
 import SpaceGrid from "./SpaceGrid";
+import Sun from "../../gameObjects/space/Sun";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -44,8 +45,8 @@ export default class SpaceLogicScene extends Phaser.Scene
         var planets = world.add.gameObjectArray(Planet, "planet");
         planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
         // planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
-        planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
-
+        // planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
+        planets.add(this.spaceScene, 69000, 60500, "RedDustPlanet");
         world.add.gameObjectArray(XPStar, "xpStar");
         world.add.gameObjectArray(Crest, "crest");
         
@@ -93,17 +94,54 @@ export default class SpaceLogicScene extends Phaser.Scene
         var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
         
-        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        // for(var i = 0; i < 100; i++)
-        // {
-        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
-        // }
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
+        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
+        for(var i = 0; i < 100; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
+        }
 
-        // for(var i = 0; i < 2500; i++)
+        for(var i = 0; i < 2500; i++)
+        {
+            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
+        }
+
+        
+        const sun_radius = 20;
+        const sun_diameter = sun_radius * 2;
+        const sun_graphics = this.add.graphics();
+        sun_graphics.x = 0;
+        sun_graphics.y = 0;
+        sun_graphics.fillStyle(0xD6FC00); 
+        sun_graphics.fillCircle(sun_radius, sun_radius, sun_radius);
+        sun_graphics.generateTexture("sun", sun_diameter, sun_diameter);
+        sun_graphics.setVisible(false);
+        const suns = world.add.gameObjectArray(Sun, "sun");
+        suns.add(this.spaceScene, 65000, 60200);
+
+        // const crestBodies: Phaser.Types.Physics.Matter.MatterBody[] = [];
+        // this.spaceScene.world.get.gameObjectArray("crest").forEach((crest: Crest, i: any, crests: any) => 
         // {
-        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
-        // }
+        //     crestBodies.push(crest.body);
+        // });
+
+        // this.spaceScene.matter.overlap(this.playerShip.body, crestBodies, (playerShipBody, crestBody) =>
+        // {
+        //     console.log("overlap!");
+        // }, undefined, this);
+
+
+
+        // this.spaceScene.matter.world.on(Phaser.Physics.Matter.Events.COLLISION_START, (event: any, bodyA: any, bodyB: any) =>
+        // {
+        //     if(bodyA.gameObject._arrayName === "playerShip" && bodyB.gameObject._arrayName === "crest")
+        //     {
+        //         const playerShip: PlayerShip = bodyA;
+        //         const crest: Crest = bodyB;
+
+        //         crest.onCollide(playerShip);
+        //     }
+        // }, this);
     }
     
     public addXPStar(x: number, y: number)
@@ -122,9 +160,32 @@ export default class SpaceLogicScene extends Phaser.Scene
 
     public addCrests(x: number, y: number)
     {
-        var crests = this.spaceScene.world.get.gameObjectArray("crest");
+        this.spaceScene.world.get.gameObjectArray("crest").add(
+            this.spaceScene, 
+            x + Phaser.Math.RND.between(-50, 50), 
+            y + Phaser.Math.RND.between(-50, 50), 
+            "crest"
+        );
 
-        crests.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "crest");
+        // this.spaceScene.matter.overlap(
+        //     this.playerShip.body, 
+        //     this.spaceScene.world.get.gameObjectArray("crest").add(
+        //         this.spaceScene, 
+        //         x + Phaser.Math.RND.between(-50, 50), 
+        //         y + Phaser.Math.RND.between(-50, 50), 
+        //         "crest"
+        //     ).body, 
+        //     function(playerShipBody, crestBody)
+        // {
+        //     console.log("Hit!");
+        //     //@ts-ignore
+        //     crestBody.onCollide(playerShipBody);
+        // });
+        
+        // this.spaceScene.matter.overlap(this.playerShip.body, crestBodies, (playerShipBody, crestBody) =>
+        // {
+        //     console.log("overlap!");
+        // }, undefined, this);
     } 
 
     public update(time: number, delta: number)

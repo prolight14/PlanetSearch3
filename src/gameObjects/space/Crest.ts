@@ -14,6 +14,8 @@ export default class Crest extends SpaceGameObject
         this.setCollisionGroup(2);
         this.setCollidesWith(0);
 
+        // this.setCollisionCategory())
+
         this.despawnTimer = timer(true,  this.startBlinkingTime, () =>
         {
             this.startBlinking();

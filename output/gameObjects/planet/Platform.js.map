@@ -1,0 +1,1 @@
+{"version":3,"file":"Platform.js","sourceRoot":"","sources":["../../../src/gameObjects/planet/Platform.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;AAAA,uDAAkD;AAElD;IAAsC,4BAAgB;IAElD,kBAAY,KAAmB,EAAE,CAAS,EAAE,CAAS;eAEjD,kBAAM,KAAK,EAAE,CAAC,EAAE,CAAC,EAAE,cAAc,EAAE,CAAC,CAAC;IACzC,CAAC;IACL,eAAC;AAAD,CAAC,AAND,CAAsC,0BAAgB,GAMrD"}

@@ -22,7 +22,8 @@ export default class EntryScene extends Phaser.Scene
 
         // this.input.on('pointerdown', function (pointer: Phaser.Input.Pointer) 
         // {
-        //     this.input.mouse.requestPointerLock();
+        //     // this.input.mouse.requestPointerLock();
+        //     this.scale.startFullscreen();
         // }, this);
     }
 

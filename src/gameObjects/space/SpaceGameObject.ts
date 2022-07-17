@@ -8,7 +8,6 @@ export default class SpaceGameObject extends Phaser.Physics.Matter.Sprite
 
         scene.add.existing(this);
 
-        // Todo: move to SpaceGrid
         scene.world.initGameObject(this);
 
         scene.matter.world.remove(this);
