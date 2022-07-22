@@ -9,7 +9,7 @@ export default class Bullet extends SpaceGameObject
 {
     constructor(scene: SpaceScene, x: number, y: number, texture: string, 
         shootAngle: number, life: number, range: number | undefined,
-        onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any, colObjList: any | undefined)
+        onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
     {
         super(scene, x, y, texture);
         this.shootAngle = shootAngle;
@@ -45,15 +45,8 @@ export default class Bullet extends SpaceGameObject
         //     }
         // });
         
-        // Todo: remove
-        if(colObjList === undefined)
-        {
-            colObjList = [(scene.scene.get("spaceLogic") as SpaceLogicScene).playerShip];
-        }
-
         scene.matterCollision.addOnCollideStart({
             objectA: this,
-            objectB: colObjList,
             callback: function(event)
             {
                 const { gameObjectB } = event;

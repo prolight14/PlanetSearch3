@@ -1,6 +1,7 @@
 import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
+import COL_CATEGORIES from "./CollisionCategories";
 import PlayerShip from "./PlayerShip";
 import SpaceGameObject from "./SpaceGameObject";
 
@@ -10,10 +11,13 @@ export default class XPStar extends SpaceGameObject
     {
         super(scene, x, y, texture);
 
-        this.setAngle(Phaser.Math.RND.between(0, 180));
+        // this.setCollisionGroup(2);
+        // this.setCollidesWith(0);
 
-        // this.setCollisionGroup(-1);
-        // // this.setCollidesWith(0);
+        this.setCollisionCategory(COL_CATEGORIES.PICK_UP);
+        this.setCollidesWith(COL_CATEGORIES.PLAYER);
+
+        this.setAngle(Phaser.Math.RND.between(0, 180));
 
         // this.collides = ["playerShip"];
 

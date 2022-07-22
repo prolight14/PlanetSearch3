@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var timer_1 = require("../Utils/timer");
+var CollisionCategories_1 = require("./CollisionCategories");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var XPStar = (function (_super) {
     __extends(XPStar, _super);
@@ -24,6 +25,8 @@ var XPStar = (function (_super) {
         _this.despawnAfterBlinkingTime = 4500;
         _this.isBlinking = false;
         _this.amt = 1;
+        _this.setCollisionCategory(CollisionCategories_1.default.PICK_UP);
+        _this.setCollidesWith(CollisionCategories_1.default.PLAYER);
         _this.setAngle(Phaser.Math.RND.between(0, 180));
         _this.despawnTimer = timer_1.default(true, _this.startBlinkingTime, function () {
             _this.startBlinking();

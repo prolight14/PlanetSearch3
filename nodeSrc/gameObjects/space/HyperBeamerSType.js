@@ -20,10 +20,13 @@ var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
 var TurnManager_1 = require("../Utils/TurnManager");
 var State_1 = require("../Utils/State");
+var CollisionCategories_1 = require("./CollisionCategories");
 var HyperBeamerSType = (function (_super) {
     __extends(HyperBeamerSType, _super);
     function HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "greenShip") || this;
+        _this_1.setCollisionCategory(CollisionCategories_1.default.ENEMY);
+        _this_1.setCollidesWith([CollisionCategories_1.default.PLAYER, CollisionCategories_1.default.PLAYER_BULLETS]);
         _this_1.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
         if (!_this_1.bullets) {
             _this_1.bullets = scene.world.add.gameObjectArray(Bullet_1.default, "hyperBeamerSTypeGreenBullet");
@@ -196,6 +199,7 @@ var HyperBeamerSType = (function (_super) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, 3000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
+        bullet.setCollisionCategory(CollisionCategories_1.default.ENEMY_BULLETS);
     };
     HyperBeamerSType.prototype.shoot = function () {
         this.shootBullet(0, this.displayWidth / 2);

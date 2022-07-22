@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var timer_1 = require("../Utils/timer");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
+var CollisionCategories_1 = require("./CollisionCategories");
 var Ship_1 = require("./Ship");
 var PlayerShip = (function (_super) {
     __extends(PlayerShip, _super);
@@ -38,6 +39,8 @@ var PlayerShip = (function (_super) {
             slowdown: false,
         };
         _this.targetAngle = 0;
+        _this.setCollisionCategory(CollisionCategories_1.default.PLAYER);
+        _this.setCollidesWith([CollisionCategories_1.default.ENEMY, CollisionCategories_1.default.PICK_UP, CollisionCategories_1.default.ENEMY_BULLETS]);
         _this.ignoreDestroy = true;
         _this.useAngleAcl = true;
         _this.angleVel = 0;
@@ -187,6 +190,7 @@ var PlayerShip = (function (_super) {
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
+        bullet.setCollisionCategory(CollisionCategories_1.default.PLAYER_BULLETS);
     };
     PlayerShip.prototype.bulletOnCollide = function (gameObject) {
         if (gameObject._arrayName === "hyperBeamerSType") {

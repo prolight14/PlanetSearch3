@@ -7,9 +7,6 @@ export default class Shrapnel extends SpaceGameObject
     {
         super(scene, x, y, texture);
 
-        // this.setCollisionGroup(2);
-        // this.setCollidesWith(0);
-
         this.setFrictionAir(0.0001);
     }
 }

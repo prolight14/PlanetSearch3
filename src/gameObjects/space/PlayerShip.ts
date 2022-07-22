@@ -3,6 +3,7 @@ import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
+import COL_CATEGORIES from "./CollisionCategories";
 import HyperBeamerSType from "./HyperBeamerSType";
 import Ship from "./Ship";
 import SpaceGameObject from "./SpaceGameObject";
@@ -86,10 +87,13 @@ export default class PlayerShip extends Ship
     {
         super(scene, x, y, "helixShip", undefined/*, { shape: scene.cache.json.get("helixShipShape").helixShip }*/);
 
-        this.ignoreDestroy = true;
+        this.setCollisionCategory(COL_CATEGORIES.PLAYER);
+        this.setCollidesWith([COL_CATEGORIES.ENEMY, COL_CATEGORIES.PICK_UP, COL_CATEGORIES.ENEMY_BULLETS]);
 
-        // this.setCollisionGroup(4);
+        // this.setCollisionGroup(2);
         // this.setCollidesWith(0);
+
+        this.ignoreDestroy = true;
 
         this.useAngleAcl = true;
         this.angleVel = 0;
@@ -290,9 +294,11 @@ export default class PlayerShip extends Ship
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
-        
-        // bullet.setCollisionGroup(1);
+
+        // bullet.setCollisionGroup(9);
         // bullet.setCollidesWith(0);
+
+        bullet.setCollisionCategory(COL_CATEGORIES.PLAYER_BULLETS);
     }
 
     private bulletOnCollide(gameObject: SpaceGameObject): boolean

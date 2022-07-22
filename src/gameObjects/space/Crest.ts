@@ -1,5 +1,6 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
+import COL_CATEGORIES from "./CollisionCategories";
 import PlayerShip from "./PlayerShip";
 import SpaceGameObject from "./SpaceGameObject";
 
@@ -10,14 +11,12 @@ export default class Crest extends SpaceGameObject
         super(scene, x, y, texture);
 
         this.setAngle(Phaser.Math.RND.between(0, 180));
-
-
         
+        this.setCollisionCategory(COL_CATEGORIES.PICK_UP);
+        this.setCollidesWith(COL_CATEGORIES.PLAYER);
 
         // this.setCollisionGroup(2);
         // this.setCollidesWith(0);
-
-        // this.setCollisionCategory())
 
         this.despawnTimer = timer(true,  this.startBlinkingTime, () =>
         {

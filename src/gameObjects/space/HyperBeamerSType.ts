@@ -9,6 +9,7 @@ import PlayerShip from "./PlayerShip";
 import TurnManager from "../Utils/TurnManager";
 import State from "../Utils/State";
 import Clock from "../Utils/Clock";
+import COL_CATEGORIES from "./CollisionCategories";
 
 export default class HyperBeamerSType extends HyperBeamerShip
 {
@@ -18,7 +19,10 @@ export default class HyperBeamerSType extends HyperBeamerShip
     {
         super(scene, x, y, "greenShip");
 
-        // this.setCollisionGroup(1);
+        this.setCollisionCategory(COL_CATEGORIES.ENEMY);
+        this.setCollidesWith([COL_CATEGORIES.PLAYER, COL_CATEGORIES.PLAYER_BULLETS]);
+
+        // this.setCollisionGroup(9);
         // this.setCollidesWith(0);
 
         this.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
@@ -332,6 +336,9 @@ export default class HyperBeamerSType extends HyperBeamerShip
             this,
         ) as Bullet;
         bullet.setAngle(this.angle);
+
+        bullet.setCollisionCategory(COL_CATEGORIES.ENEMY_BULLETS);
+
         // bullet.setCollisionGroup(2);
         // bullet.setCollidesWith(0);
     }
