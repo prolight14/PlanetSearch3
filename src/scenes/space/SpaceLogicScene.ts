@@ -8,7 +8,8 @@ import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
 import SpaceGrid from "./SpaceGrid";
-import Sun from "../../gameObjects/space/Sun";
+import Star from "../../gameObjects/space/Sun";
+import spaceManagerScene from "./SpaceManagerScene";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -24,6 +25,14 @@ export default class SpaceLogicScene extends Phaser.Scene
     {
         this.spaceScene = this.scene.get("space") as SpaceScene;
         
+         
+        // var shader = this.add.shader("planetLighting", 0, 0, 128, 128);
+        // // shader.setUniform("uMainSampler", this.spaceScene.textures.get("IcyDwarfPlanet").dataSource[0]);
+        // shader.setSampler2D("iChannel0", "IcyDwarfPlanet");
+        // shader.setRenderToTexture("IcyDwarfPlanet-shader");
+
+        // this.add.image(69000, 60000, "IcyDwarfPlanet-shader"); 
+
         const RND = Phaser.Math.RND;
 
         var world: SpaceGrid = this.spaceScene.world;
@@ -43,10 +52,45 @@ export default class SpaceLogicScene extends Phaser.Scene
         }
             
         var planets = world.add.gameObjectArray(Planet, "planet");
-        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
-        // planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
-        // planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
-        planets.add(this.spaceScene, 69000, 60500, "RedDustPlanet");
+        // planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
+        // // planets.add(this.spaceScene, 56000, 70000, "RedDustPlanet");
+        // // planets.add(this.spaceScene, 62000, 70000, "RedDustPlanet");
+        // planets.add(this.spaceScene, 69000, 60500, "RedDustPlanet");
+
+        // planets.add(this.spaceScene, 66000, 60000, "sun").setScale(7); 
+        // planets.add(this.spaceScene, 80000, 60000, "RedDustPlanet").setScale(4);
+        // planets.add(this.spaceScene, 86500, 60000, "JunglePlanet");
+        // planets.add(this.spaceScene, 97000, 60000, "IcyDwarfPlanet");
+
+        const spaceManagerScene = (this.scene.get("spaceManager") as spaceManagerScene);
+
+        const suns = world.add.gameObjectArray(Star, "sun");
+        const betaSun = suns.add(this.spaceScene, 66000, 60000, "Sun").setScale(7);
+
+        const betaSystem = spaceManagerScene.addSystem("beta", [betaSun]);
+        betaSystem.addPlanet(
+            planets.add(this.spaceScene, 80000, 60000, "RedDustPlanet").setScale(4),
+            {
+                radius: 14000
+            }
+        );
+        betaSystem.addPlanet(
+            planets.add(this.spaceScene, 86500, 60000, "JunglePlanet").setScale(4),
+            {
+                radius: 20500,
+            }
+        );
+        betaSystem.addPlanet(
+            planets.add(this.spaceScene, 97000, 60000,"IcyDwarfPlanet").setScale(4),
+            {
+                radius: 31000,
+            }
+        );
+
+        // Todo: make this work
+        // betaSystemOrbiter.addMoon();
+
+    
         world.add.gameObjectArray(XPStar, "xpStar");
         world.add.gameObjectArray(Crest, "crest");
         
@@ -80,6 +124,7 @@ export default class SpaceLogicScene extends Phaser.Scene
             var playerShips = world.add.gameObjectArray(PlayerShip, "playerShip");
             playerShips.define("ignoreDestroy", true);
             this.playerShip = playerShips.add(this.spaceScene, 69000, 60200);
+            // this.playerShip = playerShips.add(this.spaceScene, 86500, 60400);
         }
         else
         {
@@ -106,18 +151,24 @@ export default class SpaceLogicScene extends Phaser.Scene
             hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
         }
 
-        
-        const sun_radius = 20;
-        const sun_diameter = sun_radius * 2;
-        const sun_graphics = this.add.graphics();
-        sun_graphics.x = 0;
-        sun_graphics.y = 0;
-        sun_graphics.fillStyle(0xD6FC00); 
-        sun_graphics.fillCircle(sun_radius, sun_radius, sun_radius);
-        sun_graphics.generateTexture("sun", sun_diameter, sun_diameter);
-        sun_graphics.setVisible(false);
-        const suns = world.add.gameObjectArray(Sun, "sun");
-        suns.add(this.spaceScene, 65000, 60200);
+        this.hyperBeamerSTypeArray = [];
+
+        hyperBeamerSTypes.forEach((sType: HyperBeamerSType) => 
+        {
+            this.hyperBeamerSTypeArray.push(sType);
+        });
+
+        // const sun_radius = 20;
+        // const sun_diameter = sun_radius * 2;
+        // const sun_graphics = this.add.graphics();
+        // sun_graphics.x = 0;
+        // sun_graphics.y = 0;
+        // sun_graphics.fillStyle(0xD6FC00); 
+        // sun_graphics.fillCircle(sun_radius, sun_radius, sun_radius);
+        // sun_graphics.generateTexture("sun", sun_diameter, sun_diameter);
+        // sun_graphics.setVisible(false);
+        // const suns = world.add.gameObjectArray(Sun, "sun");
+        // suns.add(this.spaceScene, 65000, 60200);
 
         // const crestBodies: Phaser.Types.Physics.Matter.MatterBody[] = [];
         // this.spaceScene.world.get.gameObjectArray("crest").forEach((crest: Crest, i: any, crests: any) => 
@@ -144,11 +195,14 @@ export default class SpaceLogicScene extends Phaser.Scene
         // }, this);
     }
     
+    public hyperBeamerSTypeArray: Array<HyperBeamerSType>;
+
     public addXPStar(x: number, y: number)
     {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
         xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
+        // xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-5, 5), y + Phaser.Math.RND.between(-5, 5), "xpStar");
     }
 
     public addSmallXPStar(x: number, y: number)
@@ -156,6 +210,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         var smallXPStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
         smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
+        // smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-5, 5), y + Phaser.Math.RND.between(-5, 5), "smallXPStar");
     }
 
     public addCrests(x: number, y: number)

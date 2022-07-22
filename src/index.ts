@@ -1,5 +1,8 @@
 //@ts-nocheck
 
+import { PhaserMatterCollisionPlugin } from "./libraries/phaser-matter-collision";
+
+
 // Title scene
 import TitleScene from "./scenes/TitleScene";
 
@@ -25,6 +28,7 @@ import PlanetLoaderScene from "./scenes/planet/PlanetLoaderScene";
 import SpaceUIScene from "./scenes/space/SpaceUIScene";
 import SpaceEffectsScene from "./scenes/space/SpaceEffectsScene";
 import SpaceMapScene from "./scenes/space/SpaceMapScene";
+import SpaceManagerScene from "./scenes/space/SpaceManagerScene";
 
 /*
     Started CartesianSystem: 2/19/2021
@@ -99,15 +103,74 @@ let config: Phaser.Types.Core.GameConfig = {
 
         // Space scenes
         SpaceScene, SpaceCameraControllerScene, SpaceDebugScene, 
-        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, SpaceUIScene, SpaceEffectsScene, SpaceMapScene,
+        SpaceUIDebugScene, StarSceneControllerScene, SpaceLogicScene, SpaceUIScene, SpaceEffectsScene, SpaceMapScene, SpaceManagerScene,
 
         // Planet scene(s)
         PlanetScene, PlanetBackScene, PlanetLogicScene, PlanetLoaderScene, PlanetUIScene, PlanetEffectsScene
     ],
-    seed: "testing"
+    seed: "testing",
+
+    physics: {
+        default: "matter",
+        matter: {
+            gravity: false,
+            autoUpdate: false, 
+            // positionIterations: 4,
+            // velocityIterations: 2,
+            // constraintIterations: 1
+        }
+    },
+    plugins: {
+        scene: [
+            {
+                plugin: PhaserMatterCollisionPlugin, // The plugin class
+                key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
+                mapping: "matterCollision" // Where to store in the Scene, e.g. scene.matterCollision
+            }
+        ]
+    }
 }
 var game: Phaser.Game = new Phaser.Game(config);
 
 window.game = game;
 
 document.body.style.overflow = 'hidden';
+
+
+
+// let config: Phaser.Types.Core.GameConfig = {
+//     type: Phaser.WEBGL,
+//     width: 800,
+//     height: 450,
+//     scale: {
+//         mode: Phaser.Scale.ScaleModes.FIT,
+//         autoCenter: Phaser.Scale.CENTER_BOTH,
+//         autoRound: true
+//     },
+//     scene: {
+//         preload: preload,
+//         create: create
+//     }
+// }
+// var game: Phaser.Game = new Phaser.Game(config);
+
+// window.game = game;
+// document.body.style.overflow = 'hidden';
+
+// // index.js
+// function preload()
+// {
+//     this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
+//     this.load.glsl("planetLighting", "./assets/space/shaders/planetLighting.glsl");  
+// }
+
+// function create()
+// {
+//     var shader = this.add.shader("planetLighting", 200, 200, 80, 80, ["IcyDwarfPlanet"]);
+//     shader.setChannel0("IcyDwarfPlanet");
+//     // shader.setSampler2D("iChannel0", "IcyDwarfPlanet");
+//     // shader.setRenderToTexture("IcyDwarfPlanet-shader");
+
+//     // this.add.image(200, 200, "IcyDwarfPlanet-shader");
+//     // this.add.image(200, 200, "IcyDwarfPlanet");
+// }

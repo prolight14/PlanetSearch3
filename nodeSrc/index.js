@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var phaser_matter_collision_1 = require("./libraries/phaser-matter-collision");
 var EntryScene_1 = require("./scenes/EntryScene");
 var SpaceScene_1 = require("./scenes/space/SpaceScene");
 var SpaceCameraControllerScene_1 = require("./scenes/space/SpaceCameraControllerScene");
@@ -16,6 +17,7 @@ var PlanetLoaderScene_1 = require("./scenes/planet/PlanetLoaderScene");
 var SpaceUIScene_1 = require("./scenes/space/SpaceUIScene");
 var SpaceEffectsScene_1 = require("./scenes/space/SpaceEffectsScene");
 var SpaceMapScene_1 = require("./scenes/space/SpaceMapScene");
+var SpaceManagerScene_1 = require("./scenes/space/SpaceManagerScene");
 var config = {
     type: Phaser.WEBGL,
     width: 800,
@@ -36,10 +38,26 @@ var config = {
     scene: [
         EntryScene_1.default,
         SpaceScene_1.default, SpaceCameraControllerScene_1.default, SpaceDebugScene_1.default,
-        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default,
+        SpaceUIDebugScene_1.default, StarSceneControllerScene_1.default, SpaceLogicScene_1.default, SpaceUIScene_1.default, SpaceEffectsScene_1.default, SpaceMapScene_1.default, SpaceManagerScene_1.default,
         PlanetScene_1.default, PlanetBackScene_1.default, PlanetLogicScene_1.default, PlanetLoaderScene_1.default, PlanetUIScene_1.default, PlanetEffectsScene_1.default
     ],
-    seed: "testing"
+    seed: "testing",
+    physics: {
+        default: "matter",
+        matter: {
+            gravity: false,
+            autoUpdate: false,
+        }
+    },
+    plugins: {
+        scene: [
+            {
+                plugin: phaser_matter_collision_1.PhaserMatterCollisionPlugin,
+                key: "matterCollision",
+                mapping: "matterCollision"
+            }
+        ]
+    }
 };
 var game = new Phaser.Game(config);
 window.game = game;

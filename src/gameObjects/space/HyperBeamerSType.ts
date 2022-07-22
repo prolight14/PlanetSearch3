@@ -18,8 +18,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
     {
         super(scene, x, y, "greenShip");
 
-        this.setCollisionGroup(1);
-        this.setCollidesWith(0);
+        // this.setCollisionGroup(1);
+        // this.setCollidesWith(0);
 
         this.bullets = scene.world.get.gameObjectArray("hyperBeamerSTypeGreenBullet");
 
@@ -332,8 +332,8 @@ export default class HyperBeamerSType extends HyperBeamerShip
             this,
         ) as Bullet;
         bullet.setAngle(this.angle);
-        bullet.setCollisionGroup(2);
-        bullet.setCollidesWith(0);
+        // bullet.setCollisionGroup(2);
+        // bullet.setCollidesWith(0);
     }
 
     private shoot()

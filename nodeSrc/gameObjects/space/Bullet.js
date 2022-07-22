@@ -18,7 +18,7 @@ var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(scene, x, y, texture, shootAngle, life, range, onCollide, onCollideContext) {
+    function Bullet(scene, x, y, texture, shootAngle, life, range, onCollide, onCollideContext, colObjList) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.getType = function () {
             return "Projectile";
@@ -41,14 +41,21 @@ var Bullet = (function (_super) {
         _this.killTimer = timer_1.default(true, life, function () {
             _this.kill();
         });
-        _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject) {
-                var hit = onCollide.call(onCollideContext, colData.bodyA.gameObject);
+        if (colObjList === undefined) {
+            colObjList = [scene.scene.get("spaceLogic").playerShip];
+        }
+        scene.matterCollision.addOnCollideStart({
+            objectA: _this,
+            objectB: colObjList,
+            callback: function (event) {
+                var gameObjectB = event.gameObjectB;
+                var hit = onCollide.call(onCollideContext, gameObjectB);
                 if (hit) {
-                    _this.kill();
-                    colData.bodyA.gameObject.onCollide(_this);
+                    this.kill();
+                    gameObjectB.onCollide(this);
                 }
-            }
+            },
+            context: _this
         });
         return _this;
     }

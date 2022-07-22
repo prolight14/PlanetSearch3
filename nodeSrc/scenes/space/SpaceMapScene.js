@@ -68,7 +68,7 @@ var SpaceMapScene = (function (_super) {
     };
     SpaceMapScene.prototype.update = function (time, delta) {
         var _this = this;
-        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
+        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0)).setVisible(this.mapExplorer.open);
         if (!this.scene.isActive("starSceneController")) {
             return;
         }

@@ -1,3 +1,4 @@
+import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import trig from "../Utils/trig";
@@ -66,6 +67,7 @@ export default class PlayerShip extends Ship
     }
 
     protected maxSpeed: number = 7.5;
+    // protected maxSpeed: number = 36.4;
     protected speedAcl: number = 0.2;//0.25;
     protected speedDeacl: number = 0.0745;
     protected manualSpeedDeacl: number = 0.15;
@@ -86,8 +88,8 @@ export default class PlayerShip extends Ship
 
         this.ignoreDestroy = true;
 
-        this.setCollisionGroup(2);
-        this.setCollidesWith(0);
+        // this.setCollisionGroup(4);
+        // this.setCollidesWith(0);
 
         this.useAngleAcl = true;
         this.angleVel = 0;
@@ -114,7 +116,6 @@ export default class PlayerShip extends Ship
             this.canShoot = true;
             this.shootLimiterTimer.reset();
         });
-
 
         this.particles = scene.add.particles("helixShipParticle");
 
@@ -284,12 +285,14 @@ export default class PlayerShip extends Ship
             600,
             this.bulletOnCollide,
             this,
+            (this.scene.scene.get("spaceLogic") as SpaceLogicScene).hyperBeamerSTypeArray,
         ) as Bullet;
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
-        bullet.setCollisionGroup(1);
-        bullet.setCollidesWith(0);
+        
+        // bullet.setCollisionGroup(1);
+        // bullet.setCollidesWith(0);
     }
 
     private bulletOnCollide(gameObject: SpaceGameObject): boolean

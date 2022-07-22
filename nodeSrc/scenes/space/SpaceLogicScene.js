@@ -27,6 +27,7 @@ var SpaceLogicScene = (function (_super) {
         return _super.call(this, "spaceLogic") || this;
     }
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
+        var _this = this;
         this.spaceScene = this.scene.get("space");
         var RND = Phaser.Math.RND;
         var world = this.spaceScene.world;
@@ -39,8 +40,19 @@ var SpaceLogicScene = (function (_super) {
             nebulae.add(this.spaceScene, 69000 + 13000 * RND.frac(), 60500 + 13000 * RND.frac(), "purpleNebula");
         }
         var planets = world.add.gameObjectArray(Planet_1.default, "planet");
-        planets.add(this.spaceScene, 69000, 60000, "IcyDwarfPlanet");
-        planets.add(this.spaceScene, 69000, 60500, "RedDustPlanet");
+        var spaceManagerScene = this.scene.get("spaceManager");
+        var suns = world.add.gameObjectArray(Sun_1.default, "sun");
+        var betaSun = suns.add(this.spaceScene, 66000, 60000, "Sun").setScale(7);
+        var betaSystem = spaceManagerScene.addSystem("beta", [betaSun]);
+        betaSystem.addPlanet(planets.add(this.spaceScene, 80000, 60000, "RedDustPlanet").setScale(4), {
+            radius: 14000
+        });
+        betaSystem.addPlanet(planets.add(this.spaceScene, 86500, 60000, "JunglePlanet").setScale(4), {
+            radius: 20500,
+        });
+        betaSystem.addPlanet(planets.add(this.spaceScene, 97000, 60000, "IcyDwarfPlanet").setScale(4), {
+            radius: 31000,
+        });
         world.add.gameObjectArray(XPStar_1.default, "xpStar");
         world.add.gameObjectArray(Crest_1.default, "crest");
         var shrapnels = world.add.gameObjectArray(Shrapnel_1.default, "shrapnel");
@@ -80,17 +92,10 @@ var SpaceLogicScene = (function (_super) {
         for (var i = 0; i < 2500; i++) {
             hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000));
         }
-        var sun_radius = 20;
-        var sun_diameter = sun_radius * 2;
-        var sun_graphics = this.add.graphics();
-        sun_graphics.x = 0;
-        sun_graphics.y = 0;
-        sun_graphics.fillStyle(0xD6FC00);
-        sun_graphics.fillCircle(sun_radius, sun_radius, sun_radius);
-        sun_graphics.generateTexture("sun", sun_diameter, sun_diameter);
-        sun_graphics.setVisible(false);
-        var suns = world.add.gameObjectArray(Sun_1.default, "sun");
-        suns.add(this.spaceScene, 65000, 60200);
+        this.hyperBeamerSTypeArray = [];
+        hyperBeamerSTypes.forEach(function (sType) {
+            _this.hyperBeamerSTypeArray.push(sType);
+        });
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

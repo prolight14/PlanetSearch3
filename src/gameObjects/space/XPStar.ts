@@ -1,3 +1,4 @@
+import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import PlayerShip from "./PlayerShip";
@@ -11,8 +12,26 @@ export default class XPStar extends SpaceGameObject
 
         this.setAngle(Phaser.Math.RND.between(0, 180));
 
-        this.setCollisionGroup(2);
-        this.setCollidesWith(0);
+        // this.setCollisionGroup(-1);
+        // // this.setCollidesWith(0);
+
+        // this.collides = ["playerShip"];
+
+        // const col_objects: Array<SpaceGameObject> = [];
+
+        // this.collides.forEach(arrayName => 
+        // {
+        //     this.scene.world.get.gameObjectArray(arrayName).forEach((gameObject: SpaceGameObject) =>
+        //     {
+        //         col_objects.push(gameObject);
+        //     });
+        // });
+
+        // this.body.collisionFilter = {
+        //     'group': -1,
+        //     'category': 2,
+        //     'mask': 0,
+        // };
 
         this.despawnTimer = timer(true,  this.startBlinkingTime, () =>
         {
@@ -24,17 +43,44 @@ export default class XPStar extends SpaceGameObject
             this.amt = 2;
         }
 
-        this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-        {
-            if(colData.bodyA.gameObject && (colData.bodyA.gameObject as SpaceGameObject)._arrayName === "playerShip")
-            {
-                var playerShip = colData.bodyA.gameObject;
+        // const spaceLogicScene = (scene.scene.get("spaceLogic") as SpaceLogicScene);
+        // const playerShip = spaceLogicScene.playerShip;
 
-                this.onCollide(playerShip);
-            }
+        // const detector: MatterJS.Detector = new Phaser.Physics.Matter.();
+
+        // this.setOnCollideWith(playerShip, (pair: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        // {
+        //     this.onCollide(playerShip);
+        // });
+
+        // this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        // {
+        //     if(colData.bodyA.gameObject && (colData.bodyA.gameObject as SpaceGameObject)._arrayName === "playerShip")
+        //     {
+        //         var playerShip = colData.bodyA.gameObject;
+
+        //         this.onCollide(playerShip);
+        //     }
+        // });
+
+        scene.matterCollision.addOnCollideStart({
+            objectA: this,
+            callback: function(event)
+            {
+                const { gameObjectB } = event;
+
+                if((gameObjectB as PlayerShip)._arrayName === "playerShip")
+                {
+                    const playerShip = (gameObjectB as PlayerShip);
+
+                    this.onCollide(playerShip);
+                }
+            },
+            context: this
         });
     }
 
+    public collides: Array<string>;
      
     private startBlinkingTime: number = 10000;
     private blinkInterval: number = 30;

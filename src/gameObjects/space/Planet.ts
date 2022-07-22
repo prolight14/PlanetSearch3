@@ -8,7 +8,7 @@ export default class Planet extends SpaceGameObject
         super(scene, x, y, texture);
 
         this.setScale(3);
-        this.setStatic(true);
+        // this.setStatic(true);
         this.body.collisionFilter = {
             'group': -1,
             'category': 2,

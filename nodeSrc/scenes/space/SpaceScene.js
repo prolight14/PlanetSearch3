@@ -19,13 +19,6 @@ var SpaceScene = (function (_super) {
     function SpaceScene() {
         var _this = _super.call(this, {
             key: "space",
-            physics: {
-                default: "matter",
-                matter: {
-                    gravity: false,
-                    autoUpdate: false,
-                }
-            }
         }) || this;
         _this.loaded = false;
         _this.stepMatter = 0;
@@ -36,23 +29,26 @@ var SpaceScene = (function (_super) {
         this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
         this.load.image("helixShipLvl1Bullet", "./assets/Space/Bullets/helixShipLvl1Bullet.png");
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
+        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
-        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
-        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
-        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
-        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
-        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
-        this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
-        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
         this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
+        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
+        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("JunglePlanet", "./assets/Space/Planets/JunglePlanet.png");
+        this.load.image("Sun", "./assets/Space/Suns/Sun.png");
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
+        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
         this.load.image("shrapnel1", "./assets/Space/Shrapnel/shrapnel1.png");
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
+        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
+        this.load.glsl("planetLighting", "./assets/space/shaders/planetLighting.glsl");
+        this.load.audio("space", "./assets/Music/space.mp3");
     };
     SpaceScene.prototype.create = function () {
         var worldWidth = 204800;
@@ -80,6 +76,10 @@ var SpaceScene = (function (_super) {
         this.generateBulletsTextures();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
         this.loaded = true;
+        var spaceMusic = this.sound.add("space", {
+            loop: true
+        });
+        spaceMusic.play();
     };
     SpaceScene.prototype.generateBulletsTextures = function () {
         this.generateBullet("lightningBlue", 2, 16, 0x3CD3F8);
@@ -100,6 +100,7 @@ var SpaceScene = (function (_super) {
         this.reloadSpace();
     };
     SpaceScene.prototype.reloadSpace = function () {
+        this.scene.get("spaceManager").destroySolarSystems();
         this.world.resetSpace();
         this.scene.get("spaceLogic").addObjectsToSpace();
         this.cameras.main.startFollow(this.scene.get("spaceLogic").playerShip);
@@ -114,6 +115,7 @@ var SpaceScene = (function (_super) {
         this.scene.run("starSceneController");
         this.scene.run("spaceUI");
         this.scene.run("spaceMap");
+        this.scene.run("spaceManager");
         this.scene.bringToTop("spaceMap");
         var playerShip = this.scene.get("spaceLogic").playerShip;
         if (calledByEntryScene) {
@@ -125,16 +127,19 @@ var SpaceScene = (function (_super) {
         var _this = this;
         this.scene.run("spaceDebug");
         this.scene.sleep("spaceDebug");
+        this.scene.bringToTop("spaceUIDebug");
         this.scene.run("spaceUIDebug");
         this.scene.sleep("spaceUIDebug");
-        this.scene.bringToTop("spaceUIDebug");
+        this.scene.get("spaceUIDebug").scene.setVisible(false);
         this.input.keyboard.on("keydown-U", function () {
             if (_this.scene.isSleeping("spaceUIDebug")) {
                 _this.scene.wake("spaceUIDebug");
                 _this.scene.bringToTop("spaceUIDebug");
+                _this.scene.get("spaceUIDebug").scene.setVisible(true);
             }
             else {
                 _this.scene.sleep("spaceUIDebug");
+                _this.scene.get("spaceUIDebug").scene.setVisible(false);
             }
         });
         this.input.keyboard.on("keydown-I", function () {
@@ -167,6 +172,7 @@ var SpaceScene = (function (_super) {
         this.scene.stop("spaceCameraController");
         this.scene.stop("spaceMap");
         this.scene.stop("spaceLogic");
+        this.scene.stop("spaceManager");
     };
     SpaceScene.prototype.switchToPlanetSceneGroup = function (levelInfo) {
         var entryScene = this.scene.get("entry");

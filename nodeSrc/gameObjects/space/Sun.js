@@ -14,20 +14,24 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var SpaceGameObject_1 = require("./SpaceGameObject");
-var Sun = (function (_super) {
-    __extends(Sun, _super);
-    function Sun(scene, x, y) {
-        var _this = _super.call(this, scene, x, y, "sun") || this;
+var Star = (function (_super) {
+    __extends(Star, _super);
+    function Star(scene, x, y, texture) {
+        var _this = _super.call(this, scene, x, y, texture) || this;
         _this.radius = 600;
-        _this.setScale(3);
         _this.setStatic(true);
+        _this.body.collisionFilter = {
+            'group': -1,
+            'category': 2,
+            'mask': 0,
+        };
         return _this;
     }
-    Sun.prototype.preUpdate = function (time, delta) {
+    Star.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.bodyConf.update();
     };
-    return Sun;
+    return Star;
 }(SpaceGameObject_1.default));
-exports.default = Sun;
+exports.default = Star;
 //# sourceMappingURL=Sun.js.map

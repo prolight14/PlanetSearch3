@@ -19,7 +19,6 @@ var Planet = (function (_super) {
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.setScale(3);
-        _this.setStatic(true);
         _this.body.collisionFilter = {
             'group': -1,
             'category': 2,

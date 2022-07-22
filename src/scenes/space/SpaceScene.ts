@@ -1,12 +1,13 @@
 import EnemyShip from "../../gameObjects/space/EnemyShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import trig from "../../gameObjects/Utils/trig";
+import { PhaserMatterCollisionPlugin } from "phaser-matter-collision-plugin";
 import EntryScene from "../EntryScene";
 import ISceneGroupHead from "../ISceneGroupHead";
 import PlanetScene from "../planet/PlanetScene";
 import SpaceGrid from "./SpaceGrid";
 import SpaceLogicScene from "./SpaceLogicScene";
-import StarSceneControllerScene from "./StarSceneControllerScene";
+import spaceManagerScene from "./SpaceManagerScene";
 
 export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 {
@@ -14,54 +15,79 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     {
         super({
             key: "space",
-            physics: {
-                default: "matter",
-                matter: {
-                    gravity: false,
-                    autoUpdate: false, 
-                    // positionIterations: 4,
-                    // velocityIterations: 2,
-                    // constraintIterations: 1
-                }
-            }
+            // physics: {
+            //     default: "matter",
+            //     matter: {
+            //         gravity: false,
+            //         autoUpdate: false, 
+            //         // positionIterations: 4,
+            //         // velocityIterations: 2,
+            //         // constraintIterations: 1
+            //     }
+            // },
+            // plugins: {
+            //     scene: [
+            //         {
+            //             plugin: PhaserMatterCollisionPlugin, // The plugin class
+            //             key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
+            //             mapping: "matterCollision" // Where to store in the Scene, e.g. scene.matterCollision
+            //         }
+            //     ]
+            // }
         });
     }
-    
     public preload()
     {
+        // Ships and projectiles
         this.load.image("helixShip", "./assets/Space/Ships/helixShip.png");
         this.load.image("helixShipParticle", "./assets/Space/Ships/helixShipParticle.png");
         this.load.image("helixShipLvl1Bullet", "./assets/Space/Bullets/helixShipLvl1Bullet.png");
         this.load.json("helixShipShape", "./assets/Space/Ships/helixShipShape.json");
+        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
         this.load.image("hyperBeamerSTypeGreen", "./assets/Space/Ships/hyperBeamerSTypeGreen.png");
         this.load.image("hyperBeamerSTypeGreenParticle", "./assets/Space/Ships/hyperBeamerSTypeGreenParticle.png");
-        this.load.spritesheet("greenShip", "./assets/Space/Ships/GreenShip1.png", { frameWidth: 24, frameHeight: 24 });
-        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
-        
-        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png")
-        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
-        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
-        this.load.image("GreenPlanet", "./assets/Space/Planets/GreenPlanet.png");
-        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
-        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
+
+        // Pickups
         this.load.image("xpStar", "./assets/Space/DroppedItems/XPStar.png");
         this.load.image("smallXPStar", "./assets/Space/DroppedItems/SmallXPStar.png");
         this.load.image("crest", "./assets/Space/DroppedItems/Crest.png");
+        
+        // Planets
+        this.load.image("IcyDwarfPlanet", "./assets/Space/Planets/IcyDwarfPlanet.png");
+        this.load.image("RedDustPlanet", "./assets/Space/Planets/RedDustPlanet.png");
+        this.load.image("JunglePlanet", "./assets/Space/Planets/JunglePlanet.png");
 
+        // Suns
+        this.load.image("Sun", "./assets/Space/Suns/Sun.png");
+
+        // Other stuff
+        this.load.image("asteroid1", "./assets/Space/Asteroids/Asteroid.png");
+        this.load.image("grayNebula", "./assets/Space/nebula/grayNebula.png");
+        this.load.image("purpleNebula", "./assets/Space/nebula/purpleNebula.png");
         this.load.image("shrapnel1", "./assets/Space/Shrapnel/shrapnel1.png");
         this.load.image("shrapnel2", "./assets/Space/Shrapnel/shrapnel2.png");
         this.load.image("shrapnel3", "./assets/Space/Shrapnel/shrapnel3.png");
         this.load.image("shrapnel4", "./assets/Space/Shrapnel/shrapnel4.png");
-    }
+
+        // UI
+        this.load.spritesheet("shipHealthBar", "./assets/Space/UI/ShipHealthBar.png", { frameWidth: 40, frameHeight: 57 });
+
+
+        // Shaders
+        this.load.glsl("planetLighting", "./assets/space/shaders/planetLighting.glsl");
+
+        this.load.audio("space", "./assets/Music/space.mp3");
+    } 
 
     public cspConfig: any;
     public loaded: boolean = false;
+
+    matterCollision: PhaserMatterCollisionPlugin;
     
     public create()
     {
         const worldWidth = 204800;
         const worldHeight = 204800;
-
         
         /*
             Changing this will affect performance. 
@@ -94,6 +120,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             },
             seed: this.game.config.seed
         };
+
         
         ///////////////////////////////
         // This is what we're doing now
@@ -107,6 +134,12 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
 
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
         this.loaded = true;
+
+        const spaceMusic: Phaser.Sound.BaseSound = this.sound.add("space", {
+            loop: true
+        });
+        
+        spaceMusic.play();
     }
 
     private generateBulletsTextures()
@@ -139,6 +172,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
     
     private reloadSpace()
     {
+        (this.scene.get("spaceManager") as spaceManagerScene).destroySolarSystems();
         this.world.resetSpace();
         (this.scene.get("spaceLogic") as SpaceLogicScene).addObjectsToSpace();
         this.cameras.main.startFollow((this.scene.get("spaceLogic") as SpaceLogicScene).playerShip);
@@ -166,6 +200,8 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceMap");
         // this.scene.bringToTop("spaceUI");
 
+        this.scene.run("spaceManager");
+
         this.scene.bringToTop("spaceMap");
 
         var playerShip = (this.scene.get("spaceLogic") as SpaceLogicScene).playerShip;
@@ -182,9 +218,10 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.run("spaceDebug");
         this.scene.sleep("spaceDebug");
         
+        this.scene.bringToTop("spaceUIDebug");
         this.scene.run("spaceUIDebug");
         this.scene.sleep("spaceUIDebug");
-        this.scene.bringToTop("spaceUIDebug");
+        this.scene.get("spaceUIDebug").scene.setVisible(false);
 
         this.input.keyboard.on("keydown-U", () =>
         {
@@ -192,10 +229,12 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             {
                 this.scene.wake("spaceUIDebug");
                 this.scene.bringToTop("spaceUIDebug");
+                this.scene.get("spaceUIDebug").scene.setVisible(true);
             }
             else
             {
                 this.scene.sleep("spaceUIDebug");
+                this.scene.get("spaceUIDebug").scene.setVisible(false);
             }
         });
         this.input.keyboard.on("keydown-I", () =>
@@ -225,6 +264,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.sleep("spaceCameraController");
         this.scene.sleep("spaceMap");
         this.scene.sleep("spaceLogic");
+        // this.scene.sleep("spaceManager");
         this.sleepDebugScenes();
     }
 
@@ -237,6 +277,7 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
         this.scene.stop("spaceCameraController");
         this.scene.stop("spaceMap");
         this.scene.stop("spaceLogic");
+        this.scene.stop("spaceManager");
     }
 
     public switchToPlanetSceneGroup(levelInfo: object)

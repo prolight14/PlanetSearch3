@@ -24,7 +24,7 @@ if(!debugging)
             filename: "[name].js",
             // filename: "[name].min.js",
             library: "PlanetSearch3",
-            sourceMapFilename: '[file].map',
+            sourceMapFilename: '[file].map'
         },
     };
 }

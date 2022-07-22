@@ -1,11 +1,15 @@
+import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import trig from "../Utils/trig";
+import HyperBeamerSType from "./HyperBeamerSType";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject
 {
-    constructor(scene: SpaceScene, x: number, y: number, texture: string, shootAngle: number, life: number, range: number | undefined, onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any)
+    constructor(scene: SpaceScene, x: number, y: number, texture: string, 
+        shootAngle: number, life: number, range: number | undefined,
+        onCollide: (gameObject: SpaceGameObject) => boolean, onCollideContext: any, colObjList: any | undefined)
     {
         super(scene, x, y, texture);
         this.shootAngle = shootAngle;
@@ -27,18 +31,42 @@ export default class Bullet extends SpaceGameObject
             this.kill();
         });
 
-        this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        // this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        // {
+        //     if(colData.bodyA.gameObject)
+        //     {
+        //         const hit = onCollide.call(onCollideContext, colData.bodyA.gameObject);
+
+        //         if(hit)
+        //         {
+        //             this.kill();
+        //             (colData.bodyA.gameObject as SpaceGameObject).onCollide(this);
+        //         }
+        //     }
+        // });
+        
+        // Todo: remove
+        if(colObjList === undefined)
         {
-            if(colData.bodyA.gameObject)
+            colObjList = [(scene.scene.get("spaceLogic") as SpaceLogicScene).playerShip];
+        }
+
+        scene.matterCollision.addOnCollideStart({
+            objectA: this,
+            objectB: colObjList,
+            callback: function(event)
             {
-                const hit = onCollide.call(onCollideContext, colData.bodyA.gameObject);
+                const { gameObjectB } = event;
+
+                const hit = onCollide.call(onCollideContext, gameObjectB);
 
                 if(hit)
                 {
                     this.kill();
-                    (colData.bodyA.gameObject as SpaceGameObject).onCollide(this);
+                    (gameObjectB as SpaceGameObject).onCollide(this);
                 }
-            }
+            },
+            context: this
         });
     }
 

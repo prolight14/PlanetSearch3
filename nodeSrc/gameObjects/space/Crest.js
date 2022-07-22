@@ -25,16 +25,19 @@ var Crest = (function (_super) {
         _this.isBlinking = false;
         _this.amt = 1;
         _this.setAngle(Phaser.Math.RND.between(0, 180));
-        _this.setCollisionGroup(2);
-        _this.setCollidesWith(0);
         _this.despawnTimer = timer_1.default(true, _this.startBlinkingTime, function () {
             _this.startBlinking();
         });
-        _this.setOnCollide(function (colData) {
-            if (colData.bodyA.gameObject && colData.bodyA.gameObject._arrayName === "playerShip") {
-                var playerShip = colData.bodyA.gameObject;
-                _this.onCollide(playerShip);
-            }
+        scene.matterCollision.addOnCollideStart({
+            objectA: _this,
+            callback: function (event) {
+                var gameObjectB = event.gameObjectB;
+                if (gameObjectB._arrayName === "playerShip") {
+                    var playerShip = gameObjectB;
+                    this.onCollide(playerShip);
+                }
+            },
+            context: _this
         });
         return _this;
     }

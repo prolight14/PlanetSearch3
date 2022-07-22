@@ -11,8 +11,11 @@ export default class Crest extends SpaceGameObject
 
         this.setAngle(Phaser.Math.RND.between(0, 180));
 
-        this.setCollisionGroup(2);
-        this.setCollidesWith(0);
+
+        
+
+        // this.setCollisionGroup(2);
+        // this.setCollidesWith(0);
 
         // this.setCollisionCategory())
 
@@ -21,18 +24,33 @@ export default class Crest extends SpaceGameObject
             this.startBlinking();
         });
 
-        this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-        {
-            if(colData.bodyA.gameObject && (colData.bodyA.gameObject as SpaceGameObject)._arrayName === "playerShip")
-            {
-                var playerShip = colData.bodyA.gameObject;
+        // this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
+        // {
+        //     if(colData.bodyA.gameObject && (colData.bodyA.gameObject as SpaceGameObject)._arrayName === "playerShip")
+        //     {
+        //         var playerShip = colData.bodyA.gameObject;
 
-                this.onCollide(playerShip);
-            }
+        //         this.onCollide(playerShip);
+        //     }
+        // });
+
+        scene.matterCollision.addOnCollideStart({
+            objectA: this,
+            callback: function(event)
+            {
+                const { gameObjectB } = event;
+
+                if((gameObjectB as PlayerShip)._arrayName === "playerShip")
+                {
+                    const playerShip = (gameObjectB as PlayerShip);
+
+                    this.onCollide(playerShip);
+                }
+            },
+            context: this
         });
     }
 
-      
     private startBlinkingTime: number = 10000;
     private blinkInterval: number = 30;
     private despawnAfterBlinkingTime: number = 4500; 

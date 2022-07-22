@@ -85,7 +85,7 @@ export default class SpaceMapScene extends Phaser.Scene
 
     public update (time: number, delta: number)
     {
-        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0));
+        this.fpsText.setText("Fps: " + (1000 / delta).toFixed(0)).setVisible(this.mapExplorer.open);
 
         if(!this.scene.isActive("starSceneController"))
         {
@@ -112,7 +112,6 @@ export default class SpaceMapScene extends Phaser.Scene
         if(this.mapExplorer.open && !setMask && this.tracker.outMask !== undefined)
         {
             this.setMapExplorerMask(this.tracker.createMask(this.mapExplorer.getCamera()));
-
         } 
     }
 
