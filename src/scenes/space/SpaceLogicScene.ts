@@ -3,7 +3,7 @@ import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
 import Nebula from "../../gameObjects/space/Nebula";
-import HyperBeamerSType from "../../gameObjects/space/HyperBeamerSType";
+import HyperBeamerSType from "../../gameObjects/space/old_HyperBeamerSType";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
@@ -102,7 +102,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         var shrapnelClustAmt = Math.floor((placeWidth * placeHeight) / 100000000);
 
         for(var i = 0; i < shrapnelClustAmt; i++)
-        {  
+        {   
             var shrapnelClusterX = RND.integerInRange(500, placeWidth - 500);
             var shrapnelClusterY = RND.integerInRange(500, placeHeight - 500);
 
@@ -136,27 +136,27 @@ export default class SpaceLogicScene extends Phaser.Scene
             this.playerShip.particles.setDepth(20);
         }
         
-        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
+        // var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
+        // hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
         
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        for(var i = 0; i < 100; i++)
-        {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
-        }
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
+        // hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
+        // for(var i = 0; i < 100; i++)
+        // {
+        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000)) as HyperBeamerSType;
+        // }
 
-        for(var i = 0; i < 2500; i++)
-        {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
-        }
+        // for(var i = 0; i < 2500; i++)
+        // {
+        //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
+        // }
 
-        this.hyperBeamerSTypeArray = [];
+        // this.hyperBeamerSTypeArray = [];
 
-        hyperBeamerSTypes.forEach((sType: HyperBeamerSType) => 
-        {
-            this.hyperBeamerSTypeArray.push(sType);
-        });
+        // hyperBeamerSTypes.forEach((sType: HyperBeamerSType) => 
+        // {
+        //     this.hyperBeamerSTypeArray.push(sType);
+        // });
 
         // const sun_radius = 20;
         // const sun_diameter = sun_radius * 2;

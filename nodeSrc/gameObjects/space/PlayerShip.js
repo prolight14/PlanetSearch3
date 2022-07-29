@@ -191,6 +191,7 @@ var PlayerShip = (function (_super) {
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
         bullet.setCollisionCategory(CollisionCategories_1.default.PLAYER_BULLETS);
+        bullet.setCollidesWith(CollisionCategories_1.default.ENEMY);
     };
     PlayerShip.prototype.bulletOnCollide = function (gameObject) {
         if (gameObject._arrayName === "hyperBeamerSType") {

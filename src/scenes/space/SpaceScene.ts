@@ -1,4 +1,4 @@
-import EnemyShip from "../../gameObjects/space/EnemyShip";
+import EnemyShip from "../../gameObjects/space/old_EnemyShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import trig from "../../gameObjects/Utils/trig";
 import { PhaserMatterCollisionPlugin } from "phaser-matter-collision-plugin";

@@ -16,7 +16,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PlayerShip_1 = require("../../gameObjects/space/PlayerShip");
 var Planet_1 = require("../../gameObjects/space/Planet");
 var Nebula_1 = require("../../gameObjects/space/Nebula");
-var HyperBeamerSType_1 = require("../../gameObjects/space/HyperBeamerSType");
 var Shrapnel_1 = require("../../gameObjects/space/Shrapnel");
 var XPStar_1 = require("../../gameObjects/space/XPStar");
 var Crest_1 = require("../../gameObjects/space/Crest");
@@ -27,7 +26,6 @@ var SpaceLogicScene = (function (_super) {
         return _super.call(this, "spaceLogic") || this;
     }
     SpaceLogicScene.prototype.addObjectsToSpace = function () {
-        var _this = this;
         this.spaceScene = this.scene.get("space");
         var RND = Phaser.Math.RND;
         var world = this.spaceScene.world;
@@ -82,20 +80,6 @@ var SpaceLogicScene = (function (_super) {
             this.playerShip.setDepth(8);
             this.playerShip.particles.setDepth(20);
         }
-        var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType_1.default, "hyperBeamerSType");
-        hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500).setAngle(180);
-        hyperBeamerSTypes.add(this.spaceScene, 69200, 60000 + 500 + 80).setAngle(0);
-        for (var i = 0; i < 100; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-7000, 7000), 61000 + RND.integerInRange(-7000, 7000));
-        }
-        for (var i = 0; i < 2500; i++) {
-            hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000));
-        }
-        this.hyperBeamerSTypeArray = [];
-        hyperBeamerSTypes.forEach(function (sType) {
-            _this.hyperBeamerSTypeArray.push(sType);
-        });
     };
     SpaceLogicScene.prototype.addXPStar = function (x, y) {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");

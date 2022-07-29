@@ -200,6 +200,7 @@ var HyperBeamerSType = (function (_super) {
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, 3000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionCategory(CollisionCategories_1.default.ENEMY_BULLETS);
+        bullet.setCollidesWith(CollisionCategories_1.default.PLAYER);
     };
     HyperBeamerSType.prototype.shoot = function () {
         this.shootBullet(0, this.displayWidth / 2);

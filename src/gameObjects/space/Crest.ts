@@ -15,23 +15,10 @@ export default class Crest extends SpaceGameObject
         this.setCollisionCategory(COL_CATEGORIES.PICK_UP);
         this.setCollidesWith(COL_CATEGORIES.PLAYER);
 
-        // this.setCollisionGroup(2);
-        // this.setCollidesWith(0);
-
         this.despawnTimer = timer(true,  this.startBlinkingTime, () =>
         {
             this.startBlinking();
         });
-
-        // this.setOnCollide((colData: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-        // {
-        //     if(colData.bodyA.gameObject && (colData.bodyA.gameObject as SpaceGameObject)._arrayName === "playerShip")
-        //     {
-        //         var playerShip = colData.bodyA.gameObject;
-
-        //         this.onCollide(playerShip);
-        //     }
-        // });
 
         scene.matterCollision.addOnCollideStart({
             objectA: this,

@@ -11,9 +11,6 @@ export default class XPStar extends SpaceGameObject
     {
         super(scene, x, y, texture);
 
-        // this.setCollisionGroup(2);
-        // this.setCollidesWith(0);
-
         this.setCollisionCategory(COL_CATEGORIES.PICK_UP);
         this.setCollidesWith(COL_CATEGORIES.PLAYER);
 

@@ -4,7 +4,7 @@ import timer from "../Utils/timer";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import COL_CATEGORIES from "./CollisionCategories";
-import HyperBeamerSType from "./HyperBeamerSType";
+import HyperBeamerSType from "./old_HyperBeamerSType";
 import Ship from "./Ship";
 import SpaceGameObject from "./SpaceGameObject";
 import XPStar from "./XPStar";
@@ -89,9 +89,6 @@ export default class PlayerShip extends Ship
 
         this.setCollisionCategory(COL_CATEGORIES.PLAYER);
         this.setCollidesWith([COL_CATEGORIES.ENEMY, COL_CATEGORIES.PICK_UP, COL_CATEGORIES.ENEMY_BULLETS]);
-
-        // this.setCollisionGroup(2);
-        // this.setCollidesWith(0);
 
         this.ignoreDestroy = true;
 
@@ -295,10 +292,8 @@ export default class PlayerShip extends Ship
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
 
-        // bullet.setCollisionGroup(9);
-        // bullet.setCollidesWith(0);
-
         bullet.setCollisionCategory(COL_CATEGORIES.PLAYER_BULLETS);
+        bullet.setCollidesWith(COL_CATEGORIES.ENEMY);
     }
 
     private bulletOnCollide(gameObject: SpaceGameObject): boolean
