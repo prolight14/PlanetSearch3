@@ -14,14 +14,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var old_EnemyShip_1 = require("./old_EnemyShip");
-var HyperBeamerShip = (function (_super) {
-    __extends(HyperBeamerShip, _super);
-    function HyperBeamerShip(scene, x, y, texture) {
+var OLD_HyperBeamerShip = (function (_super) {
+    __extends(OLD_HyperBeamerShip, _super);
+    function OLD_HyperBeamerShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.maxSpeed = 3.75;
         return _this;
     }
-    return HyperBeamerShip;
+    return OLD_HyperBeamerShip;
 }(old_EnemyShip_1.default));
-exports.default = HyperBeamerShip;
+exports.default = OLD_HyperBeamerShip;
 //# sourceMappingURL=old_HyperBeamerShip.js.map

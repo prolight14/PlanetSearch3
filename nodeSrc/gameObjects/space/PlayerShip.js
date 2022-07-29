@@ -186,7 +186,7 @@ var PlayerShip = (function (_super) {
         this.initBullet(this.angle + 200, 17);
     };
     PlayerShip.prototype.initBullet = function (theta, length, life) {
-        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, 600, this.bulletOnCollide, this, this.scene.scene.get("spaceLogic").hyperBeamerSTypeArray);
+        var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlueLong", this.angle - 90, life || 3200, 600, this.bulletOnCollide, this, this.scene.scene.get("spaceLogic").hyperBeamerShipArray);
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
         bullet.setAngle(this.angle);
@@ -194,7 +194,7 @@ var PlayerShip = (function (_super) {
         bullet.setCollidesWith(CollisionCategories_1.default.ENEMY);
     };
     PlayerShip.prototype.bulletOnCollide = function (gameObject) {
-        if (gameObject._arrayName === "hyperBeamerSType") {
+        if (gameObject._arrayName === "hyperBeamerShip") {
             return gameObject.takeDamage(this);
         }
         return false;

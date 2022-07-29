@@ -4,7 +4,7 @@ import timer from "../Utils/timer";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import COL_CATEGORIES from "./CollisionCategories";
-import HyperBeamerSType from "./old_HyperBeamerSType";
+import HyperBeamerShip from "./HyperBeamerShip";
 import Ship from "./Ship";
 import SpaceGameObject from "./SpaceGameObject";
 import XPStar from "./XPStar";
@@ -286,7 +286,7 @@ export default class PlayerShip extends Ship
             600,
             this.bulletOnCollide,
             this,
-            (this.scene.scene.get("spaceLogic") as SpaceLogicScene).hyperBeamerSTypeArray,
+            (this.scene.scene.get("spaceLogic") as SpaceLogicScene).hyperBeamerShipArray,
         ) as Bullet;
         bullet.speed = 16;
         bullet.setComparePosition(this.x, this.y);
@@ -298,10 +298,10 @@ export default class PlayerShip extends Ship
 
     private bulletOnCollide(gameObject: SpaceGameObject): boolean
     {
-        if(gameObject._arrayName === "hyperBeamerSType")
+        if(gameObject._arrayName === "hyperBeamerShip")
         {
             // It may have hit according to the takeDamage method
-            return (gameObject as HyperBeamerSType).takeDamage(this);
+            return (gameObject as HyperBeamerShip).takeDamage(this);
         }
 
         // Didn't hit since there were no relevant gameObjects

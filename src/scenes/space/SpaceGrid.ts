@@ -297,6 +297,8 @@ export default class SpaceGrid
 
         const objectsInCells: Array<Phaser.GameObjects.GameObject> = [];
 
+        const used: any = {};
+
         cameraGrid.loopThroughCells(
             minCoordinate.col, minCoordinate.row,
             maxCoordinate.col, maxCoordinate.row,
@@ -306,6 +308,13 @@ export default class SpaceGrid
 
                 for(i in cell)
                 {
+                    if(used[i])
+                    {
+                        continue;
+                    }
+
+                    used[i] = true;
+
                     object = gameObjects[gameObjects.references[cell[i].arrayName]][cell[i].id];
 
                     if(object !== undefined)

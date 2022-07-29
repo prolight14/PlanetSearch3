@@ -3,13 +3,13 @@ import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import PlayerShip from "../../gameObjects/space/PlayerShip";
 import Planet from "../../gameObjects/space/Planet";
 import Nebula from "../../gameObjects/space/Nebula";
-import HyperBeamerSType from "../../gameObjects/space/old_HyperBeamerSType";
 import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
 import SpaceGrid from "./SpaceGrid";
 import Star from "../../gameObjects/space/Sun";
 import spaceManagerScene from "./SpaceManagerScene";
+import HyperBeamerShip from "../../gameObjects/space/HyperBeamerShip";
 
 export default class SpaceLogicScene extends Phaser.Scene
 {
@@ -136,6 +136,22 @@ export default class SpaceLogicScene extends Phaser.Scene
             this.playerShip.particles.setDepth(20);
         }
         
+        const hyperBeamerShips = world.add.gameObjectArray(HyperBeamerShip, "hyperBeamerShip");
+        
+        for(var i = 0; i < 54000; i++)
+        {
+            hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-28000, 28000), 61000 + RND.integerInRange(-28000, 28000)) as HyperBeamerShip;
+        }
+
+        this.hyperBeamerShipArray = [];
+
+        hyperBeamerShips.forEach((ship: HyperBeamerShip) =>
+        {
+            this.hyperBeamerShipArray.push(ship);
+        });
+
+        // this.hyperBeamerShipArray.push(hyperBeamerShips.add(this.spaceScene, 69000, 60200));
+       
         // var hyperBeamerSTypes = world.add.gameObjectArray(HyperBeamerSType, "hyperBeamerSType");
         // hyperBeamerSTypes.add(this.spaceScene, 69400, 60000 + 500);
         
@@ -151,12 +167,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         //     hyperBeamerSTypes.add(this.spaceScene, 69200 + RND.integerInRange(-50000, 50000), 60600 + RND.integerInRange(-50000, 50000)) as HyperBeamerSType;
         // }
 
-        // this.hyperBeamerSTypeArray = [];
 
-        // hyperBeamerSTypes.forEach((sType: HyperBeamerSType) => 
-        // {
-        //     this.hyperBeamerSTypeArray.push(sType);
-        // });
 
         // const sun_radius = 20;
         // const sun_diameter = sun_radius * 2;
@@ -194,33 +205,43 @@ export default class SpaceLogicScene extends Phaser.Scene
         //     }
         // }, this);
     }
-    
-    public hyperBeamerSTypeArray: Array<HyperBeamerSType>;
+
+    public hyperBeamerShipArray: Array<HyperBeamerShip>;
 
     public addXPStar(x: number, y: number)
     {
         var xpStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
-        xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar");
+        const star = xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "xpStar") as XPStar;
         // xpStars.add(this.spaceScene, x + Phaser.Math.RND.between(-5, 5), y + Phaser.Math.RND.between(-5, 5), "xpStar");
+        const angle = Phaser.Math.Angle.Between(star.x, star.y, x, y) * Phaser.Math.RAD_TO_DEG + 180 + Phaser.Math.RND.between(-30, 30);
+        const speed = 0.5 + Phaser.Math.RND.frac() * 0.5;
+        star.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
     }
 
     public addSmallXPStar(x: number, y: number)
     {
         var smallXPStars = this.spaceScene.world.get.gameObjectArray("xpStar");
 
-        smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar");
+        const star = smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-50, 50), y + Phaser.Math.RND.between(-50, 50), "smallXPStar") as XPStar;
         // smallXPStars.add(this.spaceScene, x + Phaser.Math.RND.between(-5, 5), y + Phaser.Math.RND.between(-5, 5), "smallXPStar");
+        const angle = Phaser.Math.Angle.Between(star.x, star.y, x, y) * Phaser.Math.RAD_TO_DEG + 180 + Phaser.Math.RND.between(-30, 30);
+        const speed = 0.5 + Phaser.Math.RND.frac() * 0.5;
+        star.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
     }
 
     public addCrests(x: number, y: number)
     {
-        this.spaceScene.world.get.gameObjectArray("crest").add(
+        const crest = this.spaceScene.world.get.gameObjectArray("crest").add(
             this.spaceScene, 
             x + Phaser.Math.RND.between(-50, 50), 
             y + Phaser.Math.RND.between(-50, 50), 
             "crest"
         );
+
+        const angle = Phaser.Math.Angle.Between(crest.x, crest.y, x, y) * Phaser.Math.RAD_TO_DEG + 180 + Phaser.Math.RND.between(-30, 30);
+        const speed = 0.5 + Phaser.Math.RND.frac() * 0.5;
+        crest.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
 
         // this.spaceScene.matter.overlap(
         //     this.playerShip.body, 

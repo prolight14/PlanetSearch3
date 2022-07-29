@@ -5,7 +5,7 @@ import trig from "../Utils/trig";
 import Ship from "./Ship";
 import SpaceGameObject from "./SpaceGameObject";
 
-export default class EnemyShip extends Ship
+export default class OLD_EnemyShip extends Ship
 {
     public turnDir: string;
     public isEnemyShip(): boolean { return true; };

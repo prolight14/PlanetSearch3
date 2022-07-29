@@ -15,9 +15,9 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var timer_1 = require("../Utils/timer");
 var Ship_1 = require("./Ship");
-var EnemyShip = (function (_super) {
-    __extends(EnemyShip, _super);
-    function EnemyShip(scene, x, y, texture) {
+var OLD_EnemyShip = (function (_super) {
+    __extends(OLD_EnemyShip, _super);
+    function OLD_EnemyShip(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
         _this.showHpBar = true;
         _this.isMoving = true;
@@ -54,18 +54,18 @@ var EnemyShip = (function (_super) {
         _this.fovSetup();
         return _this;
     }
-    EnemyShip.prototype.isEnemyShip = function () { return true; };
+    OLD_EnemyShip.prototype.isEnemyShip = function () { return true; };
     ;
-    EnemyShip.prototype.setFovStats = function (fovRadius, fovAngle) {
+    OLD_EnemyShip.prototype.setFovStats = function (fovRadius, fovAngle) {
         this.fovRadius = fovRadius;
         this.fovAngle = fovAngle;
         this.fovSetup();
     };
-    EnemyShip.prototype.fovSetup = function () {
+    OLD_EnemyShip.prototype.fovSetup = function () {
         this.halfFovAngle = this.fovAngle / 2;
         this.fovRadiusSquared = this.fovRadius * this.fovRadius;
     };
-    EnemyShip.prototype.fovLook = function () {
+    OLD_EnemyShip.prototype.fovLook = function () {
         var objectsInCells = [];
         objectsInCells = this.scene.world.getObjectsInBox(this.x - this.fovRadius, this.y - this.fovRadius, this.x + this.fovRadius, this.y + this.fovRadius);
         this.visibleObjects.length = 0;
@@ -93,7 +93,7 @@ var EnemyShip = (function (_super) {
             }
         }
     };
-    EnemyShip.prototype.debugFov = function (graphics) {
+    OLD_EnemyShip.prototype.debugFov = function (graphics) {
         graphics.lineStyle(10, 0x0FAB23);
         graphics.fillStyle(0xBB0012, 0.4);
         graphics.beginPath();
@@ -103,15 +103,15 @@ var EnemyShip = (function (_super) {
             graphics.fillPath();
         }
     };
-    EnemyShip.prototype.preUpdate = function (time, delta) {
+    OLD_EnemyShip.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.lookTimer.update();
     };
-    EnemyShip.prototype.onKill = function () {
+    OLD_EnemyShip.prototype.onKill = function () {
         this.dropXP();
         this.dropCrests();
     };
-    EnemyShip.prototype.dropXP = function () {
+    OLD_EnemyShip.prototype.dropXP = function () {
         var spaceLogicScene = this.scene.scene.get("spaceLogic");
         for (var i = 0; i < this.xpDropAmt; i++) {
             if (Phaser.Math.RND.frac() < 0.5) {
@@ -122,13 +122,13 @@ var EnemyShip = (function (_super) {
             }
         }
     };
-    EnemyShip.prototype.dropCrests = function () {
+    OLD_EnemyShip.prototype.dropCrests = function () {
         var spaceLogicScene = this.scene.scene.get("spaceLogic");
         for (var i = 0; i < this.crestDropAmt; i++) {
             spaceLogicScene.addCrests(this.x, this.y);
         }
     };
-    return EnemyShip;
+    return OLD_EnemyShip;
 }(Ship_1.default));
-exports.default = EnemyShip;
+exports.default = OLD_EnemyShip;
 //# sourceMappingURL=old_EnemyShip.js.map

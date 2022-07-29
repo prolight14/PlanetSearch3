@@ -31,6 +31,7 @@ var Ship = (function (_super) {
         _this.speedAcl = 0.5;
         _this.speedDeacl = 0.05;
         _this.manualSpeedDeacl = 0.35;
+        _this.angleVel = 0.2;
         _this.angleAcl = 0.4;
         _this.angleDeacl = 0.1;
         _this.maxAngleVel = 3;

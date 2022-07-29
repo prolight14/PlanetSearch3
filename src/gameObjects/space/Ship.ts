@@ -57,7 +57,7 @@ export default class Ship extends SpaceGameObject
     protected speedDeacl: number = 0.05;
     protected manualSpeedDeacl: number = 0.35;
 
-    protected angleVel: number;
+    protected angleVel: number = 0.2;
     protected angleAcl: number = 0.4;
     protected angleDeacl: number = 0.1;
     protected maxAngleVel: number = 3;

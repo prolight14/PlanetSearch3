@@ -203,13 +203,15 @@ var SpaceScene = (function (_super) {
         this.sys.displayList.list.forEach(function (object) {
             if (object.showHpBar) {
                 var enemyShip = object;
+                var graphics = _this.statsGraphics;
                 if (enemyShip.getHp() < enemyShip.getMaxHp()) {
                     var barX = enemyShip.x - enemyShip.width * 0.5;
                     var barY = enemyShip.y - enemyShip.width * 0.7;
-                    _this.statsGraphics.fillStyle(0x0A297E);
-                    _this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
-                    _this.statsGraphics.fillStyle(0x54B70E);
-                    _this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                    graphics.fillStyle(0x0A297E);
+                    graphics.fillRect(barX, barY, enemyShip.width, 4);
+                    graphics.fillStyle(0x54B70E);
+                    graphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                    graphics.lineStyle(10, 0x0FAB23);
                 }
             }
         });

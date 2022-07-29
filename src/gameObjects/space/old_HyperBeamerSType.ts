@@ -1,5 +1,4 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import HyperBeamerShip from "./old_HyperBeamerShip";
 import timer from "../Utils/timer";
 import StateMachine from "../Utils/StateMachine";
 import trig from "../Utils/trig";
@@ -10,8 +9,9 @@ import TurnManager from "../Utils/TurnManager";
 import State from "../Utils/State";
 import Clock from "../Utils/Clock";
 import COL_CATEGORIES from "./CollisionCategories";
+import OLD_HyperBeamerShip from "./old_HyperBeamerShip";
 
-export default class HyperBeamerSType extends HyperBeamerShip
+export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
 {
     static indexId: number = 0;
 

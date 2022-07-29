@@ -140,9 +140,14 @@ var SpaceGrid = (function () {
         var minCoordinate = cameraGrid.getCoordinates(minX | 0, minY | 0);
         var maxCoordinate = cameraGrid.getCoordinates(maxX | 0, maxY | 0);
         var objectsInCells = [];
+        var used = {};
         cameraGrid.loopThroughCells(minCoordinate.col, minCoordinate.row, maxCoordinate.col, maxCoordinate.row, function (cell, col, row) {
             var i, object;
             for (i in cell) {
+                if (used[i]) {
+                    continue;
+                }
+                used[i] = true;
                 object = gameObjects[gameObjects.references[cell[i].arrayName]][cell[i].id];
                 if (object !== undefined) {
                     objectsInCells.push(object);

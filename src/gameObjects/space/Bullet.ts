@@ -2,7 +2,6 @@ import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
 import timer from "../Utils/timer";
 import trig from "../Utils/trig";
-import HyperBeamerSType from "./old_HyperBeamerSType";
 import SpaceGameObject from "./SpaceGameObject";
 
 export default class Bullet extends SpaceGameObject

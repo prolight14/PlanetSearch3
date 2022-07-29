@@ -13,7 +13,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var old_HyperBeamerShip_1 = require("./old_HyperBeamerShip");
 var timer_1 = require("../Utils/timer");
 var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
@@ -21,9 +20,10 @@ var Bullet_1 = require("./Bullet");
 var TurnManager_1 = require("../Utils/TurnManager");
 var State_1 = require("../Utils/State");
 var CollisionCategories_1 = require("./CollisionCategories");
-var HyperBeamerSType = (function (_super) {
-    __extends(HyperBeamerSType, _super);
-    function HyperBeamerSType(scene, x, y) {
+var old_HyperBeamerShip_1 = require("./old_HyperBeamerShip");
+var OLD_HyperBeamerSType = (function (_super) {
+    __extends(OLD_HyperBeamerSType, _super);
+    function OLD_HyperBeamerSType(scene, x, y) {
         var _this_1 = _super.call(this, scene, x, y, "greenShip") || this;
         _this_1.setCollisionCategory(CollisionCategories_1.default.ENEMY);
         _this_1.setCollidesWith([CollisionCategories_1.default.PLAYER, CollisionCategories_1.default.PLAYER_BULLETS]);
@@ -184,35 +184,35 @@ var HyperBeamerSType = (function (_super) {
         _this_1.isShooting = false;
         return _this_1;
     }
-    HyperBeamerSType.prototype.preUpdate = function (time, delta) {
+    OLD_HyperBeamerSType.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
         this.sm.emit("update", []);
         this.turnManager.update();
         this.shootTimer.update();
     };
-    HyperBeamerSType.prototype.onCollide = function (object) {
+    OLD_HyperBeamerSType.prototype.onCollide = function (object) {
         if (object._arrayName === "HyperBeamerSTypeBullet") {
             return;
         }
     };
-    HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
+    OLD_HyperBeamerSType.prototype.shootBullet = function (theta, length, life) {
         theta += this.angle - 90;
         var bullet = this.bullets.add(this.scene, this.x + trig_1.default.cos(theta) * length, this.y + trig_1.default.sin(theta) * length, "lightningBlue", this.angle - 90, life || 2000, 3000, this.bulletOnCollide, this);
         bullet.setAngle(this.angle);
         bullet.setCollisionCategory(CollisionCategories_1.default.ENEMY_BULLETS);
         bullet.setCollidesWith(CollisionCategories_1.default.PLAYER);
     };
-    HyperBeamerSType.prototype.shoot = function () {
+    OLD_HyperBeamerSType.prototype.shoot = function () {
         this.shootBullet(0, this.displayWidth / 2);
     };
-    HyperBeamerSType.prototype.bulletOnCollide = function (gameObject) {
+    OLD_HyperBeamerSType.prototype.bulletOnCollide = function (gameObject) {
         if (gameObject._arrayName === "playerShip") {
             return gameObject.takeDamage(this);
         }
         return false;
     };
-    HyperBeamerSType.indexId = 0;
-    return HyperBeamerSType;
+    OLD_HyperBeamerSType.indexId = 0;
+    return OLD_HyperBeamerSType;
 }(old_HyperBeamerShip_1.default));
-exports.default = HyperBeamerSType;
+exports.default = OLD_HyperBeamerSType;
 //# sourceMappingURL=old_HyperBeamerSType.js.map

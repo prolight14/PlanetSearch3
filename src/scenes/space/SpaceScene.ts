@@ -1,4 +1,4 @@
-import EnemyShip from "../../gameObjects/space/old_EnemyShip";
+import EnemyShip from "../../gameObjects/space/EnemyShip";
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
 import trig from "../../gameObjects/Utils/trig";
 import { PhaserMatterCollisionPlugin } from "phaser-matter-collision-plugin";
@@ -327,25 +327,52 @@ export default class SpaceScene extends Phaser.Scene implements ISceneGroupHead
             {
                 var enemyShip = object as EnemyShip;
 
+                const graphics = this.statsGraphics;
+                
                 if(enemyShip.getHp() < enemyShip.getMaxHp())
                 {
                     // var cameraRotation = (this.scene.get("spaceCameraController") as SpaceCameraControllerScene).getCameraAngle() * Phaser.Math.DEG_TO_RAD;
-    
+
                     var barX = enemyShip.x - enemyShip.width * 0.5;
                     var barY = enemyShip.y - enemyShip.width * 0.7;
-    
+
                     // var rectShape = new Phaser.Geom.Rectangle(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
-    
+
                     // this.statsGraphics.fillRectShape(rectShape);
-    
+
                     // this.statsGraphics.rotateCanvas(30 * Phaser.Math.DEG_TO_RAD);
-                    this.statsGraphics.fillStyle(0x0A297E);
-                    this.statsGraphics.fillRect(barX, barY, enemyShip.width, 4);
-                    this.statsGraphics.fillStyle(0x54B70E);
-                    this.statsGraphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+                    graphics.fillStyle(0x0A297E);
+                    graphics.fillRect(barX, barY, enemyShip.width, 4);
+                    graphics.fillStyle(0x54B70E);
+                    graphics.fillRect(barX, barY, enemyShip.getHp() * enemyShip.width / enemyShip.getMaxHp(), 4);
+
+                    graphics.lineStyle(10, 0x0FAB23);
+                    // graphics.strokeCircle(this.x, this.y, this.fovRadius);
+            
+                  
+
                 }
 
                 // enemyShip.debugFov(this.statsGraphics);
+
+                // // Renders fov
+                // const fovStats = enemyShip.fovStats;
+                // graphics.lineStyle(10, 0x0FAB23);
+                // graphics.fillStyle(0xBB0012, 0.4);
+                // graphics.beginPath();
+                // graphics.arc(
+                //     enemyShip.x, 
+                //     enemyShip.y, 
+                //     fovStats.range,
+                //     (enemyShip.angle - 90 - fovStats.fov * 0.5) * Phaser.Math.DEG_TO_RAD, 
+                //     (enemyShip.angle - 90 + fovStats.fov * 0.5) * Phaser.Math.DEG_TO_RAD
+                // );
+                // graphics.strokePath();
+        
+                // if(enemyShip.canSeeSomething)
+                // {
+                //     graphics.fillPath();
+                // }
             }
         });
 

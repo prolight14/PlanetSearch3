@@ -1,8 +1,8 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import EnemyShip from "./old_EnemyShip";
+import OLD_EnemyShip from "./old_EnemyShip";
 import XPStar from "./XPStar";
 
-export default class HyperBeamerShip extends EnemyShip
+export default class OLD_HyperBeamerShip extends OLD_EnemyShip
 {
     constructor(scene: SpaceScene, x: number, y: number, texture: string)
     {
