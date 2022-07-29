@@ -138,7 +138,7 @@ export default class SpaceLogicScene extends Phaser.Scene
         
         const hyperBeamerShips = world.add.gameObjectArray(HyperBeamerShip, "hyperBeamerShip");
         
-        for(var i = 0; i < 54000; i++)
+        for(var i = 0; i < 3000; i++)
         {
             hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-28000, 28000), 61000 + RND.integerInRange(-28000, 28000)) as HyperBeamerShip;
         }
