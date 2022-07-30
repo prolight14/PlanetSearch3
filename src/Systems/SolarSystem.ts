@@ -1,6 +1,6 @@
 import Planet from "../gameObjects/space/Planet";
 import SpaceGameObject from "../gameObjects/space/SpaceGameObject";
-import Star from "../gameObjects/space/Sun";
+import Star from "../gameObjects/space/Star";
 import trig from "../gameObjects/Utils/trig";
 
 export default class SolarSystem 

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../../gameObjects/Utils/timer");
+var Timer_1 = require("../../gameObjects/Utils/Timer");
 var ExplorationTracker = (function () {
     function ExplorationTracker(scene) {
         this.active = true;
@@ -13,7 +13,7 @@ var ExplorationTracker = (function () {
     ExplorationTracker.prototype.reset = function () {
         var _this = this;
         this.track = [];
-        this.updateTrackTimer = timer_1.default(true, 250, function () {
+        this.updateTrackTimer = Timer_1.default(true, 250, function () {
             _this.updateTrack();
             _this.updateTrackTimer.reset();
         });

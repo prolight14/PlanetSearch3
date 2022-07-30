@@ -1,4 +1,4 @@
-import Star from "../../gameObjects/space/Sun";
+import Star from "../../gameObjects/space/Star";
 import SolarSystem from "../../Systems/SolarSystem";
 
 export default class spaceManagerScene extends Phaser.Scene

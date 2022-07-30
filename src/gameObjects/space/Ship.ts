@@ -1,4 +1,5 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
+import timer from "../Utils/Timer";
 import trig from "../Utils/trig";
 import SpaceGameObject from "./SpaceGameObject";
 
@@ -11,7 +12,7 @@ export default class Ship extends SpaceGameObject
     
     public getType: () => string = () => 
     {
-        return "Spacecraft";
+        return "ship";
     };
 
     protected maxHp: number = 10;
@@ -21,7 +22,7 @@ export default class Ship extends SpaceGameObject
 
     public takeDamage(object: any): boolean
     {
-        this.hp -= object.getDamage();
+        this.hp -= object.getDamage(this);
 
         // Did it hit?
         return true;
@@ -64,6 +65,26 @@ export default class Ship extends SpaceGameObject
     protected useAngleAcl: boolean = false;
 
     protected speed: number = 0;
+
+    protected shootTimer: {
+        update: () => void,
+        reset: () => void
+    };
+
+    protected setShootInterval(interval: number)
+    {
+        this.shootTimer = timer(true, interval, () =>
+        {
+            this.shoot();
+            this.shootTimer.reset();
+        });
+    }
+
+    // Will be overridden
+    protected shoot()
+    {
+
+    }
 
     public preUpdate(time: number, delta: number)
     {
@@ -115,7 +136,12 @@ export default class Ship extends SpaceGameObject
                 }
             }    
         }
-            
+        
+        if(this.controls.shoot())
+        {
+            this.shootTimer.update();
+        }
+
         if(this.controls.goForward())
         {
             this.speed += this.speedAcl;

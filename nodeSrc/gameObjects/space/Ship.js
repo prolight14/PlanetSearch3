@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var Timer_1 = require("../Utils/Timer");
 var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Ship = (function (_super) {
@@ -20,7 +21,7 @@ var Ship = (function (_super) {
     function Ship(scene, x, y, texture, frame) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         _this.getType = function () {
-            return "Spacecraft";
+            return "ship";
         };
         _this.maxHp = 10;
         _this.hp = 10;
@@ -40,7 +41,7 @@ var Ship = (function (_super) {
         return _this;
     }
     Ship.prototype.takeDamage = function (object) {
-        this.hp -= object.getDamage();
+        this.hp -= object.getDamage(this);
         return true;
     };
     Ship.prototype.getMaxHp = function () {
@@ -51,6 +52,15 @@ var Ship = (function (_super) {
     };
     Ship.prototype.getDamage = function () {
         return this.damage;
+    };
+    Ship.prototype.setShootInterval = function (interval) {
+        var _this = this;
+        this.shootTimer = Timer_1.default(true, interval, function () {
+            _this.shoot();
+            _this.shootTimer.reset();
+        });
+    };
+    Ship.prototype.shoot = function () {
     };
     Ship.prototype.preUpdate = function (time, delta) {
         _super.prototype.preUpdate.call(this, time, delta);
@@ -84,6 +94,9 @@ var Ship = (function (_super) {
                     this.setAngle(this.angle + this.angleVel);
                 }
             }
+        }
+        if (this.controls.shoot()) {
+            this.shootTimer.update();
         }
         if (this.controls.goForward()) {
             this.speed += this.speedAcl;

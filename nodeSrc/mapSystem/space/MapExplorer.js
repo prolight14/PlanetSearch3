@@ -53,7 +53,7 @@ var MapExplorer = (function () {
         rt.endDraw();
     };
     MapExplorer.prototype.filterGameObject = function (obj) {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");
+        return (["planet", "sun", "nebula", "shrapnel"].indexOf(obj._arrayName) !== -1);
     };
     MapExplorer.prototype.setMask = function (mask) {
         this.rt.setMask(mask);

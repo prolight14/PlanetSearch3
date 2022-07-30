@@ -25,4 +25,4 @@ var timer = function (start, interval, func, scope, args) {
     };
 };
 exports.default = timer;
-//# sourceMappingURL=timer.js.map
+//# sourceMappingURL=Timer.js.map

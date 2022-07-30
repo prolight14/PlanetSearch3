@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
+var Timer_1 = require("../Utils/Timer");
 var CollisionCategories_1 = require("./CollisionCategories");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var XPStar = (function (_super) {
@@ -28,7 +28,7 @@ var XPStar = (function (_super) {
         _this.setCollisionCategory(CollisionCategories_1.default.PICK_UP);
         _this.setCollidesWith(CollisionCategories_1.default.PLAYER);
         _this.setAngle(Phaser.Math.RND.between(0, 180));
-        _this.despawnTimer = timer_1.default(true, _this.startBlinkingTime, function () {
+        _this.despawnTimer = Timer_1.default(true, _this.startBlinkingTime, function () {
             _this.startBlinking();
         });
         if (texture === "xpStar") {
@@ -53,11 +53,11 @@ var XPStar = (function (_super) {
             return;
         }
         this.isBlinking = true;
-        this.blinkTimer = timer_1.default(true, this.blinkInterval, function () {
+        this.blinkTimer = Timer_1.default(true, this.blinkInterval, function () {
             _this.setVisible(!_this.visible);
             _this.blinkTimer.reset(_this.blinkInterval);
         });
-        this.despawnTimer = timer_1.default(true, this.despawnAfterBlinkingTime, function () {
+        this.despawnTimer = Timer_1.default(true, this.despawnAfterBlinkingTime, function () {
             _this.destroy();
         });
     };

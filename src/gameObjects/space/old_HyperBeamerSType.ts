@@ -1,5 +1,5 @@
 import SpaceScene from "../../scenes/space/SpaceScene";
-import timer from "../Utils/timer";
+import timer from "../Utils/Timer";
 import StateMachine from "../Utils/StateMachine";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
@@ -310,11 +310,6 @@ export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
         }
     }
 
-    private shootTimer: {
-        update: () => void,
-        reset: () => void
-    };
-
     private bullets: any;
 
     private shootBullet(theta: number, length: number, life?: number)
@@ -338,7 +333,7 @@ export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
         bullet.setCollidesWith(COL_CATEGORIES.PLAYER);
     }
 
-    private shoot()
+    protected shoot()
     {
         this.shootBullet(0, this.displayWidth / 2);
     }

@@ -16,6 +16,11 @@ export default class Planet extends SpaceGameObject
         };
     }
 
+    public getType: () => string = () => 
+    {
+        return "body";
+    };
+
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);

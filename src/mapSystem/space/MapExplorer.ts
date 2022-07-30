@@ -121,7 +121,7 @@ export default class MapExplorer
 
     private filterGameObject(obj: SpaceGameObject)
     {
-        return (obj._arrayName === "planet" || obj._arrayName === "nebula" || obj._arrayName === "shrapnel");
+        return (["planet", "sun", "nebula" , "shrapnel"].indexOf(obj._arrayName) !== -1);
     }
 
     public setMask(mask: Phaser.Display.Masks.GeometryMask)

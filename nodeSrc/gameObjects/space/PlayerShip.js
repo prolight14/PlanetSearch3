@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
+var Timer_1 = require("../Utils/Timer");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
 var CollisionCategories_1 = require("./CollisionCategories");
@@ -55,7 +55,7 @@ var PlayerShip = (function (_super) {
             _this.bullets.define("ignoreDestroy", true);
         }
         var shootInterval = 200;
-        _this.shootLimiterTimer = timer_1.default(true, shootInterval, function () {
+        _this.shootLimiterTimer = Timer_1.default(true, shootInterval, function () {
             _this.canShoot = true;
             _this.shootLimiterTimer.reset();
         });

@@ -1,5 +1,5 @@
 import SpaceGameObject from "../../gameObjects/space/SpaceGameObject";
-import timer from "../../gameObjects/Utils/timer";
+import timer from "../../gameObjects/Utils/Timer";
 import SpaceScene from "../../scenes/space/SpaceScene";
 
 export default class ExplorationTracker 

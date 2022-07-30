@@ -1,6 +1,6 @@
 import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
-import timer from "../Utils/timer";
+import timer from "../Utils/Timer";
 import trig from "../Utils/trig";
 import SpaceGameObject from "./SpaceGameObject";
 

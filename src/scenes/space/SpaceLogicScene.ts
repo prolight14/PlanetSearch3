@@ -7,7 +7,7 @@ import Shrapnel from "../../gameObjects/space/Shrapnel";
 import XPStar from "../../gameObjects/space/XPStar";
 import Crest from "../../gameObjects/space/Crest";
 import SpaceGrid from "./SpaceGrid";
-import Star from "../../gameObjects/space/Sun";
+import Star from "../../gameObjects/space/Star";
 import spaceManagerScene from "./SpaceManagerScene";
 import HyperBeamerShip from "../../gameObjects/space/HyperBeamerShip";
 
@@ -64,7 +64,7 @@ export default class SpaceLogicScene extends Phaser.Scene
 
         const spaceManagerScene = (this.scene.get("spaceManager") as spaceManagerScene);
 
-        const suns = world.add.gameObjectArray(Star, "sun");
+        const suns = world.add.gameObjectArray(Star, "star");
         const betaSun = suns.add(this.spaceScene, 66000, 60000, "Sun").setScale(7);
 
         const betaSystem = spaceManagerScene.addSystem("beta", [betaSun]);
@@ -137,10 +137,12 @@ export default class SpaceLogicScene extends Phaser.Scene
         }
         
         const hyperBeamerShips = world.add.gameObjectArray(HyperBeamerShip, "hyperBeamerShip");
-        
-        for(var i = 0; i < 3000; i++)
+    
+        hyperBeamerShips.add(this.spaceScene, 69200, 60500);
+
+        for(var i = 0; i < 90; i++)
         {
-            hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-28000, 28000), 61000 + RND.integerInRange(-28000, 28000)) as HyperBeamerShip;
+            hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-5000, 5000), 61000 + RND.integerInRange(-5000, 5000));
         }
 
         this.hyperBeamerShipArray = [];
@@ -275,20 +277,36 @@ export default class SpaceLogicScene extends Phaser.Scene
 
         this.spaceScene.sys.displayList.list.forEach((object: SpaceGameObject) =>
         {
-            if(object._arrayName === "planet")
+            switch(object._arrayName)
             {
-                var planet = object;
+                case "planet":
+                    const planet = object;
 
-                var dx = planet.x - playerShip.x;
-                var dy = planet.y - playerShip.y;
+                    var dx = planet.x - playerShip.x;
+                    var dy = planet.y - playerShip.y;
+                    var radius = planet.displayWidth / 2;
 
-                if(dx * dx + dy * dy < Math.pow(planet.displayWidth / 2, 2))
-                {
-                    this.spaceScene.switchToPlanetSceneGroup({
-                        type: "planet",
-                        from: planet
-                    });
-                }
+                    if(dx * dx + dy * dy < radius * radius)
+                    {
+                        this.spaceScene.switchToPlanetSceneGroup({
+                            type: "planet",
+                            from: planet
+                        });
+                    }
+                    break;
+
+                case "star": 
+                    const star = object;
+
+                    var dx = star.x - playerShip.x;
+                    var dy = star.y - playerShip.y;
+                    var radius = star.displayWidth / 2;
+
+                    if(dx * dx + dy * dy < radius * radius)
+                    {
+                        star.onCollide(playerShip);
+                    }
+                    break;
             }
         });
     }

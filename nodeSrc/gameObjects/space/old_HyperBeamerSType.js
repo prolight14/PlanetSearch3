@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
+var Timer_1 = require("../Utils/Timer");
 var StateMachine_1 = require("../Utils/StateMachine");
 var trig_1 = require("../Utils/trig");
 var Bullet_1 = require("./Bullet");
@@ -42,7 +42,7 @@ var OLD_HyperBeamerSType = (function (_super) {
         _this_1.anims.play("flying");
         var _this = _this_1;
         _this_1.turnManager = new TurnManager_1.default(_this_1);
-        _this_1.shootTimer = timer_1.default(true, 450, function () {
+        _this_1.shootTimer = Timer_1.default(true, 450, function () {
             if (_this_1.isShooting) {
                 _this_1.shoot();
             }
@@ -81,10 +81,10 @@ var OLD_HyperBeamerSType = (function (_super) {
                 var _this_1 = this;
                 this.subState = "wander";
                 _this.isShooting = false;
-                this.wanderTurnTimer = timer_1.default(true, this.getNextTurnTime(), function () {
+                this.wanderTurnTimer = Timer_1.default(true, this.getNextTurnTime(), function () {
                     _this.turnManager.startTurning(_this_1.getNextTurnAngle(), function () { return _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime()); });
                 });
-                this.lookTimer = timer_1.default(true, 300, function () {
+                this.lookTimer = Timer_1.default(true, 300, function () {
                     _this_1.look();
                     _this_1.lookTimer.reset(300);
                 });

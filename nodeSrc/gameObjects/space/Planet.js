@@ -18,6 +18,9 @@ var Planet = (function (_super) {
     __extends(Planet, _super);
     function Planet(scene, x, y, texture) {
         var _this = _super.call(this, scene, x, y, texture) || this;
+        _this.getType = function () {
+            return "body";
+        };
         _this.setScale(3);
         _this.body.collisionFilter = {
             'group': -1,

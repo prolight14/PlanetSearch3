@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
+var Timer_1 = require("../Utils/Timer");
 var trig_1 = require("../Utils/trig");
 var SpaceGameObject_1 = require("./SpaceGameObject");
 var Bullet = (function (_super) {
@@ -38,7 +38,7 @@ var Bullet = (function (_super) {
             _this.updateRange(_this.range);
         }
         _this.setDepth(0);
-        _this.killTimer = timer_1.default(true, life, function () {
+        _this.killTimer = Timer_1.default(true, life, function () {
             _this.kill();
         });
         scene.matterCollision.addOnCollideStart({

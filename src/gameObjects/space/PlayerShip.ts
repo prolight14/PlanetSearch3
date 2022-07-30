@@ -1,6 +1,6 @@
 import SpaceLogicScene from "../../scenes/space/SpaceLogicScene";
 import SpaceScene from "../../scenes/space/SpaceScene";
-import timer from "../Utils/timer";
+import timer from "../Utils/Timer";
 import trig from "../Utils/trig";
 import Bullet from "./Bullet";
 import COL_CATEGORIES from "./CollisionCategories";
@@ -266,7 +266,7 @@ export default class PlayerShip extends Ship
 
     private gamepad: Phaser.Input.Gamepad.Gamepad;
 
-    private shoot()
+    protected shoot()
     {
         this.initBullet(this.angle + 30, 25);
         this.initBullet(this.angle + 150, 25);

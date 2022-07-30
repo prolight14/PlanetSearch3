@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var timer_1 = require("../Utils/timer");
+var Timer_1 = require("../Utils/Timer");
 var Ship_1 = require("./Ship");
 var OLD_EnemyShip = (function (_super) {
     __extends(OLD_EnemyShip, _super);
@@ -47,7 +47,7 @@ var OLD_EnemyShip = (function (_super) {
         };
         _this.angleVel = 3;
         _this.fovLookDelay = 50;
-        _this.lookTimer = timer_1.default(true, _this.fovLookDelay, function () {
+        _this.lookTimer = Timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();
             _this.lookTimer.reset(_this.fovLookDelay);
         });
