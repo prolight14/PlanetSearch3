@@ -48,7 +48,7 @@ var OLD_HyperBeamerSType = (function (_super) {
             }
             _this_1.shootTimer.reset();
         });
-        var defaultMaxSpeed = _this_1.maxSpeed;
+        var defaultMaxSpeed = _this_1.speeds.maxSpeed;
         var avoidLimits = {
             changeDir: 450,
             slowdown: 120,
@@ -111,11 +111,11 @@ var OLD_HyperBeamerSType = (function (_super) {
                             }
                             var redirectAngle = _this.angle + avoidLimits.avoidAngleAmt * (angleDiff < 0 ? 1 : -1);
                             if (distanceSquared < avoidLimits.slowdownSquared) {
-                                _this.maxSpeed = 2.5;
+                                _this.speeds.maxSpeed = 2.5;
                             }
                             _this.turnManager.startTurning(redirectAngle, function () {
                                 _this_1.subState = "wander";
-                                _this.maxSpeed = defaultMaxSpeed;
+                                _this.speeds.maxSpeed = defaultMaxSpeed;
                                 _this_1.wanderTurnTimer.reset(_this_1.getNextTurnTime());
                             });
                             return;

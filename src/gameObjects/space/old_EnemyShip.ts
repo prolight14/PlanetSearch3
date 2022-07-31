@@ -36,7 +36,7 @@ export default class OLD_EnemyShip extends Ship
             }         
         };
 
-        this.angleVel = 3;
+        this.speeds.angleVel = 3;
         this.fovLookDelay = 50;
 
         this.lookTimer = timer(true, this.fovLookDelay, () =>

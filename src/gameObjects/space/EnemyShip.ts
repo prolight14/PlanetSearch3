@@ -21,7 +21,7 @@ export default class EnemyShip extends Ship
     protected fov: Fov;
 
     protected movement = {
-        angleDir: "none",
+        angleDir: "",
         thrust: "forward",
         isShooting: false,
     };

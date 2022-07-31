@@ -45,7 +45,7 @@ var OLD_EnemyShip = (function (_super) {
                 return _this.isShooting;
             }
         };
-        _this.angleVel = 3;
+        _this.speeds.angleVel = 3;
         _this.fovLookDelay = 50;
         _this.lookTimer = Timer_1.default(true, _this.fovLookDelay, function () {
             _this.fovLook();

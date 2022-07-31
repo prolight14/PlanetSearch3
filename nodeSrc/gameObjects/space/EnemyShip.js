@@ -21,7 +21,7 @@ var EnemyShip = (function (_super) {
         var _this = _super.call(this, scene, x, y, texture, frame) || this;
         _this.showHpBar = true;
         _this.movement = {
-            angleDir: "none",
+            angleDir: "",
             thrust: "forward",
             isShooting: false,
         };

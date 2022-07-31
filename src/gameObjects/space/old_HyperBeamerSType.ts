@@ -55,7 +55,7 @@ export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
             this.shootTimer.reset();
         });
 
-        const defaultMaxSpeed: number = this.maxSpeed; 
+        const defaultMaxSpeed: number = this.speeds.maxSpeed; 
 
         const avoidLimits = {
             changeDir: 450,
@@ -158,7 +158,7 @@ export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
 
                             if(distanceSquared < avoidLimits.slowdownSquared)
                             {
-                                _this.maxSpeed = 2.5;
+                                _this.speeds.maxSpeed = 2.5;
 
                                 // if(distanceSquared < avoidLimits.turnAroundSquared)
                                 // {
@@ -170,7 +170,7 @@ export default class OLD_HyperBeamerSType extends OLD_HyperBeamerShip
                             _this.turnManager.startTurning(redirectAngle, () =>
                             {
                                 this.subState = "wander";
-                                _this.maxSpeed = defaultMaxSpeed;
+                                _this.speeds.maxSpeed = defaultMaxSpeed;
 
                                 // if(this.subState === "wander")
                                 // {

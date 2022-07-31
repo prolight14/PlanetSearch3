@@ -67,14 +67,6 @@ export default class PlayerShip extends Ship
         this.xp += xpStar.amt;
     }
 
-    protected maxSpeed: number = 7.5;
-    // protected maxSpeed: number = 36.4;
-    protected speedAcl: number = 0.2;//0.25;
-    protected speedDeacl: number = 0.0745;
-    protected manualSpeedDeacl: number = 0.15;
-    protected angleDeacl: number = 0.06;
-    // protected angleDeacl: number = 0.2;
-
     protected destroyOnKill: boolean = false;
 
     private shootLimiterTimer: {
@@ -92,8 +84,6 @@ export default class PlayerShip extends Ship
 
         this.ignoreDestroy = true;
 
-        this.useAngleAcl = true;
-        this.angleVel = 0;
 
         this.keys = {
             turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT), 
@@ -254,6 +244,19 @@ export default class PlayerShip extends Ship
         };
 
         this.targetAngle = this.angle;
+
+        const speeds = this.speeds;
+
+        speeds.useAngleAcl = true;
+        speeds.angleVel = 0;
+
+        speeds.maxSpeed = 7.5;
+        // speeds.maxSpeed = number = 36.4;
+        speeds.speedAcl = 0.2;// 0.25;
+        speeds.speedDeacl = 0.0745;
+        speeds.manualSpeedDeacl = 0.15;
+        speeds.angleDeacl = 0.06;
+        // speeds.angleDeacl = number = 0.2;
     }
 
     private gamepadControls: {

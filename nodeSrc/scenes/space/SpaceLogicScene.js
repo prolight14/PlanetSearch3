@@ -84,9 +84,6 @@ var SpaceLogicScene = (function (_super) {
         }
         var hyperBeamerShips = world.add.gameObjectArray(HyperBeamerShip_1.default, "hyperBeamerShip");
         hyperBeamerShips.add(this.spaceScene, 69200, 60500);
-        for (var i = 0; i < 90; i++) {
-            hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-5000, 5000), 61000 + RND.integerInRange(-5000, 5000));
-        }
         this.hyperBeamerShipArray = [];
         hyperBeamerShips.forEach(function (ship) {
             _this.hyperBeamerShipArray.push(ship);

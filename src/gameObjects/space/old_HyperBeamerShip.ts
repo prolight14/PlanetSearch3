@@ -8,6 +8,6 @@ export default class OLD_HyperBeamerShip extends OLD_EnemyShip
     {
         super(scene, x, y, texture);
 
-        this.maxSpeed = 3.75;
+        this.speeds.maxSpeed = 3.75;
     }
 }

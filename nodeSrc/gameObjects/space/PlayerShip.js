@@ -27,11 +27,6 @@ var PlayerShip = (function (_super) {
         _this.xp = 0;
         _this.nextLevelXp = 100;
         _this.crests = 0;
-        _this.maxSpeed = 7.5;
-        _this.speedAcl = 0.2;
-        _this.speedDeacl = 0.0745;
-        _this.manualSpeedDeacl = 0.15;
-        _this.angleDeacl = 0.06;
         _this.destroyOnKill = false;
         _this.canShoot = true;
         _this.gamepadControls = {
@@ -42,8 +37,6 @@ var PlayerShip = (function (_super) {
         _this.setCollisionCategory(CollisionCategories_1.default.PLAYER);
         _this.setCollidesWith([CollisionCategories_1.default.ENEMY, CollisionCategories_1.default.PICK_UP, CollisionCategories_1.default.ENEMY_BULLETS]);
         _this.ignoreDestroy = true;
-        _this.useAngleAcl = true;
-        _this.angleVel = 0;
         _this.keys = {
             turnLeft: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
             turnRight: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
@@ -155,6 +148,14 @@ var PlayerShip = (function (_super) {
             }
         };
         _this.targetAngle = _this.angle;
+        var speeds = _this.speeds;
+        speeds.useAngleAcl = true;
+        speeds.angleVel = 0;
+        speeds.maxSpeed = 7.5;
+        speeds.speedAcl = 0.2;
+        speeds.speedDeacl = 0.0745;
+        speeds.manualSpeedDeacl = 0.15;
+        speeds.angleDeacl = 0.06;
         return _this;
     }
     PlayerShip.prototype.resetStats = function () {

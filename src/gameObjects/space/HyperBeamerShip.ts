@@ -6,6 +6,13 @@ import Bullet from "./Bullet";
 import PlayerShip from "./PlayerShip";
 import trig from "../Utils/trig";
 import timer from "../Utils/Timer";
+import DelayedEvent from "../Utils/DelayedEvent";
+import DelayedEventSystem from "../Utils/DelayedEventSystem";
+
+function now()
+{
+    return performance.now();
+}
 
 export default class HyperBeamerShip extends EnemyShip
 {
@@ -16,8 +23,10 @@ export default class HyperBeamerShip extends EnemyShip
         this.setCollisionCategory(COL_CATEGORIES.ENEMY);
         this.setCollidesWith([COL_CATEGORIES.PLAYER, COL_CATEGORIES.PLAYER_BULLETS]);
 
-        this.maxSpeed = 3.75;
-        this.angleVel = 1.3;
+        this.speeds.maxSpeed = 3.75;
+        this.speeds.angleVel = 1.3;
+        this.speeds.angleVel = 2;
+
         this.hp = 12;
         this.maxHp = 12;
 
@@ -47,14 +56,104 @@ export default class HyperBeamerShip extends EnemyShip
 
         this.setDepth(23);
 
-        this.createTimers();
+        // this.speeds.useAngleAcl = true;
 
-        // this.createAdjustDir();
-        this.adjustDir(-90, 300, function()
+        // this.timers.changeDir.interval = 200;
+
+        // const angleDir = this.movement.angleDir = Phaser.Math.RND.frac() < 0.5 ? "left" : "right";
+        // this.timers.changeDir.targetAngle = this.angle + Phaser.Math.RND.between(30, 75) * (angleDir === "left" ? -1 : 1);
+        // this.timers.changeDir.targetingAngle = true; 
+
+        // this.timers.moveStraight = timer(true, 500, () =>
+        // {
+        //     this.startTurn(this.angle + Phaser.Math.RND.between(60, 75) * (Phaser.Math.RND.frac() < 0.5 ? -1 : 1), false, false, () =>
+        //     {
+        //         this.timers.moveStraight.reset(Phaser.Math.RND.between(500, 1500));
+        //     });
+        // });
+
+        this.delayedEvents = new DelayedEventSystem();
+
+
+
+        // this.movement.thrust = "forward";
+        // this.delayedEvents.quickEvent([this.x, this.y], (firstX: number, firstY: number) =>
+        // {
+        //     const dx = firstX - this.x;
+        //     const dy = firstY - this.y;
+
+        //     return dx * dx + dy * dy > 300 * 300;
+        // }, () =>
+        // {
+        //     this.movement.thrust = "";
+        // });
+
+        this.movement.thrust = "forward";
+
+        // this.movement.angleDir = "left";
+        // this.delayedEvents.quickEvent([this.angle - 60], (targetAngle: number) =>
+        // {
+        //     return Math.abs(
+        //         Phaser.Math.Angle.ShortestBetween(
+        //             Phaser.Math.Angle.WrapDegrees(
+        //                 targetAngle
+        //             ), 
+        //             this.angle
+        //         )) < Math.abs(this.speeds.maxAngleVel);
+        // }, () =>
+        // {
+        //     this.movement.angleDir = "";
+        // });
+
+        this.delayedCall(3000, () =>
         {
-            this.adjustDir(Phaser.Math.RND.between(-90, 90), 500);
-        }, this);
+            this.turn(-90, 1.5);
+        });
     }
+
+    private delayedCall(delayTime: number, callback: () => void)
+    {
+        const startTime = now();
+
+        this.delayedEvents.quickEvent([], () =>
+        {
+            return (now() - startTime >= delayTime);
+        }, () =>
+        {
+            callback();
+        });
+    }
+
+    private turn(amt: number, speed?: number, callback?: () => void)
+    {
+        var oldAngleVel = this.speeds.angleVel;
+        if(speed !== undefined)
+        {
+            this.speeds.angleVel = speed;
+        }
+
+        this.movement.angleDir = (amt < 0) ? "left" : "right";
+        this.delayedEvents.quickEvent([this.angle + amt], (targetAngle: number) =>
+        {
+            return Math.abs(
+                Phaser.Math.Angle.ShortestBetween(
+                    Phaser.Math.Angle.WrapDegrees(
+                        targetAngle
+                    ), 
+                    this.angle
+                )) < Math.abs(this.speeds.maxAngleVel);
+        }, () =>
+        {
+            this.movement.angleDir = "";
+            if(callback !== undefined)
+            {
+                callback();
+            }
+            this.speeds.angleVel = oldAngleVel;
+        });
+    }
+
+    private delayedEvents: DelayedEventSystem;
 
     private bullets: any;
 
@@ -98,104 +197,162 @@ export default class HyperBeamerShip extends EnemyShip
 
     private cur_state: string = "wander";
 
-    // private timers: any = {};
 
-    // private changingDir: boolean = false;
+    // private timers = {
+    //     changeDir: {
+    //         lastTime: now(),
+    //         interval: 0,
+    //         targetAngle: 0,
+    //         targetingAngle: false
+    //     }
+    // };
 
-    private createTimers()
+    private events = {
+        turn: {
+            targetAngle: 0,
+            active: false,
+            callback: (() => {}),
+            callbackContext: this
+        }
+    };
+
+    private startTurn(targetAngle: number, 
+        inverted?: boolean, ignoreIfActive?: boolean,
+        callback?: (() => void), callbackContext?: any)
     {
-        // this.timers.changeDir = timer(true, Phaser.Math.RND.integerInRange(750, 1500), () =>
+        if(inverted === undefined) { inverted = false; }
+        if(ignoreIfActive === undefined) { ignoreIfActive = false; }
+        if(callback === undefined) { callback = (() => {}); }
+        if(callbackContext === undefined) { callbackContext = this; }
+
+        const turnEvent = this.events.turn;
+
+        if(ignoreIfActive && turnEvent.active)
+        {
+            return;
+        }
+
+        if(targetAngle - this.angle < 0 && !inverted)
+        {
+            this.movement.angleDir = "left";
+        }
+        else
+        {
+            this.movement.angleDir = "right";
+        }
+
+        turnEvent.targetAngle = targetAngle;
+        turnEvent.active = true;
+
+        turnEvent.callback = callback;
+        turnEvent.callbackContext = callbackContext;
+    }
+
+    private updateTurn()
+    {
+        const turnEvent = this.events.turn;
+
+        if(turnEvent.active)
+        {
+            if(Math.abs(
+                Phaser.Math.Angle.ShortestBetween(
+                    Phaser.Math.Angle.WrapDegrees(
+                        turnEvent.targetAngle
+                    ), 
+                    this.angle
+                )) < Math.abs(this.speeds.maxAngleVel))
+            {
+                this.movement.angleDir = "";
+                turnEvent.active = false;
+
+                turnEvent.callback.call(turnEvent.callbackContext);
+            }
+        }
+    }
+
+    private timers: any = {};
+    private updateTimers()
+    {
+        this.timers.moveStraight.update();
+    }
+
+    private updateRandomTurns()
+    {
+        this.delayedEvents.updateEvents();
+
+        // this.updateTurn();
+        // this.updateTimers();
+
+        // this.travelEvent.update();
+
+        // if(changeDirTimer.targetingAngle)
         // {
-        //     if(this.changingDir = !this.changingDir)
+        //     if(Phaser.Math.Angle.ShortestBetween(this.angle, changeDirTimer.targetAngle) <= Math.abs(this.speeds.angleVel))
         //     {
-        //         this.movement.angleDir = (Phaser.Math.RND.frac() > 0.5) ? "left" : "right";
-        //         this.timers.changeDir.reset(Phaser.Math.RND.integerInRange(200, 600));
+        //         debugger;
+        //         this.movement.angleDir = "";
+        //         // changeDirTimer.lastTime = now();
+        //         // changeDirTimer.interval = 0;
+        //         changeDirTimer.targetingAngle = false;
+        //     }
+        // }
+        // else //if(now() - changeDirTimer.lastTime > changeDirTimer.interval)
+        // {
+        //     // if(["left", "right"].indexOf(this.movement.angleDir) !== -1)
+        //     // {
+
+        //     // }
+        //     // else
+        //     // {
+
+        //         const angleOffset = Phaser.Math.RND.between(30, 75) * (Phaser.Math.RND.frac() < 0.5 ? -1 : 1);
+        //         this.movement.angleDir = (angleOffset < 0) ? "left" : "right";
+        //         changeDirTimer.targetAngle = Phaser.Math.Angle.WrapDegrees(this.angle + angleOffset);
+        //         changeDirTimer.targetingAngle = true;
+        //     // }
+        // }
+
+        // if(now() - changeDirTimer.lastTime > changeDirTimer.interval && !changeDirTimer.targetingAngle)
+        // {
+        //     if(["left", "right"].indexOf(this.movement.angleDir) !== -1)
+        //     {
+        //         const nextTurnTime = Phaser.Math.RND.between(500, 1000);
+
+        //         this.movement.angleDir = "";
+        //         changeDirTimer.lastTime = now();                        
+        //         changeDirTimer.interval = nextTurnTime;
         //     }
         //     else
         //     {
-        //         this.movement.angleDir = "none";
-        //         this.timers.changeDir.reset(Phaser.Math.RND.integerInRange(750, 1500));
+        //         const angleOffset = Phaser.Math.RND.between(30, 75) * (Phaser.Math.RND.frac() < 0.5 ? -1 : 1);
+        //         changeDirTimer.targetAngle = this.angle + angleOffset;
+        //         this.movement.angleDir = (angleOffset > 0) ? "left" : "right";
+
+        //         changeDirTimer.targetingAngle = true;
         //     }
-        // });
+        // }
 
-        
-    }
-
-    // private createAdjustDir()
-    // {
-
-    // }
-    
-    private turnEvent: {
-        angleAdjust: number,
-        inTime: number,
-        callback: () => void,
-        callbackContext: any,
-
-        startTime: number
-    } | undefined;
-
-    private now(): number
-    {
-        return performance.now();
-    }
-
-    private adjustDir(angleAdjust: number, inTime: number, finishCallback?: (() => void) | undefined, callbackContext?: any | undefined)
-    {
-        this.turnEvent = {
-            angleAdjust: angleAdjust,
-            inTime: inTime,
-            callback: (finishCallback === undefined) ? (() => {}) : finishCallback,
-            callbackContext: callbackContext,
-
-            startTime: this.now(),
-        };
-
-        this.movement.angleDir = (angleAdjust < 0) ? "left" : "right";
-    }
-
-    private updateAdjustDir()
-    {
-        if(this.turnEvent !== undefined)
-        {
-            const turnEvent = this.turnEvent;
-
-            if(this.now() - turnEvent.startTime >= turnEvent.inTime)
-            {
-                this.movement.angleDir = "none";
-                this.turnEvent = undefined;
-
-                var context = turnEvent.callbackContext;
-
-                if(context === undefined)
-                {
-                    turnEvent.callback.call(this);
-                }
-                else
-                {
-                    turnEvent.callback.call(context);
-                }
-            }
-        }
+        // if(changeDirTimer.targetingAngle &&
+        //     Phaser.Math.Angle.ShortestBetween(this.angle, Phaser.Math.Angle.WrapDegrees(changeDirTimer.targetAngle)) <= Math.abs(this.speeds.angleVel * 2))
+        // {
+        //     this.movement.angleDir = "";
+        //     changeDirTimer.lastTime = now();
+        //     changeDirTimer.targetingAngle = false;
+        // }
     }
 
     public preUpdate(time: number, delta: number)
     {
         super.preUpdate(time, delta);
 
-        // Todo: Change to state machine
+        // Todo: Change to state machin
 
-        this.updateAdjustDir();
-        
         const visibleObjects = this.fov.look(this.angle - 90, this.fovStats.range, this.fovStats.fov);
         this.canSeeSomething = (visibleObjects.length > 0);
 
         switch(this.cur_state)
         {
             case "wander":
-
-                // this.timers.changeDir.update();
-
                 // visibleObjects.forEach((objectInfo: any) =>
                 // {
                 //     const gameObject = objectInfo.object as SpaceGameObject;
@@ -212,13 +369,15 @@ export default class HyperBeamerShip extends EnemyShip
                 //             // }
                 //             // else
                 //             {
-                //                 if(Math.abs(angleDiff) > this.angleVel)
+                //                 if(Math.abs(angleDiff) > this.speeds.angleVel)
                 //                 {
                 //                     this.movement.angleDir = (angleDiff < 0) ? "right" : "left";
+                //                     this.events.wander.avoidChangeDir = true;
                 //                 }
                 //                 else
                 //                 {
-                //                     this.movement.angleDir = "none";
+                //                     this.movement.angleDir = "";
+                //                     this.events.wander.avoidChangeDir = false;
                 //                 }
                 //             }
                 //             break;
@@ -229,6 +388,8 @@ export default class HyperBeamerShip extends EnemyShip
                 //             break;
                 //     }
                 // });
+
+                this.updateRandomTurns();
                 break;
 
             case "attack":
@@ -240,7 +401,7 @@ export default class HyperBeamerShip extends EnemyShip
                 break;
         }
 
-        // this.movement.angleDir = "none";
+        // this.movement.angleDir = "";
 
         visibleObjects.forEach((objectInfo: any) =>
         {
@@ -267,7 +428,7 @@ export default class HyperBeamerShip extends EnemyShip
                         }
                         else
                         {
-                            this.movement.angleDir = "none";
+                            this.movement.angleDir = "";
                         }
                     }
                     else if(this.cur_state === "run")
@@ -278,7 +439,7 @@ export default class HyperBeamerShip extends EnemyShip
                         }
                         else
                         {
-                            this.movement.angleDir = "none";
+                            this.movement.angleDir = "";
                         }
                     }
                     break;

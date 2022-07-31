@@ -140,10 +140,10 @@ export default class SpaceLogicScene extends Phaser.Scene
     
         hyperBeamerShips.add(this.spaceScene, 69200, 60500);
 
-        for(var i = 0; i < 90; i++)
-        {
-            hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-5000, 5000), 61000 + RND.integerInRange(-5000, 5000));
-        }
+        // for(var i = 0; i < 90; i++)
+        // {
+        //     hyperBeamerShips.add(this.spaceScene, 69200 + RND.integerInRange(-5000, 5000), 61000 + RND.integerInRange(-5000, 5000));
+        // }
 
         this.hyperBeamerShipArray = [];
 
